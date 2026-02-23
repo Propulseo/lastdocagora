@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__plugin_supabase_supabase__list_extensions",
+      "mcp__plugin_supabase_supabase__list_migrations",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && rm -f package-lock.json && npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --turbopack 2>&1)",
+      "Bash(npx create-next-app@latest docagora-app --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --turbopack)",
+      "Bash(rm:*)",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && npm install @supabase/supabase-js @supabase/ssr react-hook-form @hookform/resolvers zod date-fns nuqs zustand 2>&1)",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && npm install -D prettier eslint-config-prettier 2>&1)",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && npx shadcn@latest init -d --defaults 2>&1)",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && npx shadcn@latest add button card input label dialog dropdown-menu separator sheet sidebar avatar badge calendar table tabs textarea sonner tooltip select command popover form scroll-area skeleton switch 2>&1)",
+      "Bash(cd:*)",
+      "mcp__plugin_supabase_supabase__generate_typescript_types",
+      "Bash(tail:*)",
+      "Bash(cd /c/Users/etien/Desktop/DOCAGORA && git init && git add -A && git commit -m \"$\\(cat <<'EOF'\nInitial project setup: Next.js 15 + Supabase + shadcn/ui\n\n- Next.js 15 with App Router, TypeScript, Tailwind CSS 4\n- shadcn/ui with 25 components \\(button, card, form, calendar, sidebar, etc.\\)\n- Supabase SSR client/server/middleware setup\n- Auto-generated TypeScript types from Health Finder schema\n- Role-based middleware \\(patient/professional/admin\\)\n- Full directory structure for 3 interfaces\n- Dependencies: react-hook-form, zod, date-fns, nuqs, zustand\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" 2>&1)"
+    ]
+  }
+}

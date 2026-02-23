@@ -1,0 +1,1649 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
+  public: {
+    Tables: {
+      appointment_attendance: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          id: string
+          late_minutes: number | null
+          marked_at: string | null
+          marked_by: string | null
+          professional_id: string
+          professional_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          id?: string
+          late_minutes?: number | null
+          marked_at?: string | null
+          marked_by?: string | null
+          professional_id: string
+          professional_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          late_minutes?: number | null
+          marked_at?: string | null
+          marked_by?: string | null
+          professional_id?: string
+          professional_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_attendance_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_attendance_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "appointment_attendance_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_attendance_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_notifications: {
+        Row: {
+          appointment_id: string
+          channel: string
+          created_at: string
+          id: string
+          professional_id: string
+          professional_user_id: string
+          sent_at: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          channel: string
+          created_at?: string
+          id?: string
+          professional_id: string
+          professional_user_id: string
+          sent_at?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          professional_id?: string
+          professional_user_id?: string
+          sent_at?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_notifications_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_notifications_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "appointment_notifications_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_notifications_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_ratings: {
+        Row: {
+          appointment_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          professional_id: string
+          professional_user_id: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          professional_id: string
+          professional_user_id: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          professional_id?: string
+          professional_user_id?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_ratings_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          consultation_type: string
+          created_at: string | null
+          date_time: string | null
+          duration_minutes: number
+          id: string
+          location: string | null
+          notes: string | null
+          patient_id: string
+          patient_user_id: string
+          payment_status: string | null
+          price: number | null
+          professional_id: string
+          professional_user_id: string
+          service_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          consultation_type: string
+          created_at?: string | null
+          date_time?: string | null
+          duration_minutes: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id: string
+          patient_user_id: string
+          payment_status?: string | null
+          price?: number | null
+          professional_id: string
+          professional_user_id: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          consultation_type?: string
+          created_at?: string | null
+          date_time?: string | null
+          duration_minutes?: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id?: string
+          patient_user_id?: string
+          payment_status?: string | null
+          price?: number | null
+          professional_id?: string
+          professional_user_id?: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_blocked: boolean | null
+          is_recurring: boolean | null
+          professional_id: string
+          professional_user_id: string | null
+          specific_date: string | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_blocked?: boolean | null
+          is_recurring?: boolean | null
+          professional_id: string
+          professional_user_id?: string | null
+          specific_date?: string | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_blocked?: boolean | null
+          is_recurring?: boolean | null
+          professional_id?: string
+          professional_user_id?: string | null
+          specific_date?: string | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_pages: {
+        Row: {
+          content_en: string
+          content_fr: string | null
+          content_pt: string
+          created_at: string | null
+          id: string
+          is_published: boolean | null
+          meta_description_en: string | null
+          meta_description_fr: string | null
+          meta_description_pt: string | null
+          slug: string
+          title_en: string
+          title_fr: string | null
+          title_pt: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_en: string
+          content_fr?: string | null
+          content_pt: string
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_fr?: string | null
+          meta_description_pt?: string | null
+          slug: string
+          title_en: string
+          title_fr?: string | null
+          title_pt: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_en?: string
+          content_fr?: string | null
+          content_pt?: string
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_fr?: string | null
+          meta_description_pt?: string | null
+          slug?: string
+          title_en?: string
+          title_fr?: string | null
+          title_pt?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          appointment_id: string | null
+          category: string
+          created_at: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          patient_id: string
+          patient_user_id: string | null
+          professional_id: string | null
+          professional_user_id: string | null
+          title: string
+          uploaded_by: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          category: string
+          created_at?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          patient_id: string
+          patient_user_id?: string | null
+          professional_id?: string | null
+          professional_user_id?: string | null
+          title: string
+          uploaded_by: string
+        }
+        Update: {
+          appointment_id?: string | null
+          category?: string
+          created_at?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          patient_id?: string
+          patient_user_id?: string | null
+          professional_id?: string | null
+          professional_user_id?: string | null
+          title?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "documents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faqs: {
+        Row: {
+          answer_en: string
+          answer_fr: string | null
+          answer_pt: string
+          category: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_published: boolean | null
+          question_en: string
+          question_fr: string | null
+          question_pt: string
+          updated_at: string | null
+        }
+        Insert: {
+          answer_en: string
+          answer_fr?: string | null
+          answer_pt: string
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          question_en: string
+          question_fr?: string | null
+          question_pt: string
+          updated_at?: string | null
+        }
+        Update: {
+          answer_en?: string
+          answer_fr?: string | null
+          answer_pt?: string
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          question_en?: string
+          question_fr?: string | null
+          question_pt?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      message_templates: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          professional_id: string
+          professional_user_id: string
+          subject: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          professional_id: string
+          professional_user_id: string
+          subject?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          professional_id?: string
+          professional_user_id?: string
+          subject?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "message_templates_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_templates_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          related_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          related_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          related_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          patient_id: string
+          patient_user_id: string | null
+          professional_id: string
+          professional_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patient_id: string
+          patient_user_id?: string | null
+          professional_id: string
+          professional_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patient_id?: string
+          patient_user_id?: string | null
+          professional_id?: string
+          professional_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_favorites_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_favorites_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "patient_favorites_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_favorites_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_settings: {
+        Row: {
+          appointment_reminders: boolean
+          created_at: string
+          dark_mode: boolean
+          date_format: string
+          email_notifications: boolean
+          id: string
+          marketing_emails: boolean
+          public_profile: boolean
+          reminder_frequency: string
+          share_medical_history: boolean
+          sms_notifications: boolean
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          created_at?: string
+          dark_mode?: boolean
+          date_format?: string
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          public_profile?: boolean
+          reminder_frequency?: string
+          share_medical_history?: boolean
+          sms_notifications?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          created_at?: string
+          dark_mode?: boolean
+          date_format?: string
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          public_profile?: boolean
+          reminder_frequency?: string
+          share_medical_history?: boolean
+          sms_notifications?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          allergies: string[] | null
+          avatar_url: string | null
+          blood_type: string | null
+          city: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relationship: string | null
+          first_name: string | null
+          gender: string | null
+          id: string
+          last_name: string | null
+          medical_notes: string | null
+          phone: string | null
+          postal_code: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          allergies?: string[] | null
+          avatar_url?: string | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          medical_notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          allergies?: string[] | null
+          avatar_url?: string | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          medical_notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          appointment_id: string
+          created_at: string | null
+          id: string
+          paid_at: string | null
+          patient_id: string
+          patient_user_id: string | null
+          payment_method: string | null
+          professional_id: string
+          professional_user_id: string | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          appointment_id: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          patient_id: string
+          patient_user_id?: string | null
+          payment_method?: string | null
+          professional_id: string
+          professional_user_id?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          patient_id?: string
+          patient_user_id?: string | null
+          payment_method?: string | null
+          professional_id?: string
+          professional_user_id?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "payments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_settings: {
+        Row: {
+          auto_confirm: boolean
+          channel_email: boolean
+          channel_sms: boolean
+          created_at: string
+          default_duration_minutes: number
+          min_booking_hours: number
+          notify_cancellations: boolean
+          notify_new_appointments: boolean
+          notify_reminders: boolean
+          patient_reminders: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_confirm?: boolean
+          channel_email?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          default_duration_minutes?: number
+          min_booking_hours?: number
+          notify_cancellations?: boolean
+          notify_new_appointments?: boolean
+          notify_reminders?: boolean
+          patient_reminders?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_confirm?: boolean
+          channel_email?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          default_duration_minutes?: number
+          min_booking_hours?: number
+          notify_cancellations?: boolean
+          notify_new_appointments?: boolean
+          notify_reminders?: boolean
+          patient_reminders?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      professionals: {
+        Row: {
+          accessibility_options: Json | null
+          address: string | null
+          bio: string | null
+          cabinet_name: string | null
+          city: string | null
+          consultation_fee: number | null
+          created_at: string | null
+          id: string
+          insurances_accepted: string[] | null
+          languages_spoken: string[] | null
+          license_verified: boolean | null
+          neighborhood: string | null
+          office_hours: Json | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          postal_code: string | null
+          practice_situation: string | null
+          practice_type: string | null
+          rating: number | null
+          registration_number: string
+          specialty: string
+          subspecialties: string[] | null
+          third_party_payment: boolean | null
+          total_reviews: number | null
+          updated_at: string | null
+          user_id: string
+          verification_status: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          accessibility_options?: Json | null
+          address?: string | null
+          bio?: string | null
+          cabinet_name?: string | null
+          city?: string | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          id?: string
+          insurances_accepted?: string[] | null
+          languages_spoken?: string[] | null
+          license_verified?: boolean | null
+          neighborhood?: string | null
+          office_hours?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          postal_code?: string | null
+          practice_situation?: string | null
+          practice_type?: string | null
+          rating?: number | null
+          registration_number: string
+          specialty: string
+          subspecialties?: string[] | null
+          third_party_payment?: boolean | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id: string
+          verification_status?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          accessibility_options?: Json | null
+          address?: string | null
+          bio?: string | null
+          cabinet_name?: string | null
+          city?: string | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          id?: string
+          insurances_accepted?: string[] | null
+          languages_spoken?: string[] | null
+          license_verified?: boolean | null
+          neighborhood?: string | null
+          office_hours?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          postal_code?: string | null
+          practice_situation?: string | null
+          practice_type?: string | null
+          rating?: number | null
+          registration_number?: string
+          specialty?: string
+          subspecialties?: string[] | null
+          third_party_payment?: boolean | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id?: string
+          verification_status?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminder_rules: {
+        Row: {
+          channel: string
+          created_at: string
+          delay_unit: string
+          delay_value: number
+          exclude_weekends: boolean
+          id: string
+          is_enabled: boolean
+          only_if_not_confirmed: boolean
+          professional_id: string
+          professional_user_id: string
+          template_id: string | null
+          trigger_moment: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          delay_unit?: string
+          delay_value?: number
+          exclude_weekends?: boolean
+          id?: string
+          is_enabled?: boolean
+          only_if_not_confirmed?: boolean
+          professional_id: string
+          professional_user_id: string
+          template_id?: string | null
+          trigger_moment?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          delay_unit?: string
+          delay_value?: number
+          exclude_weekends?: boolean
+          id?: string
+          is_enabled?: boolean
+          only_if_not_confirmed?: boolean
+          professional_id?: string
+          professional_user_id?: string
+          template_id?: string | null
+          trigger_moment?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_rules_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          appointment_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string
+          patient_id: string
+          patient_user_id: string | null
+          professional_id: string
+          professional_user_id: string | null
+          rating: number
+          would_recommend: boolean | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          patient_id: string
+          patient_user_id?: string | null
+          professional_id: string
+          professional_user_id?: string | null
+          rating: number
+          would_recommend?: boolean | null
+        }
+        Update: {
+          appointment_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          patient_id?: string
+          patient_user_id?: string | null
+          professional_id?: string
+          professional_user_id?: string | null
+          rating?: number
+          would_recommend?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          consultation_type: string
+          created_at: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          professional_id: string
+          professional_user_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          consultation_type: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price: number
+          professional_id: string
+          professional_user_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          consultation_type?: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          professional_id?: string
+          professional_user_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "services_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          priority: string | null
+          resolved_at: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          sender_id: string | null
+          ticket_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          sender_id?: string | null
+          ticket_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          sender_id?: string | null
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          first_name: string
+          id: string
+          language: string | null
+          last_name: string
+          phone: string | null
+          role: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          first_name: string
+          id?: string
+          language?: string | null
+          last_name: string
+          phone?: string | null
+          role: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          language?: string | null
+          last_name?: string
+          phone?: string | null
+          role?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      platform_stats: {
+        Row: {
+          appointments_this_month: number | null
+          open_tickets: number | null
+          pending_professionals: number | null
+          revenue_this_month: number | null
+          total_completed_appointments: number | null
+          total_patients: number | null
+          total_professionals: number | null
+          upcoming_appointments: number | null
+          verified_professionals: number | null
+        }
+        Relationships: []
+      }
+      professional_monthly_stats: {
+        Row: {
+          cancelled_appointments: number | null
+          completed_appointments: number | null
+          completion_rate: number | null
+          month: string | null
+          no_show_appointments: number | null
+          professional_id: string | null
+          professional_name: string | null
+          specialty: string | null
+          total_appointments: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      top_professionals: {
+        Row: {
+          average_rating: number | null
+          city: string | null
+          id: string | null
+          name: string | null
+          rating: number | null
+          specialty: string | null
+          total_appointments: number | null
+          total_reviews: number | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
+      calculate_attendance_rate: { Args: { prof_id: string }; Returns: number }
+      create_availability_slot: {
+        Args: {
+          p_day_of_week: number
+          p_end_time: string
+          p_is_recurring?: boolean
+          p_professional_id: string
+          p_specific_date?: string
+          p_start_time: string
+        }
+        Returns: Json
+      }
+      get_admin_id: { Args: Record<string, never>; Returns: string }
+      get_available_slots: {
+        Args: { p_date: string; p_professional_id: string }
+        Returns: {
+          slot_end: string
+          slot_start: string
+        }[]
+      }
+      get_next_available_slot: {
+        Args: { p_professional_id: string }
+        Returns: string
+      }
+      get_pro_patient_count: {
+        Args: { p_professional_id: string }
+        Returns: number
+      }
+      get_pro_statistics: {
+        Args: {
+          p_from_date?: string
+          p_professional_id: string
+          p_to_date?: string
+        }
+        Returns: Json
+      }
+      is_admin: { Args: Record<string, never>; Returns: boolean }
+      is_professional: { Args: Record<string, never>; Returns: boolean }
+      promote_to_admin: { Args: { target_email: string }; Returns: string }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
