@@ -1,0 +1,356 @@
+{
+  "sidebar": {
+    "roleLabel": "Professionnel",
+    "logout": "Se déconnecter"
+  },
+  "header": {
+    "panelTitle": "Tableau de Bord Professionnel"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "agenda": "Agenda",
+    "patients": "Patients",
+    "reminders": "Rappels",
+    "services": "Services",
+    "statistics": "Statistiques",
+    "profile": "Mon Profil",
+    "settings": "Paramètres"
+  },
+  "navGroups": {
+    "main": "Principal",
+    "manage": "Gestion",
+    "account": "Compte"
+  },
+  "common": {
+    "dateLocale": "fr-FR",
+    "min": "min",
+    "cancel": "Annuler",
+    "saving": "Enregistrement...",
+    "today": "Aujourd'hui",
+    "status": {
+      "confirmed": "Confirmé",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "noShow": "Absent"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "description": "Aperçu de votre activité et des consultations prévues aujourd'hui.",
+    "viewAgenda": "Voir l'agenda",
+    "appointmentsToday": "Consultations aujourd'hui",
+    "totalPatients": "Total Patients",
+    "uniquePatients": "Patients uniques",
+    "pending": "En attente",
+    "awaitingConfirmation": "En attente de confirmation",
+    "attendanceRate": "Taux de présence",
+    "generalHistory": "Historique général",
+    "todaySchedule": "Agenda du jour",
+    "viewAll": "Voir tout",
+    "freeDay": "Journée libre",
+    "noAppointmentsToday": "Aucune consultation prévue aujourd'hui.",
+    "checkAgenda": "Consulter l'agenda"
+  },
+  "agenda": {
+    "title": "Mon agenda",
+    "description": "Consultations et disponibilités",
+    "newSlot": "Nouveau créneau",
+    "period": "Période",
+    "periodDay": "Jour",
+    "periodWeek": "Semaine",
+    "periodMonth": "Mois",
+    "statusLabel": "Statut",
+    "attendanceOfDay": "Présences du jour",
+    "totalRDV": "Total RDV",
+    "present": "Présents",
+    "absent": "Absents",
+    "pendingLabel": "En attente",
+    "attendanceRate": "Taux de présence",
+    "presentSingular": "présent",
+    "presentPlural": "présents",
+    "inWord": "sur",
+    "pastRDVSingular": "RDV passé",
+    "pastRDVPlural": "RDV passés",
+    "pendingSingular": "en attente",
+    "pendingPlural": "en attente",
+    "weekOfPrefix": "Semaine du",
+    "noAppointments": "Aucune consultation pour cette période.",
+    "appointmentDetails": "Détails de la consultation",
+    "time": "Heure",
+    "duration": "Durée",
+    "service": "Service",
+    "type": "Type",
+    "notes": "Notes",
+    "newAvailabilityTitle": "Nouveau créneau de disponibilité",
+    "recurring": "Récurrent (hebdomadaire)",
+    "dayOfWeek": "Jour de la semaine",
+    "specificDate": "Date spécifique",
+    "startTime": "Début",
+    "endTime": "Fin",
+    "createSlot": "Créer le créneau",
+    "startBeforeEnd": "L'heure de début doit être avant l'heure de fin.",
+    "selectDateOrRecurring": "Sélectionnez une date spécifique ou activez la récurrence.",
+    "days": ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+    "daysFull": ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+    "createAppointment": "Créer une consultation",
+    "manualAppointment": "RDV Manuel",
+    "withoutPatient": "Sans patient",
+    "selectPatient": "Rechercher un patient...",
+    "consultationType": "Type de consultation",
+    "inPerson": "En cabinet",
+    "titleLabel": "Titre (optionnel)",
+    "titlePlaceholder": "Ex : Consultation de routine",
+    "overlapError": "Ce créneau entre en conflit avec une consultation existante.",
+    "appointmentCreated": "Consultation créée avec succès",
+    "appointmentCreateError": "Erreur lors de la création. Veuillez réessayer.",
+    "slotConflict": "Créneau déjà occupé",
+    "createdVia": "Origine",
+    "save": "Enregistrer",
+    "myPatients": "Mes patients",
+    "newPatient": "Nouveau patient",
+    "newPatientDesc": "Créer un nouveau patient",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone (optionnel)",
+    "emailRequired": "L'email est obligatoire.",
+    "firstNameRequired": "Le prénom est obligatoire.",
+    "lastNameRequired": "Le nom est obligatoire.",
+    "patientCreated": "Patient créé avec succès",
+    "patientCreateError": "Erreur lors de la création du patient.",
+    "patientAlreadyExists": "Patient déjà existant, associé automatiquement.",
+    "loadingPatients": "Chargement des patients...",
+    "noPatientYet": "Aucun patient pour le moment.",
+    "externalCalendars": "Calendriers",
+    "calendarIntegration": "Intégration de calendrier",
+    "calendarIntegrationDesc": "Connectez vos calendriers externes pour voir les événements dans l'agenda.",
+    "connectCalendar": "Connecter un calendrier",
+    "connectedAccounts": "Comptes connectés",
+    "selectCalendars": "Sélectionner les calendriers",
+    "syncNow": "Synchroniser",
+    "syncComplete": "{{count}} événements synchronisés",
+    "calendarDisconnected": "Calendrier déconnecté",
+    "calendarError": "Erreur lors de l'opération du calendrier",
+    "noCalendarConnected": "Aucun calendrier connecté.",
+    "attendance": {
+      "markPresent": "Marquer présent",
+      "markLate": "Marquer en retard",
+      "markAbsent": "Marquer absent",
+      "resetWaiting": "Remettre en attente",
+      "markAttendance": "Marquer la présence",
+      "updated": "Présence mise à jour",
+      "error": "Erreur lors de la mise à jour",
+      "statusWaiting": "En attente",
+      "statusPresent": "Présent",
+      "statusLate": "En retard",
+      "statusAbsent": "Absent",
+      "late": "En retard"
+    }
+  },
+  "patients": {
+    "title": "Patients",
+    "description": "Gestion de vos patients",
+    "patientList": "Liste des Patients",
+    "patientsFoundSingular": "patient trouvé",
+    "patientsFoundPlural": "patients trouvés",
+    "searchPlaceholder": "Rechercher par nom...",
+    "noResults": "Aucun résultat",
+    "noPatients": "Aucun patient",
+    "noPatientFound": "Aucun patient trouvé avec ce nom.",
+    "noPatientRegistered": "Vous n'avez pas encore de patients enregistrés.",
+    "patient": "Patient",
+    "email": "Email",
+    "phone": "Téléphone",
+    "lastAppointment": "Dernière consultation",
+    "appointments": "Consultations"
+  },
+  "reminders": {
+    "title": "Rappels",
+    "subtitle": "Gérez les rappels automatiques pour vos patients",
+    "tabs": {
+      "reminders": "Rappels",
+      "templates": "Modèles",
+      "history": "Historique",
+      "settings": "Paramètres"
+    },
+    "auto": {
+      "title": "Rappels automatiques",
+      "subtitle": "Configurez des rappels pour réduire les absences et améliorer la communication avec vos patients.",
+      "ctaNew": "Nouveau rappel"
+    },
+    "kpi": {
+      "sentThisMonth": "Envoyés ce mois",
+      "deliverability": "Taux de délivrabilité",
+      "noShowReduction": "Réduction no-show",
+      "noData": "Aucune donnée sur la période",
+      "comingSoon": "Indicateur bientôt disponible"
+    },
+    "section": {
+      "appointments": "Rendez-vous"
+    },
+    "rule": {
+      "immediate": "Immédiat",
+      "beforeHours": "{{hours}}h avant",
+      "beforeDays": "{{days}}j avant",
+      "appointmentConfirmation": "Confirmation de RDV",
+      "appointmentReminder": "Rappel de RDV",
+      "custom": "Personnalisé"
+    },
+    "channel": {
+      "email": "Email",
+      "sms": "SMS"
+    },
+    "dialog": {
+      "newTitle": "Nouveau rappel",
+      "editTitle": "Modifier le rappel",
+      "type": "Type",
+      "typePlaceholder": "Sélectionnez le type",
+      "channel": "Canal",
+      "channelPlaceholder": "Sélectionnez le canal",
+      "trigger": "Moment",
+      "triggerImmediate": "Immédiat (à la confirmation)",
+      "triggerBefore": "Avant le rendez-vous",
+      "delay": "Délai",
+      "delayPlaceholder": "Valeur",
+      "delayUnit": "Unité",
+      "hours": "Heures",
+      "days": "Jours",
+      "template": "Modèle de message",
+      "templatePlaceholder": "Sélectionnez un modèle",
+      "noTemplates": "Aucun modèle disponible",
+      "onlyIfNotConfirmed": "Uniquement si non confirmé",
+      "excludeWeekends": "Exclure les week-ends",
+      "save": "Enregistrer",
+      "create": "Créer",
+      "delete": "Supprimer",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce rappel ?",
+      "deleteDescription": "Cette action est irréversible."
+    },
+    "empty": {
+      "title": "Aucun rappel",
+      "description": "Configurez votre premier rappel automatique pour réduire les absences.",
+      "cta": "Créer un rappel"
+    },
+    "templates": {
+      "title": "Modèles de messages",
+      "subtitle": "Personnalisez les modèles de messages envoyés aux patients.",
+      "newTemplate": "Nouveau modèle",
+      "name": "Nom",
+      "type": "Type",
+      "channel": "Canal",
+      "content": "Contenu",
+      "subject": "Objet",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "default": "Par défaut",
+      "empty": {
+        "title": "Aucun modèle",
+        "description": "Créez votre premier modèle de message."
+      },
+      "dialog": {
+        "newTitle": "Nouveau modèle",
+        "editTitle": "Modifier le modèle",
+        "save": "Enregistrer",
+        "create": "Créer"
+      }
+    },
+    "history": {
+      "title": "Historique des envois",
+      "subtitle": "Consultez toutes les notifications envoyées aux patients.",
+      "date": "Date",
+      "patient": "Patient",
+      "type": "Type",
+      "channel": "Canal",
+      "status": "Statut",
+      "statusLabels": {
+        "pending": "En attente",
+        "sent": "Envoyé",
+        "delivered": "Délivré",
+        "failed": "Échoué",
+        "bounced": "Rejeté"
+      },
+      "empty": {
+        "title": "Aucun historique",
+        "description": "Aucune notification envoyée pour le moment."
+      }
+    },
+    "settings": {
+      "title": "Paramètres des rappels",
+      "subtitle": "Configurez les préférences globales de notification.",
+      "patientReminders": "Rappels pour les patients",
+      "patientRemindersDesc": "Activer l'envoi automatique de rappels",
+      "channelEmail": "Canal Email",
+      "channelEmailDesc": "Autoriser l'envoi par email",
+      "channelSms": "Canal SMS",
+      "channelSmsDesc": "Autoriser l'envoi par SMS",
+      "saved": "Paramètres enregistrés"
+    },
+    "toast": {
+      "ruleCreated": "Rappel créé avec succès",
+      "ruleUpdated": "Rappel mis à jour avec succès",
+      "ruleDeleted": "Rappel supprimé avec succès",
+      "ruleToggled": "État du rappel mis à jour",
+      "templateCreated": "Modèle créé avec succès",
+      "templateUpdated": "Modèle mis à jour avec succès",
+      "error": "Une erreur est survenue. Veuillez réessayer."
+    }
+  },
+  "statistics": {
+    "title": "Statistiques",
+    "description": "Analyse détaillée de votre activité professionnelle",
+    "tabs": {
+      "appointments": "Rendez-vous",
+      "performance": "Performance"
+    },
+    "range": {
+      "7d": "7 jours",
+      "3m": "3 mois",
+      "1y": "1 an"
+    },
+    "export": "Exporter",
+    "appointmentsTrend": {
+      "title": "Évolution des rendez-vous",
+      "description": "Nombre de rendez-vous par jour sur la période sélectionnée"
+    },
+    "typeDistribution": {
+      "title": "Répartition par type",
+      "description": "Distribution par type de consultation"
+    },
+    "presenceRate": {
+      "title": "Taux de présence",
+      "description": "Présence vs absence aux consultations"
+    },
+    "consultationType": {
+      "in-person": "En cabinet"
+    },
+    "presence": {
+      "present": "Présent",
+      "absent": "Absent"
+    },
+    "emptyState": {
+      "title": "Aucune donnée",
+      "description": "Aucun rendez-vous trouvé pour la période sélectionnée."
+    },
+    "performance": {
+      "title": "Performance générale",
+      "description": "Indicateurs clés de la période sélectionnée",
+      "totalAppointments": "Total consultations",
+      "completed": "Terminées",
+      "cancelled": "Annulées",
+      "noShow": "Absent",
+      "cancellationRate": "Taux d'annulation",
+      "avgRating": "Note moyenne",
+      "monthlyHistory": "Historique mensuel",
+      "monthlyHistoryDescription": "Derniers 6 mois d'activité",
+      "completedRate": "terminé"
+    },
+    "chart": {
+      "appointments": "Consultations",
+      "date": "Date",
+      "count": "Quantité"
+    }
+  }
+}
