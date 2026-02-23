@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { AttendanceStatus } from "@/types";
 
 type MarkAttendanceResult =
-  | { success: true; data: { id: string; status: string; marked_at: string } }
+  | { success: true; data: { id: string; status: string; marked_at: string | null } }
   | { success: false; error: string };
 
 export async function markAttendance(
