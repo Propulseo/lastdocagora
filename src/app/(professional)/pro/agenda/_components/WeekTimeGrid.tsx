@@ -72,7 +72,6 @@ interface WeekTimeGridProps {
   externalEvents: ExternalEvent[];
   loading: boolean;
   selectedDate: string;
-  userId: string;
   onAttendanceChange: (appointmentId: string, status: string) => void;
 }
 
@@ -81,7 +80,6 @@ export function WeekTimeGrid({
   externalEvents,
   loading,
   selectedDate,
-  userId,
   onAttendanceChange,
 }: WeekTimeGridProps) {
   const { t } = useProfessionalI18n();

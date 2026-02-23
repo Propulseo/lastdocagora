@@ -7,10 +7,16 @@ type MarkAttendanceResult =
   | { success: true; data: { id: string; status: string; marked_at: string | null } }
   | { success: false; error: string };
 
+const VALID_STATUSES: AttendanceStatus[] = ["waiting", "present", "absent", "late", "cancelled"];
+
 export async function markAttendance(
   appointmentId: string,
   status: AttendanceStatus
 ): Promise<MarkAttendanceResult> {
+  if (!VALID_STATUSES.includes(status)) {
+    return { success: false, error: "Invalid status" };
+  }
+
   const supabase = await createClient();
 
   // Verify session

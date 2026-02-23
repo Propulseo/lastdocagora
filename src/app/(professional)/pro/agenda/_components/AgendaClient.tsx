@@ -225,8 +225,9 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   }, [supabase, userId, selectedDate, periodFilter, externalEventsKey]);
 
   const todayStr = new Date().toISOString().split("T")[0];
-  const todayAppointments = appointments.filter(
-    (a) => a.appointment_date === todayStr
+  const todayAppointments = useMemo(
+    () => appointments.filter((a) => a.appointment_date === todayStr),
+    [appointments, todayStr]
   );
 
   const stats = useMemo(() => {
@@ -296,7 +297,6 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           externalEvents={externalEvents}
           loading={loading}
           selectedDate={selectedDate}
-          userId={userId}
           onAttendanceChange={handleAttendanceChange}
           onCreateAppointment={(startTime, endTime) => {
             setCreateStartTime(startTime);
@@ -312,7 +312,6 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           externalEvents={externalEvents}
           loading={loading}
           selectedDate={selectedDate}
-          userId={userId}
           onAttendanceChange={handleAttendanceChange}
         />
       )}

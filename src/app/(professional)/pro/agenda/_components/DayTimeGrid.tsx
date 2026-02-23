@@ -52,7 +52,6 @@ interface DayTimeGridProps {
   externalEvents: ExternalEvent[];
   loading: boolean;
   selectedDate: string;
-  userId: string;
   onAttendanceChange: (appointmentId: string, status: string) => void;
   onCreateAppointment: (startTime: string, endTime: string) => void;
 }
@@ -62,7 +61,6 @@ export function DayTimeGrid({
   externalEvents,
   loading,
   selectedDate,
-  userId,
   onAttendanceChange,
   onCreateAppointment,
 }: DayTimeGridProps) {
