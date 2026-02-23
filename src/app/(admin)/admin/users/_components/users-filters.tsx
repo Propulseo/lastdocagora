@@ -27,36 +27,38 @@ export function UsersFilters() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <SearchInput placeholder="Pesquisar por nome ou email..." />
-      <Select
-        defaultValue={searchParams.get("role") ?? "all"}
-        onValueChange={(value) => updateParam("role", value)}
-      >
-        <SelectTrigger className="w-[160px]" aria-label="Filtrar por funcao">
-          <SelectValue placeholder="Funcao" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas as funcoes</SelectItem>
-          <SelectItem value="patient">Paciente</SelectItem>
-          <SelectItem value="professional">Profissional</SelectItem>
-          <SelectItem value="admin">Administrador</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select
-        defaultValue={searchParams.get("status") ?? "all"}
-        onValueChange={(value) => updateParam("status", value)}
-      >
-        <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os estados</SelectItem>
-          <SelectItem value="active">Ativo</SelectItem>
-          <SelectItem value="inactive">Inativo</SelectItem>
-          <SelectItem value="suspended">Suspenso</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="rounded-lg bg-muted/20 p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <SearchInput placeholder="Pesquisar por nome ou email..." />
+        <Select
+          defaultValue={searchParams.get("role") ?? "all"}
+          onValueChange={(value) => updateParam("role", value)}
+        >
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por funcao">
+            <SelectValue placeholder="Funcao" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as funcoes</SelectItem>
+            <SelectItem value="patient">Paciente</SelectItem>
+            <SelectItem value="professional">Profissional</SelectItem>
+            <SelectItem value="admin">Administrador</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          defaultValue={searchParams.get("status") ?? "all"}
+          onValueChange={(value) => updateParam("status", value)}
+        >
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os estados</SelectItem>
+            <SelectItem value="active">Ativo</SelectItem>
+            <SelectItem value="inactive">Inativo</SelectItem>
+            <SelectItem value="suspended">Suspenso</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

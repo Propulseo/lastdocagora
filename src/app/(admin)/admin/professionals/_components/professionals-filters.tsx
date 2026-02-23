@@ -47,60 +47,62 @@ export function ProfessionalsFilters({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <SearchInput placeholder="Pesquisar por nome..." />
-      <Select
-        defaultValue={searchParams.get("status") ?? "all"}
-        onValueChange={(value) => updateParam("status", value)}
-      >
-        <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os estados</SelectItem>
-          <SelectItem value="pending">Pendente</SelectItem>
-          <SelectItem value="verified">Verificado</SelectItem>
-          <SelectItem value="rejected">Rejeitado</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select
-        defaultValue={searchParams.get("specialty") ?? "all"}
-        onValueChange={(value) => updateParam("specialty", value)}
-      >
-        <SelectTrigger className="w-[180px]" aria-label="Filtrar por especialidade">
-          <SelectValue placeholder="Especialidade" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas as especialidades</SelectItem>
-          {specialties.map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select
-        defaultValue={searchParams.get("city") ?? "all"}
-        onValueChange={(value) => updateParam("city", value)}
-      >
-        <SelectTrigger className="w-[160px]" aria-label="Filtrar por cidade">
-          <SelectValue placeholder="Cidade" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas as cidades</SelectItem>
-          {cities.map((c) => (
-            <SelectItem key={c} value={c}>
-              {c}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters}>
-          <X className="size-4" />
-          Limpar filtros
-        </Button>
-      )}
+    <div className="rounded-lg bg-muted/20 p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <SearchInput placeholder="Pesquisar por nome..." />
+        <Select
+          defaultValue={searchParams.get("status") ?? "all"}
+          onValueChange={(value) => updateParam("status", value)}
+        >
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os estados</SelectItem>
+            <SelectItem value="pending">Pendente</SelectItem>
+            <SelectItem value="verified">Verificado</SelectItem>
+            <SelectItem value="rejected">Rejeitado</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          defaultValue={searchParams.get("specialty") ?? "all"}
+          onValueChange={(value) => updateParam("specialty", value)}
+        >
+          <SelectTrigger className="w-[180px]" aria-label="Filtrar por especialidade">
+            <SelectValue placeholder="Especialidade" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as especialidades</SelectItem>
+            {specialties.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          defaultValue={searchParams.get("city") ?? "all"}
+          onValueChange={(value) => updateParam("city", value)}
+        >
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por cidade">
+            <SelectValue placeholder="Cidade" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as cidades</SelectItem>
+            {cities.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <X className="size-4" />
+            Limpar filtros
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

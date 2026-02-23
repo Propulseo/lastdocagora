@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -41,53 +41,59 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const supabase = useMemo(() => createClient(), []);
 
-  const fetchAppointments = useCallback(async () => {
-    setLoading(true);
-    let query = supabase
-      .from("appointments")
-      .select(
-        "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, patients(first_name, last_name), services(name)"
-      )
-      .eq("professional_id", professionalId)
-      .order("appointment_time", { ascending: true });
-
-    if (periodFilter === "day") {
-      query = query.eq("appointment_date", selectedDate);
-    } else if (periodFilter === "week") {
-      const d = new Date(selectedDate);
-      const day = d.getDay();
-      const diff = day === 0 ? -6 : 1 - day;
-      const weekStart = new Date(d);
-      weekStart.setDate(d.getDate() + diff);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      query = query
-        .gte("appointment_date", weekStart.toISOString().split("T")[0])
-        .lte("appointment_date", weekEnd.toISOString().split("T")[0]);
-    } else {
-      const d = new Date(selectedDate);
-      const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
-      const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-      query = query
-        .gte("appointment_date", monthStart.toISOString().split("T")[0])
-        .lte("appointment_date", monthEnd.toISOString().split("T")[0]);
-    }
-
-    if (statusFilters.length > 0) {
-      query = query.in("status", statusFilters);
-    }
-
-    const { data } = await query;
-    setAppointments((data as Appointment[]) ?? []);
-    setLoading(false);
-  }, [supabase, professionalId, selectedDate, periodFilter, statusFilters]);
-
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      let query = supabase
+        .from("appointments")
+        .select(
+          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, patients(first_name, last_name), services(name)"
+        )
+        .eq("professional_id", professionalId)
+        .order("appointment_time", { ascending: true });
+
+      if (periodFilter === "day") {
+        query = query.eq("appointment_date", selectedDate);
+      } else if (periodFilter === "week") {
+        const d = new Date(selectedDate);
+        const day = d.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        const weekStart = new Date(d);
+        weekStart.setDate(d.getDate() + diff);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        query = query
+          .gte("appointment_date", weekStart.toISOString().split("T")[0])
+          .lte("appointment_date", weekEnd.toISOString().split("T")[0]);
+      } else {
+        const d = new Date(selectedDate);
+        const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+        const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        query = query
+          .gte("appointment_date", monthStart.toISOString().split("T")[0])
+          .lte("appointment_date", monthEnd.toISOString().split("T")[0]);
+      }
+
+      if (statusFilters.length > 0) {
+        query = query.in("status", statusFilters);
+      }
+
+      const { data } = await query;
+      if (!cancelled) {
+        setAppointments((data as Appointment[]) ?? []);
+        setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [supabase, professionalId, selectedDate, periodFilter, statusFilters, refreshKey]);
 
   const todayStr = new Date().toISOString().split("T")[0];
   const todayAppointments = appointments.filter(
@@ -139,7 +145,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         onOpenChange={setModalOpen}
         professionalId={professionalId}
         userId={userId}
-        onCreated={fetchAppointments}
+        onCreated={() => setRefreshKey((k) => k + 1)}
       />
     </div>
   );

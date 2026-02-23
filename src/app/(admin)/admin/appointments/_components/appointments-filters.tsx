@@ -52,60 +52,62 @@ export function AppointmentsFilters() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <SearchInput placeholder="Pesquisar paciente ou profissional..." />
-      <Select
-        defaultValue={searchParams.get("status") ?? "all"}
-        onValueChange={(value) => updateParam("status", value)}
-      >
-        <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os estados</SelectItem>
-          <SelectItem value="scheduled">Agendada</SelectItem>
-          <SelectItem value="confirmed">Confirmada</SelectItem>
-          <SelectItem value="completed">Concluida</SelectItem>
-          <SelectItem value="cancelled">Cancelada</SelectItem>
-          <SelectItem value="no_show">Falta</SelectItem>
-        </SelectContent>
-      </Select>
-      <Input
-        type="date"
-        defaultValue={searchParams.get("from") ?? ""}
-        onChange={(e) => updateParam("from", e.target.value)}
-        className="w-[160px]"
-        aria-label="Data inicial"
-      />
-      <Input
-        type="date"
-        defaultValue={searchParams.get("to") ?? ""}
-        onChange={(e) => updateParam("to", e.target.value)}
-        className="w-[160px]"
-        aria-label="Data final"
-      />
-      <div className="flex gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setQuickPeriod("today")}
+    <div className="rounded-lg bg-muted/20 p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <SearchInput placeholder="Pesquisar paciente ou profissional..." />
+        <Select
+          defaultValue={searchParams.get("status") ?? "all"}
+          onValueChange={(value) => updateParam("status", value)}
         >
-          Hoje
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setQuickPeriod("week")}
-        >
-          Esta Semana
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setQuickPeriod("month")}
-        >
-          Este Mes
-        </Button>
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os estados</SelectItem>
+            <SelectItem value="scheduled">Agendada</SelectItem>
+            <SelectItem value="confirmed">Confirmada</SelectItem>
+            <SelectItem value="completed">Concluida</SelectItem>
+            <SelectItem value="cancelled">Cancelada</SelectItem>
+            <SelectItem value="no_show">Falta</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          type="date"
+          defaultValue={searchParams.get("from") ?? ""}
+          onChange={(e) => updateParam("from", e.target.value)}
+          className="w-[160px]"
+          aria-label="Data inicial"
+        />
+        <Input
+          type="date"
+          defaultValue={searchParams.get("to") ?? ""}
+          onChange={(e) => updateParam("to", e.target.value)}
+          className="w-[160px]"
+          aria-label="Data final"
+        />
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setQuickPeriod("today")}
+          >
+            Hoje
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setQuickPeriod("week")}
+          >
+            Esta Semana
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setQuickPeriod("month")}
+          >
+            Este Mes
+          </Button>
+        </div>
       </div>
     </div>
   );
