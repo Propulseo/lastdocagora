@@ -34,7 +34,7 @@ export default async function ServicesPage() {
     description: s.description,
     duration_minutes: s.duration_minutes,
     consultation_type: s.consultation_type,
-    is_active: s.is_active,
+    is_active: s.is_active ?? true,
   }));
 
   return (

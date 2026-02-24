@@ -87,9 +87,13 @@ export type Database = {
           appointment_id: string
           channel: string
           created_at: string
+          delivered_at: string | null
+          error_message: string | null
           id: string
           professional_id: string
           professional_user_id: string
+          provider_message_id: string | null
+          rule_id: string | null
           sent_at: string | null
           status: string
           type: string
@@ -99,9 +103,13 @@ export type Database = {
           appointment_id: string
           channel: string
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
           id?: string
           professional_id: string
           professional_user_id: string
+          provider_message_id?: string | null
+          rule_id?: string | null
           sent_at?: string | null
           status?: string
           type: string
@@ -111,9 +119,13 @@ export type Database = {
           appointment_id?: string
           channel?: string
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
           id?: string
           professional_id?: string
           professional_user_id?: string
+          provider_message_id?: string | null
+          rule_id?: string | null
           sent_at?: string | null
           status?: string
           type?: string
@@ -146,6 +158,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_notifications_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -220,19 +239,21 @@ export type Database = {
           cancelled_at: string | null
           consultation_type: string
           created_at: string | null
+          created_via: string
           date_time: string | null
           duration_minutes: number
           id: string
           location: string | null
           notes: string | null
-          patient_id: string
-          patient_user_id: string
+          patient_id: string | null
+          patient_user_id: string | null
           payment_status: string | null
           price: number | null
           professional_id: string
           professional_user_id: string
           service_id: string | null
           status: string
+          title: string | null
           updated_at: string | null
         }
         Insert: {
@@ -242,19 +263,21 @@ export type Database = {
           cancelled_at?: string | null
           consultation_type: string
           created_at?: string | null
+          created_via?: string
           date_time?: string | null
           duration_minutes: number
           id?: string
           location?: string | null
           notes?: string | null
-          patient_id: string
-          patient_user_id: string
+          patient_id?: string | null
+          patient_user_id?: string | null
           payment_status?: string | null
           price?: number | null
           professional_id: string
           professional_user_id: string
           service_id?: string | null
           status?: string
+          title?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -264,19 +287,21 @@ export type Database = {
           cancelled_at?: string | null
           consultation_type?: string
           created_at?: string | null
+          created_via?: string
           date_time?: string | null
           duration_minutes?: number
           id?: string
           location?: string | null
           notes?: string | null
-          patient_id?: string
-          patient_user_id?: string
+          patient_id?: string | null
+          patient_user_id?: string | null
           payment_status?: string | null
           price?: number | null
           professional_id?: string
           professional_user_id?: string
           service_id?: string | null
           status?: string
+          title?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -374,6 +399,170 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_calendars: {
+        Row: {
+          color: string | null
+          connection_id: string
+          created_at: string
+          external_calendar_id: string
+          id: string
+          is_primary: boolean
+          name: string
+          professional_user_id: string
+          selected: boolean
+          timezone: string | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          connection_id: string
+          created_at?: string
+          external_calendar_id: string
+          id?: string
+          is_primary?: boolean
+          name: string
+          professional_user_id: string
+          selected?: boolean
+          timezone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          connection_id?: string
+          created_at?: string
+          external_calendar_id?: string
+          id?: string
+          is_primary?: boolean
+          name?: string
+          professional_user_id?: string
+          selected?: boolean
+          timezone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_calendars_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_connections: {
+        Row: {
+          access_token_encrypted: string
+          account_email: string
+          created_at: string
+          expires_at: string
+          id: string
+          professional_id: string
+          professional_user_id: string
+          provider: string
+          refresh_token_encrypted: string
+          revoked_at: string | null
+          scopes: string[]
+          updated_at: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          account_email: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          professional_id: string
+          professional_user_id: string
+          provider: string
+          refresh_token_encrypted: string
+          revoked_at?: string | null
+          scopes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          account_email?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          professional_id?: string
+          professional_user_id?: string
+          provider?: string
+          refresh_token_encrypted?: string
+          revoked_at?: string | null
+          scopes?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_connections_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "calendar_connections_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_connections_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_sync_state: {
+        Row: {
+          calendar_id: string
+          created_at: string
+          delta_link: string | null
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          professional_user_id: string
+          provider: string
+          sync_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          calendar_id: string
+          created_at?: string
+          delta_link?: string | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          professional_user_id: string
+          provider: string
+          sync_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string
+          delta_link?: string | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          professional_user_id?: string
+          provider?: string
+          sync_token?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_sync_state_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_calendars"
             referencedColumns: ["id"]
           },
         ]
@@ -509,6 +698,71 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_calendar_events: {
+        Row: {
+          all_day: boolean
+          calendar_id: string
+          description: string | null
+          ends_at: string
+          external_calendar_id: string
+          external_event_id: string
+          id: string
+          last_synced_at: string
+          location: string | null
+          organizer: string | null
+          professional_user_id: string
+          provider: string
+          raw: Json | null
+          starts_at: string
+          status: string
+          title: string
+        }
+        Insert: {
+          all_day?: boolean
+          calendar_id: string
+          description?: string | null
+          ends_at: string
+          external_calendar_id: string
+          external_event_id: string
+          id?: string
+          last_synced_at?: string
+          location?: string | null
+          organizer?: string | null
+          professional_user_id: string
+          provider: string
+          raw?: Json | null
+          starts_at: string
+          status?: string
+          title?: string
+        }
+        Update: {
+          all_day?: boolean
+          calendar_id?: string
+          description?: string | null
+          ends_at?: string
+          external_calendar_id?: string
+          external_event_id?: string
+          id?: string
+          last_synced_at?: string
+          location?: string | null
+          organizer?: string | null
+          professional_user_id?: string
+          provider?: string
+          raw?: Json | null
+          starts_at?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_calendar_events_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_calendars"
             referencedColumns: ["id"]
           },
         ]
@@ -789,6 +1043,7 @@ export type Database = {
           blood_type: string | null
           city: string | null
           created_at: string | null
+          created_by_professional_id: string | null
           date_of_birth: string | null
           email: string | null
           emergency_contact_name: string | null
@@ -811,6 +1066,7 @@ export type Database = {
           blood_type?: string | null
           city?: string | null
           created_at?: string | null
+          created_by_professional_id?: string | null
           date_of_birth?: string | null
           email?: string | null
           emergency_contact_name?: string | null
@@ -833,6 +1089,7 @@ export type Database = {
           blood_type?: string | null
           city?: string | null
           created_at?: string | null
+          created_by_professional_id?: string | null
           date_of_birth?: string | null
           email?: string | null
           emergency_contact_name?: string | null
@@ -849,6 +1106,27 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "patients_created_by_professional_id_fkey"
+            columns: ["created_by_professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "patients_created_by_professional_id_fkey"
+            columns: ["created_by_professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_created_by_professional_id_fkey"
+            columns: ["created_by_professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patients_user_id_fkey"
             columns: ["user_id"]
@@ -1511,7 +1789,24 @@ export type Database = {
         }
         Returns: Json
       }
-      get_admin_id: { Args: Record<string, never>; Returns: string }
+      create_patient_for_pro: {
+        Args: {
+          p_email: string
+          p_first_name: string
+          p_last_name: string
+          p_phone?: string
+        }
+        Returns: Json
+      }
+      decrypt_token: {
+        Args: { p_encrypted: string; p_key: string }
+        Returns: string
+      }
+      encrypt_token: {
+        Args: { p_key: string; p_token: string }
+        Returns: string
+      }
+      get_admin_id: { Args: never; Returns: string }
       get_available_slots: {
         Args: { p_date: string; p_professional_id: string }
         Returns: {
@@ -1535,8 +1830,8 @@ export type Database = {
         }
         Returns: Json
       }
-      is_admin: { Args: Record<string, never>; Returns: boolean }
-      is_professional: { Args: Record<string, never>; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
+      is_professional: { Args: never; Returns: boolean }
       promote_to_admin: { Args: { target_email: string }; Returns: string }
     }
     Enums: {
@@ -1647,3 +1942,26 @@ export type Enums<
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

@@ -24,7 +24,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 const serviceSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().max(500).optional(),
-  duration_minutes: z.coerce.number().int().min(1).max(480),
+  duration_minutes: z.number().int().min(1).max(480),
   is_active: z.boolean(),
 });
 
@@ -111,7 +111,7 @@ export function EditServiceDialog({
               min={1}
               max={480}
               placeholder={sv.durationPlaceholder}
-              {...form.register("duration_minutes")}
+              {...form.register("duration_minutes", { valueAsNumber: true })}
             />
             {form.formState.errors.duration_minutes && (
               <p className="text-sm text-destructive">

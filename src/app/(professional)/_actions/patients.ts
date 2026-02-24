@@ -23,7 +23,7 @@ export async function createPatient(formData: {
     p_first_name: formData.first_name.trim(),
     p_last_name: formData.last_name.trim(),
     p_email: formData.email.trim(),
-    p_phone: formData.phone?.trim() || null,
+    p_phone: formData.phone?.trim() || undefined,
   });
 
   if (error) return { success: false, error: error.message };
