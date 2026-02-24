@@ -102,7 +102,7 @@ export function WeekTimeGrid({
   // Attendance action from dialog
   async function handleMarkAttendance(newStatus: AttendanceStatus) {
     if (!selected || isUpdating) return;
-    const previousStatus = selected.appointment_attendance?.[0]?.status ?? "waiting";
+    const previousStatus = selected.appointment_attendance?.status ?? "waiting";
     if (newStatus === previousStatus) return;
 
     onAttendanceChange(selected.id, newStatus);
@@ -110,13 +110,11 @@ export function WeekTimeGrid({
       prev
         ? {
             ...prev,
-            appointment_attendance: [
-              {
-                id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
-                status: newStatus,
-                marked_at: new Date().toISOString(),
-              },
-            ],
+            appointment_attendance: {
+              id: prev.appointment_attendance?.id ?? "optimistic",
+              status: newStatus,
+              marked_at: new Date().toISOString(),
+            },
           }
         : null
     );
@@ -130,13 +128,11 @@ export function WeekTimeGrid({
         prev
           ? {
               ...prev,
-              appointment_attendance: [
-                {
-                  id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
-                  status: previousStatus,
-                  marked_at: null,
-                },
-              ],
+              appointment_attendance: {
+                id: prev.appointment_attendance?.id ?? "optimistic",
+                status: previousStatus,
+                marked_at: null,
+              },
             }
           : null
       );
@@ -184,7 +180,7 @@ export function WeekTimeGrid({
 
   const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
 
-  const selectedAttendance = selected?.appointment_attendance?.[0]?.status ?? "waiting";
+  const selectedAttendance = selected?.appointment_attendance?.status ?? "waiting";
   const canMarkSelected =
     selected && selected.status !== "cancelled" && selected.status !== "no-show";
 
@@ -297,7 +293,7 @@ export function WeekTimeGrid({
                         ? `${patient.first_name} ${patient.last_name}`
                         : apt.title || t.agenda.manualAppointment;
 
-                      const attendanceRecord = apt.appointment_attendance?.[0];
+                      const attendanceRecord = apt.appointment_attendance;
                       const currentAttendance = attendanceRecord?.status ?? "waiting";
                       const canMark = apt.status !== "cancelled" && apt.status !== "no-show";
 

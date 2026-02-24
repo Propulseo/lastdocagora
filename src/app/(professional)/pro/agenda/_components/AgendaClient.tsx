@@ -29,9 +29,11 @@ export type Appointment = {
   created_via: string | null;
   patients: { first_name: string | null; last_name: string | null } | null;
   services: { name: string } | null;
-  appointment_attendance:
-    | { id: string; status: string; marked_at: string | null }[]
-    | null;
+  appointment_attendance: {
+    id: string;
+    status: string;
+    marked_at: string | null;
+  } | null;
 };
 
 export type ExternalEvent = {
@@ -79,13 +81,11 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           apt.id === appointmentId
             ? {
                 ...apt,
-                appointment_attendance: [
-                  {
-                    id: apt.appointment_attendance?.[0]?.id ?? "optimistic",
-                    status: newStatus,
-                    marked_at: new Date().toISOString(),
-                  },
-                ],
+                appointment_attendance: {
+                  id: apt.appointment_attendance?.id ?? "optimistic",
+                  status: newStatus,
+                  marked_at: new Date().toISOString(),
+                },
               }
             : apt
         )
@@ -239,8 +239,8 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
 
     for (const apt of todayAppointments) {
       const att = apt.appointment_attendance;
-      if (att && att.length > 0) {
-        const s = att[0].status;
+      if (att) {
+        const s = att.status;
         if (s === "present") present++;
         else if (s === "late") late++;
         else if (s === "absent") absent++;

@@ -148,7 +148,7 @@ export function DayTimeGrid({
   // Attendance action from dialog
   async function handleMarkAttendance(newStatus: AttendanceStatus) {
     if (!selected || isUpdating) return;
-    const previousStatus = selected.appointment_attendance?.[0]?.status ?? "waiting";
+    const previousStatus = selected.appointment_attendance?.status ?? "waiting";
     if (newStatus === previousStatus) return;
 
     onAttendanceChange(selected.id, newStatus);
@@ -156,13 +156,11 @@ export function DayTimeGrid({
       prev
         ? {
             ...prev,
-            appointment_attendance: [
-              {
-                id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
-                status: newStatus,
-                marked_at: new Date().toISOString(),
-              },
-            ],
+            appointment_attendance: {
+              id: prev.appointment_attendance?.id ?? "optimistic",
+              status: newStatus,
+              marked_at: new Date().toISOString(),
+            },
           }
         : null
     );
@@ -176,13 +174,11 @@ export function DayTimeGrid({
         prev
           ? {
               ...prev,
-              appointment_attendance: [
-                {
-                  id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
-                  status: previousStatus,
-                  marked_at: null,
-                },
-              ],
+              appointment_attendance: {
+                id: prev.appointment_attendance?.id ?? "optimistic",
+                status: previousStatus,
+                marked_at: null,
+              },
             }
           : null
       );
@@ -217,7 +213,7 @@ export function DayTimeGrid({
       ? Math.abs(dragCurrentY - dragStartY)
       : 0;
 
-  const selectedAttendance = selected?.appointment_attendance?.[0]?.status ?? "waiting";
+  const selectedAttendance = selected?.appointment_attendance?.status ?? "waiting";
   const canMarkSelected =
     selected && selected.status !== "cancelled" && selected.status !== "no-show";
 

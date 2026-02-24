@@ -60,7 +60,7 @@ export function AppointmentBlock({
     ? `${patient.first_name} ${patient.last_name}`
     : appointment.title || t.agenda.manualAppointment;
 
-  const attendanceRecord = appointment.appointment_attendance?.[0];
+  const attendanceRecord = appointment.appointment_attendance;
   const currentAttendance = attendanceRecord?.status ?? "waiting";
 
   const canShowAttendance =
