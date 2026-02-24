@@ -1,36 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Briefcase, PackageOpen } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-
-const consultationTypeLabel: Record<string, string> = {
-  presencial: "Presencial",
-  teleconsulta: "Teleconsulta",
-  domicilio: "Domicilio",
-  in_person: "Presencial",
-  "in-person": "Presencial",
-  video: "Teleconsulta",
-  online: "Teleconsulta",
-  home_visit: "Domicilio",
-  both: "Presencial e Online",
-};
+import { getProfessionalI18n } from "@/lib/i18n/pro/server";
+import { ServicesTable, type ServiceRow } from "./_components/services-table";
+import { CreateServiceDialog } from "./_components/create-service-dialog";
 
 export default async function ServicesPage() {
   const supabase = await createClient();
@@ -47,93 +20,31 @@ export default async function ServicesPage() {
 
   if (!professional) redirect("/login");
 
+  const { t } = await getProfessionalI18n();
+
   const { data: services } = await supabase
     .from("services")
-    .select("*")
+    .select("id, name, description, duration_minutes, consultation_type, is_active")
     .eq("professional_id", professional.id)
     .order("name", { ascending: true });
 
-  const allServices = services ?? [];
+  const allServices: ServiceRow[] = (services ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    description: s.description,
+    duration_minutes: s.duration_minutes,
+    consultation_type: s.consultation_type,
+    is_active: s.is_active,
+  }));
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Servicos"
-        description="Servicos que oferece aos pacientes"
+        title={t.services.title}
+        description={t.services.description}
+        action={<CreateServiceDialog />}
       />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="size-5" />
-            Servicos Oferecidos
-          </CardTitle>
-          <CardDescription>
-            {allServices.length} servico
-            {allServices.length !== 1 ? "s" : ""} registado
-            {allServices.length !== 1 ? "s" : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {allServices.length === 0 ? (
-            <EmptyState
-              icon={PackageOpen}
-              title="Sem servicos"
-              description="Adicione os seus servicos para que os pacientes possam agendar."
-            />
-          ) : (
-            <div className="rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Descricao
-                    </TableHead>
-                    <TableHead>Duracao</TableHead>
-                    <TableHead>Preco</TableHead>
-                    <TableHead className="hidden sm:table-cell">
-                      Tipo
-                    </TableHead>
-                    <TableHead>Estado</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allServices.map((service) => (
-                    <TableRow key={service.id}>
-                      <TableCell className="font-medium">
-                        {service.name}
-                      </TableCell>
-                      <TableCell className="hidden max-w-[250px] truncate text-muted-foreground md:table-cell">
-                        {service.description ?? "-"}
-                      </TableCell>
-                      <TableCell className="tabular-nums">
-                        {service.duration_minutes} min
-                      </TableCell>
-                      <TableCell className="tabular-nums font-medium">
-                        {service.price.toFixed(2)} &euro;
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge variant="outline">
-                          {consultationTypeLabel[service.consultation_type] ??
-                            service.consultation_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={service.is_active ? "default" : "secondary"}
-                        >
-                          {service.is_active ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <ServicesTable services={allServices} />
     </div>
   );
 }
