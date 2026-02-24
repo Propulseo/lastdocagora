@@ -265,7 +265,8 @@
     },
     "channel": {
       "email": "Email",
-      "sms": "SMS"
+      "sms": "SMS",
+      "whatsapp": "WhatsApp"
     },
     "dialog": {
       "newTitle": "Novo lembrete",
@@ -299,27 +300,64 @@
       "cta": "Criar lembrete"
     },
     "templates": {
-      "title": "Modelos de mensagem",
-      "subtitle": "Personalize os modelos de mensagem enviados aos pacientes.",
+      "title": "Modelos de lembretes",
+      "subtitle": "Gerencie os seus modelos de mensagem (SMS, Email, WhatsApp).",
       "newTemplate": "Novo modelo",
       "name": "Nome",
       "type": "Tipo",
       "channel": "Canal",
       "content": "Conteúdo",
       "subject": "Assunto",
+      "body": "Mensagem",
       "status": "Estado",
       "active": "Ativo",
       "inactive": "Inativo",
       "default": "Padrão",
+      "global": "Global",
+      "mine": "Meu",
+      "timing": "Momento de envio",
+      "search": "Pesquisar modelos...",
+      "filterChannel": "Canal",
+      "filterTiming": "Momento",
+      "allChannels": "Todos os canais",
+      "allTimings": "Todos os momentos",
+      "activeOnly": "Apenas ativos",
+      "preview": "Pré-visualização",
+      "variables": "Variáveis disponíveis",
+      "variableHint": "Clique para inserir",
+      "smsCounter": "{{count}} / 160 caracteres",
+      "smsWarning": "O SMS excede 160 caracteres e poderá ser dividido.",
+      "duplicate": "Duplicar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteConfirm": "Tem a certeza que deseja eliminar este modelo?",
+      "deleteDescription": "Esta ação é irreversível.",
+      "duplicateSuccess": "Modelo duplicado. Pode agora editá-lo.",
+      "toggledActive": "Modelo ativado",
+      "toggledInactive": "Modelo desativado",
       "empty": {
         "title": "Sem modelos",
-        "description": "Crie o seu primeiro modelo de mensagem."
+        "description": "Crie o seu primeiro modelo de mensagem ou duplique um dos modelos globais."
       },
       "dialog": {
         "newTitle": "Novo modelo",
         "editTitle": "Editar modelo",
         "save": "Guardar",
-        "create": "Criar"
+        "create": "Criar modelo",
+        "namePlaceholder": "Ex: Lembrete SMS 24h",
+        "subjectPlaceholder": "Assunto do email",
+        "bodyPlaceholder": "Escreva a sua mensagem aqui. Use as variáveis disponíveis à direita.",
+        "channelSms": "SMS",
+        "channelEmail": "Email",
+        "channelWhatsapp": "WhatsApp"
+      },
+      "timingLabels": {
+        "j-2": "J-2 (2 dias antes)",
+        "j-1": "J-1 (1 dia antes)",
+        "h-24": "H-24 (24 horas antes)",
+        "h-2": "H-2 (2 horas antes)",
+        "h-1": "H-1 (1 hora antes)",
+        "apres": "Após consulta"
       }
     },
     "history": {
@@ -365,52 +403,102 @@
   },
   "statistics": {
     "title": "Estatísticas",
-    "description": "Análise detalhada da sua atividade profissional",
-    "tabs": {
-      "appointments": "Consultas",
-      "performance": "Desempenho"
-    },
+    "description": "Painel de indicadores da sua atividade profissional",
+    "export": "Exportar CSV",
     "range": {
       "7d": "7 dias",
-      "3m": "3 meses",
-      "1y": "1 ano"
+      "30d": "30 dias",
+      "90d": "90 dias",
+      "custom": "Personalizado"
     },
-    "export": "Exportar",
-    "appointmentsTrend": {
-      "title": "Evolução das consultas",
-      "description": "Número de consultas por dia no período selecionado"
+    "filters": {
+      "service": "Serviço",
+      "allServices": "Todos os serviços",
+      "channel": "Canal",
+      "allChannels": "Todos",
+      "channelPatient": "Paciente",
+      "channelManual": "Manual",
+      "status": "Estado",
+      "allStatuses": "Todos os estados",
+      "statusCompleted": "Concluído",
+      "statusUpcoming": "Agendado",
+      "statusCancelled": "Cancelado",
+      "statusNoShow": "Não compareceu"
     },
-    "typeDistribution": {
-      "title": "Repartição por tipo",
-      "description": "Distribuição por tipo de consulta"
+    "kpi": {
+      "totalAppointments": "Total Consultas",
+      "attendanceRate": "Taxa de Presença",
+      "noShowRate": "Taxa Não Compareceu",
+      "cancellationRate": "Taxa de Cancelamento",
+      "lateness": "Atraso",
+      "avgMinutes": "{{value}} min em média",
+      "pctLate": "{{value}}% atrasados",
+      "newPatients": "Novos Pacientes",
+      "newVsReturning": "{{new}} novos · {{returning}} recorrentes",
+      "sampleWarning": "Baseado em {{count}} consultas — dados limitados",
+      "noAttendanceData": "Sem dados de presença",
+      "markAttendanceCta": "Marque a presença na agenda para alimentar esta estatística.",
+      "goToAgenda": "Ir para agenda"
     },
-    "presenceRate": {
-      "title": "Taxa de presença",
-      "description": "Presença vs ausência nas consultas"
+    "trends": {
+      "title": "Tendências",
+      "description": "Evolução diária das consultas, não comparecimentos e cancelamentos",
+      "appointments": "Consultas",
+      "noShow": "Não compareceu",
+      "cancelled": "Canceladas"
     },
-    "consultationType": {
-      "in-person": "Presencial"
+    "heatmap": {
+      "title": "Carga da agenda",
+      "description": "Distribuição das consultas por dia e hora",
+      "appointments": "consultas"
     },
-    "presence": {
-      "present": "Presente",
+    "services": {
+      "title": "Desempenho por serviço",
+      "description": "Volume e não comparecimentos por serviço",
+      "total": "Total",
+      "noShow": "Não compareceu"
+    },
+    "channel": {
+      "title": "Canal de marcação",
+      "description": "Quem cria os rendez-vous",
+      "patientBooking": "Paciente",
+      "manual": "Manual (pro)"
+    },
+    "punctuality": {
+      "title": "Pontualidade",
+      "description": "Distribuição presença / atraso / ausência",
+      "onTime": "Pontual",
+      "late": "Atrasado",
       "absent": "Ausente"
+    },
+    "retention": {
+      "title": "Retenção de pacientes",
+      "description": "Percentagem de pacientes que regressaram",
+      "days30": "30 dias",
+      "days60": "60 dias",
+      "days90": "90 dias",
+      "returned": "regressaram",
+      "noData": "Dados insuficientes para calcular a retenção."
+    },
+    "insights": {
+      "title": "Insights e recomendações",
+      "description": "Sugestões automáticas baseadas nos seus dados",
+      "noShowSlot": "{{slot}} : {{rate}}% não compareceu",
+      "noShowSlotAction": "Ativar lembrete duplo para este horário",
+      "riskyPatient": "{{name}} : {{count}} ausências/cancelamentos",
+      "riskyPatientAction": "Considerar acompanhamento ou acompte",
+      "quietWeek": "Semana {{week}} : apenas {{count}} consultas",
+      "quietWeekAction": "Abrir horários adicionais ou promover agenda",
+      "bestService": "\"{{name}}\" : {{rate}}% taxa presença",
+      "bestServiceAction": "Serviço a promover — excelente adesão",
+      "worstService": "\"{{name}}\" : {{rate}}% não compareceu",
+      "worstServiceAction": "Ativar lembrete específico para este serviço",
+      "noInsights": "Sem insights disponíveis para o período atual."
     },
     "emptyState": {
       "title": "Sem dados",
-      "description": "Nenhuma consulta encontrada para o período selecionado."
-    },
-    "performance": {
-      "title": "Desempenho geral",
-      "description": "Indicadores-chave do período selecionado",
-      "totalAppointments": "Total Consultas",
-      "completed": "Concluídas",
-      "cancelled": "Canceladas",
-      "noShow": "Não compareceu",
-      "cancellationRate": "Taxa de cancelamento",
-      "avgRating": "Avaliação média",
-      "monthlyHistory": "Histórico mensal",
-      "monthlyHistoryDescription": "Últimos 6 meses de atividade",
-      "completedRate": "concluído"
+      "description": "Nenhuma consulta encontrada para o período selecionado.",
+      "tryLongerPeriod": "Experimente selecionar um período mais longo."
     },
     "chart": {
       "appointments": "Consultas",
