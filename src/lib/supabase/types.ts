@@ -239,6 +239,7 @@ export type Database = {
           cancelled_at: string | null
           consultation_type: string
           created_at: string | null
+          created_by_user_id: string | null
           created_via: string
           date_time: string | null
           duration_minutes: number
@@ -263,6 +264,7 @@ export type Database = {
           cancelled_at?: string | null
           consultation_type: string
           created_at?: string | null
+          created_by_user_id?: string | null
           created_via?: string
           date_time?: string | null
           duration_minutes: number
@@ -287,6 +289,7 @@ export type Database = {
           cancelled_at?: string | null
           consultation_type?: string
           created_at?: string | null
+          created_by_user_id?: string | null
           created_via?: string
           date_time?: string | null
           duration_minutes?: number
@@ -305,6 +308,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "appointments_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
@@ -820,10 +830,13 @@ export type Database = {
           id: string
           is_active: boolean
           is_default: boolean
+          is_global: boolean
+          locale: string
           name: string
-          professional_id: string
-          professional_user_id: string
+          professional_id: string | null
+          professional_user_id: string | null
           subject: string | null
+          timing_key: string | null
           type: string
           updated_at: string
         }
@@ -834,10 +847,13 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_default?: boolean
+          is_global?: boolean
+          locale?: string
           name: string
-          professional_id: string
-          professional_user_id: string
+          professional_id?: string | null
+          professional_user_id?: string | null
           subject?: string | null
+          timing_key?: string | null
           type: string
           updated_at?: string
         }
@@ -848,10 +864,13 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_default?: boolean
+          is_global?: boolean
+          locale?: string
           name?: string
-          professional_id?: string
-          professional_user_id?: string
+          professional_id?: string | null
+          professional_user_id?: string | null
           subject?: string | null
+          timing_key?: string | null
           type?: string
           updated_at?: string
         }
@@ -1802,6 +1821,10 @@ export type Database = {
         Args: { p_encrypted: string; p_key: string }
         Returns: string
       }
+      duplicate_global_templates_for_pro: {
+        Args: { p_professional_id: string; p_professional_user_id: string }
+        Returns: number
+      }
       encrypt_token: {
         Args: { p_key: string; p_token: string }
         Returns: string
@@ -1817,6 +1840,16 @@ export type Database = {
       get_next_available_slot: {
         Args: { p_professional_id: string }
         Returns: string
+      }
+      get_pro_dashboard_stats: {
+        Args: {
+          p_created_via?: string
+          p_from_date?: string
+          p_professional_id: string
+          p_service_id?: string
+          p_to_date?: string
+        }
+        Returns: Json
       }
       get_pro_patient_count: {
         Args: { p_professional_id: string }
