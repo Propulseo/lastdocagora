@@ -9,9 +9,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserCheck, UserMinus, UserX } from "lucide-react";
+import { toast } from "sonner";
+import { markAttendance } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "./AgendaClient";
+import type { AttendanceStatus } from "@/types";
 import { AppointmentBlock, HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
 
 const END_HOUR = 20;
@@ -66,6 +71,7 @@ export function DayTimeGrid({
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
   const [selected, setSelected] = useState<Appointment | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Drag state
   const gridRef = useRef<HTMLDivElement>(null);
@@ -89,7 +95,6 @@ export function DayTimeGrid({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      // Only left click
       if (e.button !== 0) return;
       const y = getGridY(e.clientY);
       setIsDragging(true);
@@ -117,7 +122,6 @@ export function DayTimeGrid({
     const minY = Math.min(dragStartY, dragCurrentY);
     const maxY = Math.max(dragStartY, dragCurrentY);
 
-    // Enforce minimum 30-min duration (1 slot)
     const minSlotHeight = (SLOT_MINUTES / 60) * HOUR_HEIGHT;
     const finalMaxY = maxY - minY < minSlotHeight ? minY + minSlotHeight : maxY;
 
@@ -128,13 +132,11 @@ export function DayTimeGrid({
     setDragStartY(null);
     setDragCurrentY(null);
 
-    // Only open dialog if the drag produced a valid range
     if (startTime < endTime) {
       onCreateAppointment(startTime, endTime);
     }
   }, [isDragging, dragStartY, dragCurrentY, onCreateAppointment]);
 
-  // Cancel drag if mouse leaves the grid
   const handleMouseLeave = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
@@ -142,6 +144,55 @@ export function DayTimeGrid({
       setDragCurrentY(null);
     }
   }, [isDragging]);
+
+  // Attendance action from dialog
+  async function handleMarkAttendance(newStatus: AttendanceStatus) {
+    if (!selected || isUpdating) return;
+    const previousStatus = selected.appointment_attendance?.[0]?.status ?? "waiting";
+    if (newStatus === previousStatus) return;
+
+    onAttendanceChange(selected.id, newStatus);
+    setSelected((prev) =>
+      prev
+        ? {
+            ...prev,
+            appointment_attendance: [
+              {
+                id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
+                status: newStatus,
+                marked_at: new Date().toISOString(),
+              },
+            ],
+          }
+        : null
+    );
+    setIsUpdating(true);
+
+    const result = await markAttendance(selected.id, newStatus);
+
+    if (!result.success) {
+      onAttendanceChange(selected.id, previousStatus);
+      setSelected((prev) =>
+        prev
+          ? {
+              ...prev,
+              appointment_attendance: [
+                {
+                  id: prev.appointment_attendance?.[0]?.id ?? "optimistic",
+                  status: previousStatus,
+                  marked_at: null,
+                },
+              ],
+            }
+          : null
+      );
+      toast.error(t.agenda.attendance.error);
+    } else {
+      toast.success(t.agenda.attendance.updated);
+    }
+
+    setIsUpdating(false);
+  }
 
   if (loading) {
     return (
@@ -157,7 +208,6 @@ export function DayTimeGrid({
 
   const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
 
-  // Selection overlay coordinates
   const selectionTop =
     dragStartY != null && dragCurrentY != null
       ? Math.min(dragStartY, dragCurrentY)
@@ -166,6 +216,31 @@ export function DayTimeGrid({
     dragStartY != null && dragCurrentY != null
       ? Math.abs(dragCurrentY - dragStartY)
       : 0;
+
+  const selectedAttendance = selected?.appointment_attendance?.[0]?.status ?? "waiting";
+  const canMarkSelected =
+    selected && selected.status !== "cancelled" && selected.status !== "no-show";
+
+  const attendanceActions = [
+    {
+      status: "present" as AttendanceStatus,
+      label: t.agenda.attendance.statusPresent,
+      icon: UserCheck,
+      activeClass: "bg-green-600 hover:bg-green-700 text-white",
+    },
+    {
+      status: "late" as AttendanceStatus,
+      label: t.agenda.attendance.statusLate,
+      icon: UserMinus,
+      activeClass: "bg-amber-500 hover:bg-amber-600 text-white",
+    },
+    {
+      status: "absent" as AttendanceStatus,
+      label: t.agenda.attendance.statusAbsent,
+      icon: UserX,
+      activeClass: "bg-red-600 hover:bg-red-700 text-white",
+    },
+  ];
 
   return (
     <>
@@ -200,7 +275,6 @@ export function DayTimeGrid({
                 key={apt.id}
                 appointment={apt}
                 onClick={setSelected}
-                onAttendanceChange={onAttendanceChange}
               />
             ))}
 
@@ -281,7 +355,7 @@ export function DayTimeGrid({
             <DialogTitle>{t.agenda.appointmentDetails}</DialogTitle>
           </DialogHeader>
           {selected && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="font-medium">
                   {selected.patients?.first_name
@@ -319,6 +393,32 @@ export function DayTimeGrid({
                 <div className="text-sm">
                   <p className="text-muted-foreground">{t.agenda.notes}</p>
                   <p>{selected.notes}</p>
+                </div>
+              )}
+
+              {/* Attendance section */}
+              {canMarkSelected && (
+                <div className="border-t pt-4">
+                  <p className="mb-3 text-sm font-medium">{t.agenda.attendance.markAttendance}</p>
+                  <div className="flex gap-2">
+                    {attendanceActions.map((action) => {
+                      const Icon = action.icon;
+                      const isActive = selectedAttendance === action.status;
+                      return (
+                        <Button
+                          key={action.status}
+                          variant={isActive ? "default" : "outline"}
+                          size="sm"
+                          className={`flex-1 gap-1.5 ${isActive ? action.activeClass : ""}`}
+                          disabled={isUpdating}
+                          onClick={() => handleMarkAttendance(action.status)}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {action.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
