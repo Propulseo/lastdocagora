@@ -89,7 +89,7 @@ export function TrendsChart({ data }: { data: TrendPoint[] }) {
                     return (
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
                         <p className="text-xs font-medium text-muted-foreground">
-                          {formatDate(label)}
+                          {formatDate(String(label ?? ""))}
                         </p>
                         {payload.map((item) => (
                           <p
