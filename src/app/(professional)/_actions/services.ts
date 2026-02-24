@@ -1,0 +1,110 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+
+type ActionResult =
+  | { success: true; data?: Record<string, unknown> }
+  | { success: false; error: string };
+
+export async function createService(formData: {
+  name: string;
+  description?: string;
+  duration_minutes: number;
+  is_active: boolean;
+}): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { data: professional } = await supabase
+    .from("professionals")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!professional) return { success: false, error: "Professional not found" };
+
+  const { error } = await supabase.from("services").insert({
+    name: formData.name.trim(),
+    description: formData.description?.trim() || null,
+    duration_minutes: formData.duration_minutes,
+    is_active: formData.is_active,
+    price: 0,
+    consultation_type: "in-person",
+    professional_id: professional.id,
+    professional_user_id: user.id,
+  });
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/pro/services");
+  return { success: true };
+}
+
+export async function updateService(
+  serviceId: string,
+  formData: {
+    name: string;
+    description?: string;
+    duration_minutes: number;
+    is_active: boolean;
+  }
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("services")
+    .update({
+      name: formData.name.trim(),
+      description: formData.description?.trim() || null,
+      duration_minutes: formData.duration_minutes,
+      is_active: formData.is_active,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", serviceId)
+    .eq("professional_user_id", user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/pro/services");
+  return { success: true };
+}
+
+export async function deleteService(serviceId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  // Check if service is used in appointments
+  const { count } = await supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("service_id", serviceId);
+
+  if (count && count > 0) {
+    return {
+      success: false,
+      error: "Cannot delete service with existing appointments. Deactivate it instead.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("services")
+    .delete()
+    .eq("id", serviceId)
+    .eq("professional_user_id", user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/pro/services");
+  return { success: true };
+}
