@@ -1,0 +1,202 @@
+{
+  "sidebar": {
+    "groups": {
+      "general": "General",
+      "management": "Gestion",
+      "platform": "Plateforme"
+    },
+    "items": {
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "professionals": "Professionnels",
+      "appointments": "Consultations",
+      "content": "Contenu",
+      "support": "Support",
+      "settings": "Parametres"
+    },
+    "badge": "Admin",
+    "logout": "Se deconnecter"
+  },
+  "topbar": {
+    "toggleSidebar": "Basculer le menu lateral",
+    "fallbackTitle": "Admin"
+  },
+  "common": {
+    "dateLocale": "fr-FR",
+    "actions": "Actions",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "errorUpdating": "Erreur lors de la mise a jour",
+    "noResultsHint": "Essayez d'ajuster les filtres de recherche.",
+    "clearFilters": "Effacer les filtres",
+    "allStatuses": "Tous les statuts",
+    "filterByStatus": "Filtrer par statut",
+    "status": "Statut",
+    "name": "Nom"
+  },
+  "statuses": {
+    "userStatus": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "suspended": "Suspendu"
+    },
+    "role": {
+      "patient": "Patient",
+      "professional": "Professionnel",
+      "admin": "Administrateur"
+    },
+    "verification": {
+      "verified": "Verifie",
+      "pending": "En attente",
+      "rejected": "Rejete"
+    },
+    "appointment": {
+      "pending": "En attente",
+      "scheduled": "Planifiee",
+      "confirmed": "Confirmee",
+      "completed": "Terminee",
+      "cancelled": "Annulee",
+      "no_show": "Absence"
+    },
+    "ticket": {
+      "open": "Ouvert",
+      "in_progress": "En cours",
+      "resolved": "Resolu",
+      "closed": "Ferme"
+    },
+    "priority": {
+      "low": "Basse",
+      "medium": "Moyenne",
+      "high": "Haute",
+      "urgent": "Urgente"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord administratif",
+    "kpiTotalUsers": "Total utilisateurs",
+    "kpiTotalUsersDesc": "Patients inscrits",
+    "kpiVerifiedPros": "Professionnels verifies",
+    "kpiVerifiedProsDesc": "Verification complete",
+    "kpiMonthlyAppointments": "Consultations ce mois",
+    "kpiMonthlyAppointmentsDesc": "Mois en cours",
+    "kpiTodayAppointments": "Consultations aujourd'hui",
+    "kpiOpenTickets": "Tickets ouverts",
+    "kpiOpenTicketsDesc": "Support en attente",
+    "topProfessionals": "Top professionnels",
+    "topProfessionalsDesc": "Les professionnels les plus performants",
+    "alertsTitle": "Alertes systeme",
+    "alertPendingVerification": "{count} professionnel en attente de verification",
+    "alertPendingVerifications": "{count} professionnels en attente de verification",
+    "alertOpenTicket": "{count} ticket de support ouvert",
+    "alertOpenTickets": "{count} tickets de support ouverts",
+    "tableSpecialty": "Specialite",
+    "tableCity": "Ville",
+    "tableRating": "Evaluation",
+    "tableAppointments": "Consultations",
+    "tableReviews": "Avis",
+    "emptyTitle": "Aucun professionnel trouve",
+    "emptyDescription": "Il n'y a pas encore de professionnels sur la plateforme."
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "description": "Gerer tous les utilisateurs de la plateforme",
+    "tableEmail": "Email",
+    "tableRole": "Role",
+    "tableRegisteredAt": "Inscrit le",
+    "emptyTitle": "Aucun utilisateur trouve",
+    "activate": "Activer",
+    "suspend": "Suspendre",
+    "statusUpdated": "Statut de l'utilisateur mis a jour",
+    "confirmTitle": "{action} l'utilisateur ?",
+    "confirmDescription": "Etes-vous sur de vouloir {action} cet utilisateur ?",
+    "searchPlaceholder": "Rechercher par nom ou email...",
+    "roleFilter": "Role",
+    "allRoles": "Tous les roles"
+  },
+  "professionals": {
+    "title": "Professionnels",
+    "description": "Gerer les professionnels et les verifications",
+    "tableSpecialty": "Specialite",
+    "tableCity": "Ville",
+    "tableRating": "Evaluation",
+    "emptyTitle": "Aucun professionnel trouve",
+    "verify": "Verifier",
+    "reject": "Rejeter",
+    "statusUpdated": "Statut de verification mis a jour",
+    "confirmTitle": "{action} le professionnel ?",
+    "confirmDescription": "Etes-vous sur de vouloir {action} ce professionnel ?",
+    "searchPlaceholder": "Rechercher par nom...",
+    "specialtyFilter": "Specialite",
+    "allSpecialties": "Toutes les specialites",
+    "cityFilter": "Ville",
+    "allCities": "Toutes les villes"
+  },
+  "appointments": {
+    "title": "Consultations",
+    "description": "Toutes les consultations de la plateforme",
+    "tablePatient": "Patient",
+    "tableProfessional": "Professionnel",
+    "tableDate": "Date",
+    "tableTime": "Heure",
+    "emptyTitle": "Aucune consultation trouvee",
+    "searchPlaceholder": "Rechercher patient ou professionnel...",
+    "dateFrom": "Date de debut",
+    "dateTo": "Date de fin",
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois"
+  },
+  "support": {
+    "title": "Support",
+    "description": "Tickets de support des utilisateurs",
+    "tableSubject": "Sujet",
+    "tableUser": "Utilisateur",
+    "tablePriority": "Priorite",
+    "tableUpdatedAt": "Mis a jour",
+    "emptyTitle": "Aucun ticket de support trouve",
+    "changeStatus": "Changer le statut :",
+    "changeStatusLabel": "Changer le statut du ticket",
+    "statusUpdated": "Statut du ticket mis a jour",
+    "noMessages": "Aucun message dans ce ticket.",
+    "searchPlaceholder": "Rechercher des tickets...",
+    "priorityFilter": "Priorite",
+    "allPriorities": "Toutes les priorites"
+  },
+  "content": {
+    "title": "Contenu",
+    "description": "Gerer les pages et les questions frequentes",
+    "tabPages": "Pages",
+    "tabFaqs": "FAQs",
+    "pagesSlug": "Slug",
+    "pagesTitlePt": "Titre (PT)",
+    "pagesPublished": "Publiee",
+    "pagesUpdatedAt": "Mise a jour le",
+    "pagesEmptyTitle": "Aucune page trouvee",
+    "pagesEmptyDescription": "Il n'y a pas de pages de contenu dans la base de donnees.",
+    "faqsQuestionPt": "Question (PT)",
+    "faqsCategory": "Categorie",
+    "faqsOrder": "Ordre",
+    "faqsPublished": "Publiee",
+    "faqsEmptyTitle": "Aucune FAQ trouvee",
+    "faqsEmptyDescription": "Il n'y a pas de FAQs dans la base de donnees.",
+    "published": "Publie",
+    "unpublished": "Depublie",
+    "unpublishLabel": "Depublier",
+    "publishLabel": "Publier"
+  },
+  "settings": {
+    "title": "Parametres",
+    "description": "Parametres systeme de la plateforme",
+    "groupPlatform": "Plateforme",
+    "groupNotification": "Notifications",
+    "groupAppointment": "Consultations",
+    "groupGoogle": "Google Calendar",
+    "valueLabel": "Valeur de",
+    "updateConfirmTitle": "Mettre a jour le parametre ?",
+    "updateConfirmDesc": "Etes-vous sur de vouloir modifier \"{key}\" ?",
+    "updated": "Parametre mis a jour",
+    "emptyTitle": "Aucun parametre trouve",
+    "emptyDescription": "Il n'y a pas de parametres dans la base de donnees."
+  }
+}

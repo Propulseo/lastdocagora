@@ -1,0 +1,202 @@
+{
+  "sidebar": {
+    "groups": {
+      "general": "Geral",
+      "management": "Gestao",
+      "platform": "Plataforma"
+    },
+    "items": {
+      "dashboard": "Painel",
+      "users": "Utilizadores",
+      "professionals": "Profissionais",
+      "appointments": "Consultas",
+      "content": "Conteudo",
+      "support": "Suporte",
+      "settings": "Configuracoes"
+    },
+    "badge": "Admin",
+    "logout": "Sair da conta"
+  },
+  "topbar": {
+    "toggleSidebar": "Alternar menu lateral",
+    "fallbackTitle": "Admin"
+  },
+  "common": {
+    "dateLocale": "pt-PT",
+    "actions": "Acoes",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errorUpdating": "Erro ao atualizar",
+    "noResultsHint": "Tente ajustar os filtros de pesquisa.",
+    "clearFilters": "Limpar filtros",
+    "allStatuses": "Todos os estados",
+    "filterByStatus": "Filtrar por estado",
+    "status": "Estado",
+    "name": "Nome"
+  },
+  "statuses": {
+    "userStatus": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "suspended": "Suspenso"
+    },
+    "role": {
+      "patient": "Paciente",
+      "professional": "Profissional",
+      "admin": "Administrador"
+    },
+    "verification": {
+      "verified": "Verificado",
+      "pending": "Pendente",
+      "rejected": "Rejeitado"
+    },
+    "appointment": {
+      "pending": "Pendente",
+      "scheduled": "Agendada",
+      "confirmed": "Confirmada",
+      "completed": "Concluida",
+      "cancelled": "Cancelada",
+      "no_show": "Falta"
+    },
+    "ticket": {
+      "open": "Aberto",
+      "in_progress": "Em progresso",
+      "resolved": "Resolvido",
+      "closed": "Fechado"
+    },
+    "priority": {
+      "low": "Baixa",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    }
+  },
+  "dashboard": {
+    "title": "Painel Administrativo",
+    "kpiTotalUsers": "Total Utilizadores",
+    "kpiTotalUsersDesc": "Pacientes registados",
+    "kpiVerifiedPros": "Profissionais Verificados",
+    "kpiVerifiedProsDesc": "Verificacao completa",
+    "kpiMonthlyAppointments": "Consultas Este Mes",
+    "kpiMonthlyAppointmentsDesc": "Mes corrente",
+    "kpiTodayAppointments": "Consultas Hoje",
+    "kpiOpenTickets": "Tickets Abertos",
+    "kpiOpenTicketsDesc": "Suporte pendente",
+    "topProfessionals": "Top Profissionais",
+    "topProfessionalsDesc": "Os profissionais com melhor desempenho",
+    "alertsTitle": "Alertas do Sistema",
+    "alertPendingVerification": "{count} profissional aguarda verificacao",
+    "alertPendingVerifications": "{count} profissionais aguardam verificacao",
+    "alertOpenTicket": "{count} ticket de suporte aberto",
+    "alertOpenTickets": "{count} tickets de suporte abertos",
+    "tableSpecialty": "Especialidade",
+    "tableCity": "Cidade",
+    "tableRating": "Avaliacao",
+    "tableAppointments": "Consultas",
+    "tableReviews": "Avaliacoes",
+    "emptyTitle": "Nenhum profissional encontrado",
+    "emptyDescription": "Ainda nao existem profissionais na plataforma."
+  },
+  "users": {
+    "title": "Utilizadores",
+    "description": "Gerir todos os utilizadores da plataforma",
+    "tableEmail": "Email",
+    "tableRole": "Funcao",
+    "tableRegisteredAt": "Registado em",
+    "emptyTitle": "Nenhum utilizador encontrado",
+    "activate": "Ativar",
+    "suspend": "Suspender",
+    "statusUpdated": "Estado do utilizador atualizado",
+    "confirmTitle": "{action} utilizador?",
+    "confirmDescription": "Tem a certeza que pretende {action} este utilizador?",
+    "searchPlaceholder": "Pesquisar por nome ou email...",
+    "roleFilter": "Funcao",
+    "allRoles": "Todas as funcoes"
+  },
+  "professionals": {
+    "title": "Profissionais",
+    "description": "Gerir profissionais e verificacoes",
+    "tableSpecialty": "Especialidade",
+    "tableCity": "Cidade",
+    "tableRating": "Avaliacao",
+    "emptyTitle": "Nenhum profissional encontrado",
+    "verify": "Verificar",
+    "reject": "Rejeitar",
+    "statusUpdated": "Estado de verificacao atualizado",
+    "confirmTitle": "{action} profissional?",
+    "confirmDescription": "Tem a certeza que pretende {action} este profissional?",
+    "searchPlaceholder": "Pesquisar por nome...",
+    "specialtyFilter": "Especialidade",
+    "allSpecialties": "Todas as especialidades",
+    "cityFilter": "Cidade",
+    "allCities": "Todas as cidades"
+  },
+  "appointments": {
+    "title": "Consultas",
+    "description": "Todas as consultas da plataforma",
+    "tablePatient": "Paciente",
+    "tableProfessional": "Profissional",
+    "tableDate": "Data",
+    "tableTime": "Hora",
+    "emptyTitle": "Nenhuma consulta encontrada",
+    "searchPlaceholder": "Pesquisar paciente ou profissional...",
+    "dateFrom": "Data inicial",
+    "dateTo": "Data final",
+    "today": "Hoje",
+    "thisWeek": "Esta Semana",
+    "thisMonth": "Este Mes"
+  },
+  "support": {
+    "title": "Suporte",
+    "description": "Tickets de suporte dos utilizadores",
+    "tableSubject": "Assunto",
+    "tableUser": "Utilizador",
+    "tablePriority": "Prioridade",
+    "tableUpdatedAt": "Atualizado",
+    "emptyTitle": "Nenhum ticket de suporte encontrado",
+    "changeStatus": "Alterar estado:",
+    "changeStatusLabel": "Alterar estado do ticket",
+    "statusUpdated": "Estado do ticket atualizado",
+    "noMessages": "Sem mensagens neste ticket.",
+    "searchPlaceholder": "Pesquisar tickets...",
+    "priorityFilter": "Prioridade",
+    "allPriorities": "Todas as prioridades"
+  },
+  "content": {
+    "title": "Conteudo",
+    "description": "Gerir paginas e perguntas frequentes",
+    "tabPages": "Paginas",
+    "tabFaqs": "FAQs",
+    "pagesSlug": "Slug",
+    "pagesTitlePt": "Titulo (PT)",
+    "pagesPublished": "Publicada",
+    "pagesUpdatedAt": "Atualizada em",
+    "pagesEmptyTitle": "Nenhuma pagina encontrada",
+    "pagesEmptyDescription": "Nao existem paginas de conteudo na base de dados.",
+    "faqsQuestionPt": "Pergunta (PT)",
+    "faqsCategory": "Categoria",
+    "faqsOrder": "Ordem",
+    "faqsPublished": "Publicada",
+    "faqsEmptyTitle": "Nenhuma FAQ encontrada",
+    "faqsEmptyDescription": "Nao existem FAQs na base de dados.",
+    "published": "Publicado",
+    "unpublished": "Despublicado",
+    "unpublishLabel": "Despublicar",
+    "publishLabel": "Publicar"
+  },
+  "settings": {
+    "title": "Configuracoes",
+    "description": "Definicoes do sistema da plataforma",
+    "groupPlatform": "Plataforma",
+    "groupNotification": "Notificacoes",
+    "groupAppointment": "Consultas",
+    "groupGoogle": "Google Calendar",
+    "valueLabel": "Valor de",
+    "updateConfirmTitle": "Atualizar configuracao?",
+    "updateConfirmDesc": "Tem a certeza que pretende alterar \"{key}\"?",
+    "updated": "Configuracao atualizada",
+    "emptyTitle": "Nenhuma configuracao encontrada",
+    "emptyDescription": "Nao existem configuracoes na base de dados."
+  }
+}
