@@ -2,48 +2,27 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserMinus, UserX } from "lucide-react";
-import { toast } from "sonner";
-import { markAttendance } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import type { Appointment, ExternalEvent } from "./AgendaClient";
-import type { AttendanceStatus } from "@/types";
+import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock, HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
+import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
+import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 
 const END_HOUR = 20;
 const SLOT_MINUTES = 30;
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
-  (_, i) => START_HOUR + i
+  (_, i) => START_HOUR + i,
 );
-
-const statusVariant: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  confirmed: "default",
-  pending: "secondary",
-  completed: "outline",
-  cancelled: "destructive",
-  "no-show": "destructive",
-};
 
 function pixelToTime(y: number): string {
   const totalMinutes = (y / HOUR_HEIGHT) * 60;
   const snapped = Math.round(totalMinutes / SLOT_MINUTES) * SLOT_MINUTES;
-  const hours = START_HOUR + Math.floor(snapped / 60);
-  const minutes = snapped % 60;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  const h = START_HOUR + Math.floor(snapped / 60);
+  const m = snapped % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 function snapPixel(y: number): number {
@@ -70,22 +49,13 @@ export function DayTimeGrid({
   onCreateAppointment,
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
-  const [selected, setSelected] = useState<Appointment | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const attendance = useAttendanceAction(onAttendanceChange);
 
   // Drag state
   const gridRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
-
-  const statusLabel: Record<string, string> = {
-    confirmed: t.common.status.confirmed,
-    pending: t.common.status.pending,
-    completed: t.common.status.completed,
-    cancelled: t.common.status.cancelled,
-    "no-show": t.common.status.noShow,
-  };
 
   const getGridY = useCallback((clientY: number): number => {
     if (!gridRef.current) return 0;
@@ -101,7 +71,7 @@ export function DayTimeGrid({
       setDragStartY(snapPixel(y));
       setDragCurrentY(snapPixel(y));
     },
-    [getGridY]
+    [getGridY],
   );
 
   const handleMouseMove = useCallback(
@@ -110,7 +80,7 @@ export function DayTimeGrid({
       const y = getGridY(e.clientY);
       setDragCurrentY(snapPixel(y));
     },
-    [isDragging, getGridY]
+    [isDragging, getGridY],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -145,55 +115,10 @@ export function DayTimeGrid({
     }
   }, [isDragging]);
 
-  // Attendance action from dialog
-  async function handleMarkAttendance(newStatus: AttendanceStatus) {
-    if (!selected || isUpdating) return;
-    const previousStatus = selected.appointment_attendance?.status ?? "waiting";
-    if (newStatus === previousStatus) return;
-
-    onAttendanceChange(selected.id, newStatus);
-    setSelected((prev) =>
-      prev
-        ? {
-            ...prev,
-            appointment_attendance: {
-              id: prev.appointment_attendance?.id ?? "optimistic",
-              status: newStatus,
-              marked_at: new Date().toISOString(),
-            },
-          }
-        : null
-    );
-    setIsUpdating(true);
-
-    const result = await markAttendance(selected.id, newStatus);
-
-    if (!result.success) {
-      onAttendanceChange(selected.id, previousStatus);
-      setSelected((prev) =>
-        prev
-          ? {
-              ...prev,
-              appointment_attendance: {
-                id: prev.appointment_attendance?.id ?? "optimistic",
-                status: previousStatus,
-                marked_at: null,
-              },
-            }
-          : null
-      );
-      toast.error(t.agenda.attendance.error);
-    } else {
-      toast.success(t.agenda.attendance.updated);
-    }
-
-    setIsUpdating(false);
-  }
-
   if (loading) {
     return (
       <Card>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-16 w-full" />
           ))}
@@ -213,35 +138,10 @@ export function DayTimeGrid({
       ? Math.abs(dragCurrentY - dragStartY)
       : 0;
 
-  const selectedAttendance = selected?.appointment_attendance?.status ?? "waiting";
-  const canMarkSelected =
-    selected && selected.status !== "cancelled" && selected.status !== "no-show";
-
-  const attendanceActions = [
-    {
-      status: "present" as AttendanceStatus,
-      label: t.agenda.attendance.statusPresent,
-      icon: UserCheck,
-      activeClass: "bg-green-600 hover:bg-green-700 text-white",
-    },
-    {
-      status: "late" as AttendanceStatus,
-      label: t.agenda.attendance.statusLate,
-      icon: UserMinus,
-      activeClass: "bg-amber-500 hover:bg-amber-600 text-white",
-    },
-    {
-      status: "absent" as AttendanceStatus,
-      label: t.agenda.attendance.statusAbsent,
-      icon: UserX,
-      activeClass: "bg-red-600 hover:bg-red-700 text-white",
-    },
-  ];
-
   return (
     <>
       <Card>
-        <CardContent className="overflow-x-auto pt-6">
+        <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
           <div
             ref={gridRef}
             className="relative select-none"
@@ -270,7 +170,7 @@ export function DayTimeGrid({
               <AppointmentBlock
                 key={apt.id}
                 appointment={apt}
-                onClick={setSelected}
+                onClick={attendance.setSelected}
               />
             ))}
 
@@ -289,7 +189,7 @@ export function DayTimeGrid({
                 const [sh, sm] = startParts.split(":").map(Number);
                 const [eh, em] = endParts.split(":").map(Number);
                 const topOffset = (sh - START_HOUR + sm / 60) * HOUR_HEIGHT;
-                const durationMinutes = (eh * 60 + em) - (sh * 60 + sm);
+                const durationMinutes = eh * 60 + em - (sh * 60 + sm);
                 const height = (durationMinutes / 60) * HOUR_HEIGHT;
 
                 if (topOffset < 0 || height <= 0) return null;
@@ -345,82 +245,12 @@ export function DayTimeGrid({
         </CardContent>
       </Card>
 
-      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t.agenda.appointmentDetails}</DialogTitle>
-          </DialogHeader>
-          {selected && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">
-                  {selected.patients?.first_name
-                    ? `${selected.patients.first_name} ${selected.patients.last_name}`
-                    : selected.title || t.agenda.manualAppointment}
-                </p>
-                <div className="flex items-center gap-2">
-                  {selected.created_via === "manual" && (
-                    <Badge variant="outline">{t.agenda.manualAppointment}</Badge>
-                  )}
-                  <Badge variant={statusVariant[selected.status] ?? "outline"}>
-                    {statusLabel[selected.status] ?? selected.status}
-                  </Badge>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.time}</p>
-                  <p>{selected.appointment_time?.slice(0, 5)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.duration}</p>
-                  <p>{selected.duration_minutes} {t.common.min}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.service}</p>
-                  <p>{selected.services?.name ?? "-"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.type}</p>
-                  <p className="capitalize">{selected.consultation_type}</p>
-                </div>
-              </div>
-              {selected.notes && (
-                <div className="text-sm">
-                  <p className="text-muted-foreground">{t.agenda.notes}</p>
-                  <p>{selected.notes}</p>
-                </div>
-              )}
-
-              {/* Attendance section */}
-              {canMarkSelected && (
-                <div className="border-t pt-4">
-                  <p className="mb-3 text-sm font-medium">{t.agenda.attendance.markAttendance}</p>
-                  <div className="flex gap-2">
-                    {attendanceActions.map((action) => {
-                      const Icon = action.icon;
-                      const isActive = selectedAttendance === action.status;
-                      return (
-                        <Button
-                          key={action.status}
-                          variant={isActive ? "default" : "outline"}
-                          size="sm"
-                          className={`flex-1 gap-1.5 ${isActive ? action.activeClass : ""}`}
-                          disabled={isUpdating}
-                          onClick={() => handleMarkAttendance(action.status)}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {action.label}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AppointmentDetailDialog
+        selected={attendance.selected}
+        onClose={() => attendance.setSelected(null)}
+        onMarkAttendance={attendance.handleMarkAttendance}
+        isUpdating={attendance.isUpdating}
+      />
     </>
   );
 }

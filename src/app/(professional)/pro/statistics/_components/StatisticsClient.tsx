@@ -13,7 +13,6 @@ import {
 } from "./ServiceBreakdownChart";
 import { ChannelChart, type ChannelStat } from "./ChannelChart";
 import { PunctualityChart, type PunctualityData } from "./PunctualityChart";
-import { RetentionCard, type RetentionData } from "./RetentionCard";
 import { InsightsTable, type Insight } from "./InsightsTable";
 
 interface ServiceOption {
@@ -28,7 +27,6 @@ export interface DashboardData {
   serviceBreakdown: ServiceStat[];
   channels: ChannelStat[];
   punctuality: PunctualityData;
-  retention: RetentionData;
   insights: Insight[];
   filters: {
     range: string;
@@ -75,10 +73,7 @@ export function StatisticsClient({ data }: { data: DashboardData }) {
         <PunctualityChart data={data.punctuality} />
       </div>
 
-      {/* D) Retention */}
-      <RetentionCard data={data.retention} />
-
-      {/* E) Insights */}
+      {/* Insights */}
       <InsightsTable insights={data.insights} />
     </div>
   );

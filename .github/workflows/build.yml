@@ -1,0 +1,35 @@
+# Build gate: clean working tree + npm ci + build.
+# Prevents Vercel deploy of commits with untracked src/ files.
+name: Build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Require clean working tree
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Working tree is not clean. Commit or stash all changes."
+            git status --porcelain
+            exit 1
+          fi
+
+      - name: Check no untracked files under src/
+        run: npm run check:tracked
+
+      - name: Install and build
+        run: npm run build:ci

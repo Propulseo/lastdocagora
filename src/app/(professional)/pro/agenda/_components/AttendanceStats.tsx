@@ -65,7 +65,7 @@ export function AttendanceStats({ stats }: AttendanceStatsProps) {
           const Icon = card.icon;
           return (
             <Card key={card.key}>
-              <CardContent className="flex items-center gap-3 pt-6">
+              <CardContent className="flex items-center gap-3">
                 <div className={`rounded-lg p-2 ${card.bg}`}>
                   <Icon className={`h-5 w-5 ${card.color}`} />
                 </div>

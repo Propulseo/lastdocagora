@@ -1,0 +1,247 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useProfessionalI18n } from "@/lib/i18n/pro";
+import type { Appointment, ExternalEvent } from "../_types/agenda";
+import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+
+type PeriodFilter = "day" | "week" | "month";
+
+interface UseAgendaDataParams {
+  professionalId: string;
+  userId: string;
+}
+
+export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
+  const { t } = useProfessionalI18n();
+
+  const [selectedDate, setSelectedDate] = useState(() => toLocalDateStr(new Date()));
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("day");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createStartTime, setCreateStartTime] = useState("");
+  const [createEndTime, setCreateEndTime] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
+  const [externalEvents, setExternalEvents] = useState<ExternalEvent[]>([]);
+  const [externalEventsKey, setExternalEventsKey] = useState(0);
+
+  const handleAttendanceChange = useCallback(
+    (appointmentId: string, newStatus: string) => {
+      setAppointments((prev) =>
+        prev.map((apt) =>
+          apt.id === appointmentId
+            ? {
+                ...apt,
+                appointment_attendance: {
+                  id: apt.appointment_attendance?.id ?? "optimistic",
+                  status: newStatus,
+                  marked_at: new Date().toISOString(),
+                },
+              }
+            : apt,
+        ),
+      );
+    },
+    [],
+  );
+
+  const supabase = useMemo(() => createClient(), []);
+
+  // Fetch appointments
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      let query = supabase
+        .from("appointments")
+        .select(
+          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, patients(first_name, last_name), services(name), appointment_attendance(id, status, marked_at)",
+        )
+        .eq("professional_id", professionalId)
+        .order("appointment_time", { ascending: true });
+
+      if (periodFilter === "day") {
+        query = query.eq("appointment_date", selectedDate);
+      } else if (periodFilter === "week") {
+        const d = parseLocalDate(selectedDate);
+        const day = d.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        const weekStart = new Date(d);
+        weekStart.setDate(d.getDate() + diff);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        query = query
+          .gte("appointment_date", toLocalDateStr(weekStart))
+          .lte("appointment_date", toLocalDateStr(weekEnd));
+      } else {
+        const d = parseLocalDate(selectedDate);
+        const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+        const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        query = query
+          .gte("appointment_date", toLocalDateStr(monthStart))
+          .lte("appointment_date", toLocalDateStr(monthEnd));
+      }
+
+      if (statusFilters.length > 0) {
+        query = query.in("status", statusFilters);
+      }
+
+      const { data } = await query;
+      if (!cancelled) {
+        setAppointments((data as Appointment[]) ?? []);
+        setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, professionalId, selectedDate, periodFilter, statusFilters, refreshKey]);
+
+  // Fetch external calendar events
+  useEffect(() => {
+    async function loadExternalEvents() {
+      let rangeStart: string;
+      let rangeEnd: string;
+
+      if (periodFilter === "day") {
+        rangeStart = `${selectedDate}T00:00:00`;
+        rangeEnd = `${selectedDate}T23:59:59`;
+      } else if (periodFilter === "week") {
+        const d = parseLocalDate(selectedDate);
+        const day = d.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        const weekStart = new Date(d);
+        weekStart.setDate(d.getDate() + diff);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        rangeStart = `${toLocalDateStr(weekStart)}T00:00:00`;
+        rangeEnd = `${toLocalDateStr(weekEnd)}T23:59:59`;
+      } else {
+        const d = parseLocalDate(selectedDate);
+        const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+        const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        rangeStart = `${toLocalDateStr(monthStart)}T00:00:00`;
+        rangeEnd = `${toLocalDateStr(monthEnd)}T23:59:59`;
+      }
+
+      const { data: events } = await supabase
+        .from("external_calendar_events")
+        .select("id, title, starts_at, ends_at, all_day, status, provider, calendar_id")
+        .eq("professional_user_id", userId)
+        .gte("ends_at", rangeStart)
+        .lte("starts_at", rangeEnd)
+        .neq("status", "cancelled")
+        .order("starts_at", { ascending: true });
+
+      if (!events || events.length === 0) {
+        setExternalEvents([]);
+        return;
+      }
+
+      const calendarIds = [...new Set(events.map((e) => e.calendar_id))];
+      const { data: cals } = await supabase
+        .from("calendar_calendars")
+        .select("id, color, name, selected")
+        .in("id", calendarIds);
+
+      const calMap = new Map(
+        (cals ?? []).map((c) => [c.id, { color: c.color, name: c.name, selected: c.selected }]),
+      );
+
+      const mapped: ExternalEvent[] = events
+        .filter((e) => {
+          const cal = calMap.get(e.calendar_id);
+          return cal?.selected !== false;
+        })
+        .map((e) => {
+          const cal = calMap.get(e.calendar_id);
+          return {
+            id: e.id,
+            title: e.title,
+            starts_at: e.starts_at,
+            ends_at: e.ends_at,
+            all_day: e.all_day,
+            status: e.status,
+            provider: e.provider,
+            color: cal?.color ?? null,
+            calendar_name: cal?.name ?? "",
+          };
+        });
+
+      setExternalEvents(mapped);
+    }
+
+    loadExternalEvents();
+  }, [supabase, userId, selectedDate, periodFilter, externalEventsKey]);
+
+  // Today stats
+  const todayStr = toLocalDateStr(new Date());
+  const todayAppointments = useMemo(
+    () => appointments.filter((a) => a.appointment_date === todayStr),
+    [appointments, todayStr],
+  );
+
+  const stats = useMemo(() => {
+    const total = todayAppointments.length;
+    let present = 0;
+    let late = 0;
+    let absent = 0;
+    let waiting = 0;
+
+    for (const apt of todayAppointments) {
+      const att = apt.appointment_attendance;
+      if (att) {
+        const s = att.status;
+        if (s === "present") present++;
+        else if (s === "late") late++;
+        else if (s === "absent") absent++;
+        else waiting++;
+      } else {
+        waiting++;
+      }
+    }
+
+    return { total, present, late, absent, waiting };
+  }, [todayAppointments]);
+
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+  const refreshExternalEvents = useCallback(() => setExternalEventsKey((k) => k + 1), []);
+
+  const openCreateDialog = useCallback((startTime: string, endTime: string) => {
+    setCreateStartTime(startTime);
+    setCreateEndTime(endTime);
+    setCreateDialogOpen(true);
+  }, []);
+
+  return {
+    t,
+    selectedDate,
+    setSelectedDate,
+    periodFilter,
+    setPeriodFilter,
+    statusFilters,
+    setStatusFilters,
+    appointments,
+    externalEvents,
+    loading,
+    stats,
+    modalOpen,
+    setModalOpen,
+    createDialogOpen,
+    setCreateDialogOpen,
+    createStartTime,
+    createEndTime,
+    calendarDialogOpen,
+    setCalendarDialogOpen,
+    handleAttendanceChange,
+    refresh,
+    refreshExternalEvents,
+    openCreateDialog,
+  };
+}

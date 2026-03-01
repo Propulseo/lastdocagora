@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { updateUserStatus } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface UserRow {
   id: string;
@@ -31,6 +32,7 @@ interface UsersTableProps {
 }
 
 export function UsersTable({ data }: UsersTableProps) {
+  const { t } = useAdminI18n();
   const [confirm, setConfirm] = useState<{
     userId: string;
     status: string;
@@ -47,18 +49,20 @@ export function UsersTable({ data }: UsersTableProps) {
     startTransition(async () => {
       const result = await updateUserStatus(confirm.userId, confirm.status);
       if (result.success) {
-        toast.success("Estado do utilizador atualizado");
+        toast.success(t.users.statusUpdated);
       } else {
-        toast.error(result.error ?? "Erro ao atualizar");
+        toast.error(result.error ?? t.common.errorUpdating);
       }
       setConfirm(null);
     });
   }
 
+  const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
+
   const columns: ColumnDef<UserRow>[] = [
     {
       key: "name",
-      header: "Nome",
+      header: t.common.name,
       render: (row) => (
         <div className="flex items-center gap-2">
           <Avatar size="sm">
@@ -73,25 +77,31 @@ export function UsersTable({ data }: UsersTableProps) {
         </div>
       ),
     },
-    { key: "email", header: "Email", render: (row) => row.email },
+    { key: "email", header: t.users.tableEmail, render: (row) => row.email },
     {
       key: "role",
-      header: "Funcao",
-      render: (row) => <StatusBadge type="role" value={row.role} />,
+      header: t.users.tableRole,
+      render: (row) => (
+        <StatusBadge type="role" value={row.role} labels={t.statuses.role} />
+      ),
     },
     {
       key: "status",
-      header: "Estado",
+      header: t.common.status,
       render: (row) => (
-        <StatusBadge type="userStatus" value={row.status ?? "active"} />
+        <StatusBadge
+          type="userStatus"
+          value={row.status ?? "active"}
+          labels={t.statuses.userStatus}
+        />
       ),
     },
     {
       key: "created_at",
-      header: "Registado em",
+      header: t.users.tableRegisteredAt,
       render: (row) =>
         row.created_at
-          ? new Date(row.created_at).toLocaleDateString("pt-PT")
+          ? new Date(row.created_at).toLocaleDateString(dateLocale)
           : "—",
     },
     {
@@ -101,24 +111,28 @@ export function UsersTable({ data }: UsersTableProps) {
       render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" aria-label="Acoes">
+            <Button variant="ghost" size="sm" aria-label={t.common.actions}>
               <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {(row.status ?? "active") !== "active" && (
               <DropdownMenuItem
-                onClick={() => handleAction(row.id, "active", "Ativar")}
+                onClick={() =>
+                  handleAction(row.id, "active", t.users.activate)
+                }
               >
-                Ativar
+                {t.users.activate}
               </DropdownMenuItem>
             )}
             {(row.status ?? "active") !== "suspended" && (
               <DropdownMenuItem
-                onClick={() => handleAction(row.id, "suspended", "Suspender")}
+                onClick={() =>
+                  handleAction(row.id, "suspended", t.users.suspend)
+                }
                 className="text-destructive"
               >
-                Suspender
+                {t.users.suspend}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -133,15 +147,18 @@ export function UsersTable({ data }: UsersTableProps) {
         columns={columns}
         data={data}
         rowKey={(row) => row.id}
-        emptyTitle="Nenhum utilizador encontrado"
-        emptyDescription="Tente ajustar os filtros de pesquisa."
+        emptyTitle={t.users.emptyTitle}
+        emptyDescription={t.common.noResultsHint}
       />
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(open) => !open && setConfirm(null)}
-        title={`${confirm?.label} utilizador?`}
-        description={`Tem a certeza que pretende ${confirm?.label?.toLowerCase()} este utilizador?`}
-        confirmLabel={confirm?.label ?? "Confirmar"}
+        title={t.users.confirmTitle.replace("{action}", confirm?.label ?? "")}
+        description={t.users.confirmDescription.replace(
+          "{action}",
+          confirm?.label?.toLowerCase() ?? ""
+        )}
+        confirmLabel={confirm?.label ?? t.common.confirm}
         variant={confirm?.status === "suspended" ? "destructive" : "default"}
         loading={isPending}
         onConfirm={handleConfirm}

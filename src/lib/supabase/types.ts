@@ -1006,7 +1006,6 @@ export type Database = {
           marketing_emails: boolean
           public_profile: boolean
           reminder_frequency: string
-          share_medical_history: boolean
           sms_notifications: boolean
           timezone: string
           updated_at: string
@@ -1022,7 +1021,6 @@ export type Database = {
           marketing_emails?: boolean
           public_profile?: boolean
           reminder_frequency?: string
-          share_medical_history?: boolean
           sms_notifications?: boolean
           timezone?: string
           updated_at?: string
@@ -1038,7 +1036,6 @@ export type Database = {
           marketing_emails?: boolean
           public_profile?: boolean
           reminder_frequency?: string
-          share_medical_history?: boolean
           sms_notifications?: boolean
           timezone?: string
           updated_at?: string
@@ -1057,9 +1054,7 @@ export type Database = {
       patients: {
         Row: {
           address: string | null
-          allergies: string[] | null
           avatar_url: string | null
-          blood_type: string | null
           city: string | null
           created_at: string | null
           created_by_professional_id: string | null
@@ -1072,7 +1067,6 @@ export type Database = {
           gender: string | null
           id: string
           last_name: string | null
-          medical_notes: string | null
           phone: string | null
           postal_code: string | null
           updated_at: string | null
@@ -1080,9 +1074,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          allergies?: string[] | null
           avatar_url?: string | null
-          blood_type?: string | null
           city?: string | null
           created_at?: string | null
           created_by_professional_id?: string | null
@@ -1095,7 +1087,6 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string | null
-          medical_notes?: string | null
           phone?: string | null
           postal_code?: string | null
           updated_at?: string | null
@@ -1103,9 +1094,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          allergies?: string[] | null
           avatar_url?: string | null
-          blood_type?: string | null
           city?: string | null
           created_at?: string | null
           created_by_professional_id?: string | null
@@ -1118,7 +1107,6 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string | null
-          medical_notes?: string | null
           phone?: string | null
           postal_code?: string | null
           updated_at?: string | null
@@ -1780,6 +1768,43 @@ export type Database = {
           total_revenue: number | null
         }
         Relationships: []
+      }
+      professional_ratings_detail: {
+        Row: {
+          appointment_date: string | null
+          comment: string | null
+          created_at: string | null
+          id: string | null
+          patient_first_name: string | null
+          patient_last_name: string | null
+          professional_id: string | null
+          professional_user_id: string | null
+          rating: number | null
+          service_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       top_professionals: {
         Row: {

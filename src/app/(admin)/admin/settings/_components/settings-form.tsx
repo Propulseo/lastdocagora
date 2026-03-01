@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { updateSystemSetting } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { Pencil, Check, X } from "lucide-react";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface Setting {
   id: string;
@@ -22,6 +23,7 @@ interface SettingsFormProps {
 }
 
 function SettingRow({ setting }: { setting: Setting }) {
+  const { t } = useAdminI18n();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(formatValue(setting.setting_value));
   const [confirm, setConfirm] = useState(false);
@@ -35,10 +37,10 @@ function SettingRow({ setting }: { setting: Setting }) {
     startTransition(async () => {
       const result = await updateSystemSetting(setting.id, value);
       if (result.success) {
-        toast.success("Configuracao atualizada");
+        toast.success(t.settings.updated);
         setEditing(false);
       } else {
-        toast.error(result.error ?? "Erro ao atualizar");
+        toast.error(result.error ?? t.common.errorUpdating);
       }
       setConfirm(false);
     });
@@ -59,9 +61,9 @@ function SettingRow({ setting }: { setting: Setting }) {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               className="max-w-sm font-mono text-sm"
-              aria-label={`Valor de ${setting.setting_key}`}
+              aria-label={`${t.settings.valueLabel} ${setting.setting_key}`}
             />
-            <Button size="sm" onClick={handleSave} aria-label="Guardar">
+            <Button size="sm" onClick={handleSave} aria-label={t.common.save}>
               <Check className="size-4" />
             </Button>
             <Button
@@ -71,7 +73,7 @@ function SettingRow({ setting }: { setting: Setting }) {
                 setEditing(false);
                 setValue(formatValue(setting.setting_value));
               }}
-              aria-label="Cancelar"
+              aria-label={t.common.cancel}
             >
               <X className="size-4" />
             </Button>
@@ -87,7 +89,7 @@ function SettingRow({ setting }: { setting: Setting }) {
           variant="ghost"
           size="sm"
           onClick={() => setEditing(true)}
-          aria-label={`Editar ${setting.setting_key}`}
+          aria-label={`${t.common.actions} ${setting.setting_key}`}
         >
           <Pencil className="size-4" />
         </Button>
@@ -95,9 +97,12 @@ function SettingRow({ setting }: { setting: Setting }) {
       <ConfirmDialog
         open={confirm}
         onOpenChange={setConfirm}
-        title="Atualizar configuracao?"
-        description={`Tem a certeza que pretende alterar "${setting.setting_key}"?`}
-        confirmLabel="Guardar"
+        title={t.settings.updateConfirmTitle}
+        description={t.settings.updateConfirmDesc.replace(
+          "{key}",
+          setting.setting_key
+        )}
+        confirmLabel={t.common.save}
         loading={isPending}
         onConfirm={handleConfirm}
       />
@@ -111,14 +116,16 @@ function formatValue(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
 
-const groupLabels: Record<string, string> = {
-  platform: "Plataforma",
-  notification: "Notificacoes",
-  appointment: "Consultas",
-  payment: "Pagamentos",
-};
-
 export function SettingsForm({ groups }: SettingsFormProps) {
+  const { t } = useAdminI18n();
+
+  const groupLabels: Record<string, string> = {
+    platform: t.settings.groupPlatform,
+    notification: t.settings.groupNotification,
+    appointment: t.settings.groupAppointment,
+    google: t.settings.groupGoogle,
+  };
+
   return (
     <div className="space-y-6">
       {Object.entries(groups).map(([prefix, settings]) => (

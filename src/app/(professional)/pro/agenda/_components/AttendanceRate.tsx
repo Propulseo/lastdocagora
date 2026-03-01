@@ -23,7 +23,7 @@ export function AttendanceRate({ stats }: AttendanceRateProps) {
 
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent>
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm font-medium">{a.attendanceRate}</p>
           <p className="text-sm font-bold">{rate}%</p>

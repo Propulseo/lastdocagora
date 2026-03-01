@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { Pagination } from "@/components/shared/pagination";
 import { AppointmentsFilters } from "./_components/appointments-filters";
 import { AppointmentsTable } from "./_components/appointments-table";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 const PAGE_SIZE = 20;
 
@@ -34,7 +34,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
   let query = supabase
     .from("appointments")
     .select(
-      `id, appointment_date, appointment_time, status, payment_status,
+      `id, appointment_date, appointment_time, status,
        patients!appointments_patient_id_fkey(first_name, last_name),
        professionals!appointments_professional_id_fkey(
          users!professionals_user_id_fkey(first_name, last_name)
@@ -78,16 +78,12 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
       date: apt.appointment_date,
       time: apt.appointment_time.slice(0, 5),
       status: apt.status,
-      payment_status: apt.payment_status ?? "pending",
     };
   });
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Consultas"
-        description="Todas as consultas da plataforma"
-      />
+      <AdminPageHeader section="appointments" />
 
       <AppointmentsFilters />
       <AppointmentsTable data={mapped} />

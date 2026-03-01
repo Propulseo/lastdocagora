@@ -11,8 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 export function AppointmentsFilters() {
+  const { t } = useAdminI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -54,21 +56,34 @@ export function AppointmentsFilters() {
   return (
     <div className="rounded-lg bg-muted/20 p-3">
       <div className="flex flex-wrap items-center gap-3">
-        <SearchInput placeholder="Pesquisar paciente ou profissional..." />
+        <SearchInput placeholder={t.appointments.searchPlaceholder} />
         <Select
           defaultValue={searchParams.get("status") ?? "all"}
           onValueChange={(value) => updateParam("status", value)}
         >
-          <SelectTrigger className="w-[160px]" aria-label="Filtrar por estado">
-            <SelectValue placeholder="Estado" />
+          <SelectTrigger
+            className="w-[160px]"
+            aria-label={t.common.filterByStatus}
+          >
+            <SelectValue placeholder={t.common.status} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os estados</SelectItem>
-            <SelectItem value="scheduled">Agendada</SelectItem>
-            <SelectItem value="confirmed">Confirmada</SelectItem>
-            <SelectItem value="completed">Concluida</SelectItem>
-            <SelectItem value="cancelled">Cancelada</SelectItem>
-            <SelectItem value="no_show">Falta</SelectItem>
+            <SelectItem value="all">{t.common.allStatuses}</SelectItem>
+            <SelectItem value="scheduled">
+              {t.statuses.appointment.scheduled}
+            </SelectItem>
+            <SelectItem value="confirmed">
+              {t.statuses.appointment.confirmed}
+            </SelectItem>
+            <SelectItem value="completed">
+              {t.statuses.appointment.completed}
+            </SelectItem>
+            <SelectItem value="cancelled">
+              {t.statuses.appointment.cancelled}
+            </SelectItem>
+            <SelectItem value="no_show">
+              {t.statuses.appointment.no_show}
+            </SelectItem>
           </SelectContent>
         </Select>
         <Input
@@ -76,14 +91,14 @@ export function AppointmentsFilters() {
           defaultValue={searchParams.get("from") ?? ""}
           onChange={(e) => updateParam("from", e.target.value)}
           className="w-[160px]"
-          aria-label="Data inicial"
+          aria-label={t.appointments.dateFrom}
         />
         <Input
           type="date"
           defaultValue={searchParams.get("to") ?? ""}
           onChange={(e) => updateParam("to", e.target.value)}
           className="w-[160px]"
-          aria-label="Data final"
+          aria-label={t.appointments.dateTo}
         />
         <div className="flex gap-1">
           <Button
@@ -91,21 +106,21 @@ export function AppointmentsFilters() {
             size="sm"
             onClick={() => setQuickPeriod("today")}
           >
-            Hoje
+            {t.appointments.today}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setQuickPeriod("week")}
           >
-            Esta Semana
+            {t.appointments.thisWeek}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setQuickPeriod("month")}
           >
-            Este Mes
+            {t.appointments.thisMonth}
           </Button>
         </div>
       </div>

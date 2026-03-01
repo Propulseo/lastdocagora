@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { Pagination } from "@/components/shared/pagination";
 import { UsersFilters } from "./_components/users-filters";
 import { UsersTable } from "./_components/users-table";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 const PAGE_SIZE = 20;
 
@@ -47,10 +47,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Utilizadores"
-        description="Gerir todos os utilizadores da plataforma"
-      />
+      <AdminPageHeader section="users" />
 
       <UsersFilters />
       <UsersTable data={(users ?? []) as never[]} />

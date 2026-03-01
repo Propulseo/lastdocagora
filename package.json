@@ -5,8 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:ci": "npm ci && npm run build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:i18n": "npx tsx scripts/check-i18n-parity.ts",
+    "audit:lines": "node scripts/audit-lines.mjs",
+    "check:tracked": "node scripts/check-tracked-source.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -20,11 +24,14 @@
     "next": "16.1.6",
     "next-themes": "^0.4.6",
     "nuqs": "^2.8.8",
+    "openai": "^6.22.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-day-picker": "^9.13.2",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.2",
+    "recharts": "^3.7.0",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6",

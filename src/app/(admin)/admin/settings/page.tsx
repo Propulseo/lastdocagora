@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { SettingsForm } from "./_components/settings-form";
+import { AdminPageHeader } from "../../_components/admin-page-header";
+import { SettingsContent } from "./_components/settings-content";
 
 interface Setting {
   id: string;
@@ -31,19 +30,8 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Configuracoes"
-        description="Definicoes do sistema da plataforma"
-      />
-
-      {items.length > 0 ? (
-        <SettingsForm groups={groups} />
-      ) : (
-        <EmptyState
-          title="Nenhuma configuracao encontrada"
-          description="Nao existem configuracoes na base de dados."
-        />
-      )}
+      <AdminPageHeader section="settings" />
+      <SettingsContent groups={groups} isEmpty={items.length === 0} />
     </div>
   );
 }

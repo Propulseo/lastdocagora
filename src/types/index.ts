@@ -7,11 +7,9 @@ export type AppointmentStatus =
   | "cancelled"
   | "no-show";
 
-export type PaymentStatus = "paid" | "invoice_sent" | "unpaid" | "reminder_sent";
-
 export type VerificationStatus = "pending" | "verified" | "rejected";
 
-export type ConsultationType = "in-person" | "online" | "both";
+export type ConsultationType = "in-person";
 
 export type PracticeType =
   | "doctor"
@@ -34,3 +32,5 @@ export type AttendanceStatus =
 export type NotificationChannel = "email" | "sms" | "push";
 
 export type ReminderTrigger = "before" | "after" | "immediate";
+
+export type CreatedVia = "patient_booking" | "manual";

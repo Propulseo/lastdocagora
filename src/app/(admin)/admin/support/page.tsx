@@ -1,16 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { PageHeader } from "@/components/shared/page-header";
-import { Pagination } from "@/components/shared/pagination";
-import { EmptyState } from "@/components/shared/empty-state";
-import { SupportFilters } from "./_components/support-filters";
-import { TicketRow } from "./_components/ticket-row";
+import { SupportClient } from "./_components/SupportClient";
 
 const PAGE_SIZE = 20;
 
@@ -65,48 +54,16 @@ export default async function SupportPage({ searchParams }: PageProps) {
       priority: t.priority,
       updated_at: t.updated_at,
       created_at: t.created_at,
-      user_email: user?.email ?? "—",
-      user_name: user ? `${user.first_name} ${user.last_name}` : "—",
+      user_email: user?.email ?? "\u2014",
+      user_name: user ? `${user.first_name} ${user.last_name}` : "\u2014",
     };
   });
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Suporte"
-        description="Tickets de suporte dos utilizadores"
-      />
-
-      <SupportFilters />
-
-      {mapped.length > 0 ? (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead scope="col" className="w-8" />
-                <TableHead scope="col">Assunto</TableHead>
-                <TableHead scope="col">Utilizador</TableHead>
-                <TableHead scope="col">Estado</TableHead>
-                <TableHead scope="col">Prioridade</TableHead>
-                <TableHead scope="col">Atualizado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mapped.map((ticket) => (
-                <TicketRow key={ticket.id} ticket={ticket} />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <EmptyState
-          title="Nenhum ticket de suporte encontrado"
-          description="Tente ajustar os filtros de pesquisa."
-        />
-      )}
-
-      <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
-    </div>
+    <SupportClient
+      tickets={mapped}
+      count={count ?? 0}
+      pageSize={PAGE_SIZE}
+    />
   );
 }

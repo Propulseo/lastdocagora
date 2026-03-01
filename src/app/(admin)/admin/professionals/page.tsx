@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { Pagination } from "@/components/shared/pagination";
 import { ProfessionalsFilters } from "./_components/professionals-filters";
 import { ProfessionalsTable } from "./_components/professionals-table";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 const PAGE_SIZE = 20;
 
@@ -87,10 +87,7 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Profissionais"
-        description="Gerir profissionais e verificacoes"
-      />
+      <AdminPageHeader section="professionals" />
 
       <ProfessionalsFilters specialties={specialties} cities={cities} />
       <ProfessionalsTable data={mapped} />

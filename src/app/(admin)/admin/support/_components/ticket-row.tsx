@@ -15,6 +15,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { updateTicketStatus } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface TicketMessage {
   id: string;
@@ -37,10 +38,13 @@ interface TicketRowProps {
 }
 
 export function TicketRow({ ticket }: TicketRowProps) {
+  const { t } = useAdminI18n();
   const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [, startTransition] = useTransition();
+
+  const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
 
   async function toggleExpand() {
     if (!expanded && messages.length === 0) {
@@ -61,9 +65,9 @@ export function TicketRow({ ticket }: TicketRowProps) {
     startTransition(async () => {
       const result = await updateTicketStatus(ticket.id, newStatus);
       if (result.success) {
-        toast.success("Estado do ticket atualizado");
+        toast.success(t.support.statusUpdated);
       } else {
-        toast.error(result.error ?? "Erro ao atualizar");
+        toast.error(result.error ?? t.common.errorUpdating);
       }
     });
   }
@@ -83,14 +87,22 @@ export function TicketRow({ ticket }: TicketRowProps) {
         <TableCell className="font-medium">{ticket.subject}</TableCell>
         <TableCell>{ticket.user_name}</TableCell>
         <TableCell>
-          <StatusBadge type="ticket" value={ticket.status} />
+          <StatusBadge
+            type="ticket"
+            value={ticket.status}
+            labels={t.statuses.ticket}
+          />
         </TableCell>
         <TableCell>
-          <StatusBadge type="priority" value={priority} />
+          <StatusBadge
+            type="priority"
+            value={priority}
+            labels={t.statuses.priority}
+          />
         </TableCell>
         <TableCell>
           {ticket.updated_at
-            ? new Date(ticket.updated_at).toLocaleDateString("pt-PT")
+            ? new Date(ticket.updated_at).toLocaleDateString(dateLocale)
             : "—"}
         </TableCell>
       </TableRow>
@@ -98,23 +110,33 @@ export function TicketRow({ ticket }: TicketRowProps) {
         <TableRow>
           <TableCell colSpan={6} className="bg-muted/30 p-4">
             <div className="mb-3 flex items-center gap-2">
-              <span className="text-sm font-medium">Alterar estado:</span>
+              <span className="text-sm font-medium">
+                {t.support.changeStatus}
+              </span>
               <Select
                 defaultValue={ticket.status}
                 onValueChange={handleStatusChange}
               >
                 <SelectTrigger
                   className="w-[160px]"
-                  aria-label="Alterar estado do ticket"
+                  aria-label={t.support.changeStatusLabel}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="open">Aberto</SelectItem>
-                  <SelectItem value="in_progress">Em progresso</SelectItem>
-                  <SelectItem value="resolved">Resolvido</SelectItem>
-                  <SelectItem value="closed">Fechado</SelectItem>
+                  <SelectItem value="open">
+                    {t.statuses.ticket.open}
+                  </SelectItem>
+                  <SelectItem value="in_progress">
+                    {t.statuses.ticket.in_progress}
+                  </SelectItem>
+                  <SelectItem value="resolved">
+                    {t.statuses.ticket.resolved}
+                  </SelectItem>
+                  <SelectItem value="closed">
+                    {t.statuses.ticket.closed}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -134,7 +156,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
                     <p>{msg.content}</p>
                     <p className="text-muted-foreground mt-1 text-xs">
                       {msg.created_at
-                        ? new Date(msg.created_at).toLocaleString("pt-PT")
+                        ? new Date(msg.created_at).toLocaleString(dateLocale)
                         : ""}
                     </p>
                   </div>
@@ -142,7 +164,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
               </div>
             ) : (
               <p className="text-muted-foreground text-sm">
-                Sem mensagens neste ticket.
+                {t.support.noMessages}
               </p>
             )}
           </TableCell>

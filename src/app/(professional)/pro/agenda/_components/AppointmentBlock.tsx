@@ -1,7 +1,7 @@
 "use client";
 
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import type { Appointment } from "./AgendaClient";
+import type { Appointment } from "../_types/agenda";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-blue-100 border-blue-400 text-blue-800",

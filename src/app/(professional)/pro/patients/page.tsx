@@ -1,41 +1,28 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { getProfessionalI18n } from "@/lib/i18n/pro/server";
+import { getProfessionalId } from "@/lib/auth";
 import { PatientsTable, type PatientRow } from "./_components/patients-table";
+import { ProPageHeader } from "../../_components/pro-page-header";
 import { CreatePatientDialog } from "./_components/create-patient-dialog";
 
 export default async function PatientsPage() {
+  const professionalId = await getProfessionalId();
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
 
-  const { data: professional } = await supabase
-    .from("professionals")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!professional) redirect("/login");
-
-  const { t } = await getProfessionalI18n();
-
-  // Fetch patients created by this professional
-  const { data: ownedPatients } = await supabase
-    .from("patients")
-    .select("id, first_name, last_name, email, phone")
-    .eq("created_by_professional_id", professional.id);
-
-  // Fetch patients from appointments (may overlap with owned)
-  const { data: appointments } = await supabase
-    .from("appointments")
-    .select(
-      "patient_id, appointment_date, patients(first_name, last_name, email, phone)"
-    )
-    .eq("professional_id", professional.id)
-    .order("appointment_date", { ascending: false });
+  // Fetch both sources in parallel
+  const [{ data: ownedPatients }, { data: appointments }] = await Promise.all([
+    supabase
+      .from("patients")
+      .select("id, first_name, last_name, email, phone")
+      .eq("created_by_professional_id", professionalId),
+    supabase
+      .from("appointments")
+      .select(
+        "patient_id, appointment_date, patients(first_name, last_name, email, phone)"
+      )
+      .eq("professional_id", professionalId)
+      .order("appointment_date", { ascending: false }),
+  ]);
 
   // Merge both sources into a map
   const patientMap = new Map<string, PatientRow>();
@@ -92,11 +79,7 @@ export default async function PatientsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t.patients.title}
-        description={t.patients.description}
-        action={<CreatePatientDialog />}
-      />
+      <ProPageHeader section="patients" action={<CreatePatientDialog />} />
       <PatientsTable patients={patients} />
     </div>
   );

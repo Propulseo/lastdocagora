@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { ContentTabs } from "./_components/content-tabs";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 export default async function ContentPage() {
   const supabase = await createClient();
@@ -18,10 +18,7 @@ export default async function ContentPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Conteudo"
-        description="Gerir paginas e perguntas frequentes"
-      />
+      <AdminPageHeader section="content" />
       <ContentTabs pages={pages ?? []} faqs={faqs ?? []} />
     </div>
   );

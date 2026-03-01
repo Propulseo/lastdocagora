@@ -29,6 +29,7 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Mandatory: refresh session cookie on every request
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -36,8 +37,10 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Public routes that don't require auth
-  const publicRoutes = ["/login", "/register", "/"];
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
 
   // If not authenticated and trying to access protected route
   if (!user && !isPublicRoute) {
@@ -46,41 +49,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If authenticated, fetch role and enforce route access
-  if (user) {
-    const { data: userData } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    const role = userData?.role;
-
-    // Redirect from auth pages to dashboard
-    if (isPublicRoute && pathname !== "/") {
-      const url = request.nextUrl.clone();
-      url.pathname = role === "admin" ? "/admin/dashboard" : role === "professional" ? "/pro/dashboard" : "/patient/dashboard";
-      return NextResponse.redirect(url);
-    }
-
-    // Enforce role-based route access
-    if (pathname.startsWith("/admin") && role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = role === "professional" ? "/pro/dashboard" : "/patient/dashboard";
-      return NextResponse.redirect(url);
-    }
-
-    if (pathname.startsWith("/pro") && role !== "professional" && role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = role === "admin" ? "/admin/dashboard" : "/patient/dashboard";
-      return NextResponse.redirect(url);
-    }
-
-    if (pathname.startsWith("/patient") && role !== "patient" && role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = role === "admin" ? "/admin/dashboard" : "/pro/dashboard";
-      return NextResponse.redirect(url);
-    }
+  // If authenticated on auth pages, redirect to root (which resolves role dashboard)
+  if (user && (pathname.startsWith("/login") || pathname.startsWith("/register"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;

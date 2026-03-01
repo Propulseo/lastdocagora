@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, ShieldCheck } from "lucide-react";
 import { updateVerificationStatus } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface ProfessionalRow {
   id: string;
@@ -31,6 +32,7 @@ interface ProfessionalsTableProps {
 }
 
 export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
+  const { t } = useAdminI18n();
   const [confirm, setConfirm] = useState<{
     id: string;
     status: string;
@@ -43,9 +45,9 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
     startTransition(async () => {
       const result = await updateVerificationStatus(confirm.id, confirm.status);
       if (result.success) {
-        toast.success("Estado de verificacao atualizado");
+        toast.success(t.professionals.statusUpdated);
       } else {
-        toast.error(result.error ?? "Erro ao atualizar");
+        toast.error(result.error ?? t.common.errorUpdating);
       }
       setConfirm(null);
     });
@@ -54,7 +56,7 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
   const columns: ColumnDef<ProfessionalRow>[] = [
     {
       key: "name",
-      header: "Nome",
+      header: t.common.name,
       render: (row) => (
         <div className="flex items-center gap-2">
           <span className="font-medium">{row.name}</span>
@@ -66,17 +68,17 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
     },
     {
       key: "specialty",
-      header: "Especialidade",
+      header: t.professionals.tableSpecialty,
       render: (row) => row.specialty,
     },
     {
       key: "city",
-      header: "Cidade",
+      header: t.professionals.tableCity,
       render: (row) => row.city ?? "—",
     },
     {
       key: "rating",
-      header: "Avaliacao",
+      header: t.professionals.tableRating,
       render: (row) =>
         row.rating != null ? (
           <Badge variant="secondary">
@@ -88,9 +90,13 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
     },
     {
       key: "status",
-      header: "Estado",
+      header: t.common.status,
       render: (row) => (
-        <StatusBadge type="verification" value={row.verification_status} />
+        <StatusBadge
+          type="verification"
+          value={row.verification_status}
+          labels={t.statuses.verification}
+        />
       ),
     },
     {
@@ -101,25 +107,33 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         row.verification_status === "pending" ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" aria-label="Acoes">
+              <Button variant="ghost" size="sm" aria-label={t.common.actions}>
                 <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() =>
-                  setConfirm({ id: row.id, status: "verified", label: "Verificar" })
+                  setConfirm({
+                    id: row.id,
+                    status: "verified",
+                    label: t.professionals.verify,
+                  })
                 }
               >
-                Verificar
+                {t.professionals.verify}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
-                  setConfirm({ id: row.id, status: "rejected", label: "Rejeitar" })
+                  setConfirm({
+                    id: row.id,
+                    status: "rejected",
+                    label: t.professionals.reject,
+                  })
                 }
                 className="text-destructive"
               >
-                Rejeitar
+                {t.professionals.reject}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -133,15 +147,21 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         columns={columns}
         data={data}
         rowKey={(row) => row.id}
-        emptyTitle="Nenhum profissional encontrado"
-        emptyDescription="Tente ajustar os filtros de pesquisa."
+        emptyTitle={t.professionals.emptyTitle}
+        emptyDescription={t.common.noResultsHint}
       />
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(open) => !open && setConfirm(null)}
-        title={`${confirm?.label} profissional?`}
-        description={`Tem a certeza que pretende ${confirm?.label?.toLowerCase()} este profissional?`}
-        confirmLabel={confirm?.label ?? "Confirmar"}
+        title={t.professionals.confirmTitle.replace(
+          "{action}",
+          confirm?.label ?? ""
+        )}
+        description={t.professionals.confirmDescription.replace(
+          "{action}",
+          confirm?.label?.toLowerCase() ?? ""
+        )}
+        confirmLabel={confirm?.label ?? t.common.confirm}
         variant={confirm?.status === "rejected" ? "destructive" : "default"}
         loading={isPending}
         onConfirm={handleConfirm}

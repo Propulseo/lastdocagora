@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./_components/admin-sidebar";
 import { AdminTopbar } from "./_components/admin-topbar";
@@ -18,33 +19,33 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+
+  if (!user || user.role !== "admin") {
+    redirect("/login");
+  }
+
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ data: profile }, { count: openTicketCount }, cookieStore] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("first_name, last_name, email, language")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("support_tickets")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]),
+      cookies(),
+    ]);
 
-  if (!user) {
+  if (!profile) {
     redirect("/login");
   }
-
-  const { data: profile } = await supabase
-    .from("users")
-    .select("first_name, last_name, email, role, language")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || profile.role !== "admin") {
-    redirect("/login");
-  }
-
-  const { count: openTicketCount } = await supabase
-    .from("support_tickets")
-    .select("id", { count: "exact", head: true })
-    .in("status", ["open", "in_progress"]);
 
   // Language detection: cookie → user profile → fallback "pt"
-  const cookieStore = await cookies();
   const cookieLang = cookieStore.get("docagora_lang")?.value;
   const rawLocale = cookieLang ?? profile.language ?? undefined;
   const { t, locale } = getAdminI18n(rawLocale);

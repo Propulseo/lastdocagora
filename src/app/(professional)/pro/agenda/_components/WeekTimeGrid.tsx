@@ -1,59 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserMinus, UserX } from "lucide-react";
-import { toast } from "sonner";
-import { markAttendance } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import type { Appointment, ExternalEvent } from "./AgendaClient";
 import { HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
-import type { AttendanceStatus } from "@/types";
+import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
+import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
+import { useAttendanceAction } from "../_hooks/useAttendanceAction";
+import type { Appointment, ExternalEvent } from "../_types/agenda";
+import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 
 const END_HOUR = 20;
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
-  (_, i) => START_HOUR + i
+  (_, i) => START_HOUR + i,
 );
 
-const statusColors: Record<string, string> = {
-  confirmed: "bg-blue-100 border-blue-400 text-blue-800",
-  pending: "bg-orange-100 border-orange-400 text-orange-800",
-  cancelled: "bg-red-100 border-red-400 text-red-800",
-  "no-show": "bg-red-100 border-red-400 text-red-800",
-  completed: "bg-gray-100 border-gray-400 text-gray-800",
-};
-
-const statusVariant: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  confirmed: "default",
-  pending: "secondary",
-  completed: "outline",
-  cancelled: "destructive",
-  "no-show": "destructive",
-};
-
-const attendanceDotColors: Record<string, string> = {
-  waiting: "bg-gray-400",
-  present: "bg-green-500",
-  late: "bg-amber-500",
-  absent: "bg-red-500",
-};
+/** Mon..Sun JS day indices */
+const DAY_INDICES = [1, 2, 3, 4, 5, 6, 0];
 
 function getWeekDates(selectedDate: string): string[] {
-  const d = new Date(selectedDate + "T00:00:00");
+  const d = parseLocalDate(selectedDate);
   const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(d);
@@ -62,12 +31,9 @@ function getWeekDates(selectedDate: string): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
-    return date.toISOString().split("T")[0];
+    return toLocalDateStr(date);
   });
 }
-
-/** Mon..Sun JS day indices */
-const DAY_INDICES = [1, 2, 3, 4, 5, 6, 0];
 
 interface WeekTimeGridProps {
   appointments: Appointment[];
@@ -85,64 +51,10 @@ export function WeekTimeGrid({
   onAttendanceChange,
 }: WeekTimeGridProps) {
   const { t } = useProfessionalI18n();
-  const [selected, setSelected] = useState<Appointment | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const attendance = useAttendanceAction(onAttendanceChange);
 
   const weekDates = useMemo(() => getWeekDates(selectedDate), [selectedDate]);
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  const statusLabel: Record<string, string> = {
-    confirmed: t.common.status.confirmed,
-    pending: t.common.status.pending,
-    completed: t.common.status.completed,
-    cancelled: t.common.status.cancelled,
-    "no-show": t.common.status.noShow,
-  };
-
-  // Attendance action from dialog
-  async function handleMarkAttendance(newStatus: AttendanceStatus) {
-    if (!selected || isUpdating) return;
-    const previousStatus = selected.appointment_attendance?.status ?? "waiting";
-    if (newStatus === previousStatus) return;
-
-    onAttendanceChange(selected.id, newStatus);
-    setSelected((prev) =>
-      prev
-        ? {
-            ...prev,
-            appointment_attendance: {
-              id: prev.appointment_attendance?.id ?? "optimistic",
-              status: newStatus,
-              marked_at: new Date().toISOString(),
-            },
-          }
-        : null
-    );
-    setIsUpdating(true);
-
-    const result = await markAttendance(selected.id, newStatus);
-
-    if (!result.success) {
-      onAttendanceChange(selected.id, previousStatus);
-      setSelected((prev) =>
-        prev
-          ? {
-              ...prev,
-              appointment_attendance: {
-                id: prev.appointment_attendance?.id ?? "optimistic",
-                status: previousStatus,
-                marked_at: null,
-              },
-            }
-          : null
-      );
-      toast.error(t.agenda.attendance.error);
-    } else {
-      toast.success(t.agenda.attendance.updated);
-    }
-
-    setIsUpdating(false);
-  }
+  const todayStr = toLocalDateStr(new Date());
 
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();
@@ -169,7 +81,7 @@ export function WeekTimeGrid({
   if (loading) {
     return (
       <Card>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-16 w-full" />
           ))}
@@ -180,35 +92,10 @@ export function WeekTimeGrid({
 
   const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
 
-  const selectedAttendance = selected?.appointment_attendance?.status ?? "waiting";
-  const canMarkSelected =
-    selected && selected.status !== "cancelled" && selected.status !== "no-show";
-
-  const attendanceActions = [
-    {
-      status: "present" as AttendanceStatus,
-      label: t.agenda.attendance.statusPresent,
-      icon: UserCheck,
-      activeClass: "bg-green-600 hover:bg-green-700 text-white",
-    },
-    {
-      status: "late" as AttendanceStatus,
-      label: t.agenda.attendance.statusLate,
-      icon: UserMinus,
-      activeClass: "bg-amber-500 hover:bg-amber-600 text-white",
-    },
-    {
-      status: "absent" as AttendanceStatus,
-      label: t.agenda.attendance.statusAbsent,
-      icon: UserX,
-      activeClass: "bg-red-600 hover:bg-red-700 text-white",
-    },
-  ];
-
   return (
     <>
       <Card>
-        <CardContent className="overflow-x-auto pt-6">
+        <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
           <div className="min-w-[700px]">
             {/* Header: day names + dates */}
             <div className="grid grid-cols-[3.5rem_repeat(7,1fr)] border-b pb-2 mb-2">
@@ -267,7 +154,6 @@ export function WeekTimeGrid({
                     key={date}
                     className={`relative border-l ${isToday ? "bg-primary/5" : ""}`}
                   >
-                    {/* Hour grid lines */}
                     {hours.map((hour) => (
                       <div
                         key={hour}
@@ -276,65 +162,14 @@ export function WeekTimeGrid({
                       />
                     ))}
 
-                    {/* Appointments — simple button with visible dot */}
-                    {dayApts.map((apt) => {
-                      const [h, m] = apt.appointment_time
-                        .split(":")
-                        .map(Number);
-                      const topOffset =
-                        (h - START_HOUR + m / 60) * HOUR_HEIGHT;
-                      const height =
-                        (apt.duration_minutes / 60) * HOUR_HEIGHT;
-                      const colors =
-                        statusColors[apt.status] ?? statusColors.completed;
-                      const isManual = apt.created_via === "manual";
-                      const patient = apt.patients;
-                      const displayName = patient?.first_name
-                        ? `${patient.first_name} ${patient.last_name}`
-                        : apt.title || t.agenda.manualAppointment;
+                    {dayApts.map((apt) => (
+                      <WeekAppointmentBlock
+                        key={apt.id}
+                        appointment={apt}
+                        onClick={attendance.setSelected}
+                      />
+                    ))}
 
-                      const attendanceRecord = apt.appointment_attendance;
-                      const currentAttendance = attendanceRecord?.status ?? "waiting";
-                      const canMark = apt.status !== "cancelled" && apt.status !== "no-show";
-
-                      return (
-                        <button
-                          key={apt.id}
-                          type="button"
-                          className={`absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-left transition-opacity hover:opacity-80 ${colors} ${
-                            isManual && !patient?.first_name
-                              ? "border-l-2 border-dashed"
-                              : "border-l-2"
-                          }`}
-                          style={{
-                            top: `${topOffset}px`,
-                            height: `${Math.max(height, 24)}px`,
-                            zIndex: 10,
-                          }}
-                          onClick={() => setSelected(apt)}
-                        >
-                          <div className="flex items-center gap-1">
-                            {canMark && (
-                              <span
-                                className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
-                                  attendanceDotColors[currentAttendance] ?? "bg-gray-400"
-                                }`}
-                              />
-                            )}
-                            <p className="truncate text-[11px] font-medium leading-tight">
-                              {apt.appointment_time.slice(0, 5)}
-                            </p>
-                          </div>
-                          {height >= 36 && (
-                            <p className="truncate text-[10px] leading-tight opacity-80">
-                              {displayName}
-                            </p>
-                          )}
-                        </button>
-                      );
-                    })}
-
-                    {/* External events */}
                     {dayExternal.map((ev) => {
                       const startParts = ev.starts_at.split("T")[1];
                       const endParts = ev.ends_at.split("T")[1];
@@ -378,89 +213,12 @@ export function WeekTimeGrid({
         </CardContent>
       </Card>
 
-      {/* Detail dialog with attendance buttons */}
-      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t.agenda.appointmentDetails}</DialogTitle>
-          </DialogHeader>
-          {selected && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">
-                  {selected.patients?.first_name
-                    ? `${selected.patients.first_name} ${selected.patients.last_name}`
-                    : selected.title || t.agenda.manualAppointment}
-                </p>
-                <div className="flex items-center gap-2">
-                  {selected.created_via === "manual" && (
-                    <Badge variant="outline">
-                      {t.agenda.manualAppointment}
-                    </Badge>
-                  )}
-                  <Badge
-                    variant={statusVariant[selected.status] ?? "outline"}
-                  >
-                    {statusLabel[selected.status] ?? selected.status}
-                  </Badge>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.time}</p>
-                  <p>{selected.appointment_time?.slice(0, 5)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.duration}</p>
-                  <p>
-                    {selected.duration_minutes} {t.common.min}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.service}</p>
-                  <p>{selected.services?.name ?? "-"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">{t.agenda.type}</p>
-                  <p className="capitalize">{selected.consultation_type}</p>
-                </div>
-              </div>
-              {selected.notes && (
-                <div className="text-sm">
-                  <p className="text-muted-foreground">{t.agenda.notes}</p>
-                  <p>{selected.notes}</p>
-                </div>
-              )}
-
-              {/* Attendance section */}
-              {canMarkSelected && (
-                <div className="border-t pt-4">
-                  <p className="mb-3 text-sm font-medium">{t.agenda.attendance.markAttendance}</p>
-                  <div className="flex gap-2">
-                    {attendanceActions.map((action) => {
-                      const Icon = action.icon;
-                      const isActive = selectedAttendance === action.status;
-                      return (
-                        <Button
-                          key={action.status}
-                          variant={isActive ? "default" : "outline"}
-                          size="sm"
-                          className={`flex-1 gap-1.5 ${isActive ? action.activeClass : ""}`}
-                          disabled={isUpdating}
-                          onClick={() => handleMarkAttendance(action.status)}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {action.label}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AppointmentDetailDialog
+        selected={attendance.selected}
+        onClose={() => attendance.setSelected(null)}
+        onMarkAttendance={attendance.handleMarkAttendance}
+        isUpdating={attendance.isUpdating}
+      />
     </>
   );
 }

@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { adminNavGroups } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
@@ -54,7 +55,7 @@ interface AdminSidebarProps {
 export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -128,6 +129,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
               {user.email}
             </span>
           </div>
+          <LanguageSwitcher locale={locale} />
           <button
             onClick={handleLogout}
             className="text-muted-foreground hover:text-foreground"

@@ -57,9 +57,6 @@ export function StatsPageSkeleton() {
         <StatsChartSkeleton height={200} />
       </div>
 
-      {/* Retention */}
-      <StatsChartSkeleton height={100} />
-
       {/* Insights */}
       <StatsChartSkeleton height={200} />
     </div>

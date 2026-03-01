@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { EmptyState } from "@/components/shared/empty-state";
 import { toggleContentPublished } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface ContentPage {
   id: string;
@@ -46,15 +47,16 @@ function PublishSwitch({
   id: string;
   published: boolean;
 }) {
+  const { t } = useAdminI18n();
   const [isPending, startTransition] = useTransition();
 
   function handleToggle(checked: boolean) {
     startTransition(async () => {
       const result = await toggleContentPublished(type, id, checked);
       if (result.success) {
-        toast.success(checked ? "Publicado" : "Despublicado");
+        toast.success(checked ? t.content.published : t.content.unpublished);
       } else {
-        toast.error(result.error ?? "Erro ao atualizar");
+        toast.error(result.error ?? t.common.errorUpdating);
       }
     });
   }
@@ -64,12 +66,14 @@ function PublishSwitch({
       defaultChecked={published}
       onCheckedChange={handleToggle}
       disabled={isPending}
-      aria-label={published ? "Despublicar" : "Publicar"}
+      aria-label={published ? t.content.unpublishLabel : t.content.publishLabel}
     />
   );
 }
 
 export function ContentTabs({ pages, faqs }: ContentTabsProps) {
+  const { t } = useAdminI18n();
+  const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const publishedPages = pages.filter((p) => p.is_published).length;
   const publishedFaqs = faqs.filter((f) => f.is_published).length;
 
@@ -77,13 +81,13 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
     <Tabs defaultValue="pages">
       <TabsList>
         <TabsTrigger value="pages">
-          Paginas
+          {t.content.tabPages}
           <Badge variant="secondary" className="ml-2">
             {publishedPages}/{pages.length}
           </Badge>
         </TabsTrigger>
         <TabsTrigger value="faqs">
-          FAQs
+          {t.content.tabFaqs}
           <Badge variant="secondary" className="ml-2">
             {publishedFaqs}/{faqs.length}
           </Badge>
@@ -96,10 +100,14 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead scope="col">Slug</TableHead>
-                  <TableHead scope="col">Titulo (PT)</TableHead>
-                  <TableHead scope="col">Publicada</TableHead>
-                  <TableHead scope="col">Atualizada em</TableHead>
+                  <TableHead scope="col">{t.content.pagesSlug}</TableHead>
+                  <TableHead scope="col">{t.content.pagesTitlePt}</TableHead>
+                  <TableHead scope="col">
+                    {t.content.pagesPublished}
+                  </TableHead>
+                  <TableHead scope="col">
+                    {t.content.pagesUpdatedAt}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -120,7 +128,9 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
                     </TableCell>
                     <TableCell>
                       {page.updated_at
-                        ? new Date(page.updated_at).toLocaleDateString("pt-PT")
+                        ? new Date(page.updated_at).toLocaleDateString(
+                            dateLocale
+                          )
                         : "—"}
                     </TableCell>
                   </TableRow>
@@ -130,8 +140,8 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
           </div>
         ) : (
           <EmptyState
-            title="Nenhuma pagina encontrada"
-            description="Nao existem paginas de conteudo na base de dados."
+            title={t.content.pagesEmptyTitle}
+            description={t.content.pagesEmptyDescription}
           />
         )}
       </TabsContent>
@@ -142,10 +152,14 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead scope="col">Pergunta (PT)</TableHead>
-                  <TableHead scope="col">Categoria</TableHead>
-                  <TableHead scope="col">Ordem</TableHead>
-                  <TableHead scope="col">Publicada</TableHead>
+                  <TableHead scope="col">
+                    {t.content.faqsQuestionPt}
+                  </TableHead>
+                  <TableHead scope="col">{t.content.faqsCategory}</TableHead>
+                  <TableHead scope="col">{t.content.faqsOrder}</TableHead>
+                  <TableHead scope="col">
+                    {t.content.faqsPublished}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -176,8 +190,8 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
           </div>
         ) : (
           <EmptyState
-            title="Nenhuma FAQ encontrada"
-            description="Nao existem FAQs na base de dados."
+            title={t.content.faqsEmptyTitle}
+            description={t.content.faqsEmptyDescription}
           />
         )}
       </TabsContent>

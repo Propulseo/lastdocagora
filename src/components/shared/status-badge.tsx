@@ -22,17 +22,12 @@ const statusConfig: Record<
     rejected: { label: "Rejeitado", variant: "destructive" },
   },
   appointment: {
+    pending: { label: "Pendente", variant: "outline" },
     scheduled: { label: "Agendada", variant: "outline" },
     confirmed: { label: "Confirmada", variant: "default" },
     completed: { label: "Concluida", variant: "secondary" },
     cancelled: { label: "Cancelada", variant: "destructive" },
     no_show: { label: "Falta", variant: "destructive" },
-  },
-  payment: {
-    pending: { label: "Pendente", variant: "outline" },
-    paid: { label: "Pago", variant: "default" },
-    refunded: { label: "Reembolsado", variant: "secondary" },
-    failed: { label: "Falhado", variant: "destructive" },
   },
   ticket: {
     open: { label: "Aberto", variant: "destructive" },
@@ -55,14 +50,16 @@ const statusConfig: Record<
 interface StatusBadgeProps {
   type: keyof typeof statusConfig;
   value: string | boolean | null | undefined;
+  /** Optional translated labels keyed by status value. Overrides default PT labels. */
+  labels?: Record<string, string>;
 }
 
-export function StatusBadge({ type, value }: StatusBadgeProps) {
+export function StatusBadge({ type, value, labels }: StatusBadgeProps) {
   const strValue = String(value ?? "");
   const config = statusConfig[type]?.[strValue];
   return (
     <Badge variant={config?.variant ?? "outline"}>
-      {config?.label ?? strValue}
+      {labels?.[strValue] ?? config?.label ?? strValue}
     </Badge>
   );
 }
