@@ -1066,6 +1066,8 @@ export type Database = {
           first_name: string | null
           gender: string | null
           id: string
+          insurance_provider: string | null
+          languages_spoken: string[] | null
           last_name: string | null
           phone: string | null
           postal_code: string | null
@@ -1086,6 +1088,8 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id?: string
+          insurance_provider?: string | null
+          languages_spoken?: string[] | null
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null
@@ -1106,6 +1110,8 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id?: string
+          insurance_provider?: string | null
+          languages_spoken?: string[] | null
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null

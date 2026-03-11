@@ -134,6 +134,7 @@
     "calendarDisconnected": "Calendrier déconnecté",
     "calendarError": "Erreur lors de l'opération du calendrier",
     "noCalendarConnected": "Aucun calendrier connecté.",
+    "calendarPrimary": "Principal",
     "attendance": {
       "markPresent": "Marquer présent",
       "markLate": "Marquer en retard",
@@ -175,7 +176,7 @@
     "firstNamePlaceholder": "Prénom du patient",
     "lastNamePlaceholder": "Nom du patient",
     "emailPlaceholder": "email@exemple.com",
-    "phonePlaceholder": "+33 6 12 34 56 78",
+    "phonePlaceholder": "+351 912 345 678",
     "save": "Enregistrer",
     "create": "Créer patient",
     "update": "Mettre à jour",
@@ -189,7 +190,38 @@
     "errorCreating": "Erreur lors de la création du patient",
     "errorUpdating": "Erreur lors de la mise à jour du patient",
     "errorDeleting": "Erreur lors de la suppression du patient",
-    "actions": "Actions"
+    "actions": "Actions",
+    "insurance": "Assurance",
+    "insuranceLabels": {
+      "none": "Aucune",
+      "medis": "Médis",
+      "multicare": "Multicare",
+      "advancecare": "AdvanceCare",
+      "fidelidade": "Fidelidade",
+      "ageas": "Ageas",
+      "allianz": "Allianz",
+      "other": "Autre"
+    },
+    "drawer": {
+      "title": "Fiche patient",
+      "birthDate": "Date de naissance",
+      "age": "{age} ans",
+      "languages": "Langues parlées",
+      "insurance": "Assurance privée",
+      "completedConsultations": "Consultations terminées",
+      "firstConsultation": "Première consultation",
+      "lastConsultation": "Dernière consultation",
+      "recentAppointments": "5 derniers rendez-vous",
+      "noAppointments": "Aucun rendez-vous",
+      "loading": "Chargement...",
+      "status": {
+        "confirmed": "Confirmé",
+        "pending": "En attente",
+        "completed": "Terminé",
+        "cancelled": "Annulé",
+        "no-show": "Absent"
+      }
+    }
   },
   "services": {
     "title": "Services",
@@ -227,6 +259,10 @@
     "errorUpdating": "Erreur lors de la mise à jour du service",
     "errorDeleting": "Erreur lors de la suppression du service",
     "actions": "Actions",
+    "showPrice": "Afficher mon tarif",
+    "price": "Prix (\u20ac)",
+    "pricePlaceholder": "50",
+    "priceOnRequest": "Tarif sur demande",
     "consultationType": {
       "in-person": "En cabinet"
     }
@@ -498,7 +534,8 @@
     "emptyState": {
       "title": "Aucune donnée",
       "description": "Aucun rendez-vous trouvé pour la période sélectionnée.",
-      "tryLongerPeriod": "Essayez de sélectionner une période plus longue."
+      "tryLongerPeriod": "Essayez de sélectionner une période plus longue.",
+      "noDataForYear": "Aucune donnée pour {year}"
     },
     "chart": {
       "appointments": "Consultations",

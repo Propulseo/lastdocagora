@@ -20,7 +20,9 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
 import { fr } from "date-fns/locale/fr";
+import { enGB } from "date-fns/locale/en-GB";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { translateSpecialty } from "@/locales/patient/specialties";
 
 interface UserProfile {
   first_name: string | null;
@@ -71,10 +73,9 @@ export function ProfileClient({
   professional,
   recentRatings,
 }: ProfileClientProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
 
-  const dateLocaleStr = t.common.dateLocale as "pt-PT" | "fr-FR";
-  const dateLocale = dateLocaleStr === "fr-FR" ? fr : pt;
+  const dateLocale = locale === "fr" ? fr : locale === "en" ? enGB : pt;
 
   const initials =
     (userProfile.first_name?.[0] ?? "") + (userProfile.last_name?.[0] ?? "");
@@ -96,7 +97,7 @@ export function ProfileClient({
       section: t.profile.professionalInfo,
       icon: Stethoscope,
       items: [
-        { label: t.profile.specialty, value: professional.specialty },
+        { label: t.profile.specialty, value: translateSpecialty(professional.specialty, locale) },
         {
           label: t.profile.registrationNumber,
           value: professional.registration_number,
@@ -169,7 +170,7 @@ export function ProfileClient({
             <StatusBadge type="verification" value={professional.verification_status ?? "pending"} />
           </div>
           <p className="text-sm text-muted-foreground">
-            {professional.specialty}
+            {translateSpecialty(professional.specialty, locale)}
             {professional.cabinet_name && ` \u2014 ${professional.cabinet_name}`}
           </p>
         </div>

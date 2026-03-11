@@ -29,7 +29,7 @@ export function AISearchChat({
     {
       role: "assistant",
       content: t.aiWelcome,
-      suggestions: [t.aiSuggestion1, t.aiSuggestion2, t.aiSuggestion3],
+      suggestions: [t.aiSuggestion1, t.aiSuggestion2, t.aiSuggestion3, t.aiSuggestion4],
     },
   ])
   const [input, setInput] = useState("")

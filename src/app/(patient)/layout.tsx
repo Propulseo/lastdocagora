@@ -8,7 +8,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { getLocale } from "@/locales/patient"
+import { getLocale, getPatientTranslations } from "@/locales/patient"
 import { PatientLocaleProvider } from "@/locales/locale-context"
 import { RoleBodyClass } from "@/components/role-body-class"
 import { PatientLayoutHeader } from "./_components/patient-layout-header"
@@ -42,10 +42,12 @@ export default async function PatientLayout({
     ]
   )
 
+  const t = getPatientTranslations(locale)
+
   const userInfo = {
     name: profile
       ? `${profile.first_name} ${profile.last_name}`
-      : user.email ?? "Paciente",
+      : user.email ?? t.common.patient,
     email: profile?.email ?? user.email ?? "",
     avatarUrl: profile?.avatar_url ?? undefined,
     initials: profile
@@ -65,9 +67,9 @@ export default async function PatientLayout({
             <header className="flex h-14 items-center border-b px-4">
               <SidebarTrigger />
               <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
-              <PatientLayoutHeader notificationCount={notificationCount} />
+              <PatientLayoutHeader />
             </header>
-            <div className="mx-auto w-full max-w-7xl flex-1 overflow-auto p-6 md:p-8">
+            <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}
             </div>
           </SidebarInset>

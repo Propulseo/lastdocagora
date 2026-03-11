@@ -29,6 +29,7 @@ import { Users, Search, UserX, MoreHorizontal, Pencil, Trash2 } from "lucide-rea
 import { EmptyState } from "@/components/shared/empty-state";
 import { EditPatientDialog } from "./edit-patient-dialog";
 import { DeletePatientDialog } from "./delete-patient-dialog";
+import { PatientDrawer } from "./patient-drawer";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 export interface PatientRow {
@@ -37,6 +38,7 @@ export interface PatientRow {
   last_name: string | null;
   email: string | null;
   phone: string | null;
+  insurance_provider: string | null;
   last_appointment: string | null;
   total_appointments: number;
 }
@@ -53,6 +55,7 @@ export function PatientsTable({ patients }: PatientsTableProps) {
   const [search, setSearch] = useState("");
   const [editPatient, setEditPatient] = useState<PatientRow | null>(null);
   const [deletePatient, setDeletePatient] = useState<PatientRow | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
   const filtered = search.trim()
     ? patients.filter((p) => {
@@ -112,6 +115,9 @@ export function PatientsTable({ patients }: PatientsTableProps) {
                     <TableHead className="hidden sm:table-cell">
                       {pt.phone}
                     </TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      {pt.insurance}
+                    </TableHead>
                     <TableHead>{pt.lastAppointment}</TableHead>
                     <TableHead className="text-right">
                       {pt.appointments}
@@ -126,7 +132,11 @@ export function PatientsTable({ patients }: PatientsTableProps) {
                     const initials =
                       (p.first_name?.[0] ?? "") + (p.last_name?.[0] ?? "");
                     return (
-                      <TableRow key={p.patient_id}>
+                      <TableRow
+                        key={p.patient_id}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedPatientId(p.patient_id)}
+                      >
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="size-8">
@@ -145,6 +155,11 @@ export function PatientsTable({ patients }: PatientsTableProps) {
                         <TableCell className="hidden text-muted-foreground sm:table-cell">
                           {p.phone ?? "-"}
                         </TableCell>
+                        <TableCell className="hidden text-muted-foreground lg:table-cell">
+                          {p.insurance_provider
+                            ? ((pt.insuranceLabels as Record<string, string>)?.[p.insurance_provider] ?? p.insurance_provider)
+                            : "-"}
+                        </TableCell>
                         <TableCell>
                           {p.last_appointment
                             ? new Date(
@@ -155,7 +170,7 @@ export function PatientsTable({ patients }: PatientsTableProps) {
                         <TableCell className="text-right tabular-nums font-medium">
                           {p.total_appointments}
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="size-8">
@@ -206,6 +221,16 @@ export function PatientsTable({ patients }: PatientsTableProps) {
           patientName={`${deletePatient.first_name ?? ""} ${deletePatient.last_name ?? ""}`.trim()}
         />
       )}
+
+      <PatientDrawer
+        patientId={selectedPatientId}
+        patientName={
+          selectedPatientId
+            ? `${patients.find((p) => p.patient_id === selectedPatientId)?.first_name ?? ""} ${patients.find((p) => p.patient_id === selectedPatientId)?.last_name ?? ""}`.trim()
+            : ""
+        }
+        onClose={() => setSelectedPatientId(null)}
+      />
     </>
   );
 }

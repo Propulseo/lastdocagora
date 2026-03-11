@@ -9,7 +9,6 @@ import {
   Info,
   AlertTriangle,
   CheckCircle,
-  MessageSquare,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { usePatientTranslations } from "@/locales/locale-context"
@@ -44,7 +43,7 @@ export function MessagesClient({
       : t.messages.unreadPlural.replace("{count}", String(unreadCount))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PatientPageHeader
         section="messages"
         action={
@@ -76,7 +75,7 @@ export function MessagesClient({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-medium">
-                        {notification.title}
+                        {getNotificationTitle(notification.type, t) ?? notification.title}
                       </h3>
                       <div className="flex shrink-0 items-center gap-2">
                         {!notification.is_read && (
@@ -150,7 +149,7 @@ function NotificationIcon({ type }: { type: string }) {
       return <Info className={`${iconClasses} text-blue-500`} />
     default:
       return (
-        <MessageSquare className={`${iconClasses} text-muted-foreground`} />
+        <Bell className={`${iconClasses} text-muted-foreground`} />
       )
   }
 }
@@ -163,12 +162,29 @@ function NotificationTypeBadge({ type }: { type: string }) {
     alert: t.messages.typeAlert,
     success: t.messages.typeSuccess,
     info: t.messages.typeInfo,
-    message: t.messages.typeMessage,
     system: t.messages.typeSystem,
+    new_booking: t.messages.typeNewBooking,
+    cancellation: t.messages.typeCancellation,
+    support_reply: t.messages.typeSupportReply,
+    appointment_reminder: t.messages.typeAppointmentReminder,
   }
   return (
     <Badge variant="outline" className="text-xs">
       {labels[type] ?? type}
     </Badge>
   )
+}
+
+function getNotificationTitle(
+  type: string,
+  t: ReturnType<typeof usePatientTranslations>["t"],
+): string | null {
+  const titles: Record<string, string> = {
+    appointment_reminder: t.messages.titleAppointmentReminder,
+    new_booking: t.messages.titleNewBooking,
+    cancellation: t.messages.titleCancellation,
+    reminder: t.messages.titleReminder,
+    support_reply: t.messages.titleSupportReply,
+  }
+  return titles[type] ?? null
 }

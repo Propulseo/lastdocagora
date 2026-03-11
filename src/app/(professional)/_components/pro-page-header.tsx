@@ -18,13 +18,13 @@ interface ProPageHeaderProps {
 
 export function ProPageHeader({ section, action }: ProPageHeaderProps) {
   const { t } = useProfessionalI18n()
-  const sectionData = t[section] as Record<string, string>
+  const sectionData = t[section] as Record<string, unknown>
   const descKey = descriptionKeys[section]
 
   return (
     <PageHeader
-      title={sectionData.title}
-      description={sectionData[descKey]}
+      title={sectionData.title as string}
+      description={sectionData[descKey] as string}
       action={action}
     />
   )

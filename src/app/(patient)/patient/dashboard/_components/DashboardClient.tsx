@@ -104,7 +104,7 @@ export function DashboardClient({
                       <Badge variant="secondary">
                         {getProfessionalSpecialty(nextAppointment.professionals, t.professional)}
                       </Badge>
-                      <StatusBadge type="appointment" value={nextAppointment.status} />
+                      <StatusBadge type="appointment" value={nextAppointment.status} labels={{ confirmed: t.status.confirmed, pending: t.status.pending, cancelled: t.status.cancelled, completed: t.status.completed, no_show: t.status.noShow }} />
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Clock className="size-3.5" />
@@ -178,7 +178,7 @@ export function DashboardClient({
                         </div>
                       </div>
                     </div>
-                    <StatusBadge type="appointment" value={appt.status} />
+                    <StatusBadge type="appointment" value={appt.status} labels={{ confirmed: t.status.confirmed, pending: t.status.pending, cancelled: t.status.cancelled, completed: t.status.completed, no_show: t.status.noShow }} />
                   </Link>
                 ))}
               </div>

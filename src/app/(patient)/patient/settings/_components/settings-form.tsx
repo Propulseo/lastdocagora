@@ -19,19 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Bell, Globe, Shield } from "lucide-react"
+import { Bell } from "lucide-react"
 import { usePatientTranslations } from "@/locales/locale-context"
 
 type Settings = {
   email_notifications: boolean; sms_notifications: boolean; appointment_reminders: boolean
-  marketing_emails: boolean; reminder_frequency: string; timezone: string
-  date_format: string; dark_mode: boolean; public_profile: boolean
+  marketing_emails: boolean; reminder_frequency: string
 }
 
 const defaults: Settings = {
   email_notifications: true, sms_notifications: false, appointment_reminders: true,
-  marketing_emails: false, reminder_frequency: "24h", timezone: "Europe/Lisbon",
-  date_format: "dd/MM/yyyy", dark_mode: false, public_profile: false,
+  marketing_emails: false, reminder_frequency: "24h",
 }
 
 export function SettingsForm({
@@ -124,67 +122,6 @@ export function SettingsForm({
         </CardContent>
       </Card>
 
-      {/* Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="size-5 text-primary" />
-            {t.settings.preferences}
-          </CardTitle>
-          <CardDescription>{t.settings.preferencesDesc}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SelectRow
-            label={t.settings.timezone}
-            value={state.timezone}
-            onValueChange={(v) => save("timezone", v)}
-            options={[
-              { value: "Europe/Lisbon", label: "Europe/Lisbon" },
-              { value: "Atlantic/Azores", label: "Atlantic/Azores" },
-              { value: "Atlantic/Madeira", label: "Atlantic/Madeira" },
-            ]}
-          />
-          <SelectRow
-            label={t.settings.dateFormat}
-            value={state.date_format}
-            onValueChange={(v) => save("date_format", v)}
-            options={[
-              { value: "dd/MM/yyyy", label: "dd/MM/yyyy" },
-              { value: "yyyy-MM-dd", label: "yyyy-MM-dd" },
-              { value: "MM/dd/yyyy", label: "MM/dd/yyyy" },
-            ]}
-          />
-          <ToggleRow
-            id="dark_mode"
-            label={t.settings.darkMode}
-            description={t.settings.darkModeDesc}
-            checked={state.dark_mode}
-            onToggle={(v) => save("dark_mode", v)}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Privacy */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="size-5 text-primary" />
-            {t.settings.privacy}
-          </CardTitle>
-          <CardDescription>
-            {t.settings.privacyDesc}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ToggleRow
-            id="public_profile"
-            label={t.settings.publicProfile}
-            description={t.settings.publicProfileDesc}
-            checked={state.public_profile}
-            onToggle={(v) => save("public_profile", v)}
-          />
-        </CardContent>
-      </Card>
     </div>
   )
 }

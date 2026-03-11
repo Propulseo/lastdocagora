@@ -8,7 +8,7 @@ import {
   Search,
   Calendar,
   UserCircle,
-  MessageSquare,
+  Bell,
   Settings,
   LogOut,
   Heart,
@@ -46,7 +46,7 @@ const iconMap = {
   Search,
   Calendar,
   UserCircle,
-  MessageSquare,
+  Bell,
   Settings,
   Heart,
 } as const
@@ -107,7 +107,7 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
               {patientNav.map((item) => {
                 const Icon = iconMap[item.icon as keyof typeof iconMap]
                 const isActive = isNavActive(item.href)
-                const isMessages = item.icon === "MessageSquare"
+                const isMessages = item.icon === "Bell"
                 const label = t.nav[item.key]
                 return (
                   <SidebarMenuItem key={item.href}>

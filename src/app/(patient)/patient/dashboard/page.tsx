@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
+import { getLocale, getPatientTranslations } from "@/locales/patient"
 import { DashboardClient } from "./_components/DashboardClient"
 
 export default async function DashboardPage() {
@@ -48,7 +49,9 @@ export default async function DashboardPage() {
         .limit(5),
     ])
 
-  const firstName = profile?.first_name ?? "Paciente"
+  const locale = await getLocale()
+  const t = getPatientTranslations(locale)
+  const firstName = profile?.first_name ?? t.common.patient
 
   return (
     <DashboardClient

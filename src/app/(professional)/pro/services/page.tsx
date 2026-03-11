@@ -11,7 +11,7 @@ export default async function ServicesPage() {
 
   const { data: services } = await supabase
     .from("services")
-    .select("id, name, description, duration_minutes, consultation_type, is_active")
+    .select("id, name, description, duration_minutes, consultation_type, is_active, price")
     .eq("professional_id", professionalId)
     .order("name", { ascending: true });
 
@@ -22,6 +22,7 @@ export default async function ServicesPage() {
     duration_minutes: s.duration_minutes,
     consultation_type: s.consultation_type,
     is_active: s.is_active ?? true,
+    price: s.price,
   }));
 
   return (

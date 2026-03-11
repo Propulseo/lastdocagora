@@ -66,6 +66,7 @@ export type PatientTranslations = {
     aiSuggestion1: string
     aiSuggestion2: string
     aiSuggestion3: string
+    aiSuggestion4: string
     aiError: string
     aiErrorAuth: string
     aiErrorService: string
@@ -105,6 +106,9 @@ export type PatientTranslations = {
     successBooked: string
     errorBooking: string
     dateFormat: string
+    morning: string
+    afternoon: string
+    priceOnRequest: string
   }
   appointments: {
     title: string
@@ -170,10 +174,34 @@ export type PatientTranslations = {
     genderOther: string
     gender: string
     selectPlaceholder: string
+    languagesSpoken: string
+    langFr: string
+    langEn: string
+    langPt: string
+    langEs: string
+    langDe: string
+    langAr: string
+    langRu: string
+    langZh: string
+    langIt: string
+    insuranceProvider: string
+    insuranceNone: string
+    insuranceMedis: string
+    insuranceMulticare: string
+    insuranceAdvanceCare: string
+    insuranceFidelidade: string
+    insuranceAgeas: string
+    insuranceAllianz: string
+    insuranceOther: string
+    changePhoto: string
+    uploadError: string
+    fileTooLarge: string
+    invalidFormat: string
     cancel: string
     save: string
     errorSave: string
     successSave: string
+    dateFormat: string
   }
   settings: {
     title: string
@@ -194,16 +222,6 @@ export type PatientTranslations = {
     hours12: string
     hours24: string
     hours48: string
-    preferences: string
-    preferencesDesc: string
-    timezone: string
-    dateFormat: string
-    darkMode: string
-    darkModeDesc: string
-    privacy: string
-    privacyDesc: string
-    publicProfile: string
-    publicProfileDesc: string
     errorSave: string
     successSave: string
   }
@@ -225,8 +243,16 @@ export type PatientTranslations = {
     typeAlert: string
     typeSuccess: string
     typeInfo: string
-    typeMessage: string
     typeSystem: string
+    typeNewBooking: string
+    typeCancellation: string
+    typeSupportReply: string
+    typeAppointmentReminder: string
+    titleAppointmentReminder: string
+    titleNewBooking: string
+    titleCancellation: string
+    titleReminder: string
+    titleSupportReply: string
   }
 }
 
@@ -245,7 +271,7 @@ export const ptPatient: PatientTranslations = {
     search: "Pesquisar",
     appointments: "Minhas Consultas",
     profile: "Meu Perfil",
-    messages: "Mensagens",
+    messages: "Notificações",
     settings: "Configura\u00e7\u00f5es",
   },
   status: {
@@ -297,7 +323,8 @@ export const ptPatient: PatientTranslations = {
     aiThinking: "A procurar...",
     aiSuggestion1: "M\u00e9dico que fale ingl\u00eas em Lisboa",
     aiSuggestion2: "Dentista bem avaliado e barato",
-    aiSuggestion3: "Psic\u00f3logo no Porto",
+    aiSuggestion3: "M\u00e9dico de fam\u00edlia no Pr\u00edncipe Real",
+    aiSuggestion4: "Pediatra com seguro aceite",
     aiError: "Ocorreu um erro. Tente novamente.",
     aiErrorAuth: "Precisa de estar autenticado para usar a pesquisa inteligente.",
     aiErrorService: "O servi\u00e7o de pesquisa inteligente est\u00e1 temporariamente indispon\u00edvel.",
@@ -337,6 +364,9 @@ export const ptPatient: PatientTranslations = {
     successBooked: "Consulta agendada com sucesso!",
     errorBooking: "Erro ao agendar consulta. Tente novamente.",
     dateFormat: "d 'de' MMMM 'de' yyyy",
+    morning: "Manhã",
+    afternoon: "Tarde",
+    priceOnRequest: "Preço sob consulta",
   },
   appointments: {
     title: "Minhas Consultas",
@@ -402,10 +432,34 @@ export const ptPatient: PatientTranslations = {
     genderOther: "Outro",
     gender: "Género",
     selectPlaceholder: "Selecionar...",
+    languagesSpoken: "Línguas faladas",
+    langFr: "Francês",
+    langEn: "Inglês",
+    langPt: "Português",
+    langEs: "Espanhol",
+    langDe: "Alemão",
+    langAr: "Árabe",
+    langRu: "Russo",
+    langZh: "Chinês",
+    langIt: "Italiano",
+    insuranceProvider: "Seguro privado",
+    insuranceNone: "Nenhum",
+    insuranceMedis: "Médis",
+    insuranceMulticare: "Multicare",
+    insuranceAdvanceCare: "AdvanceCare",
+    insuranceFidelidade: "Fidelidade",
+    insuranceAgeas: "Ageas",
+    insuranceAllianz: "Allianz",
+    insuranceOther: "Outro",
+    changePhoto: "Alterar foto",
+    uploadError: "Erro ao enviar a foto. Tente novamente.",
+    fileTooLarge: "O ficheiro é demasiado grande (máx. 2 MB).",
+    invalidFormat: "Formato inválido. Use JPG ou PNG.",
     cancel: "Cancelar",
     save: "Guardar",
     errorSave: "Erro ao guardar perfil. Tente novamente.",
     successSave: "Perfil atualizado com sucesso.",
+    dateFormat: "d 'de' MMMM 'de' yyyy",
   },
   settings: {
     title: "Configurações",
@@ -426,22 +480,12 @@ export const ptPatient: PatientTranslations = {
     hours12: "12 horas antes",
     hours24: "24 horas antes",
     hours48: "48 horas antes",
-    preferences: "Preferências",
-    preferencesDesc: "Personalize a sua experiência.",
-    timezone: "Fuso Horário",
-    dateFormat: "Formato de Data",
-    darkMode: "Modo Escuro",
-    darkModeDesc: "Usar tema escuro na interface",
-    privacy: "Privacidade",
-    privacyDesc: "Controle a visibilidade dos seus dados.",
-    publicProfile: "Perfil Público",
-    publicProfileDesc: "Permitir que profissionais vejam o seu perfil",
     errorSave: "Erro ao guardar configuração.",
     successSave: "Configuração atualizada.",
   },
   messages: {
-    title: "Mensagens",
-    description: "As suas notificações e mensagens.",
+    title: "Notificações",
+    description: "As suas notificações.",
     unreadSingular: "{count} não lida",
     unreadPlural: "{count} não lidas",
     emptyTitle: "Sem notificações",
@@ -457,7 +501,15 @@ export const ptPatient: PatientTranslations = {
     typeAlert: "Alerta",
     typeSuccess: "Sucesso",
     typeInfo: "Informação",
-    typeMessage: "Mensagem",
     typeSystem: "Sistema",
+    typeNewBooking: "Novo Agendamento",
+    typeCancellation: "Cancelamento",
+    typeSupportReply: "Suporte",
+    typeAppointmentReminder: "Lembrete",
+    titleAppointmentReminder: "Lembrete de consulta",
+    titleNewBooking: "Novo agendamento",
+    titleCancellation: "Agendamento cancelado",
+    titleReminder: "Lembrete",
+    titleSupportReply: "Resposta ao seu ticket",
   },
 }

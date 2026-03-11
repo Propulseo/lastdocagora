@@ -1,29 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-function getDateRange(range: string): { from: string; to: string } {
+function getDateRange(
+  range: string,
+  year?: number,
+): { from: string; to: string } {
   const now = new Date();
-  const to = now.toISOString().split("T")[0];
+  const currentYear = now.getFullYear();
+  const selectedYear = year ?? currentYear;
+  const isCurrentYear = selectedYear === currentYear;
 
+  const toDate = isCurrentYear ? now : new Date(selectedYear, 11, 31);
+  const to = toDate.toISOString().split("T")[0];
+
+  const yearStart = new Date(selectedYear, 0, 1);
   let from: Date;
   switch (range) {
     case "90d": {
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 89);
       break;
     }
     case "7d": {
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 6);
       break;
     }
     default: {
-      // 30d
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 29);
       break;
     }
   }
+
+  if (from < yearStart) from = yearStart;
 
   return { from: from.toISOString().split("T")[0], to };
 }
@@ -58,7 +68,9 @@ export async function GET(request: NextRequest) {
   const range = request.nextUrl.searchParams.get("range") || "30d";
   const serviceFilter = request.nextUrl.searchParams.get("service") || "";
   const channelFilter = request.nextUrl.searchParams.get("channel") || "";
-  const { from, to } = getDateRange(range);
+  const yearParam = request.nextUrl.searchParams.get("year");
+  const year = yearParam ? parseInt(yearParam, 10) : undefined;
+  const { from, to } = getDateRange(range, year);
 
   let query = supabase
     .from("appointments")

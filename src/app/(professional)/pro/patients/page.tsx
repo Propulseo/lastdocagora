@@ -13,12 +13,12 @@ export default async function PatientsPage() {
   const [{ data: ownedPatients }, { data: appointments }] = await Promise.all([
     supabase
       .from("patients")
-      .select("id, first_name, last_name, email, phone")
+      .select("id, first_name, last_name, email, phone, insurance_provider")
       .eq("created_by_professional_id", professionalId),
     supabase
       .from("appointments")
       .select(
-        "patient_id, appointment_date, patients(first_name, last_name, email, phone)"
+        "patient_id, appointment_date, patients(first_name, last_name, email, phone, insurance_provider)"
       )
       .eq("professional_id", professionalId)
       .order("appointment_date", { ascending: false }),
@@ -35,6 +35,7 @@ export default async function PatientsPage() {
       last_name: p.last_name,
       email: p.email,
       phone: p.phone,
+      insurance_provider: p.insurance_provider,
       last_appointment: null,
       total_appointments: 0,
     });
@@ -48,6 +49,7 @@ export default async function PatientsPage() {
       last_name: string | null;
       email: string | null;
       phone: string | null;
+      insurance_provider: string | null;
     } | null;
     const existing = patientMap.get(apt.patient_id);
     if (existing) {
@@ -65,6 +67,7 @@ export default async function PatientsPage() {
         last_name: patient?.last_name ?? null,
         email: patient?.email ?? null,
         phone: patient?.phone ?? null,
+        insurance_provider: patient?.insurance_provider ?? null,
         last_appointment: apt.appointment_date,
         total_appointments: 1,
       });

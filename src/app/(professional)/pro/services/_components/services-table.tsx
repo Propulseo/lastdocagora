@@ -37,6 +37,7 @@ export interface ServiceRow {
   duration_minutes: number;
   consultation_type: string;
   is_active: boolean;
+  price: number;
 }
 
 interface ServicesTableProps {
@@ -89,6 +90,9 @@ export function ServicesTable({ services }: ServicesTableProps) {
                     </TableHead>
                     <TableHead>{sv.duration}</TableHead>
                     <TableHead className="hidden sm:table-cell">
+                      {sv.price}
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">
                       {sv.type}
                     </TableHead>
                     <TableHead>{sv.status}</TableHead>
@@ -109,7 +113,12 @@ export function ServicesTable({ services }: ServicesTableProps) {
                       <TableCell className="tabular-nums">
                         {service.duration_minutes} {t.common.min}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="hidden tabular-nums sm:table-cell">
+                        {service.price > 0
+                          ? `${service.price} \u20ac`
+                          : sv.priceOnRequest}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Badge variant="outline">
                           {consultationTypeLabel[service.consultation_type] ??
                             service.consultation_type}

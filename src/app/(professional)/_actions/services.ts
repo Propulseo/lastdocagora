@@ -12,6 +12,7 @@ export async function createService(formData: {
   description?: string;
   duration_minutes: number;
   is_active: boolean;
+  price?: number | null;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -32,7 +33,7 @@ export async function createService(formData: {
     description: formData.description?.trim() || null,
     duration_minutes: formData.duration_minutes,
     is_active: formData.is_active,
-    price: 0,
+    price: formData.price ?? 0,
     consultation_type: "in-person",
     professional_id: professional.id,
     professional_user_id: user.id,
@@ -51,6 +52,7 @@ export async function updateService(
     description?: string;
     duration_minutes: number;
     is_active: boolean;
+    price?: number | null;
   }
 ): Promise<ActionResult> {
   const supabase = await createClient();
@@ -66,6 +68,7 @@ export async function updateService(
       description: formData.description?.trim() || null,
       duration_minutes: formData.duration_minutes,
       is_active: formData.is_active,
+      price: formData.price ?? 0,
       updated_at: new Date().toISOString(),
     })
     .eq("id", serviceId)

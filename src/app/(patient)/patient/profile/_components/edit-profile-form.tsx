@@ -23,12 +23,26 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Pencil, Loader2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { usePatientTranslations } from "@/locales/locale-context"
+
+const LANGUAGE_OPTIONS = [
+  { value: "fr", labelKey: "langFr" },
+  { value: "en", labelKey: "langEn" },
+  { value: "pt", labelKey: "langPt" },
+  { value: "es", labelKey: "langEs" },
+  { value: "de", labelKey: "langDe" },
+  { value: "ar", labelKey: "langAr" },
+  { value: "ru", labelKey: "langRu" },
+  { value: "zh", labelKey: "langZh" },
+  { value: "it", labelKey: "langIt" },
+] as const
 
 type PatientData = {
   first_name: string | null; last_name: string | null; phone: string | null
   date_of_birth: string | null; address: string | null; city: string | null
-  postal_code: string | null; gender: string | null
+  postal_code: string | null; gender: string | null; languages_spoken: string[] | null
+  insurance_provider: string | null
   emergency_contact_name: string | null; emergency_contact_phone: string | null
   emergency_contact_relationship: string | null
 }
@@ -53,6 +67,8 @@ export function EditProfileForm({
   const { t } = usePatientTranslations()
 
   const [gender, setGender] = useState(patient?.gender ?? "")
+  const [insurance, setInsurance] = useState(patient?.insurance_provider ?? "")
+  const [languages, setLanguages] = useState<string[]>(patient?.languages_spoken ?? [])
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -82,10 +98,22 @@ export function EditProfileForm({
       emergency_contact_name: str(data.emergency_contact_name),
       emergency_contact_phone: str(data.emergency_contact_phone),
       emergency_contact_relationship: str(data.emergency_contact_relationship),
+      languages_spoken: languages.length > 0 ? languages : [],
+      insurance_provider: insurance || null,
     }
-    const { error } = await supabase.from("patients").upsert(payload, { onConflict: "user_id" })
+    const [{ error: pErr }, { error: uErr }] = await Promise.all([
+      supabase.from("patients").upsert(payload, { onConflict: "user_id" }),
+      supabase
+        .from("users")
+        .update({
+          first_name: data.first_name || undefined,
+          last_name: data.last_name || undefined,
+          phone: data.phone || null,
+        })
+        .eq("id", userId),
+    ])
 
-    if (error) {
+    if (pErr || uErr) {
       toast.error(t.profile.errorSave)
       setSaving(false)
       return
@@ -139,6 +167,45 @@ export function EditProfileForm({
                     <SelectItem value="other">{t.profile.genderOther}</SelectItem>
                   </SelectContent>
                 </Select>
+              </Field>
+              <Field label={t.profile.insuranceProvider} id="insurance_provider">
+                <Select value={insurance} onValueChange={(v) => setInsurance(v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t.profile.selectPlaceholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t.profile.insuranceNone}</SelectItem>
+                    <SelectItem value="medis">{t.profile.insuranceMedis}</SelectItem>
+                    <SelectItem value="multicare">{t.profile.insuranceMulticare}</SelectItem>
+                    <SelectItem value="advancecare">{t.profile.insuranceAdvanceCare}</SelectItem>
+                    <SelectItem value="fidelidade">{t.profile.insuranceFidelidade}</SelectItem>
+                    <SelectItem value="ageas">{t.profile.insuranceAgeas}</SelectItem>
+                    <SelectItem value="allianz">{t.profile.insuranceAllianz}</SelectItem>
+                    <SelectItem value="other">{t.profile.insuranceOther}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label={t.profile.languagesSpoken} id="languages_spoken" className="sm:col-span-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <label
+                      key={lang.value}
+                      className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <Checkbox
+                        checked={languages.includes(lang.value)}
+                        onCheckedChange={(checked) => {
+                          setLanguages((prev) =>
+                            checked
+                              ? [...prev, lang.value]
+                              : prev.filter((l) => l !== lang.value)
+                          )
+                        }}
+                      />
+                      {t.profile[lang.labelKey as keyof typeof t.profile]}
+                    </label>
+                  ))}
+                </div>
               </Field>
             </div>
           </fieldset>

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { createService } from "@/app/(professional)/_actions/services";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
@@ -34,6 +35,8 @@ type ServiceFormValues = z.infer<typeof serviceSchema>;
 
 export function CreateServiceDialog() {
   const [open, setOpen] = useState(false);
+  const [showPrice, setShowPrice] = useState(false);
+  const [price, setPrice] = useState<number | null>(null);
   const { t } = useProfessionalI18n();
   const sv = t.services;
 
@@ -48,10 +51,15 @@ export function CreateServiceDialog() {
   });
 
   const onSubmit = async (values: ServiceFormValues) => {
-    const result = await createService(values);
+    const result = await createService({
+      ...values,
+      price: showPrice && price ? price : null,
+    });
     if (result.success) {
       toast.success(sv.serviceCreated);
       form.reset();
+      setShowPrice(false);
+      setPrice(null);
       setOpen(false);
     } else {
       toast.error(sv.errorCreating);
@@ -108,6 +116,34 @@ export function CreateServiceDialog() {
               <p className="text-sm text-destructive">
                 {form.formState.errors.duration_minutes.message}
               </p>
+            )}
+          </div>
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={showPrice}
+                onCheckedChange={(checked) => {
+                  setShowPrice(!!checked);
+                  if (!checked) setPrice(null);
+                }}
+              />
+              <span className="text-sm font-medium">{sv.showPrice}</span>
+            </label>
+            {showPrice && (
+              <div className="space-y-2">
+                <Label htmlFor="price">{sv.price}</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder={sv.pricePlaceholder}
+                  value={price ?? ""}
+                  onChange={(e) =>
+                    setPrice(e.target.value ? parseFloat(e.target.value) : null)
+                  }
+                />
+              </div>
             )}
           </div>
           <div className="flex items-center justify-between">

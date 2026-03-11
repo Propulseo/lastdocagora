@@ -145,10 +145,15 @@ export function BookingForm({
                         : "hover:border-muted-foreground/30"
                     )}
                   >
-                    <p className="text-sm font-medium">{svc.name}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium">{svc.name}</p>
+                      <p className="shrink-0 text-xs font-semibold">
+                        {svc.price > 0 ? `${svc.price} \u20ac` : t.booking.priceOnRequest}
+                      </p>
+                    </div>
                     <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="size-3" />
-                      <span>{svc.duration_minutes} min</span>
+                      <span>{svc.duration_minutes} {t.professionalDetail.min}</span>
                     </div>
                   </button>
                 ))

@@ -8,7 +8,7 @@ export type AdminTranslations = typeof ptAdmin;
 // If FR is missing a key, TypeScript will error HERE, not at runtime.
 const frAdminChecked: AdminTranslations = frAdmin;
 
-export const supportedLocales = ["pt", "fr"] as const;
+export const supportedLocales = ["pt", "fr", "en"] as const;
 export type SupportedLocale = (typeof supportedLocales)[number];
 
 // Typed keys for nav config — derived from the JSON structure
@@ -18,6 +18,7 @@ export type AdminSidebarItemKey = keyof AdminTranslations["sidebar"]["items"];
 const translations: Record<SupportedLocale, AdminTranslations> = {
   pt: ptAdmin,
   fr: frAdminChecked,
+  en: ptAdmin, // fallback to PT until English admin translations are created
 };
 
 export function getAdminTranslations(

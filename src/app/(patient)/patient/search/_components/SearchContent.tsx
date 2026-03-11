@@ -11,6 +11,7 @@ import { Search as SearchIcon } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
+import { translateSpecialty } from "@/locales/patient/specialties"
 import { SearchTabs } from "./search-tabs"
 import { ProfessionalCard, type ProfessionalResult } from "./professional-card"
 
@@ -48,7 +49,7 @@ export function SearchContent({
                 </SelectTrigger>
                 <SelectContent>
                   {specialties.map((s) => (
-                    <SelectItem key={s} value={s ?? ""}>{s}</SelectItem>
+                    <SelectItem key={s} value={s ?? ""}>{translateSpecialty(s, locale)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -98,7 +99,7 @@ export function SearchContent({
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title={t.search.title}
         description={t.search.description}

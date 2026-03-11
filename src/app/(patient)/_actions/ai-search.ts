@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { getOpenAIClient } from "@/lib/ai/openai-client"
-import { buildSystemPrompt } from "@/lib/ai/system-prompt"
+import { buildSystemPrompt, LANG_DETECT_PROMPT } from "@/lib/ai/system-prompt"
 import {
   aiSearchInputSchema,
   aiOutputSchema,
@@ -10,21 +10,65 @@ import {
 } from "@/lib/ai/schemas"
 import type { ProfessionalResult } from "@/app/(patient)/patient/search/_components/professional-card"
 
+type DetectedLang = "FR" | "EN" | "PT"
+
 type AISearchSuccess =
   | {
       type: "clarification"
       message: string
       suggested_options?: string[]
+      lang: DetectedLang
     }
   | {
       type: "search"
       message: string
       professionals: ProfessionalResult[]
+      lang: DetectedLang
     }
 
 type AISearchResponse =
   | { success: true; data: AISearchSuccess }
   | { success: false; error: string }
+
+// Cache spécialités/villes en mémoire (5 min TTL)
+let contextCache: { specialties: string[]; cities: string[]; ts: number } | null = null
+const CACHE_TTL = 5 * 60 * 1000
+
+async function getCachedContext(supabase: Awaited<ReturnType<typeof createClient>>) {
+  if (contextCache && Date.now() - contextCache.ts < CACHE_TTL) {
+    return contextCache
+  }
+  // RLS enforce déjà verification_status = 'verified'
+  const [specialtiesRes, citiesRes] = await Promise.all([
+    supabase.from("professionals").select("specialty"),
+    supabase.from("professionals").select("city").not("city", "is", null),
+  ])
+  contextCache = {
+    specialties: [...new Set((specialtiesRes.data ?? []).map((s) => s.specialty))].sort(),
+    cities: [...new Set((citiesRes.data ?? []).map((c) => c.city).filter(Boolean) as string[])].sort(),
+    ts: Date.now(),
+  }
+  return contextCache
+}
+
+async function detectLanguage(openai: ReturnType<typeof getOpenAIClient>, message: string): Promise<DetectedLang> {
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: LANG_DETECT_PROMPT },
+        { role: "user", content: message },
+      ],
+      temperature: 0,
+      max_tokens: 5,
+    })
+    const raw = (completion.choices[0]?.message?.content ?? "").trim().toUpperCase()
+    if (raw === "FR" || raw === "EN" || raw === "PT") return raw
+    return "FR" // fallback
+  } catch {
+    return "FR" // fallback on error
+  }
+}
 
 export async function aiSearch(input: {
   message: string
@@ -46,30 +90,14 @@ export async function aiSearch(input: {
   }
   const { message, history } = parsed.data
 
-  // 3. Fetch context from DB (specialties + cities)
-  const [specialtiesRes, citiesRes] = await Promise.all([
-    supabase
-      .from("professionals")
-      .select("specialty")
-      .eq("verification_status", "verified"),
-    supabase
-      .from("professionals")
-      .select("city")
-      .eq("verification_status", "verified")
-      .not("city", "is", null),
+  // 3. Fetch context (cached) + detect language in parallel
+  const openai = getOpenAIClient()
+  const [{ specialties, cities }, detectedLang] = await Promise.all([
+    getCachedContext(supabase),
+    detectLanguage(openai, message),
   ])
 
-  const specialties = [
-    ...new Set((specialtiesRes.data ?? []).map((s) => s.specialty)),
-  ].sort()
-  const cities = [
-    ...new Set(
-      (citiesRes.data ?? []).map((c) => c.city).filter(Boolean) as string[]
-    ),
-  ].sort()
-
-  // 4. Call OpenAI
-  const openai = getOpenAIClient()
+  // 4. Call OpenAI for filter extraction
   const systemPrompt = buildSystemPrompt(specialties, cities)
 
   const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
@@ -87,7 +115,7 @@ export async function aiSearch(input: {
       model: "gpt-4o-mini",
       messages: chatMessages,
       temperature: 0.3,
-      max_tokens: 500,
+      max_tokens: 300,
       response_format: { type: "json_object" },
     })
     aiResponse = completion.choices[0]?.message?.content ?? ""
@@ -114,11 +142,12 @@ export async function aiSearch(input: {
         type: "clarification",
         message: aiOutput.message,
         suggested_options: aiOutput.suggested_options ?? undefined,
+        lang: detectedLang,
       },
     }
   }
 
-  // 7. Build Supabase query from filters
+  // 7. Build Supabase query from filters (sans nextSlot pour réponse instantanée)
   const professionals = await queryProfessionals(supabase, aiOutput.filters)
 
   return {
@@ -127,21 +156,53 @@ export async function aiSearch(input: {
       type: "search",
       message: aiOutput.message,
       professionals,
+      lang: detectedLang,
     },
   }
+}
+
+// Action séparée pour charger les créneaux après affichage des résultats
+export async function fetchNextSlot(professionalId: string): Promise<string | null> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.rpc("get_next_available_slot", {
+      p_professional_id: professionalId,
+    })
+    if (error) return null
+    return (data as string | null) ?? null
+  } catch {
+    return null
+  }
+}
+
+// Mapping noms de langues → codes ISO (fallback si GPT ne respecte pas le format)
+const LANG_TO_CODE: Record<string, string> = {
+  portugais: "pt", português: "pt", portuguese: "pt",
+  anglais: "en", inglês: "en", english: "en",
+  français: "fr", francês: "fr", french: "fr",
+  espagnol: "es", espanhol: "es", spanish: "es",
+  allemand: "de", alemão: "de", german: "de",
+  italien: "it", italiano: "it", italian: "it",
+}
+
+function normalizeLangCodes(langs: string[]): string[] {
+  return langs.map((l) => {
+    const lower = l.toLowerCase().trim()
+    return LANG_TO_CODE[lower] ?? lower
+  })
 }
 
 async function queryProfessionals(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: AISearchFilters
 ): Promise<ProfessionalResult[]> {
+  // RLS enforce déjà verification_status = 'verified', pas besoin de filtrer ici
   let query = supabase
     .from("professionals")
     .select(
       `id, specialty, city, rating, total_reviews, bio,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
-    .eq("verification_status", "verified")
 
   if (filters.specialty) {
     query = query.ilike("specialty", `%${filters.specialty}%`)
@@ -153,7 +214,7 @@ async function queryProfessionals(
     query = query.ilike("neighborhood", `%${filters.neighborhood}%`)
   }
   if (filters.languages_spoken && filters.languages_spoken.length > 0) {
-    query = query.overlaps("languages_spoken", filters.languages_spoken)
+    query = query.overlaps("languages_spoken", normalizeLangCodes(filters.languages_spoken))
   }
   if (filters.insurances_accepted && filters.insurances_accepted.length > 0) {
     query = query.overlaps("insurances_accepted", filters.insurances_accepted)
@@ -192,33 +253,25 @@ async function queryProfessionals(
     return []
   }
 
-  // Fetch next available slot for each professional
-  const results = await Promise.all(
-    (data ?? []).map(async (prof) => {
-      const { data: nextSlot } = await supabase.rpc("get_next_available_slot", {
-        p_professional_id: prof.id,
-      })
-      return {
-        id: prof.id,
-        specialty: prof.specialty,
-        city: prof.city,
-        rating: prof.rating,
-        total_reviews: prof.total_reviews,
-        bio: prof.bio,
-        nextSlot: nextSlot as string | null,
-        users: prof.users as {
-          first_name: string | null
-          last_name: string | null
-          avatar_url?: string | null
-        } | null,
-      }
-    })
-  )
+  let results = (data ?? []).map((prof) => ({
+    id: prof.id,
+    specialty: prof.specialty,
+    city: prof.city,
+    rating: prof.rating,
+    total_reviews: prof.total_reviews,
+    bio: prof.bio,
+    nextSlot: null as string | null,
+    users: prof.users as {
+      first_name: string | null
+      last_name: string | null
+      avatar_url?: string | null
+    } | null,
+  }))
 
   // Client-side name filtering if name filter was provided
   if (filters.name) {
     const lowerName = filters.name.toLowerCase()
-    return results.filter((prof) => {
+    results = results.filter((prof) => {
       const fullName =
         `${prof.users?.first_name ?? ""} ${prof.users?.last_name ?? ""}`.toLowerCase()
       return fullName.includes(lowerName)

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { BookingForm } from "./booking-form"
 import { getLocale, getPatientTranslations, getDateLocale } from "@/locales/patient"
+import { translateSpecialty } from "@/locales/patient/specialties"
 
 export default async function ProfessionalDetailPage({
   params,
@@ -101,7 +102,7 @@ export default async function ProfessionalDetailPage({
                 <div className="min-w-0 flex-1 space-y-2">
                   <div>
                     <h1 className="text-xl font-bold">{fullName}</h1>
-                    <Badge variant="secondary" className="mt-1">{prof.specialty}</Badge>
+                    <Badge variant="secondary" className="mt-1">{translateSpecialty(prof.specialty, locale)}</Badge>
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                     {prof.rating != null && (
@@ -183,6 +184,9 @@ export default async function ProfessionalDetailPage({
                           </Badge>
                         </div>
                       </div>
+                      <p className="ml-4 shrink-0 text-sm font-semibold">
+                        {svc.price > 0 ? `${svc.price} \u20ac` : t.booking.priceOnRequest}
+                      </p>
                     </div>
                   ))}
                 </div>

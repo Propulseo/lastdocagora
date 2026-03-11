@@ -14,14 +14,13 @@ export default async function SettingsPage() {
     .from("patient_settings")
     .select(
       `email_notifications, sms_notifications, appointment_reminders,
-       marketing_emails, reminder_frequency, timezone, date_format,
-       dark_mode, public_profile`
+       marketing_emails, reminder_frequency`
     )
     .eq("user_id", user.id)
     .single()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PatientPageHeader section="settings" />
       <SettingsForm settings={settings} userId={user.id} />
     </div>

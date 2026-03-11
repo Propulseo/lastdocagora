@@ -3,6 +3,6 @@ export const patientNav = [
   { key: "search" as const, href: "/patient/search", icon: "Search" },
   { key: "appointments" as const, href: "/patient/appointments", icon: "Calendar" },
   { key: "profile" as const, href: "/patient/profile", icon: "UserCircle" },
-  { key: "messages" as const, href: "/patient/messages", icon: "MessageSquare" },
+  { key: "messages" as const, href: "/patient/messages", icon: "Bell" },
   { key: "settings" as const, href: "/patient/settings", icon: "Settings" },
 ] as const

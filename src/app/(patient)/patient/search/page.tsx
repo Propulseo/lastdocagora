@@ -24,7 +24,6 @@ export default async function SearchPage({
       `id, specialty, city, rating, total_reviews, bio,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
-    .eq("verification_status", "verified")
     .order("rating", { ascending: false, nullsFirst: false })
     .limit(20)
 
@@ -64,7 +63,6 @@ export default async function SearchPage({
   const { data: specialties } = await supabase
     .from("professionals")
     .select("specialty")
-    .eq("verification_status", "verified")
 
   const uniqueSpecialties = [...new Set((specialties ?? []).map((s) => s.specialty))].sort()
 

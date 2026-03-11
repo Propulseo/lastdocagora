@@ -26,6 +26,7 @@ interface SearchParams {
   range?: string;
   service?: string;
   channel?: string;
+  year?: string;
 }
 
 export default async function StatisticsPage({
@@ -37,11 +38,23 @@ export default async function StatisticsPage({
   const range = params.range || "30d";
   const serviceFilter = params.service || "";
   const channelFilter = params.channel || "";
-  const { from, to } = getDateRange(range);
+  const currentYear = new Date().getFullYear();
+  const selectedYear = params.year ? parseInt(params.year, 10) : currentYear;
+  const { from, to } = getDateRange(range, selectedYear);
 
   const professionalId = await getProfessionalId();
 
   const supabase = await createClient();
+
+  // Fetch professional created_at to determine min year
+  const { data: proData } = await supabase
+    .from("professionals")
+    .select("created_at")
+    .eq("id", professionalId)
+    .single();
+  const minYear = proData?.created_at
+    ? new Date(proData.created_at).getFullYear()
+    : currentYear;
 
   // --- 4 parallel queries ---
   const [kpiResult, chartResult, insightsResult, servicesResult] =
@@ -77,7 +90,7 @@ export default async function StatisticsPage({
         return query;
       })(),
 
-      // 3) Insights data (full history for patient risk)
+      // 3) Insights data (year-scoped for patient risk)
       supabase
         .from("appointments")
         .select(
@@ -88,7 +101,9 @@ export default async function StatisticsPage({
           appointment_attendance(status)
         `,
         )
-        .eq("professional_id", professionalId),
+        .eq("professional_id", professionalId)
+        .gte("appointment_date", `${selectedYear}-01-01`)
+        .lte("appointment_date", `${selectedYear}-12-31`),
 
       // 4) Services list for filter dropdown
       supabase
@@ -148,6 +163,11 @@ export default async function StatisticsPage({
       service: serviceFilter,
       channel: channelFilter,
       services: servicesList,
+    },
+    yearNav: {
+      selectedYear,
+      minYear,
+      maxYear: currentYear,
     },
   };
 

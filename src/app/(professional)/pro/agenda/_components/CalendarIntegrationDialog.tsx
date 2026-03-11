@@ -178,7 +178,7 @@ export function CalendarIntegrationDialog({
                               variant="secondary"
                               className="ml-2 text-xs"
                             >
-                              Primary
+                              {t.agenda.calendarPrimary}
                             </Badge>
                           )}
                         </p>

@@ -35,28 +35,44 @@ export interface HistoryRow {
 // Date helpers
 // ---------------------------------------------------------------------------
 
-export function getDateRange(range: string): { from: string; to: string } {
+export function getDateRange(
+  range: string,
+  year?: number,
+): { from: string; to: string } {
   const now = new Date();
-  const to = now.toISOString().split("T")[0];
+  const currentYear = now.getFullYear();
+  const selectedYear = year ?? currentYear;
+  const isCurrentYear = selectedYear === currentYear;
 
+  // End of range: Dec 31 of selected year, or today if current year
+  const toDate = isCurrentYear
+    ? now
+    : new Date(selectedYear, 11, 31);
+  const to = toDate.toISOString().split("T")[0];
+
+  // Start of range: relative to `toDate`, clamped to Jan 1 of selected year
+  const yearStart = new Date(selectedYear, 0, 1);
   let from: Date;
   switch (range) {
     case "90d": {
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 89);
       break;
     }
     case "7d": {
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 6);
       break;
     }
     default: {
-      from = new Date(now);
+      from = new Date(toDate);
       from.setDate(from.getDate() - 29);
       break;
     }
   }
+
+  // Clamp from to Jan 1 of selected year
+  if (from < yearStart) from = yearStart;
 
   return { from: from.toISOString().split("T")[0], to };
 }
