@@ -5,6 +5,7 @@ export const professionalNav = [
   { title: "Lembretes", href: "/pro/reminders", icon: "Bell", group: "manage", translationKey: "reminders" },
   { title: "Serviços", href: "/pro/services", icon: "Briefcase", group: "manage", translationKey: "services" },
   { title: "Estatísticas", href: "/pro/statistics", icon: "BarChart3", group: "manage", translationKey: "statistics" },
+  { title: "Suporte", href: "/pro/support", icon: "LifeBuoy", group: "account", translationKey: "support" },
   { title: "Meu Perfil", href: "/pro/profile", icon: "UserCircle", group: "account", translationKey: "profile" },
   { title: "Configurações", href: "/pro/settings", icon: "Settings", group: "account", translationKey: "settings" },
 ] as const;

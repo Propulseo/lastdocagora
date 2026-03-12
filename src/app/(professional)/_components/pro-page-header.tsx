@@ -3,12 +3,13 @@
 import { useProfessionalI18n } from "@/lib/i18n/pro"
 import { PageHeader } from "@/components/shared/page-header"
 
-type ProPageSection = "patients" | "services" | "reminders"
+type ProPageSection = "patients" | "services" | "reminders" | "support"
 
 const descriptionKeys: Record<ProPageSection, "description" | "subtitle"> = {
   patients: "description",
   services: "description",
   reminders: "subtitle",
+  support: "description",
 }
 
 interface ProPageHeaderProps {

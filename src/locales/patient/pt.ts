@@ -73,6 +73,7 @@ export type PatientTranslations = {
     aiErrorRephrase: string
     aiErrorInput: string
     aiResultsFound: string
+    aiNoResults: string
   }
   professionalDetail: {
     backToSearch: string
@@ -331,6 +332,7 @@ export const ptPatient: PatientTranslations = {
     aiErrorRephrase: "N\u00e3o consegui interpretar o pedido. Tente reformular.",
     aiErrorInput: "Mensagem inv\u00e1lida. Tente ser mais espec\u00edfico.",
     aiResultsFound: "Encontrei {count} profissional(is) para si:",
+    aiNoResults: "N\u00e3o encontrei nenhum profissional com esses crit\u00e9rios. Tente alargar a pesquisa (outra zona, menos filtros).",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",

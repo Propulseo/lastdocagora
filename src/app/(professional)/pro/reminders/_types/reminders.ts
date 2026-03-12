@@ -22,6 +22,46 @@ export type NotificationLog = Tables<"appointment_notifications"> & {
 
 export type ProfessionalSettings = Tables<"professional_settings">;
 
+// ---------------------------------------------------------------------------
+// Chart data types
+// ---------------------------------------------------------------------------
+
+export interface NotificationTrendPoint {
+  date: string;
+  sent: number;
+  delivered: number;
+  failed: number;
+}
+
+export interface ChannelSlice {
+  channel: string;
+  label: string;
+  count: number;
+}
+
+export interface StatusSlice {
+  status: string;
+  label: string;
+  count: number;
+}
+
+export interface RemindersChartsData {
+  trends: NotificationTrendPoint[];
+  channelBreakdown: ChannelSlice[];
+  statusBreakdown: StatusSlice[];
+}
+
+export interface RemindersKpiData {
+  sentThisMonth: number;
+  totalWithStatus: number;
+  deliveredCount: number;
+  activeRulesCount: number;
+  totalRulesCount: number;
+  activeTemplatesCount: number;
+  ownTemplatesCount: number;
+  noShowReduction: number | null;
+}
+
 export interface RemindersClientProps {
   professionalId: string;
   professionalUserId: string;
@@ -29,9 +69,6 @@ export interface RemindersClientProps {
   initialTemplates: MessageTemplate[];
   initialNotifications: NotificationLog[];
   initialSettings: ProfessionalSettings | null;
-  kpiData: {
-    sentThisMonth: number;
-    totalWithStatus: number;
-    deliveredCount: number;
-  };
+  kpiData: RemindersKpiData;
+  chartsData: RemindersChartsData;
 }

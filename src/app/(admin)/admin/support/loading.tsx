@@ -8,7 +8,7 @@ export default function SupportLoading() {
         <Skeleton className="h-7 w-28" />
         <Skeleton className="mt-2 h-4 w-64" />
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 rounded-xl border bg-card p-3">
         <Skeleton className="h-9 w-64" />
         <Skeleton className="h-9 w-40" />
         <Skeleton className="h-9 w-40" />

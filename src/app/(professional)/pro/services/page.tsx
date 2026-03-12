@@ -1,34 +1,81 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
-import { ServicesTable, type ServiceRow } from "./_components/services-table";
-import { ProPageHeader } from "../../_components/pro-page-header";
-import { CreateServiceDialog } from "./_components/create-service-dialog";
+import { ServicesClient } from "./_components/ServicesClient";
+import {
+  buildServiceRows,
+  buildServicesKpi,
+  buildRevenuePerService,
+  buildAppointmentVolume,
+  applyServiceFilters,
+  getUniqueConsultationTypes,
+} from "./_lib/aggregation";
+import type { ServicesDashboardData, RawServiceAppointment } from "./_lib/types";
 
-export default async function ServicesPage() {
+interface SearchParams {
+  search?: string;
+  status?: string;
+  sort?: string;
+  page?: string;
+}
+
+const PAGE_SIZE = 20;
+
+export default async function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
   const professionalId = await getProfessionalId();
-
   const supabase = await createClient();
 
-  const { data: services } = await supabase
-    .from("services")
-    .select("id, name, description, duration_minutes, consultation_type, is_active, price")
-    .eq("professional_id", professionalId)
-    .order("name", { ascending: true });
+  // Parallel queries: services + appointments for enrichment
+  const [{ data: services }, { data: appointments }] = await Promise.all([
+    supabase
+      .from("services")
+      .select("id, name, description, duration_minutes, consultation_type, is_active, price")
+      .eq("professional_id", professionalId)
+      .order("name", { ascending: true }),
+    supabase
+      .from("appointments")
+      .select("id, service_id, status, price")
+      .eq("professional_id", professionalId),
+  ]);
 
-  const allServices: ServiceRow[] = (services ?? []).map((s) => ({
-    id: s.id,
-    name: s.name,
-    description: s.description,
-    duration_minutes: s.duration_minutes,
-    consultation_type: s.consultation_type,
-    is_active: s.is_active ?? true,
-    price: s.price,
-  }));
-
-  return (
-    <div className="space-y-6">
-      <ProPageHeader section="services" action={<CreateServiceDialog />} />
-      <ServicesTable services={allServices} />
-    </div>
+  // Build enriched service rows
+  const allRows = buildServiceRows(
+    services ?? [],
+    (appointments ?? []) as RawServiceAppointment[],
   );
+
+  // Aggregation
+  const kpi = buildServicesKpi(allRows);
+  const revenuePerService = buildRevenuePerService(allRows);
+  const appointmentVolume = buildAppointmentVolume(allRows);
+  // Apply filters
+  const filtered = applyServiceFilters(allRows, {
+    search: params.search,
+    status: params.status,
+    sort: params.sort,
+  });
+
+  // Paginate
+  const page = Math.max(1, parseInt(params.page ?? "1", 10));
+  const paginated = filtered.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
+
+  const dashboardData: ServicesDashboardData = {
+    kpi,
+    revenuePerService,
+    appointmentVolume,
+    services: paginated,
+    totalFiltered: filtered.length,
+    filterOptions: {
+      consultationTypes: getUniqueConsultationTypes(allRows),
+    },
+  };
+
+  return <ServicesClient data={dashboardData} />;
 }

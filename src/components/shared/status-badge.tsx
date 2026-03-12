@@ -1,65 +1,112 @@
-import { Badge } from "@/components/ui/badge";
+const COLOR_MAP: Record<string, { bg: string; text: string }> = {
+  // green — active, verified, confirmed, completed
+  active: { bg: "#dcfce7", text: "#15803d" },
+  verified: { bg: "#dcfce7", text: "#15803d" },
+  confirmed: { bg: "#dcfce7", text: "#15803d" },
+  completed: { bg: "#dcfce7", text: "#15803d" },
+  resolved: { bg: "#dcfce7", text: "#15803d" },
+  // yellow — pending, scheduled, in_progress
+  pending: { bg: "#fef9c3", text: "#854d0e" },
+  scheduled: { bg: "#fef9c3", text: "#854d0e" },
+  in_progress: { bg: "#fef9c3", text: "#854d0e" },
+  // red — suspended, cancelled, rejected, closed
+  suspended: { bg: "#fee2e2", text: "#dc2626" },
+  cancelled: { bg: "#fee2e2", text: "#dc2626" },
+  rejected: { bg: "#fee2e2", text: "#dc2626" },
+  closed: { bg: "#fee2e2", text: "#dc2626" },
+  inactive: { bg: "#fee2e2", text: "#dc2626" },
+  // orange — no_show, open, urgent
+  no_show: { bg: "#ffedd5", text: "#c2410c" },
+  open: { bg: "#ffedd5", text: "#c2410c" },
+  urgent: { bg: "#ffedd5", text: "#c2410c" },
+  high: { bg: "#ffedd5", text: "#c2410c" },
+  // neutral
+  low: { bg: "#f3f4f6", text: "#374151" },
+  medium: { bg: "#fef9c3", text: "#854d0e" },
+  // published
+  true: { bg: "#dcfce7", text: "#15803d" },
+  false: { bg: "#f3f4f6", text: "#374151" },
+  // roles
+  patient: { bg: "#eff6ff", text: "#1d4ed8" },
+  professional: { bg: "#f5f3ff", text: "#6d28d9" },
+  admin: { bg: "#fef2f2", text: "#991b1b" },
+};
 
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+const DEFAULT_COLOR = { bg: "#f3f4f6", text: "#374151" };
 
-const statusConfig: Record<
-  string,
-  Record<string, { label: string; variant: BadgeVariant }>
-> = {
+const DEFAULT_LABELS: Record<string, Record<string, string>> = {
   userStatus: {
-    active: { label: "Ativo", variant: "default" },
-    inactive: { label: "Inativo", variant: "secondary" },
-    suspended: { label: "Suspenso", variant: "destructive" },
+    active: "Ativo",
+    inactive: "Inativo",
+    suspended: "Suspenso",
   },
   role: {
-    patient: { label: "Paciente", variant: "outline" },
-    professional: { label: "Profissional", variant: "outline" },
-    admin: { label: "Administrador", variant: "secondary" },
+    patient: "Paciente",
+    professional: "Profissional",
+    admin: "Administrador",
   },
   verification: {
-    verified: { label: "Verificado", variant: "default" },
-    pending: { label: "Pendente", variant: "outline" },
-    rejected: { label: "Rejeitado", variant: "destructive" },
+    verified: "Verificado",
+    pending: "Pendente",
+    rejected: "Rejeitado",
   },
   appointment: {
-    pending: { label: "Pendente", variant: "outline" },
-    scheduled: { label: "Agendada", variant: "outline" },
-    confirmed: { label: "Confirmada", variant: "default" },
-    completed: { label: "Concluida", variant: "secondary" },
-    cancelled: { label: "Cancelada", variant: "destructive" },
-    no_show: { label: "Falta", variant: "destructive" },
+    pending: "Pendente",
+    scheduled: "Agendada",
+    confirmed: "Confirmada",
+    completed: "Concluída",
+    cancelled: "Cancelada",
+    no_show: "Falta",
   },
   ticket: {
-    open: { label: "Aberto", variant: "destructive" },
-    in_progress: { label: "Em progresso", variant: "outline" },
-    resolved: { label: "Resolvido", variant: "default" },
-    closed: { label: "Fechado", variant: "secondary" },
+    open: "Aberto",
+    in_progress: "Em progresso",
+    resolved: "Resolvido",
+    closed: "Fechado",
   },
   priority: {
-    low: { label: "Baixa", variant: "secondary" },
-    medium: { label: "Media", variant: "outline" },
-    high: { label: "Alta", variant: "default" },
-    urgent: { label: "Urgente", variant: "destructive" },
+    low: "Baixa",
+    medium: "Média",
+    high: "Alta",
+    urgent: "Urgente",
   },
   published: {
-    true: { label: "Publicado", variant: "default" },
-    false: { label: "Rascunho", variant: "secondary" },
+    true: "Publicado",
+    false: "Rascunho",
   },
 };
 
 interface StatusBadgeProps {
-  type: keyof typeof statusConfig;
+  type: string;
   value: string | boolean | null | undefined;
-  /** Optional translated labels keyed by status value. Overrides default PT labels. */
   labels?: Record<string, string>;
+  className?: string;
 }
 
-export function StatusBadge({ type, value, labels }: StatusBadgeProps) {
+export function StatusBadge({ type, value, labels, className }: StatusBadgeProps) {
   const strValue = String(value ?? "");
-  const config = statusConfig[type]?.[strValue];
+  const color = COLOR_MAP[strValue] ?? DEFAULT_COLOR;
+  const label =
+    labels?.[strValue] ??
+    DEFAULT_LABELS[type]?.[strValue] ??
+    strValue;
+
   return (
-    <Badge variant={config?.variant ?? "outline"}>
-      {labels?.[strValue] ?? config?.label ?? strValue}
-    </Badge>
+    <span
+      className={className}
+      style={{
+        display: "inline-block",
+        borderRadius: "9999px",
+        padding: "4px 10px",
+        fontSize: "11px",
+        fontWeight: 600,
+        lineHeight: "1.2",
+        backgroundColor: color.bg,
+        color: color.text,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </span>
   );
 }

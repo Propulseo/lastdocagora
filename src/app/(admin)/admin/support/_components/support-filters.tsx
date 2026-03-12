@@ -29,7 +29,7 @@ export function SupportFilters() {
   }
 
   return (
-    <div className="rounded-lg bg-muted/20 p-3">
+    <div className="rounded-xl border bg-card p-3 shadow-[var(--shadow-card)]">
       <div className="flex flex-wrap items-center gap-3">
         <SearchInput placeholder={t.support.searchPlaceholder} />
         <Select

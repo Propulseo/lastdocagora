@@ -1,16 +1,23 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import {
+  HOUR_HEIGHT,
+  START_HOUR,
+  END_HOUR,
+  SLOT_MINUTES,
+  OFF_HOURS_START,
+  OFF_HOURS_END,
+} from "../_lib/agenda-constants";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
-import { AppointmentBlock, HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
+import { AppointmentBlock } from "./AppointmentBlock";
+import { ExternalEventOverlay } from "./ExternalEventOverlay";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
-
-const END_HOUR = 20;
-const SLOT_MINUTES = 30;
+import { toLocalDateStr } from "../_lib/date-utils";
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
@@ -56,6 +63,26 @@ export function DayTimeGrid({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
+
+  // Current time line
+  const todayStr = toLocalDateStr(new Date());
+  const isToday = selectedDate === todayStr;
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!isToday) return;
+    const interval = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(interval);
+  }, [isToday]);
+
+  // Auto-scroll to current hour on mount
+  useEffect(() => {
+    if (!gridRef.current?.parentElement) return;
+    const now = new Date();
+    const currentHour = now.getHours();
+    const scrollTo = Math.max(0, (currentHour - START_HOUR - 1) * HOUR_HEIGHT);
+    gridRef.current.parentElement.scrollTop = scrollTo;
+  }, []);
 
   const getGridY = useCallback((clientY: number): number => {
     if (!gridRef.current) return 0;
@@ -138,6 +165,11 @@ export function DayTimeGrid({
       ? Math.abs(dragCurrentY - dragStartY)
       : 0;
 
+  // Current time position
+  const now = new Date();
+  const currentTimeTop =
+    (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
+
   return (
     <>
       <Card>
@@ -151,6 +183,27 @@ export function DayTimeGrid({
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
+            {/* Off-hours striping */}
+            {OFF_HOURS_START > START_HOUR && (
+              <div
+                className="absolute left-0 right-0 bg-muted/20 pointer-events-none"
+                style={{
+                  top: 0,
+                  height: `${(OFF_HOURS_START - START_HOUR) * HOUR_HEIGHT}px`,
+                }}
+              />
+            )}
+            {OFF_HOURS_END <= END_HOUR && (
+              <div
+                className="absolute left-0 right-0 bg-muted/20 pointer-events-none"
+                style={{
+                  top: `${(OFF_HOURS_END - START_HOUR) * HOUR_HEIGHT}px`,
+                  height: `${(END_HOUR - OFF_HOURS_END + 1) * HOUR_HEIGHT}px`,
+                }}
+              />
+            )}
+
+            {/* Hour grid lines */}
             {hours.map((hour) => {
               const top = (hour - START_HOUR) * HOUR_HEIGHT;
               return (
@@ -166,6 +219,7 @@ export function DayTimeGrid({
               );
             })}
 
+            {/* Appointments */}
             {appointments.map((apt) => (
               <AppointmentBlock
                 key={apt.id}
@@ -174,50 +228,24 @@ export function DayTimeGrid({
               />
             ))}
 
-            {/* External calendar events overlay */}
-            {externalEvents
-              .filter((ev) => {
-                if (ev.all_day) return false;
-                const evDate = ev.starts_at.split("T")[0];
-                return evDate === selectedDate;
-              })
-              .map((ev) => {
-                const startParts = ev.starts_at.split("T")[1];
-                const endParts = ev.ends_at.split("T")[1];
-                if (!startParts || !endParts) return null;
+            {/* External calendar events */}
+            <ExternalEventOverlay
+              events={externalEvents}
+              selectedDate={selectedDate}
+            />
 
-                const [sh, sm] = startParts.split(":").map(Number);
-                const [eh, em] = endParts.split(":").map(Number);
-                const topOffset = (sh - START_HOUR + sm / 60) * HOUR_HEIGHT;
-                const durationMinutes = eh * 60 + em - (sh * 60 + sm);
-                const height = (durationMinutes / 60) * HOUR_HEIGHT;
-
-                if (topOffset < 0 || height <= 0) return null;
-
-                return (
-                  <div
-                    key={ev.id}
-                    className="absolute right-2 overflow-hidden rounded-md px-3 py-1 border-l-4 opacity-60 pointer-events-none"
-                    style={{
-                      top: `${topOffset}px`,
-                      height: `${Math.max(height, 24)}px`,
-                      left: "calc(4rem + 45%)",
-                      borderColor: ev.color ?? "#9333ea",
-                      backgroundColor: `${ev.color ?? "#9333ea"}20`,
-                    }}
-                    title={`${ev.calendar_name}: ${ev.title}`}
-                  >
-                    <p className="truncate text-xs font-medium" style={{ color: ev.color ?? "#9333ea" }}>
-                      {ev.title}
-                    </p>
-                    {height >= 40 && (
-                      <p className="truncate text-[10px] opacity-75" style={{ color: ev.color ?? "#9333ea" }}>
-                        {startParts.slice(0, 5)} - {endParts.slice(0, 5)}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Current time red line */}
+            {isToday && currentTimeTop > 0 && currentTimeTop < totalHeight && (
+              <div
+                className="absolute left-12 right-0 z-20 pointer-events-none"
+                style={{ top: `${currentTimeTop}px` }}
+              >
+                <div className="relative flex items-center">
+                  <span className="absolute -left-1.5 size-3 rounded-full bg-red-500" />
+                  <div className="h-px w-full bg-red-500" />
+                </div>
+              </div>
+            )}
 
             {/* Drag selection overlay */}
             {isDragging && selectionHeight > 0 && (

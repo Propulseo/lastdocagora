@@ -48,7 +48,10 @@ export function KPICard({
         <div className="min-w-0">
           <p className="text-muted-foreground truncate text-sm">{label}</p>
           <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold tabular-nums tracking-tight">
+            <p
+              className="text-2xl font-bold tabular-nums tracking-tight truncate"
+              title={typeof value === "string" ? value : undefined}
+            >
               {value}
             </p>
             {trend && trend !== "neutral" && (

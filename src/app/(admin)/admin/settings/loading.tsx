@@ -8,7 +8,7 @@ export default function SettingsLoading() {
         <Skeleton className="mt-2 h-4 w-64" />
       </div>
       {Array.from({ length: 3 }).map((_, i) => (
-        <Skeleton key={i} className="h-48 rounded-lg" />
+        <Skeleton key={i} className="h-48 rounded-xl" />
       ))}
     </div>
   );

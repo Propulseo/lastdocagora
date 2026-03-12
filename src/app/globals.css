@@ -234,6 +234,13 @@ body.role-professional {
   }
 }
 
+/* ─── Pro Dashboard: scoped card styling ─── */
+.pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
+  border-radius: 10px;
+  border-color: oklch(1 0 0 / 6%);
+  box-shadow: none;
+}
+
 /* ─── Reduced Motion ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

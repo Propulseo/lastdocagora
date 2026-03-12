@@ -8,11 +8,13 @@ import { Search } from "lucide-react";
 interface SearchInputProps {
   placeholder?: string;
   paramKey?: string;
+  className?: string;
 }
 
 export function SearchInput({
   placeholder = "Pesquisar...",
   paramKey = "search",
+  className,
 }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,7 +45,7 @@ export function SearchInput({
   }
 
   return (
-    <div className="relative max-w-xs">
+    <div className={className ?? "relative max-w-xs"}>
       <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
       <Input
         placeholder={placeholder}

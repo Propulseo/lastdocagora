@@ -12,7 +12,7 @@ import {
   UserCircle,
   Settings,
   LogOut,
-  Stethoscope,
+  LifeBuoy,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,6 +26,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   LayoutDashboard,
   Calendar,
   Users,
@@ -43,6 +44,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   BarChart3,
   UserCircle,
   Settings,
+  LifeBuoy,
 };
 
 interface ProSidebarProps {
@@ -52,9 +54,10 @@ interface ProSidebarProps {
     lastName: string;
     avatarUrl: string | null;
   };
+  openTicketCount?: number;
 }
 
-export function ProSidebar({ user }: ProSidebarProps) {
+export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useProfessionalI18n();
@@ -72,19 +75,9 @@ export function ProSidebar({ user }: ProSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary">
-            <Stethoscope className="size-4 text-sidebar-primary-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              DOCAGORA
-            </span>
-            <span className="text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/50">
-              {t.sidebar.roleLabel}
-            </span>
-          </div>
-        </div>
+        <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
+          DOCAGORA
+        </span>
       </SidebarHeader>
 
       <SidebarSeparator />
@@ -114,10 +107,15 @@ export function ProSidebar({ user }: ProSidebarProps) {
                           tooltip={label}
                         >
                           <Link href={item.href}>
-                            {Icon && <Icon className="size-4" />}
+                            {Icon && <Icon className="size-5" strokeWidth={1.5} />}
                             <span>{label}</span>
                           </Link>
                         </SidebarMenuButton>
+                        {item.icon === "LifeBuoy" &&
+                          openTicketCount != null &&
+                          openTicketCount > 0 && (
+                            <SidebarMenuBadge>{openTicketCount}</SidebarMenuBadge>
+                          )}
                       </SidebarMenuItem>
                     );
                   })}
@@ -158,7 +156,7 @@ export function ProSidebar({ user }: ProSidebarProps) {
             onClick={handleLogout}
             title={t.sidebar.logout}
           >
-            <LogOut className="size-4" />
+            <LogOut className="size-5" strokeWidth={1.5} />
           </Button>
         </div>
       </SidebarFooter>

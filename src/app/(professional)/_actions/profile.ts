@@ -1,0 +1,144 @@
+"use server";
+
+import { z } from "zod/v4";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
+
+// ---------------------------------------------------------------------------
+// Schemas per section
+// ---------------------------------------------------------------------------
+
+const personalSchema = z.object({
+  section: z.literal("personal"),
+  first_name: z.string().min(1).max(100),
+  last_name: z.string().min(1).max(100),
+  phone: z.string().max(30).optional().or(z.literal("")),
+});
+
+const professionalSchema = z.object({
+  section: z.literal("professional"),
+  specialty: z.string().min(1).max(100),
+  registration_number: z.string().min(1).max(50),
+  practice_type: z.string().max(50).optional().or(z.literal("")),
+  cabinet_name: z.string().max(100).optional().or(z.literal("")),
+  years_experience: z.coerce.number().int().min(0).max(80).optional(),
+  subspecialties: z.string().max(500).optional().or(z.literal("")),
+  bio: z.string().max(1000).optional().or(z.literal("")),
+});
+
+const locationSchema = z.object({
+  section: z.literal("location"),
+  address: z.string().max(200).optional().or(z.literal("")),
+  city: z.string().max(100).optional().or(z.literal("")),
+  postal_code: z.string().max(20).optional().or(z.literal("")),
+});
+
+const languagesSchema = z.object({
+  section: z.literal("languages"),
+  languages_spoken: z.string().max(500).optional().or(z.literal("")),
+});
+
+const updateProfileSchema = z.discriminatedUnion("section", [
+  personalSchema,
+  professionalSchema,
+  locationSchema,
+  languagesSchema,
+]);
+
+type ActionResult =
+  | { success: true }
+  | { success: false; error: string };
+
+// ---------------------------------------------------------------------------
+// Server action
+// ---------------------------------------------------------------------------
+
+export async function updateProfile(
+  input: z.input<typeof updateProfileSchema>,
+): Promise<ActionResult> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "professional") {
+    return { success: false, error: "unauthorized" };
+  }
+
+  const parsed = updateProfileSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: "validation_error" };
+  }
+
+  const data = parsed.data;
+  const supabase = await createClient();
+
+  // Get professional record id
+  const { data: pro } = await supabase
+    .from("professionals")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!pro) {
+    return { success: false, error: "professional_not_found" };
+  }
+
+  if (data.section === "personal") {
+    const { error } = await supabase
+      .from("users")
+      .update({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone: data.phone || null,
+      })
+      .eq("id", user.id);
+
+    if (error) return { success: false, error: error.message };
+  }
+
+  if (data.section === "professional") {
+    const { error } = await supabase
+      .from("professionals")
+      .update({
+        specialty: data.specialty,
+        registration_number: data.registration_number,
+        practice_type: data.practice_type || null,
+        cabinet_name: data.cabinet_name || null,
+        years_experience: data.years_experience ?? null,
+        subspecialties: data.subspecialties
+          ? data.subspecialties.split(",").map((s) => s.trim()).filter(Boolean)
+          : null,
+        bio: data.bio || null,
+      })
+      .eq("id", pro.id);
+
+    if (error) return { success: false, error: error.message };
+  }
+
+  if (data.section === "location") {
+    const { error } = await supabase
+      .from("professionals")
+      .update({
+        address: data.address || null,
+        city: data.city || null,
+        postal_code: data.postal_code || null,
+      })
+      .eq("id", pro.id);
+
+    if (error) return { success: false, error: error.message };
+  }
+
+  if (data.section === "languages") {
+    const { error } = await supabase
+      .from("professionals")
+      .update({
+        languages_spoken: data.languages_spoken
+          ? data.languages_spoken.split(",").map((s) => s.trim()).filter(Boolean)
+          : null,
+      })
+      .eq("id", pro.id);
+
+    if (error) return { success: false, error: error.message };
+  }
+
+  revalidatePath("/pro/profile");
+  return { success: true };
+}

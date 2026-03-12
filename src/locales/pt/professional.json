@@ -13,6 +13,7 @@
     "reminders": "Lembretes",
     "services": "Serviços",
     "statistics": "Estatísticas",
+    "support": "Suporte",
     "profile": "Meu Perfil",
     "settings": "Configurações"
   },
@@ -37,20 +38,53 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "Visão geral da sua atividade e consultas agendadas para hoje.",
-    "viewAgenda": "Ver agenda",
-    "appointmentsToday": "Consultas Hoje",
-    "totalPatients": "Total Pacientes",
-    "uniquePatients": "Pacientes únicos",
+    "greeting": "Bom dia, Dr. {name}",
+    "newAppointment": "Nova Consulta",
+    "appointmentsToday": "Consultas hoje",
+    "totalPatients": "Total pacientes",
     "pending": "Pendentes",
-    "awaitingConfirmation": "A aguardar confirmação",
-    "attendanceRate": "Taxa de Presença",
-    "generalHistory": "Histórico geral",
-    "todaySchedule": "Agenda de Hoje",
-    "viewAll": "Ver todas",
+    "attendanceRate": "Taxa presença",
+    "vsYesterday": "vs ontem",
+    "todayTitle": "Hoje",
+    "rdv": "consultas",
+    "viewFullAgenda": "Ver agenda completa",
     "freeDay": "Dia livre",
-    "noAppointmentsToday": "Nenhuma consulta agendada para hoje.",
-    "checkAgenda": "Consultar agenda"
+    "freeDayMessage": "Aproveite para completar o seu perfil ou consultar as estatísticas",
+    "now": "Agora",
+    "weeklyActivity": "Atividade da semana",
+    "appointmentsThisWeek": "{count} consultas esta semana",
+    "vsLastWeek": "vs {count} na semana passada",
+    "upcomingAppointments": "Próximas Consultas",
+    "noUpcoming": "Nenhuma consulta agendada",
+    "remindersToSend": "Lembretes a enviar",
+    "unconfirmedNext24h": "{count} consultas em 24h sem confirmação",
+    "sendReminders": "Enviar lembretes",
+    "noReminders": "Todas as consultas confirmadas",
+    "recentPatients": "Pacientes Recentes",
+    "lastVisit": "Última visita",
+    "noRecentPatients": "Nenhum paciente recente",
+    "noShowThisMonth": "No-show este mês",
+    "quickActions": "Ações Rápidas",
+    "newAppointmentAction": "Nova Consulta",
+    "newAppointmentDesc": "Adicionar manualmente",
+    "newPatient": "Novo Paciente",
+    "newPatientDesc": "Criar ficha",
+    "myServices": "Meus Serviços",
+    "myServicesDesc": "Gerir tarifas",
+    "statistics": "Estatísticas",
+    "statisticsDesc": "Ver atividade",
+    "profileIncomplete": "O seu perfil está incompleto",
+    "profileIncompleteMessage": "Os pacientes não conseguem encontrá-lo.",
+    "completeProfile": "Completar",
+    "noPatients": "Complete o seu perfil para aparecer nas pesquisas",
+    "open": "Aberto",
+    "closed": "Fechado",
+    "freeSlot": "Horário livre",
+    "tomorrowPreview": "Amanhã — {count} consultas",
+    "tomorrowFree": "Amanhã — sem consultas",
+    "planAppointment": "Agendar consulta",
+    "noShowZero": "0 no-show",
+    "noShowCount": "{count} no-show"
   },
   "agenda": {
     "title": "Minha agenda",
@@ -148,7 +182,9 @@
       "statusLate": "Atrasado",
       "statusAbsent": "Ausente",
       "late": "Atrasados"
-    }
+    },
+    "otherSingular": "outro",
+    "otherPlural": "outros"
   },
   "patients": {
     "title": "Pacientes",
@@ -202,6 +238,48 @@
       "allianz": "Allianz",
       "other": "Outro"
     },
+    "kpi": {
+      "totalPatients": "Total Pacientes",
+      "newPatients": "Novos (30 dias)",
+      "activePatients": "Pacientes Ativos",
+      "retentionRate": "Taxa de Retenção",
+      "avgAppointments": "Consultas/Paciente",
+      "attendanceRate": "Taxa de Presença",
+      "noAttendanceData": "Sem dados de presença"
+    },
+    "filters": {
+      "statusLabel": "Estado",
+      "all": "Todos",
+      "active": "Ativos (90d)",
+      "inactive": "Inativos",
+      "new": "Novos (30d)",
+      "insuranceLabel": "Seguro",
+      "allInsurance": "Todos os seguros",
+      "sortLabel": "Ordenar",
+      "sortName": "Nome",
+      "sortLast": "Última consulta",
+      "sortTotal": "Total consultas",
+      "sortAttendance": "Taxa presença"
+    },
+    "charts": {
+      "acquisitionTitle": "Aquisição de Pacientes",
+      "acquisitionDesc": "Evolução de novos pacientes por mês",
+      "newPatients": "Novos pacientes",
+      "cumulative": "Acumulado",
+      "insuranceTitle": "Distribuição por Seguro",
+      "insuranceDesc": "Repartição dos pacientes por seguro de saúde",
+      "frequencyTitle": "Frequência de Consultas",
+      "frequencyDesc": "Distribuição dos pacientes por número de consultas",
+      "appointments": "consultas",
+      "patients": "pacientes",
+      "noData": "Sem dados para exibir"
+    },
+    "statusBadge": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "new": "Novo"
+    },
+    "export": "Exportar CSV",
     "drawer": {
       "title": "Ficha do paciente",
       "birthDate": "Data de nascimento",
@@ -212,8 +290,22 @@
       "firstConsultation": "Primeira consulta",
       "lastConsultation": "Última consulta",
       "recentAppointments": "5 últimas consultas",
+      "allAppointments": "Todas as consultas",
+      "upcomingAppointments": "Próximas consultas",
       "noAppointments": "Sem consultas",
+      "noUpcoming": "Sem consultas agendadas",
       "loading": "A carregar...",
+      "patientSince": "Paciente desde",
+      "totalSpent": "Total gasto",
+      "avgSpent": "Gasto médio",
+      "attendanceRate": "Taxa presença",
+      "editPatient": "Editar paciente",
+      "newAppointment": "Nova consulta",
+      "attendance": {
+        "present": "Presente",
+        "late": "Atrasado",
+        "absent": "Ausente"
+      },
       "status": {
         "confirmed": "Confirmada",
         "pending": "Pendente",
@@ -265,6 +357,40 @@
     "priceOnRequest": "Preço sob consulta",
     "consultationType": {
       "in-person": "Presencial"
+    },
+    "appointmentsCol": "Consultas",
+    "revenueCol": "Receitas",
+    "export": "Exportar CSV",
+    "kpi": {
+      "totalServices": "Total Serviços",
+      "activeServices": "Serviços Ativos",
+      "activeDesc": "{count} de {total}",
+      "avgPrice": "Preço Médio",
+      "totalRevenue": "Receita Total",
+      "mostPopular": "Mais Popular",
+      "avgDuration": "Duração Média"
+    },
+    "filters": {
+      "searchPlaceholder": "Pesquisar um serviço...",
+      "statusLabel": "Estado",
+      "all": "Todos",
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "sortLabel": "Ordenar",
+      "sortName": "Nome",
+      "sortPrice": "Preço",
+      "sortDuration": "Duração",
+      "sortAppointments": "Consultas",
+      "sortRevenue": "Receitas"
+    },
+    "charts": {
+      "revenueTitle": "Receita por Serviço",
+      "revenueDesc": "Distribuição de receitas geradas por serviço",
+      "revenue": "Receita",
+      "volumeTitle": "Volume de Consultas",
+      "volumeDesc": "Número de consultas por serviço",
+      "appointments": "consultas",
+      "noData": "Sem dados para exibir"
     }
   },
   "reminders": {
@@ -285,8 +411,26 @@
       "sentThisMonth": "Enviados este mês",
       "deliverability": "Taxa de entrega",
       "noShowReduction": "Redução de faltas",
+      "activeRules": "Regras ativas",
+      "activeTemplates": "Modelos ativos",
+      "avgDeliveryTime": "Tempo médio",
       "noData": "Nenhum dado no período",
-      "comingSoon": "Indicador disponível em breve"
+      "comingSoon": "Indicador disponível em breve",
+      "rulesDesc": "{count} de {total}",
+      "templatesDesc": "{count} personalizados"
+    },
+    "charts": {
+      "trendsTitle": "Volume de envios",
+      "trendsDesc": "Notificações enviadas por dia nos últimos 30 dias",
+      "sent": "Enviadas",
+      "delivered": "Entregues",
+      "failed": "Falharam",
+      "channelTitle": "Distribuição por canal",
+      "channelDesc": "Distribuição das notificações por canal de envio",
+      "statusTitle": "Estado de entrega",
+      "statusDesc": "Distribuição das notificações por estado final",
+      "notifications": "notificações",
+      "noData": "Sem dados para exibir"
     },
     "section": {
       "appointments": "Consultas"
@@ -396,6 +540,7 @@
         "apres": "Após consulta"
       }
     },
+    "export": "Exportar CSV",
     "history": {
       "title": "Histórico de envios",
       "subtitle": "Visualize todas as notificações enviadas aos pacientes.",
@@ -404,6 +549,9 @@
       "type": "Tipo",
       "channel": "Canal",
       "status": "Estado",
+      "searchPlaceholder": "Pesquisar paciente...",
+      "allChannels": "Todos os canais",
+      "allStatuses": "Todos os estados",
       "statusLabels": {
         "pending": "Pendente",
         "sent": "Enviado",
@@ -445,6 +593,7 @@
       "7d": "7 dias",
       "30d": "30 dias",
       "90d": "90 dias",
+      "1y": "1 ano",
       "custom": "Personalizado"
     },
     "filters": {
@@ -541,6 +690,34 @@
       "appointments": "Consultas",
       "date": "Data",
       "count": "Quantidade"
+    },
+    "analyze": {
+      "label": "Analisar",
+      "tabAppointments": "Consultas",
+      "tabPerformance": "Desempenho",
+      "revenueTitle": "Evolução das receitas",
+      "revenueDesc": "Receitas diárias no período selecionado",
+      "totalRevenue": "Receita total",
+      "avgRevenue": "Receita média / consulta",
+      "recurringPatients": "Pacientes recorrentes"
+    },
+    "compare": {
+      "label": "Comparar",
+      "periodA": "Período A",
+      "periodB": "Período B",
+      "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "last3Months": "Últimos 3 meses",
+      "thisYear": "Este ano",
+      "evolution": "Evolução comparativa",
+      "insightsTitle": "Insights IA",
+      "insightsDesc": "Análise inteligente dos seus dados",
+      "refreshInsights": "Atualizar",
+      "insightsLoading": "A analisar…",
+      "insightsError": "Não foi possível gerar os insights.",
+      "current": "atual",
+      "reference": "ref.",
+      "dayLabel": "Dia"
     }
   },
   "profile": {
@@ -567,7 +744,26 @@
     "reviewSingular": "avaliação",
     "reviewPlural": "avaliações",
     "recentReviews": "Avaliações Recentes",
-    "patient": "Paciente"
+    "patient": "Paciente",
+    "changePhoto": "Alterar foto",
+    "deletePhoto": "Remover foto",
+    "uploadSuccess": "Foto atualizada",
+    "uploadError": "Erro ao enviar",
+    "fileTooLarge": "O ficheiro excede 2 MB",
+    "invalidFormat": "Formato não suportado (JPG, PNG ou WebP)",
+    "deleteSuccess": "Foto removida",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "saving": "A guardar...",
+    "saveSuccess": "Perfil atualizado",
+    "saveError": "Erro ao atualizar o perfil",
+    "firstName": "Primeiro nome",
+    "lastName": "Apelido",
+    "bio": "Biografia",
+    "bioPlaceholder": "Descreva o seu percurso e abordagem...",
+    "subspecialtiesHint": "Separe com vírgulas",
+    "languagesHint": "Separe com vírgulas"
   },
   "settings": {
     "title": "Configurações",
@@ -598,5 +794,68 @@
     "notificationChannelsDesc": "Como pretende receber notificações",
     "active": "Ativo",
     "inactive": "Inativo"
+  },
+  "support": {
+    "title": "Suporte",
+    "description": "Contacte a equipa DocAgora para qualquer questão ou problema.",
+    "newTicket": "Novo ticket",
+    "categories": {
+      "technical": "Problema técnico",
+      "profile": "Questão sobre o meu perfil",
+      "payment": "Problema de pagamento",
+      "bug": "Reportar um bug",
+      "other": "Outro"
+    },
+    "categoryIcons": {
+      "technical": "Wrench",
+      "profile": "User",
+      "payment": "CreditCard",
+      "bug": "Bug",
+      "other": "HelpCircle"
+    },
+    "categoryLabel": "Assunto",
+    "categoryPlaceholder": "Selecione uma categoria",
+    "messageLabel": "Mensagem",
+    "messagePlaceholder": "Descreva o seu problema ou questão...",
+    "messageMinLength": "Mínimo 20 caracteres",
+    "send": "Enviar",
+    "sending": "A enviar...",
+    "ticketCreated": "Ticket criado com sucesso",
+    "messageSent": "Mensagem enviada",
+    "errorCreating": "Erro ao criar ticket",
+    "errorSending": "Erro ao enviar mensagem",
+    "emptyTitle": "Nenhum ticket",
+    "emptyDescription": "Precisa de ajuda? A nossa equipa está aqui para si.",
+    "emptyHint": "Tempo médio de resposta: menos de 24h",
+    "resolved": "Este ticket foi resolvido",
+    "closed": "Este ticket está fechado",
+    "noMessages": "Sem mensagens neste ticket.",
+    "selectTicket": "Selecione uma conversa",
+    "selectTicketHint": "Escolha um ticket à esquerda ou crie um novo",
+    "replyPlaceholder": "Escreva a sua resposta...",
+    "adminLabel": "Suporte DocAgora",
+    "you": "Você",
+    "statuses": {
+      "open": "Aberto",
+      "in_progress": "Em progresso",
+      "resolved": "Resolvido",
+      "closed": "Fechado"
+    },
+    "priority": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "kpi": {
+      "total": "Total tickets",
+      "open": "Abertos",
+      "resolved": "Resolvidos",
+      "avgResponse": "Resposta média"
+    },
+    "characters": "caracteres",
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "updatedAt": "Atualizado"
   }
 }

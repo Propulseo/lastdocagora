@@ -12,7 +12,6 @@ import {
   Settings,
   LogOut,
   Heart,
-  Cross,
   ChevronsUpDown,
 } from "lucide-react"
 import { patientNav } from "@/config/patient-nav"
@@ -86,18 +85,9 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="border-b p-4">
-        <div className="flex items-center gap-2">
-          <Cross className="size-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-            DOCAGORA
-          </span>
-          <Badge
-            variant="secondary"
-            className="text-xs group-data-[collapsible=icon]:hidden"
-          >
-            {t.common.patient}
-          </Badge>
-        </div>
+        <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+          DOCAGORA
+        </span>
       </SidebarHeader>
 
       <SidebarContent>

@@ -33,14 +33,20 @@ export function MonthDayCell({
   onAppointmentClick,
 }: MonthDayCellProps) {
   const { t } = useProfessionalI18n();
-  const dayNum = new Date(date + "T00:00:00").getDate();
+  const d = new Date(date + "T00:00:00");
+  const dayNum = d.getDate();
+  const dayOfWeek = d.getDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
   const totalItems = appointments.length + externalEvents.length;
   const overflow = totalItems > MAX_VISIBLE;
+  const overflowCount = totalItems - MAX_VISIBLE;
+
+  const a = t.agenda as Record<string, unknown>;
 
   return (
     <div
       className={`min-h-[6rem] border-l first:border-l-0 p-1 cursor-pointer transition-colors hover:bg-muted/50 ${
-        !isCurrentMonth ? "bg-muted/20" : ""
+        !isCurrentMonth ? "bg-muted/20" : isWeekend ? "bg-muted/15" : ""
       }`}
       onClick={() => onDayClick(date)}
     >
@@ -111,7 +117,7 @@ export function MonthDayCell({
 
         {overflow && (
           <p className="px-1 text-[10px] font-medium text-muted-foreground">
-            +{totalItems - MAX_VISIBLE}
+            +{overflowCount} {overflowCount > 1 ? (a.otherPlural as string) : (a.otherSingular as string)}
           </p>
         )}
       </div>

@@ -16,6 +16,7 @@ type ChatEntry = {
   content: string
   suggestions?: string[]
   professionals?: ProfessionalResult[]
+  isSearchResult?: boolean
 }
 
 export function AISearchChat({
@@ -45,7 +46,7 @@ export function AISearchChat({
 
   function buildHistory() {
     return messages
-      .filter((m) => !m.professionals)
+      .filter((m) => !m.professionals && !m.isSearchResult)
       .map((m) => ({ role: m.role, content: m.content }))
   }
 
@@ -92,6 +93,7 @@ export function AISearchChat({
         ])
       } else {
         const profs = data.professionals ?? []
+        const debugInfo = data.debug ? ` [${data.debug}]` : ""
         setMessages((prev) => [
           ...prev,
           {
@@ -99,8 +101,9 @@ export function AISearchChat({
             content:
               profs.length > 0
                 ? t.aiResultsFound.replace("{count}", String(profs.length))
-                : data.message,
+                : t.aiNoResults + debugInfo,
             professionals: profs.length > 0 ? profs : undefined,
+            isSearchResult: true,
           },
         ])
       }

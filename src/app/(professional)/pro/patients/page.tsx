@@ -1,89 +1,130 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
-import { PatientsTable, type PatientRow } from "./_components/patients-table";
-import { ProPageHeader } from "../../_components/pro-page-header";
-import { CreatePatientDialog } from "./_components/create-patient-dialog";
+import { PatientsClient } from "./_components/PatientsClient";
+import {
+  buildPatientMap,
+  mapToPatientRows,
+  buildPatientsKpi,
+  buildAcquisitionTrends,
+  buildInsuranceBreakdown,
+  buildFrequencyDistribution,
+  applyFilters,
+  getUniqueInsuranceProviders,
+} from "./_lib/aggregation";
+import type { PatientsDashboardData, RawAppointmentRow, RawPatientRow } from "./_lib/types";
 
-export default async function PatientsPage() {
+// Insurance labels (server-side, used for chart labels)
+const INSURANCE_LABELS: Record<string, string> = {
+  none: "Nenhum",
+  medis: "Médis",
+  multicare: "Multicare",
+  advancecare: "AdvanceCare",
+  fidelidade: "Fidelidade",
+  ageas: "Ageas",
+  allianz: "Allianz",
+  other: "Outro",
+};
+
+interface SearchParams {
+  search?: string;
+  status?: string;
+  insurance?: string;
+  sort?: string;
+  page?: string;
+}
+
+const PAGE_SIZE = 20;
+
+export default async function PatientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
   const professionalId = await getProfessionalId();
-
   const supabase = await createClient();
 
-  // Fetch both sources in parallel
+  // Parallel queries
   const [{ data: ownedPatients }, { data: appointments }] = await Promise.all([
     supabase
       .from("patients")
-      .select("id, first_name, last_name, email, phone, insurance_provider")
+      .select(
+        "id, first_name, last_name, email, phone, insurance_provider, date_of_birth, created_at",
+      )
       .eq("created_by_professional_id", professionalId),
     supabase
       .from("appointments")
       .select(
-        "patient_id, appointment_date, patients(first_name, last_name, email, phone, insurance_provider)"
+        `id, patient_id, appointment_date, status, price, service_id, created_via,
+         patients(first_name, last_name, email, phone, insurance_provider, date_of_birth, created_at),
+         services(name),
+         appointment_attendance(status, late_minutes)`,
       )
       .eq("professional_id", professionalId)
       .order("appointment_date", { ascending: false }),
   ]);
 
-  // Merge both sources into a map
-  const patientMap = new Map<string, PatientRow>();
+  const now = new Date();
 
-  // Add owned patients first
-  for (const p of ownedPatients ?? []) {
-    patientMap.set(p.id, {
-      patient_id: p.id,
-      first_name: p.first_name,
-      last_name: p.last_name,
-      email: p.email,
-      phone: p.phone,
-      insurance_provider: p.insurance_provider,
-      last_appointment: null,
-      total_appointments: 0,
-    });
-  }
+  // Build patient map
+  const patientMap = buildPatientMap(
+    (ownedPatients ?? []) as RawPatientRow[],
+    (appointments ?? []) as unknown as RawAppointmentRow[],
+  );
 
-  // Merge appointment data
-  for (const apt of appointments ?? []) {
-    if (!apt.patient_id) continue;
-    const patient = apt.patients as {
-      first_name: string | null;
-      last_name: string | null;
-      email: string | null;
-      phone: string | null;
-      insurance_provider: string | null;
-    } | null;
-    const existing = patientMap.get(apt.patient_id);
-    if (existing) {
-      existing.total_appointments += 1;
-      if (
-        !existing.last_appointment ||
-        apt.appointment_date > existing.last_appointment
-      ) {
-        existing.last_appointment = apt.appointment_date;
-      }
-    } else {
-      patientMap.set(apt.patient_id, {
-        patient_id: apt.patient_id,
-        first_name: patient?.first_name ?? null,
-        last_name: patient?.last_name ?? null,
-        email: patient?.email ?? null,
-        phone: patient?.phone ?? null,
-        insurance_provider: patient?.insurance_provider ?? null,
-        last_appointment: apt.appointment_date,
-        total_appointments: 1,
-      });
+  // Backfill patient details from appointment joins for patients not in owned list
+  for (const apt of (appointments ?? []) as unknown as (RawAppointmentRow & {
+    patients?: { first_name: string | null; last_name: string | null; email: string | null; phone: string | null; insurance_provider: string | null; date_of_birth: string | null; created_at: string | null } | null;
+  })[]) {
+    if (!apt.patient_id || !apt.patients) continue;
+    const entry = patientMap.get(apt.patient_id);
+    if (entry && !entry.first_name) {
+      entry.first_name = apt.patients.first_name;
+      entry.last_name = apt.patients.last_name;
+      entry.email = apt.patients.email;
+      entry.phone = apt.patients.phone;
+      entry.insurance_provider = apt.patients.insurance_provider;
+      entry.date_of_birth = apt.patients.date_of_birth;
+      entry.created_at = apt.patients.created_at;
     }
   }
 
-  const patients = Array.from(patientMap.values()).sort((a, b) => {
-    if (!a.last_appointment) return 1;
-    if (!b.last_appointment) return -1;
-    return b.last_appointment.localeCompare(a.last_appointment);
+  // Aggregation
+  const kpi = buildPatientsKpi(patientMap, now);
+  const acquisitionTrends = buildAcquisitionTrends(patientMap);
+  const insuranceBreakdown = buildInsuranceBreakdown(patientMap, INSURANCE_LABELS);
+  const frequencyDistribution = buildFrequencyDistribution(patientMap);
+
+  // All patients as rows (pre-filter)
+  const allPatients = mapToPatientRows(patientMap, now);
+  const totalUnfiltered = allPatients.length;
+
+  // Apply filters
+  const filtered = applyFilters(allPatients, {
+    search: params.search,
+    status: params.status,
+    insurance: params.insurance,
+    sort: params.sort,
   });
 
-  return (
-    <div className="space-y-6">
-      <ProPageHeader section="patients" action={<CreatePatientDialog />} />
-      <PatientsTable patients={patients} />
-    </div>
+  // Paginate
+  const page = Math.max(1, parseInt(params.page ?? "1", 10));
+  const paginated = filtered.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
   );
+
+  const dashboardData: PatientsDashboardData = {
+    kpi,
+    acquisitionTrends,
+    insuranceBreakdown,
+    frequencyDistribution,
+    patients: paginated,
+    totalUnfiltered: filtered.length,
+    filterOptions: {
+      insuranceProviders: getUniqueInsuranceProviders(patientMap),
+    },
+  };
+
+  return <PatientsClient data={dashboardData} />;
 }

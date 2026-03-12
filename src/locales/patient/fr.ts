@@ -75,6 +75,7 @@ export const frPatient: PatientTranslations = {
     aiErrorRephrase: "Je n'ai pas pu interpr\u00e9ter votre demande. Essayez de reformuler.",
     aiErrorInput: "Message invalide. Essayez d'\u00eatre plus sp\u00e9cifique.",
     aiResultsFound: "J'ai trouv\u00e9 {count} professionnel(s) pour vous :",
+    aiNoResults: "Aucun professionnel trouv\u00e9 avec ces crit\u00e8res. Essayez d'\u00e9largir votre recherche (autre zone, moins de filtres).",
   },
   professionalDetail: {
     backToSearch: "Retour \u00e0 la recherche",

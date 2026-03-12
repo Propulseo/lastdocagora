@@ -2,23 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
+import {
+  HOUR_HEIGHT,
+  START_HOUR,
+  STATUS_COLORS,
+  ATTENDANCE_DOT_COLORS,
+} from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
-
-const statusColors: Record<string, string> = {
-  confirmed: "bg-blue-100 border-blue-400 text-blue-800",
-  pending: "bg-orange-100 border-orange-400 text-orange-800",
-  cancelled: "bg-red-100 border-red-400 text-red-800",
-  "no-show": "bg-red-100 border-red-400 text-red-800",
-  completed: "bg-gray-100 border-gray-400 text-gray-800",
-};
-
-const attendanceDotColors: Record<string, string> = {
-  waiting: "bg-gray-400",
-  present: "bg-green-500",
-  late: "bg-amber-500",
-  absent: "bg-red-500",
-};
 
 interface WeekAppointmentBlockProps {
   appointment: Appointment;
@@ -34,7 +24,7 @@ export function WeekAppointmentBlock({
   const [h, m] = apt.appointment_time.split(":").map(Number);
   const topOffset = (h - START_HOUR + m / 60) * HOUR_HEIGHT;
   const height = (apt.duration_minutes / 60) * HOUR_HEIGHT;
-  const colors = statusColors[apt.status] ?? statusColors.completed;
+  const colors = STATUS_COLORS[apt.status] ?? STATUS_COLORS.completed;
   const isManual = apt.created_via === "manual";
   const patient = apt.patients;
   const displayName = patient?.first_name
@@ -64,7 +54,7 @@ export function WeekAppointmentBlock({
           <span
             className={cn(
               "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
-              attendanceDotColors[currentAttendance] ?? "bg-gray-400",
+              ATTENDANCE_DOT_COLORS[currentAttendance] ?? "bg-gray-400",
             )}
           />
         )}

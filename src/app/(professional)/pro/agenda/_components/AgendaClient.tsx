@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { useAgendaData } from "../_hooks/useAgendaData";
-import { AgendaFilters } from "./AgendaFilters";
+import { AgendaControlBar } from "./AgendaControlBar";
 import { AttendanceStats } from "./AttendanceStats";
 import { AttendanceRate } from "./AttendanceRate";
-import { CalendarHeader } from "./CalendarHeader";
 import { DayTimeGrid } from "./DayTimeGrid";
 import { WeekTimeGrid } from "./WeekTimeGrid";
 import { MonthGrid } from "./MonthGrid";
@@ -27,7 +26,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const agenda = useAgendaData({ professionalId, userId });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title={agenda.t.agenda.title}
         description={agenda.t.agenda.description}
@@ -48,21 +47,17 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         }
       />
 
-      <AgendaFilters
+      <AgendaControlBar
         periodFilter={agenda.periodFilter}
         onPeriodChange={agenda.setPeriodFilter}
         statusFilters={agenda.statusFilters}
         onStatusChange={agenda.setStatusFilters}
+        selectedDate={agenda.selectedDate}
+        onDateChange={agenda.setSelectedDate}
       />
 
       <AttendanceStats stats={agenda.stats} />
       <AttendanceRate stats={agenda.stats} />
-
-      <CalendarHeader
-        selectedDate={agenda.selectedDate}
-        onDateChange={agenda.setSelectedDate}
-        periodFilter={agenda.periodFilter}
-      />
 
       {agenda.periodFilter === "day" && (
         <DayTimeGrid

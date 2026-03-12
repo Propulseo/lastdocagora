@@ -23,6 +23,7 @@ interface MappedTicket {
   created_at: string | null;
   user_email: string;
   user_name: string;
+  user_avatar_url: string | null;
 }
 
 interface SupportClientProps {
@@ -45,7 +46,7 @@ export function SupportClient({
       <SupportFilters />
 
       {tickets.length > 0 ? (
-        <div className="rounded-md border">
+        <div className="overflow-hidden rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>

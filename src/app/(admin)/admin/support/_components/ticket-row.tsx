@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -34,6 +35,7 @@ interface TicketRowProps {
     created_at: string | null;
     user_email: string;
     user_name: string;
+    user_avatar_url: string | null;
   };
 }
 
@@ -85,7 +87,17 @@ export function TicketRow({ ticket }: TicketRowProps) {
           )}
         </TableCell>
         <TableCell className="font-medium">{ticket.subject}</TableCell>
-        <TableCell>{ticket.user_name}</TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <Avatar className="size-6">
+              {ticket.user_avatar_url && <AvatarImage src={ticket.user_avatar_url} alt={ticket.user_name} />}
+              <AvatarFallback className="text-[10px] font-semibold">
+                {ticket.user_name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            <span>{ticket.user_name}</span>
+          </div>
+        </TableCell>
         <TableCell>
           <StatusBadge
             type="ticket"

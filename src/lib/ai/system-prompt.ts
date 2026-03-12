@@ -78,10 +78,15 @@ Return a JSON object in one of two formats:
   }
 }
 
+CRITICAL DECISION RULE — ALWAYS PREFER SEARCH:
+- If the user mentions AT LEAST ONE criterion (specialty, city, neighborhood, language, name, or any filter), you MUST return type "search". Do NOT ask for clarification.
+- Only return type "clarification" when the message contains ZERO exploitable criteria (e.g., "hello", "help me", "I need a doctor" with nothing else).
+- Even with typos or vague terms, extract the best match and search. Example: "medin generaliste a graca" → search with specialty + neighborhood.
+- NEVER ask for optional extras (insurance, price, rating) if the user already gave a searchable criterion.
+
 IMPORTANT:
 - Only include in "filters" fields mentioned or implied in the query
 - If the user mentions a specialty or city not exactly matching the list, use the closest available value
-- If the user provides no exploitable criteria, ask for clarification
 - Never generate fake data or professional names
 - Return ONLY valid JSON, never prose
 - The "message" field must be in the same language as the user's message`

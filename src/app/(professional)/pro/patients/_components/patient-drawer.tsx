@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Sheet,
   SheetContent,
@@ -9,7 +10,9 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   CalendarDays,
   Mail,
@@ -17,11 +20,17 @@ import {
   ShieldCheck,
   ClipboardList,
   Loader2,
+  CalendarPlus,
+  Pencil,
+  Clock,
+  DollarSign,
+  CheckCircle,
+  Target,
 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import {
-  getPatientDetail,
-  type PatientDetail,
+  getPatientDetailEnhanced,
+  type PatientDetailEnhanced,
 } from "@/app/(professional)/_actions/patients";
 
 interface PatientDrawerProps {
@@ -51,6 +60,12 @@ const STATUS_VARIANT: Record<
   "no-show": "destructive",
 };
 
+const ATTENDANCE_COLORS: Record<string, string> = {
+  present: "text-emerald-600 bg-emerald-50",
+  late: "text-amber-600 bg-amber-50",
+  absent: "text-red-600 bg-red-50",
+};
+
 export function PatientDrawer({
   patientId,
   patientName,
@@ -58,9 +73,9 @@ export function PatientDrawer({
 }: PatientDrawerProps) {
   const { t } = useProfessionalI18n();
   const dt = t.patients.drawer;
-  const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
+  const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR" | "en-GB";
 
-  const [data, setData] = useState<PatientDetail | null>(null);
+  const [data, setData] = useState<PatientDetailEnhanced | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -69,7 +84,7 @@ export function PatientDrawer({
       return;
     }
     setLoading(true);
-    getPatientDetail(patientId).then((result) => {
+    getPatientDetailEnhanced(patientId).then((result) => {
       if (result.success) setData(result.data);
       setLoading(false);
     });
@@ -77,6 +92,8 @@ export function PatientDrawer({
 
   const insuranceLabels = t.patients.insuranceLabels as Record<string, string>;
   const statusLabels = dt.status as Record<string, string>;
+  const attendanceLabels = (dt.attendance ?? {}) as Record<string, string>;
+  const statusBadgeLabels = (t.patients.statusBadge ?? {}) as Record<string, string>;
 
   const initials = data
     ? `${data.first_name?.[0] ?? ""}${data.last_name?.[0] ?? ""}`.toUpperCase() ||
@@ -87,13 +104,47 @@ export function PatientDrawer({
         .join("")
         .toUpperCase() || "?";
 
-  const age =
-    data?.date_of_birth ? computeAge(data.date_of_birth) : null;
+  const age = data?.date_of_birth ? computeAge(data.date_of_birth) : null;
+
+  // Determine patient status
+  const getStatus = (): "active" | "inactive" | "new" => {
+    if (!data) return "active";
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const ninetyDaysAgo = new Date(now);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    if (
+      data.firstConsultation &&
+      data.firstConsultation >= thirtyDaysAgo.toISOString().split("T")[0]
+    ) {
+      return "new";
+    }
+    if (
+      data.lastConsultation &&
+      data.lastConsultation >= ninetyDaysAgo.toISOString().split("T")[0]
+    ) {
+      return "active";
+    }
+    return "inactive";
+  };
+
+  const statusBadgeVariant: Record<
+    string,
+    "default" | "secondary" | "outline"
+  > = {
+    active: "default",
+    inactive: "secondary",
+    new: "outline",
+  };
+
+  const patientStatus = getStatus();
 
   return (
     <Sheet open={!!patientId} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
+      <SheetContent side="right" className="w-full sm:max-w-md p-0">
+        <SheetHeader className="px-6 pt-6">
           <SheetTitle>{dt.title}</SheetTitle>
         </SheetHeader>
 
@@ -105,161 +156,258 @@ export function PatientDrawer({
             </span>
           </div>
         ) : data ? (
-          <div className="space-y-6 pt-4">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-              <Avatar className="size-14">
-                {data.avatar_url && (
-                  <AvatarImage
-                    src={data.avatar_url}
-                    alt={`${data.first_name} ${data.last_name}`}
+          <ScrollArea className="h-[calc(100vh-5rem)]">
+            <div className="space-y-6 px-6 pb-6 pt-4">
+              {/* Header with status badge */}
+              <div className="flex items-center gap-4">
+                <Avatar className="size-14">
+                  {data.avatar_url && (
+                    <AvatarImage
+                      src={data.avatar_url}
+                      alt={`${data.first_name} ${data.last_name}`}
+                    />
+                  )}
+                  <AvatarFallback className="text-lg">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold truncate">
+                      {data.first_name} {data.last_name}
+                    </h3>
+                    <Badge
+                      variant={statusBadgeVariant[patientStatus]}
+                      className="text-xs shrink-0"
+                    >
+                      {statusBadgeLabels[patientStatus] ?? patientStatus}
+                    </Badge>
+                  </div>
+                  {data.email && (
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Mail className="size-3.5" />
+                      {data.email}
+                    </p>
+                  )}
+                  {data.created_at && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {dt.patientSince}{" "}
+                      {new Date(data.created_at).toLocaleDateString(dateLocale)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Info rows */}
+              <div className="space-y-4">
+                {data.date_of_birth && (
+                  <InfoRow
+                    icon={<CalendarDays className="size-4" />}
+                    label={dt.birthDate}
+                    value={
+                      new Date(data.date_of_birth).toLocaleDateString(
+                        dateLocale,
+                      ) +
+                      (age !== null
+                        ? ` (${(dt.age as string).replace("{age}", String(age))})`
+                        : "")
+                    }
                   />
                 )}
-                <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {data.first_name} {data.last_name}
-                </h3>
-                {data.email && (
-                  <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Mail className="size-3.5" />
-                    {data.email}
-                  </p>
-                )}
-              </div>
-            </div>
 
-            <Separator />
+                {data.languages_spoken &&
+                  data.languages_spoken.length > 0 && (
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 text-muted-foreground">
+                        <Globe className="size-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          {dt.languages}
+                        </p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {data.languages_spoken.map((code) => (
+                            <Badge
+                              key={code}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {code}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-            {/* Info rows */}
-            <div className="space-y-4">
-              {/* Date of birth + age */}
-              {data.date_of_birth && (
                 <InfoRow
-                  icon={<CalendarDays className="size-4" />}
-                  label={dt.birthDate}
+                  icon={<ShieldCheck className="size-4" />}
+                  label={dt.insurance}
                   value={
-                    new Date(data.date_of_birth).toLocaleDateString(
-                      dateLocale,
-                    ) + (age !== null ? ` (${dt.age.replace("{age}", String(age))})` : "")
+                    data.insurance_provider
+                      ? (insuranceLabels[data.insurance_provider] ??
+                          data.insurance_provider)
+                      : "-"
                   }
                 />
-              )}
+              </div>
 
-              {/* Languages */}
-              {data.languages_spoken && data.languages_spoken.length > 0 && (
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 text-muted-foreground">
-                    <Globe className="size-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {dt.languages}
-                    </p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {data.languages_spoken.map((code) => (
-                        <Badge key={code} variant="secondary" className="text-xs">
-                          {code}
-                        </Badge>
+              <Separator />
+
+              {/* Mini KPI cards (2x2) */}
+              <div className="grid grid-cols-2 gap-3">
+                <MiniKpi
+                  icon={<CheckCircle className="size-4 text-emerald-500" />}
+                  label={dt.completedConsultations}
+                  value={String(data.completedCount)}
+                />
+                <MiniKpi
+                  icon={<Target className="size-4 text-blue-500" />}
+                  label={dt.attendanceRate}
+                  value={
+                    data.attendanceTotal > 0
+                      ? `${data.attendanceRate}%`
+                      : "-"
+                  }
+                />
+                <MiniKpi
+                  icon={<DollarSign className="size-4 text-amber-500" />}
+                  label={dt.totalSpent}
+                  value={
+                    data.totalSpent > 0
+                      ? `${data.totalSpent.toFixed(0)}€`
+                      : "-"
+                  }
+                />
+                <MiniKpi
+                  icon={<Clock className="size-4 text-purple-500" />}
+                  label={dt.avgSpent}
+                  value={
+                    data.avgSpent > 0
+                      ? `${data.avgSpent.toFixed(0)}€`
+                      : "-"
+                  }
+                />
+              </div>
+
+              <Separator />
+
+              {/* Upcoming appointments */}
+              {data.upcomingAppointments.length > 0 && (
+                <>
+                  <div className="space-y-3">
+                    <h4 className="flex items-center gap-2 text-sm font-medium">
+                      <CalendarPlus className="size-4 text-muted-foreground" />
+                      {dt.upcomingAppointments}
+                    </h4>
+                    <div className="space-y-2">
+                      {data.upcomingAppointments.map((apt, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start justify-between rounded-lg border border-blue-200 bg-blue-50/50 p-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium">
+                              {new Date(apt.date).toLocaleDateString(
+                                dateLocale,
+                              )}{" "}
+                              <span className="font-normal text-muted-foreground">
+                                {apt.time.slice(0, 5)}
+                              </span>
+                            </p>
+                            {apt.serviceName && (
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                {apt.serviceName}
+                              </p>
+                            )}
+                          </div>
+                          <Badge
+                            variant={
+                              STATUS_VARIANT[apt.status] ?? "outline"
+                            }
+                            className="ml-2 shrink-0 text-xs"
+                          >
+                            {statusLabels[apt.status] ?? apt.status}
+                          </Badge>
+                        </div>
                       ))}
                     </div>
                   </div>
-                </div>
+                  <Separator />
+                </>
               )}
 
-              {/* Insurance */}
-              <InfoRow
-                icon={<ShieldCheck className="size-4" />}
-                label={dt.insurance}
-                value={
-                  data.insurance_provider
-                    ? (insuranceLabels[data.insurance_provider] ??
-                        data.insurance_provider)
-                    : "-"
-                }
-              />
-            </div>
-
-            <Separator />
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <StatCard
-                label={dt.completedConsultations}
-                value={String(data.completedCount)}
-              />
-              <StatCard
-                label={dt.firstConsultation}
-                value={
-                  data.firstConsultation
-                    ? new Date(data.firstConsultation).toLocaleDateString(
-                        dateLocale,
-                      )
-                    : "-"
-                }
-              />
-              <StatCard
-                label={dt.lastConsultation}
-                value={
-                  data.lastConsultation
-                    ? new Date(data.lastConsultation).toLocaleDateString(
-                        dateLocale,
-                      )
-                    : "-"
-                }
-              />
-            </div>
-
-            <Separator />
-
-            {/* Recent appointments */}
-            <div className="space-y-3">
-              <h4 className="flex items-center gap-2 text-sm font-medium">
-                <ClipboardList className="size-4 text-muted-foreground" />
-                {dt.recentAppointments}
-              </h4>
-              {data.recentAppointments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {dt.noAppointments}
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {data.recentAppointments.map((apt, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start justify-between rounded-lg border p-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium">
-                          {new Date(apt.date).toLocaleDateString(dateLocale)}{" "}
-                          <span className="font-normal text-muted-foreground">
-                            {apt.time.slice(0, 5)}
-                          </span>
-                        </p>
-                        {apt.serviceName && (
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {apt.serviceName}
-                          </p>
-                        )}
-                        {apt.notes && (
-                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                            {apt.notes}
-                          </p>
-                        )}
-                      </div>
-                      <Badge
-                        variant={STATUS_VARIANT[apt.status] ?? "outline"}
-                        className="ml-2 shrink-0 text-xs"
+              {/* Full appointment timeline */}
+              <div className="space-y-3">
+                <h4 className="flex items-center gap-2 text-sm font-medium">
+                  <ClipboardList className="size-4 text-muted-foreground" />
+                  {dt.allAppointments}
+                </h4>
+                {data.allAppointments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {dt.noAppointments}
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {data.allAppointments.map((apt, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start justify-between rounded-lg border p-3"
                       >
-                        {statusLabels[apt.status] ?? apt.status}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium">
+                              {new Date(apt.date).toLocaleDateString(
+                                dateLocale,
+                              )}{" "}
+                              <span className="font-normal text-muted-foreground">
+                                {apt.time.slice(0, 5)}
+                              </span>
+                            </p>
+                            {apt.attendanceStatus && (
+                              <span
+                                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ATTENDANCE_COLORS[apt.attendanceStatus] ?? ""}`}
+                              >
+                                {attendanceLabels[apt.attendanceStatus] ??
+                                  apt.attendanceStatus}
+                              </span>
+                            )}
+                          </div>
+                          {apt.serviceName && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {apt.serviceName}
+                            </p>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            STATUS_VARIANT[apt.status] ?? "outline"
+                          }
+                          className="ml-2 shrink-0 text-xs"
+                        >
+                          {statusLabels[apt.status] ?? apt.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Action buttons */}
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link href="/pro/agenda">
+                    <CalendarPlus className="mr-2 size-4" />
+                    {dt.newAppointment}
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </ScrollArea>
         ) : null}
       </SheetContent>
     </Sheet>
@@ -286,11 +434,22 @@ function InfoRow({
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function MiniKpi({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="rounded-lg border p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
+      <div className="flex items-center gap-2 mb-1">
+        {icon}
+        <p className="text-xs text-muted-foreground truncate">{label}</p>
+      </div>
+      <p className="text-lg font-semibold tabular-nums">{value}</p>
     </div>
   );
 }

@@ -4,14 +4,12 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR } from "./AppointmentBlock";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR } from "../_lib/agenda-constants";
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
-
-const END_HOUR = 20;
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
@@ -97,7 +95,7 @@ export function WeekTimeGrid({
       <Card>
         <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
           <div className="min-w-[700px]">
-            {/* Header: day names + dates */}
+            {/* Header: day names + dates + RDV count */}
             <div className="grid grid-cols-[3.5rem_repeat(7,1fr)] border-b pb-2 mb-2">
               <div />
               {weekDates.map((date, i) => {
@@ -105,6 +103,7 @@ export function WeekTimeGrid({
                 const dayNum = d.getDate();
                 const dayName = t.agenda.days[DAY_INDICES[i]].slice(0, 3);
                 const isToday = date === todayStr;
+                const dayCount = (appointmentsByDate.get(date) ?? []).length;
                 return (
                   <div
                     key={date}
@@ -120,6 +119,11 @@ export function WeekTimeGrid({
                     >
                       {dayNum}
                     </span>
+                    {dayCount > 0 && (
+                      <span className="ml-1 inline-flex h-4 items-center rounded-full bg-primary/15 px-1.5 text-[10px] font-medium text-primary">
+                        {dayCount}
+                      </span>
+                    )}
                   </div>
                 );
               })}

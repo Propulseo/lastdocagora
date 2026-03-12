@@ -120,16 +120,14 @@ export function DashboardClient({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-primary/10">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            {t.dashboard.title}
-          </CardTitle>
-          <CardDescription className="text-muted-foreground text-sm capitalize">
-            {today}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div>
+        <h1 className="text-xl font-bold tracking-tight">
+          {t.dashboard.title}
+        </h1>
+        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground capitalize">
+          {today}
+        </p>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {kpis.map((kpi) => (
@@ -137,42 +135,38 @@ export function DashboardClient({
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_2fr]">
-        {alerts.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <AlertCircle className="text-admin-warning size-4" />
-                {t.dashboard.alertsTitle}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {alerts.map((alert) => (
-                <Link
-                  key={alert.href}
-                  href={alert.href}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
-                >
-                  <alert.icon className="size-4 shrink-0" />
-                  {alert.text}
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.dashboard.topProfessionals}</CardTitle>
-            <CardDescription>
-              {t.dashboard.topProfessionalsDesc}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TopProfessionalsTable data={topProfessionals} />
+      {alerts.length > 0 && (
+        <Card className="border-admin-warning/30 bg-admin-warning/5">
+          <CardContent className="flex flex-wrap items-center gap-4 p-4">
+            <AlertCircle className="text-admin-warning size-5 shrink-0" />
+            {alerts.map((alert, i) => (
+              <Link
+                key={alert.href}
+                href={alert.href}
+                className="text-foreground/80 hover:text-foreground flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors hover:underline"
+              >
+                <alert.icon className="size-4 shrink-0" />
+                {alert.text}
+                {i < alerts.length - 1 && (
+                  <span className="text-border ml-2">|</span>
+                )}
+              </Link>
+            ))}
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.dashboard.topProfessionals}</CardTitle>
+          <CardDescription>
+            {t.dashboard.topProfessionalsDesc}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TopProfessionalsTable data={topProfessionals} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

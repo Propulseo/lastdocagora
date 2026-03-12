@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
-const RANGES = ["7d", "30d", "90d"] as const;
+const RANGES = ["7d", "30d", "90d", "1y"] as const;
 type StatsRange = (typeof RANGES)[number];
 
 interface ServiceOption {
@@ -43,6 +43,7 @@ export function StatsFiltersBar({
     "7d": t.statistics.range["7d"],
     "30d": t.statistics.range["30d"],
     "90d": t.statistics.range["90d"],
+    "1y": t.statistics.range["1y"] ?? "1 an",
   };
 
   const updateParam = useCallback(
@@ -127,11 +128,6 @@ export function StatsFiltersBar({
         </SelectContent>
       </Select>
 
-      {/* Export */}
-      <Button variant="outline" size="sm" onClick={handleExport}>
-        <Download className="size-4" />
-        {t.statistics.export}
-      </Button>
     </div>
   );
 }

@@ -13,6 +13,7 @@
     "reminders": "Reminders",
     "services": "Services",
     "statistics": "Statistics",
+    "support": "Support",
     "profile": "My Profile",
     "settings": "Settings"
   },
@@ -37,20 +38,53 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "Overview of your activity and appointments scheduled for today.",
-    "viewAgenda": "View schedule",
-    "appointmentsToday": "Appointments Today",
-    "totalPatients": "Total Patients",
-    "uniquePatients": "Unique patients",
+    "greeting": "Good morning, Dr. {name}",
+    "newAppointment": "New Appointment",
+    "appointmentsToday": "Appointments today",
+    "totalPatients": "Total patients",
     "pending": "Pending",
-    "awaitingConfirmation": "Awaiting confirmation",
-    "attendanceRate": "Attendance Rate",
-    "generalHistory": "General history",
-    "todaySchedule": "Today's Schedule",
-    "viewAll": "View all",
+    "attendanceRate": "Attendance rate",
+    "vsYesterday": "vs yesterday",
+    "todayTitle": "Today",
+    "rdv": "appts",
+    "viewFullAgenda": "View full schedule",
     "freeDay": "Free day",
-    "noAppointmentsToday": "No appointments scheduled for today.",
-    "checkAgenda": "Check schedule"
+    "freeDayMessage": "Take the time to complete your profile or check your stats",
+    "now": "Now",
+    "weeklyActivity": "Weekly Activity",
+    "appointmentsThisWeek": "{count} appointments this week",
+    "vsLastWeek": "vs {count} last week",
+    "upcomingAppointments": "Upcoming Appointments",
+    "noUpcoming": "No upcoming appointments",
+    "remindersToSend": "Reminders to send",
+    "unconfirmedNext24h": "{count} appts in 24h unconfirmed",
+    "sendReminders": "Send reminders",
+    "noReminders": "All appointments confirmed",
+    "recentPatients": "Recent Patients",
+    "lastVisit": "Last visit",
+    "noRecentPatients": "No recent patients",
+    "noShowThisMonth": "No-show this month",
+    "quickActions": "Quick Actions",
+    "newAppointmentAction": "New Appointment",
+    "newAppointmentDesc": "Add manually",
+    "newPatient": "New Patient",
+    "newPatientDesc": "Create a record",
+    "myServices": "My Services",
+    "myServicesDesc": "Manage pricing",
+    "statistics": "Statistics",
+    "statisticsDesc": "View activity",
+    "profileIncomplete": "Your profile is incomplete",
+    "profileIncompleteMessage": "Patients cannot find you.",
+    "completeProfile": "Complete",
+    "noPatients": "Complete your profile to appear in searches",
+    "open": "Open",
+    "closed": "Closed",
+    "freeSlot": "Free slot",
+    "tomorrowPreview": "Tomorrow — {count} appointments",
+    "tomorrowFree": "Tomorrow — no appointments",
+    "planAppointment": "Plan an appointment",
+    "noShowZero": "0 no-show",
+    "noShowCount": "{count} no-show"
   },
   "agenda": {
     "title": "My Schedule",
@@ -148,7 +182,9 @@
       "statusLate": "Late",
       "statusAbsent": "Absent",
       "late": "Late"
-    }
+    },
+    "otherSingular": "other",
+    "otherPlural": "others"
   },
   "patients": {
     "title": "Patients",
@@ -202,6 +238,48 @@
       "allianz": "Allianz",
       "other": "Other"
     },
+    "kpi": {
+      "totalPatients": "Total Patients",
+      "newPatients": "New (30 days)",
+      "activePatients": "Active Patients",
+      "retentionRate": "Retention Rate",
+      "avgAppointments": "Appointments/Patient",
+      "attendanceRate": "Attendance Rate",
+      "noAttendanceData": "No attendance data"
+    },
+    "filters": {
+      "statusLabel": "Status",
+      "all": "All",
+      "active": "Active (90d)",
+      "inactive": "Inactive",
+      "new": "New (30d)",
+      "insuranceLabel": "Insurance",
+      "allInsurance": "All insurance",
+      "sortLabel": "Sort",
+      "sortName": "Name",
+      "sortLast": "Last appointment",
+      "sortTotal": "Total appointments",
+      "sortAttendance": "Attendance rate"
+    },
+    "charts": {
+      "acquisitionTitle": "Patient Acquisition",
+      "acquisitionDesc": "New patients evolution by month",
+      "newPatients": "New patients",
+      "cumulative": "Cumulative",
+      "insuranceTitle": "Insurance Distribution",
+      "insuranceDesc": "Patient breakdown by insurance provider",
+      "frequencyTitle": "Appointment Frequency",
+      "frequencyDesc": "Patient distribution by number of appointments",
+      "appointments": "appointments",
+      "patients": "patients",
+      "noData": "No data to display"
+    },
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "new": "New"
+    },
+    "export": "Export CSV",
     "drawer": {
       "title": "Patient record",
       "birthDate": "Date of birth",
@@ -212,8 +290,22 @@
       "firstConsultation": "First consultation",
       "lastConsultation": "Last consultation",
       "recentAppointments": "Last 5 appointments",
+      "allAppointments": "All appointments",
+      "upcomingAppointments": "Upcoming appointments",
       "noAppointments": "No appointments",
+      "noUpcoming": "No upcoming appointments",
       "loading": "Loading...",
+      "patientSince": "Patient since",
+      "totalSpent": "Total spent",
+      "avgSpent": "Avg. spent",
+      "attendanceRate": "Attendance rate",
+      "editPatient": "Edit patient",
+      "newAppointment": "New appointment",
+      "attendance": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent"
+      },
       "status": {
         "confirmed": "Confirmed",
         "pending": "Pending",
@@ -265,6 +357,40 @@
     "priceOnRequest": "Price on request",
     "consultationType": {
       "in-person": "In-person"
+    },
+    "appointmentsCol": "Appointments",
+    "revenueCol": "Revenue",
+    "export": "Export CSV",
+    "kpi": {
+      "totalServices": "Total Services",
+      "activeServices": "Active Services",
+      "activeDesc": "{count} of {total}",
+      "avgPrice": "Avg Price",
+      "totalRevenue": "Total Revenue",
+      "mostPopular": "Most Popular",
+      "avgDuration": "Avg Duration"
+    },
+    "filters": {
+      "searchPlaceholder": "Search a service...",
+      "statusLabel": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "sortLabel": "Sort",
+      "sortName": "Name",
+      "sortPrice": "Price",
+      "sortDuration": "Duration",
+      "sortAppointments": "Appointments",
+      "sortRevenue": "Revenue"
+    },
+    "charts": {
+      "revenueTitle": "Revenue per Service",
+      "revenueDesc": "Revenue breakdown by service",
+      "revenue": "Revenue",
+      "volumeTitle": "Appointment Volume",
+      "volumeDesc": "Number of appointments per service",
+      "appointments": "appointments",
+      "noData": "No data to display"
     }
   },
   "reminders": {
@@ -285,8 +411,26 @@
       "sentThisMonth": "Sent this month",
       "deliverability": "Delivery rate",
       "noShowReduction": "No-show reduction",
+      "activeRules": "Active Rules",
+      "activeTemplates": "Active Templates",
+      "avgDeliveryTime": "Avg. Time",
       "noData": "No data for this period",
-      "comingSoon": "Indicator coming soon"
+      "comingSoon": "Indicator coming soon",
+      "rulesDesc": "{count} of {total}",
+      "templatesDesc": "{count} custom"
+    },
+    "charts": {
+      "trendsTitle": "Send Volume",
+      "trendsDesc": "Notifications sent per day over the last 30 days",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "channelTitle": "Channel Distribution",
+      "channelDesc": "Notification breakdown by sending channel",
+      "statusTitle": "Delivery Status",
+      "statusDesc": "Notification breakdown by final status",
+      "notifications": "notifications",
+      "noData": "No data to display"
     },
     "section": {
       "appointments": "Appointments"
@@ -396,6 +540,7 @@
         "apres": "After appointment"
       }
     },
+    "export": "Export CSV",
     "history": {
       "title": "Send history",
       "subtitle": "View all notifications sent to patients.",
@@ -404,6 +549,9 @@
       "type": "Type",
       "channel": "Channel",
       "status": "Status",
+      "searchPlaceholder": "Search patient...",
+      "allChannels": "All channels",
+      "allStatuses": "All statuses",
       "statusLabels": {
         "pending": "Pending",
         "sent": "Sent",
@@ -445,6 +593,7 @@
       "7d": "7 days",
       "30d": "30 days",
       "90d": "90 days",
+      "1y": "1 year",
       "custom": "Custom"
     },
     "filters": {
@@ -541,6 +690,34 @@
       "appointments": "Appointments",
       "date": "Date",
       "count": "Count"
+    },
+    "analyze": {
+      "label": "Analyze",
+      "tabAppointments": "Appointments",
+      "tabPerformance": "Performance",
+      "revenueTitle": "Revenue evolution",
+      "revenueDesc": "Daily revenue over the selected period",
+      "totalRevenue": "Total revenue",
+      "avgRevenue": "Avg. revenue / appt.",
+      "recurringPatients": "Recurring patients"
+    },
+    "compare": {
+      "label": "Compare",
+      "periodA": "Period A",
+      "periodB": "Period B",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "last3Months": "Last 3 months",
+      "thisYear": "This year",
+      "evolution": "Comparative evolution",
+      "insightsTitle": "AI Insights",
+      "insightsDesc": "Smart analysis of your data",
+      "refreshInsights": "Refresh",
+      "insightsLoading": "Analyzing…",
+      "insightsError": "Unable to generate insights.",
+      "current": "current",
+      "reference": "ref.",
+      "dayLabel": "Day"
     }
   },
   "profile": {
@@ -567,7 +744,26 @@
     "reviewSingular": "review",
     "reviewPlural": "reviews",
     "recentReviews": "Recent Reviews",
-    "patient": "Patient"
+    "patient": "Patient",
+    "changePhoto": "Change photo",
+    "deletePhoto": "Remove photo",
+    "uploadSuccess": "Photo updated",
+    "uploadError": "Upload failed",
+    "fileTooLarge": "File exceeds 2 MB",
+    "invalidFormat": "Unsupported format (JPG, PNG or WebP)",
+    "deleteSuccess": "Photo removed",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveSuccess": "Profile updated",
+    "saveError": "Failed to update profile",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "bio": "Biography",
+    "bioPlaceholder": "Describe your background and approach...",
+    "subspecialtiesHint": "Separate with commas",
+    "languagesHint": "Separate with commas"
   },
   "settings": {
     "title": "Settings",
@@ -598,5 +794,68 @@
     "notificationChannelsDesc": "How you would like to receive notifications",
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "support": {
+    "title": "Support",
+    "description": "Contact the DocAgora team for any question or issue.",
+    "newTicket": "New ticket",
+    "categories": {
+      "technical": "Technical issue",
+      "profile": "Question about my profile",
+      "payment": "Payment issue",
+      "bug": "Report a bug",
+      "other": "Other"
+    },
+    "categoryIcons": {
+      "technical": "Wrench",
+      "profile": "User",
+      "payment": "CreditCard",
+      "bug": "Bug",
+      "other": "HelpCircle"
+    },
+    "categoryLabel": "Subject",
+    "categoryPlaceholder": "Select a category",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe your issue or question...",
+    "messageMinLength": "Minimum 20 characters",
+    "send": "Send",
+    "sending": "Sending...",
+    "ticketCreated": "Ticket created successfully",
+    "messageSent": "Message sent",
+    "errorCreating": "Error creating ticket",
+    "errorSending": "Error sending message",
+    "emptyTitle": "No tickets",
+    "emptyDescription": "Need help? Our team is here for you.",
+    "emptyHint": "Average response time: under 24h",
+    "resolved": "This ticket has been resolved",
+    "closed": "This ticket is closed",
+    "noMessages": "No messages in this ticket.",
+    "selectTicket": "Select a conversation",
+    "selectTicketHint": "Pick a ticket on the left or create a new one",
+    "replyPlaceholder": "Write your reply...",
+    "adminLabel": "DocAgora Support",
+    "you": "You",
+    "statuses": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "kpi": {
+      "total": "Total tickets",
+      "open": "Open",
+      "resolved": "Resolved",
+      "avgResponse": "Avg. response"
+    },
+    "characters": "characters",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "updatedAt": "Updated"
   }
 }

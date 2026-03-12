@@ -10,6 +10,7 @@ type AdminPageSection =
   | "content"
   | "settings"
   | "support"
+  | "statistics"
 
 interface AdminPageHeaderProps {
   section: AdminPageSection

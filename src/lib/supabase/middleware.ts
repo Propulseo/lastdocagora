@@ -34,7 +34,18 @@ export async function updateSession(request: NextRequest) {
   // Mandatory: refresh session cookie on every request
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  // If the refresh token is stale/revoked, clear all Supabase auth cookies
+  // so the browser stops retrying with the same invalid token.
+  if (error && !user) {
+    for (const cookie of request.cookies.getAll()) {
+      if (cookie.name.startsWith("sb-")) {
+        supabaseResponse.cookies.delete(cookie.name);
+      }
+    }
+  }
 
   const pathname = request.nextUrl.pathname;
 
@@ -46,16 +57,23 @@ export async function updateSession(request: NextRequest) {
 
   // If not authenticated and trying to access protected route
   if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/login";
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    // Carry over cookie deletions to the redirect response
+    for (const cookie of request.cookies.getAll()) {
+      if (cookie.name.startsWith("sb-")) {
+        redirectResponse.cookies.delete(cookie.name);
+      }
+    }
+    return redirectResponse;
   }
 
   // If authenticated on auth pages, redirect to root (which resolves role dashboard)
   if (user && (pathname.startsWith("/login") || pathname.startsWith("/register"))) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+    const authRedirect = request.nextUrl.clone();
+    authRedirect.pathname = "/";
+    return NextResponse.redirect(authRedirect);
   }
 
   return supabaseResponse;

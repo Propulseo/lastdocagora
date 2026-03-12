@@ -65,7 +65,7 @@ export default async function AdminLayout({
           />
           <SidebarInset>
             <AdminTopbar />
-            <main className="mx-auto w-full max-w-7xl flex-1 overflow-auto p-6">
+            <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}
             </main>
           </SidebarInset>

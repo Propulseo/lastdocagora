@@ -18,7 +18,7 @@ export function AdminTopbar() {
     : t.topbar.fallbackTitle;
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b px-6">
+    <header className="flex h-14 items-center gap-3 border-b border-border/60 px-6">
       <SidebarTrigger className="-ml-2" aria-label={t.topbar.toggleSidebar} />
       <Separator orientation="vertical" className="h-5" />
       <h2 className="text-sm font-medium">{title}</h2>

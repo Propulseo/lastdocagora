@@ -7,6 +7,9 @@ import { Plus } from "lucide-react";
 import { useReminders } from "../_hooks/useReminders";
 import { RemindersKpiStrip } from "./RemindersKpiStrip";
 import { RulesCard } from "./RulesCard";
+import { NotificationTrendsChart } from "./NotificationTrendsChart";
+import { ChannelDistributionChart } from "./ChannelDistributionChart";
+import { DeliveryStatusChart } from "./DeliveryStatusChart";
 import { HistoryTab } from "./HistoryTab";
 import { SettingsTab } from "./SettingsTab";
 import { NewReminderDialog } from "./NewReminderDialog";
@@ -21,6 +24,7 @@ export function RemindersClient({
   initialNotifications,
   initialSettings,
   kpiData,
+  chartsData,
 }: RemindersClientProps) {
   const {
     t,
@@ -49,7 +53,7 @@ export function RemindersClient({
 
   return (
     <TooltipProvider>
-      <Tabs defaultValue="reminders" className="space-y-6">
+      <Tabs defaultValue="reminders" className="space-y-5">
         <TabsList>
           <TabsTrigger value="reminders">{t.reminders.tabs.reminders}</TabsTrigger>
           <TabsTrigger value="templates">{t.reminders.tabs.templates}</TabsTrigger>
@@ -58,7 +62,7 @@ export function RemindersClient({
         </TabsList>
 
         {/* Reminders tab */}
-        <TabsContent value="reminders" className="space-y-6">
+        <TabsContent value="reminders" className="space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold">{t.reminders.auto.title}</h2>
@@ -73,10 +77,19 @@ export function RemindersClient({
           </div>
 
           <RemindersKpiStrip
-            sentThisMonth={kpiData.sentThisMonth}
+            kpiData={kpiData}
             deliverabilityRate={deliverabilityRate}
             t={t}
           />
+
+          {/* Charts row */}
+          <div className="grid gap-5 lg:grid-cols-2">
+            <NotificationTrendsChart data={chartsData.trends} />
+            <ChannelDistributionChart data={chartsData.channelBreakdown} />
+          </div>
+
+          {/* Full-width status chart */}
+          <DeliveryStatusChart data={chartsData.statusBreakdown} />
 
           <RulesCard
             rules={rules}
@@ -88,7 +101,7 @@ export function RemindersClient({
         </TabsContent>
 
         {/* Templates tab */}
-        <TabsContent value="templates" className="space-y-6">
+        <TabsContent value="templates" className="space-y-5">
           <TemplatesTab
             professionalId={professionalId}
             professionalUserId={professionalUserId}
@@ -97,12 +110,12 @@ export function RemindersClient({
         </TabsContent>
 
         {/* History tab */}
-        <TabsContent value="history" className="space-y-6">
+        <TabsContent value="history" className="space-y-5">
           <HistoryTab notifications={notifications} t={t} />
         </TabsContent>
 
         {/* Settings tab */}
-        <TabsContent value="settings" className="space-y-6">
+        <TabsContent value="settings" className="space-y-5">
           <SettingsTab
             settings={settings}
             onSettingChange={handleSettingChange}

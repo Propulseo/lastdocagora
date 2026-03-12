@@ -17,6 +17,7 @@ export interface AppointmentRow {
   created_via: string;
   service_id: string | null;
   patient_id: string | null;
+  price?: number | null;
   services: { name: string } | null;
   appointment_attendance: { status: string; late_minutes: number | null }[];
 }
@@ -57,6 +58,10 @@ export function getDateRange(
     case "90d": {
       from = new Date(toDate);
       from.setDate(from.getDate() - 89);
+      break;
+    }
+    case "1y": {
+      from = new Date(selectedYear, 0, 1);
       break;
     }
     case "7d": {
@@ -189,6 +194,32 @@ export function buildPunctuality(rows: AppointmentRow[]): PunctualityData {
   }
 
   return { onTime, late, absent };
+}
+
+// ---------------------------------------------------------------------------
+// Revenue trends (for Performance tab)
+// ---------------------------------------------------------------------------
+
+import type { RevenueTrendPoint } from "../_components/StatsCharts";
+
+export function buildRevenueTrends(
+  rows: AppointmentRow[],
+  allDates: string[],
+): { trends: RevenueTrendPoint[]; total: number } {
+  const map = new Map<string, number>();
+  for (const date of allDates) map.set(date, 0);
+
+  let total = 0;
+  for (const r of rows) {
+    if (r.status === "cancelled") continue;
+    const price = Number(r.price) || 0;
+    total += price;
+    const entry = map.get(r.appointment_date);
+    if (entry !== undefined) map.set(r.appointment_date, entry + price);
+  }
+
+  const trends = allDates.map((date) => ({ date, revenue: map.get(date) ?? 0 }));
+  return { trends, total };
 }
 
 export function buildInsights(

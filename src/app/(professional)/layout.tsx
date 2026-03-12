@@ -31,14 +31,38 @@ export default async function ProfessionalLayout({
 
   const supabase = await createClient();
 
-  const [{ data: userProfile }, { locale, t }] = await Promise.all([
-    supabase
-      .from("users")
-      .select("first_name, last_name, email, avatar_url, language")
-      .eq("id", user.id)
-      .single(),
-    getProfessionalI18n(),
-  ]);
+  const [{ data: userProfile }, { locale, t }, { data: ticketsWithMessages }] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("first_name, last_name, email, avatar_url, language")
+        .eq("id", user.id)
+        .single(),
+      getProfessionalI18n(),
+      supabase
+        .from("support_tickets")
+        .select("id, ticket_messages(sender_id, created_at)")
+        .eq("user_id", user.id)
+        .in("status", ["open", "in_progress"])
+        .order("created_at", {
+          referencedTable: "ticket_messages",
+          ascending: false,
+        })
+        .limit(1, { referencedTable: "ticket_messages" }),
+    ]);
+
+  let unreadCount = 0;
+  if (ticketsWithMessages) {
+    for (const tk of ticketsWithMessages) {
+      const msgs = tk.ticket_messages as {
+        sender_id: string | null;
+        created_at: string;
+      }[];
+      if (msgs?.length > 0 && msgs[0].sender_id !== user.id) {
+        unreadCount++;
+      }
+    }
+  }
 
   if (!userProfile) {
     redirect("/login");
@@ -56,14 +80,14 @@ export default async function ProfessionalLayout({
       <RoleBodyClass role="role-professional" />
       <ProfessionalI18nProvider translations={t} locale={locale}>
         <SidebarProvider>
-          <ProSidebar user={sidebarUser} />
+          <ProSidebar user={sidebarUser} openTicketCount={unreadCount} />
           <SidebarInset>
             <header className="flex h-14 items-center border-b border-border/60 px-6">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
             </header>
-            <main className="mx-auto w-full max-w-7xl flex-1 overflow-auto p-6 md:p-8">
+            <main className="pro-dashboard w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}
             </main>
           </SidebarInset>

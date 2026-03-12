@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { DataTable, type ColumnDef } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, ShieldCheck } from "lucide-react";
+import { MapPin, MoreHorizontal, ShieldCheck, Star } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { updateVerificationStatus } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
@@ -20,6 +20,7 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 interface ProfessionalRow {
   id: string;
   name: string;
+  avatar_url: string | null;
   specialty: string;
   city: string | null;
   rating: number | null;
@@ -29,6 +30,28 @@ interface ProfessionalRow {
 
 interface ProfessionalsTableProps {
   data: ProfessionalRow[];
+}
+
+const AVATAR_COLORS = [
+  "#3b82f6", "#ef4444", "#10b981", "#f59e0b",
+  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
+];
+
+const SPECIALTY_COLORS = [
+  { bg: "#eff6ff", text: "#1d4ed8" },
+  { bg: "#f0fdf4", text: "#15803d" },
+  { bg: "#fef3c7", text: "#92400e" },
+  { bg: "#fce7f3", text: "#9d174d" },
+  { bg: "#f5f3ff", text: "#6d28d9" },
+  { bg: "#ecfdf5", text: "#065f46" },
+  { bg: "#fff7ed", text: "#9a3412" },
+  { bg: "#f0f9ff", text: "#0369a1" },
+];
+
+function hashStr(s: string): number {
+  let hash = 0;
+  for (const ch of s) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0;
+  return Math.abs(hash);
 }
 
 export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
@@ -57,35 +80,84 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
     {
       key: "name",
       header: t.common.name,
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{row.name}</span>
-          {row.verification_status === "verified" && (
-            <ShieldCheck className="text-primary size-4" />
-          )}
-        </div>
-      ),
+      render: (row) => {
+        const bg = AVATAR_COLORS[hashStr(row.name) % AVATAR_COLORS.length];
+        const initials = row.name
+          .split(" ")
+          .map((w) => w[0])
+          .join("")
+          .slice(0, 2);
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="size-[34px]">
+              {row.avatar_url && <AvatarImage src={row.avatar_url} alt={row.name} />}
+              <AvatarFallback
+                style={{ backgroundColor: bg, color: "white" }}
+                className="text-[13px] font-semibold"
+              >
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[14px] font-semibold">{row.name}</span>
+            {row.verification_status === "verified" && (
+              <ShieldCheck className="text-primary size-4" />
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "specialty",
       header: t.professionals.tableSpecialty,
-      render: (row) => row.specialty,
+      render: (row) => {
+        const color =
+          SPECIALTY_COLORS[hashStr(row.specialty) % SPECIALTY_COLORS.length];
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              borderRadius: "9999px",
+              padding: "4px 10px",
+              fontSize: "11px",
+              fontWeight: 600,
+              backgroundColor: color.bg,
+              color: color.text,
+            }}
+          >
+            {row.specialty}
+          </span>
+        );
+      },
     },
     {
       key: "city",
       header: t.professionals.tableCity,
-      render: (row) => row.city ?? "—",
+      render: (row) =>
+        row.city ? (
+          <div className="flex items-center gap-1 text-[13px]">
+            <MapPin className="size-3 text-[#6b7280]" />
+            {row.city}
+          </div>
+        ) : (
+          "—"
+        ),
     },
     {
       key: "rating",
       header: t.professionals.tableRating,
       render: (row) =>
-        row.rating != null ? (
-          <Badge variant="secondary">
-            {row.rating.toFixed(1)} ({row.total_reviews ?? 0})
-          </Badge>
+        row.rating != null && row.rating > 0 ? (
+          <div className="flex items-center gap-1 text-[13px]">
+            <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" />
+            <span className="font-medium text-[#92400e]">
+              {row.rating.toFixed(1)}
+            </span>
+            <span className="text-[#6b7280]">
+              ({row.total_reviews ?? 0})
+            </span>
+          </div>
         ) : (
-          "—"
+          <span className="text-[#9ca3af]">—</span>
         ),
     },
     {
@@ -96,6 +168,9 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
           type="verification"
           value={row.verification_status}
           labels={t.statuses.verification}
+          className={
+            row.verification_status === "pending" ? "animate-pulse" : undefined
+          }
         />
       ),
     },
@@ -103,15 +178,15 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
       key: "actions",
       header: "",
       className: "w-10",
-      render: (row) =>
-        row.verification_status === "pending" ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" aria-label={t.common.actions}>
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+      render: (row) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" aria-label={t.common.actions}>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {row.verification_status !== "verified" && (
               <DropdownMenuItem
                 onClick={() =>
                   setConfirm({
@@ -123,6 +198,8 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
               >
                 {t.professionals.verify}
               </DropdownMenuItem>
+            )}
+            {row.verification_status !== "rejected" && (
               <DropdownMenuItem
                 onClick={() =>
                   setConfirm({
@@ -135,9 +212,10 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
               >
                 {t.professionals.reject}
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null,
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -149,6 +227,12 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         rowKey={(row) => row.id}
         emptyTitle={t.professionals.emptyTitle}
         emptyDescription={t.common.noResultsHint}
+        variant="admin"
+        rowClassName={(row) =>
+          row.verification_status === "pending"
+            ? "border-l-[3px] border-l-[#f97316]"
+            : undefined
+        }
       />
       <ConfirmDialog
         open={!!confirm}

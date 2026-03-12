@@ -43,6 +43,7 @@ export default async function ProfilePage() {
 
   return (
     <ProfileClient
+      userId={user.id}
       userProfile={userProfile}
       professional={professional}
       recentRatings={recentRatings}

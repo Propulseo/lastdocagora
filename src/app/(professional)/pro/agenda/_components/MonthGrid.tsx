@@ -7,7 +7,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { MonthDayCell } from "./MonthDayCell";
 import { MonthDayDetailDialog } from "./MonthDayDetailDialog";
-import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+import { toLocalDateStr } from "../_lib/date-utils";
 
 /** Mon..Sun JS day indices */
 const DAY_INDICES = [1, 2, 3, 4, 5, 6, 0];
@@ -102,16 +102,19 @@ export function MonthGrid({
     <>
       <Card>
         <CardContent>
-          {/* Header: day names */}
+          {/* Header: day names — weekend columns get subtle bg */}
           <div className="grid grid-cols-7 border-b pb-2 mb-1">
-            {DAY_INDICES.map((dayIdx) => (
-              <div
-                key={dayIdx}
-                className="text-center text-xs font-medium text-muted-foreground"
-              >
-                {t.agenda.days[dayIdx].slice(0, 3)}
-              </div>
-            ))}
+            {DAY_INDICES.map((dayIdx, colIdx) => {
+              const isWeekend = colIdx >= 5; // Sat, Sun columns
+              return (
+                <div
+                  key={dayIdx}
+                  className={`text-center text-xs font-medium text-muted-foreground ${isWeekend ? "bg-muted/30 rounded" : ""}`}
+                >
+                  {t.agenda.days[dayIdx].slice(0, 3)}
+                </div>
+              );
+            })}
           </div>
 
           {/* Weeks */}

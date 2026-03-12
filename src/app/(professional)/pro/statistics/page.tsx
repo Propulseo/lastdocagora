@@ -14,6 +14,7 @@ import {
   buildChannels,
   buildPunctuality,
   buildInsights,
+  buildRevenueTrends,
   type AppointmentRow,
   type HistoryRow,
 } from "./_lib/aggregation";
@@ -75,7 +76,7 @@ export default async function StatisticsPage({
           .select(
             `
             id, appointment_date, appointment_time, status, created_via,
-            service_id, patient_id,
+            service_id, patient_id, price,
             services(name),
             appointment_attendance(status, late_minutes)
           `,
@@ -144,6 +145,7 @@ export default async function StatisticsPage({
   const channels = buildChannels(chartRows);
   const punctuality = buildPunctuality(chartRows);
   const insights = buildInsights(serviceBreakdown, heatmap, historyRows);
+  const { trends: revenueTrends, total: totalRevenue } = buildRevenueTrends(chartRows, allDates);
 
   const servicesList = (servicesResult.data ?? []).map((s) => ({
     id: s.id,
@@ -158,6 +160,8 @@ export default async function StatisticsPage({
     channels,
     punctuality,
     insights,
+    revenueTrends,
+    totalRevenue,
     filters: {
       range,
       service: serviceFilter,

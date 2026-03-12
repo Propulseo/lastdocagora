@@ -25,7 +25,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   let query = supabase
     .from("users")
-    .select("id, first_name, last_name, email, role, status, created_at", {
+    .select("id, first_name, last_name, email, role, status, created_at, avatar_url", {
       count: "exact",
     })
     .order("created_at", { ascending: false })
@@ -49,7 +49,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <AdminPageHeader section="users" />
 
-      <UsersFilters />
+      <UsersFilters totalCount={count ?? 0} />
       <UsersTable data={(users ?? []) as never[]} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>

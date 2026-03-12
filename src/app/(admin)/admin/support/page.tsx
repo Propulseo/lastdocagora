@@ -23,7 +23,7 @@ export default async function SupportPage({ searchParams }: PageProps) {
   let query = supabase
     .from("support_tickets")
     .select(
-      "id, subject, status, priority, updated_at, created_at, user_id, users!support_tickets_user_id_fkey(first_name, last_name, email)",
+      "id, subject, status, priority, updated_at, created_at, user_id, users!support_tickets_user_id_fkey(first_name, last_name, email, avatar_url)",
       { count: "exact" }
     )
     .order("updated_at", { ascending: false })
@@ -46,6 +46,7 @@ export default async function SupportPage({ searchParams }: PageProps) {
       first_name: string;
       last_name: string;
       email: string;
+      avatar_url: string | null;
     } | null;
     return {
       id: t.id,
@@ -56,6 +57,7 @@ export default async function SupportPage({ searchParams }: PageProps) {
       created_at: t.created_at,
       user_email: user?.email ?? "\u2014",
       user_name: user ? `${user.first_name} ${user.last_name}` : "\u2014",
+      user_avatar_url: user?.avatar_url ?? null,
     };
   });
 

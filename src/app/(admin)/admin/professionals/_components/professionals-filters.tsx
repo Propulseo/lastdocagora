@@ -16,11 +16,13 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 interface ProfessionalsFiltersProps {
   specialties: string[];
   cities: string[];
+  totalCount: number;
 }
 
 export function ProfessionalsFilters({
   specialties,
   cities,
+  totalCount,
 }: ProfessionalsFiltersProps) {
   const { t } = useAdminI18n();
   const router = useRouter();
@@ -49,79 +51,83 @@ export function ProfessionalsFilters({
   }
 
   return (
-    <div className="rounded-lg bg-muted/20 p-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <SearchInput placeholder={t.professionals.searchPlaceholder} />
-        <Select
-          defaultValue={searchParams.get("status") ?? "all"}
-          onValueChange={(value) => updateParam("status", value)}
+    <div className="flex items-center gap-3 h-12">
+      <SearchInput
+        placeholder={t.professionals.searchPlaceholder}
+        className="relative w-[240px]"
+      />
+      <Select
+        defaultValue={searchParams.get("status") ?? "all"}
+        onValueChange={(value) => updateParam("status", value)}
+      >
+        <SelectTrigger
+          className="w-[160px]"
+          aria-label={t.common.filterByStatus}
         >
-          <SelectTrigger
-            className="w-[160px]"
-            aria-label={t.common.filterByStatus}
-          >
-            <SelectValue placeholder={t.common.status} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t.common.allStatuses}</SelectItem>
-            <SelectItem value="pending">
-              {t.statuses.verification.pending}
-            </SelectItem>
-            <SelectItem value="verified">
-              {t.statuses.verification.verified}
-            </SelectItem>
-            <SelectItem value="rejected">
-              {t.statuses.verification.rejected}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          defaultValue={searchParams.get("specialty") ?? "all"}
-          onValueChange={(value) => updateParam("specialty", value)}
+          <SelectValue placeholder={t.common.status} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t.common.allStatuses}</SelectItem>
+          <SelectItem value="pending">
+            {t.statuses.verification.pending}
+          </SelectItem>
+          <SelectItem value="verified">
+            {t.statuses.verification.verified}
+          </SelectItem>
+          <SelectItem value="rejected">
+            {t.statuses.verification.rejected}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <Select
+        defaultValue={searchParams.get("specialty") ?? "all"}
+        onValueChange={(value) => updateParam("specialty", value)}
+      >
+        <SelectTrigger
+          className="w-[180px]"
+          aria-label={t.professionals.specialtyFilter}
         >
-          <SelectTrigger
-            className="w-[180px]"
-            aria-label={t.professionals.specialtyFilter}
-          >
-            <SelectValue placeholder={t.professionals.specialtyFilter} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              {t.professionals.allSpecialties}
+          <SelectValue placeholder={t.professionals.specialtyFilter} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">
+            {t.professionals.allSpecialties}
+          </SelectItem>
+          {specialties.map((s) => (
+            <SelectItem key={s} value={s}>
+              {s}
             </SelectItem>
-            {specialties.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          defaultValue={searchParams.get("city") ?? "all"}
-          onValueChange={(value) => updateParam("city", value)}
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
+        defaultValue={searchParams.get("city") ?? "all"}
+        onValueChange={(value) => updateParam("city", value)}
+      >
+        <SelectTrigger
+          className="w-[160px]"
+          aria-label={t.professionals.cityFilter}
         >
-          <SelectTrigger
-            className="w-[160px]"
-            aria-label={t.professionals.cityFilter}
-          >
-            <SelectValue placeholder={t.professionals.cityFilter} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t.professionals.allCities}</SelectItem>
-            {cities.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X className="size-4" />
-            {t.common.clearFilters}
-          </Button>
-        )}
-      </div>
+          <SelectValue placeholder={t.professionals.cityFilter} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t.professionals.allCities}</SelectItem>
+          {cities.map((c) => (
+            <SelectItem key={c} value={c}>
+              {c}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {hasFilters && (
+        <Button variant="ghost" size="sm" onClick={clearFilters}>
+          <X className="size-4" />
+          {t.common.clearFilters}
+        </Button>
+      )}
+      <span className="ml-auto text-[13px] text-muted-foreground">
+        {t.professionals.totalCount.replace("{count}", String(totalCount))}
+      </span>
     </div>
   );
 }

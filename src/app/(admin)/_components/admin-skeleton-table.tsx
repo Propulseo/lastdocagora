@@ -10,7 +10,7 @@ export function AdminSkeletonTable({
   rows = 5,
 }: AdminSkeletonTableProps) {
   return (
-    <div className="rounded-md border" aria-busy="true">
+    <div className="rounded-xl border" aria-busy="true">
       <div className="border-b p-4">
         <div className="flex gap-4">
           {Array.from({ length: columns }).map((_, i) => (

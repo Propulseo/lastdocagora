@@ -7,6 +7,7 @@ import type {
   ReminderRule,
   NotificationLog,
   ProfessionalSettings,
+  RemindersKpiData,
 } from "../_types/reminders";
 
 interface UseRemindersParams {
@@ -14,11 +15,7 @@ interface UseRemindersParams {
   initialRules: ReminderRule[];
   initialNotifications: NotificationLog[];
   initialSettings: ProfessionalSettings | null;
-  kpiData: {
-    sentThisMonth: number;
-    totalWithStatus: number;
-    deliveredCount: number;
-  };
+  kpiData: RemindersKpiData;
 }
 
 export function useReminders({

@@ -116,7 +116,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title={t.settings.title}
         description={t.settings.description}

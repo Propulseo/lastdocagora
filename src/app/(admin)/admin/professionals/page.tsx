@@ -27,7 +27,7 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
   let query = supabase
     .from("professionals")
     .select(
-      "id, specialty, city, rating, total_reviews, verification_status, user_id, users!professionals_user_id_fkey(first_name, last_name)",
+      "id, specialty, city, rating, total_reviews, verification_status, user_id, users!professionals_user_id_fkey(first_name, last_name, avatar_url)",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
@@ -73,10 +73,12 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
     const user = pro.users as unknown as {
       first_name: string;
       last_name: string;
+      avatar_url: string | null;
     } | null;
     return {
       id: pro.id,
       name: user ? `${user.first_name} ${user.last_name}` : "—",
+      avatar_url: user?.avatar_url ?? null,
       specialty: pro.specialty,
       city: pro.city,
       rating: pro.rating,
@@ -89,7 +91,7 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <AdminPageHeader section="professionals" />
 
-      <ProfessionalsFilters specialties={specialties} cities={cities} />
+      <ProfessionalsFilters specialties={specialties} cities={cities} totalCount={count ?? 0} />
       <ProfessionalsTable data={mapped} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>

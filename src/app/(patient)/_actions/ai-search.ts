@@ -5,6 +5,7 @@ import { getOpenAIClient } from "@/lib/ai/openai-client"
 import { buildSystemPrompt, LANG_DETECT_PROMPT } from "@/lib/ai/system-prompt"
 import {
   aiSearchInputSchema,
+  aiSearchFiltersSchema,
   aiOutputSchema,
   type AISearchFilters,
 } from "@/lib/ai/schemas"
@@ -24,6 +25,7 @@ type AISearchSuccess =
       message: string
       professionals: ProfessionalResult[]
       lang: DetectedLang
+      debug?: string
     }
 
 type AISearchResponse =
@@ -128,9 +130,32 @@ export async function aiSearch(input: {
   let aiOutput
   try {
     const raw = JSON.parse(aiResponse)
-    aiOutput = aiOutputSchema.parse(raw)
+    const parsed = aiOutputSchema.safeParse(raw)
+    if (parsed.success) {
+      aiOutput = parsed.data
+    } else {
+      // Fallback: if GPT returned valid JSON with type "search" but extra/mismatched fields,
+      // try to extract filters manually
+      console.error("[ai-search] Zod validation failed:", parsed.error.message, "Raw:", aiResponse)
+      if (raw && raw.type === "search" && raw.filters) {
+        const filtersParsed = aiSearchFiltersSchema.safeParse(raw.filters)
+        aiOutput = {
+          type: "search" as const,
+          message: typeof raw.message === "string" ? raw.message : "",
+          filters: filtersParsed.success ? filtersParsed.data : {},
+        }
+      } else if (raw && raw.type === "clarification") {
+        aiOutput = {
+          type: "clarification" as const,
+          message: typeof raw.message === "string" ? raw.message : "",
+          suggested_options: Array.isArray(raw.suggested_options) ? raw.suggested_options : undefined,
+        }
+      } else {
+        return { success: false, error: "ai_invalid_output" }
+      }
+    }
   } catch (err) {
-    console.error("[ai-search] Invalid LLM output:", aiResponse, err)
+    console.error("[ai-search] JSON parse failed:", aiResponse, err)
     return { success: false, error: "ai_invalid_output" }
   }
 
@@ -148,7 +173,7 @@ export async function aiSearch(input: {
   }
 
   // 7. Build Supabase query from filters (sans nextSlot pour réponse instantanée)
-  const professionals = await queryProfessionals(supabase, aiOutput.filters)
+  const { results: professionals, error: queryError } = await queryProfessionals(supabase, aiOutput.filters)
 
   return {
     success: true,
@@ -157,6 +182,7 @@ export async function aiSearch(input: {
       message: aiOutput.message,
       professionals,
       lang: detectedLang,
+      debug: queryError ?? undefined,
     },
   }
 }
@@ -195,13 +221,13 @@ function normalizeLangCodes(langs: string[]): string[] {
 async function queryProfessionals(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: AISearchFilters
-): Promise<ProfessionalResult[]> {
+): Promise<{ results: ProfessionalResult[]; error?: string }> {
   // RLS enforce déjà verification_status = 'verified', pas besoin de filtrer ici
   let query = supabase
     .from("professionals")
     .select(
       `id, specialty, city, rating, total_reviews, bio,
-       users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
+       users ( first_name, last_name, avatar_url )`
     )
 
   if (filters.specialty) {
@@ -250,7 +276,7 @@ async function queryProfessionals(
 
   if (error) {
     console.error("[ai-search] Supabase query error:", error)
-    return []
+    return { results: [], error: `DB: ${error.message} (${error.code})` }
   }
 
   let results = (data ?? []).map((prof) => ({
@@ -278,5 +304,5 @@ async function queryProfessionals(
     })
   }
 
-  return results
+  return { results }
 }

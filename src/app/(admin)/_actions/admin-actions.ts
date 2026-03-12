@@ -79,6 +79,20 @@ export async function updateSystemSetting(settingId: string, value: string) {
   return { success: true };
 }
 
+export async function cancelAppointment(appointmentId: string) {
+  const supabase = await getAdminClient();
+  if (!supabase) return { success: false, error: "Nao autorizado" };
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({ status: "cancelled" })
+    .eq("id", appointmentId);
+
+  if (error) return { success: false, error: error.message };
+  revalidatePath("/admin/appointments");
+  return { success: true };
+}
+
 export async function toggleContentPublished(
   type: "page" | "faq",
   id: string,

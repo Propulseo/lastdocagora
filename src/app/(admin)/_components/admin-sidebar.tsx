@@ -11,6 +11,7 @@ import {
   FileText,
   HeadphonesIcon,
   Settings,
+  BarChart2,
   LogOut,
 } from "lucide-react";
 import {
@@ -28,7 +29,6 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { adminNavGroups } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
@@ -41,6 +41,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   FileText,
   HeadphonesIcon,
   Settings,
+  BarChart2,
 };
 
 interface AdminSidebarProps {
@@ -67,12 +68,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="border-b px-4 py-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold tracking-tight">DOCAGORA</span>
-          <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">
-            {t.sidebar.badge}
-          </Badge>
-        </div>
+        <span className="text-lg font-bold tracking-tight">DOCAGORA</span>
       </SidebarHeader>
 
       <SidebarContent>
@@ -121,18 +117,18 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
               {user.last_name[0]}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-1 flex-col text-sm leading-tight">
-            <span className="truncate font-medium">
+          <div className="min-w-0 flex-1 text-sm leading-tight">
+            <span className="truncate font-medium block">
               {user.first_name} {user.last_name}
             </span>
-            <span className="text-muted-foreground truncate text-xs">
+            <span className="text-muted-foreground truncate text-xs block">
               {user.email}
             </span>
           </div>
           <LanguageSwitcher locale={locale} />
           <button
             onClick={handleLogout}
-            className="text-muted-foreground hover:text-foreground"
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
             aria-label={t.sidebar.logout}
           >
             <LogOut className="size-4" />

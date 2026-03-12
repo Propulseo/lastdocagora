@@ -96,7 +96,7 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
 
       <TabsContent value="pages" className="mt-4">
         {pages.length > 0 ? (
-          <div className="rounded-md border">
+          <div className="overflow-hidden rounded-xl border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -148,7 +148,7 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
 
       <TabsContent value="faqs" className="mt-4">
         {faqs.length > 0 ? (
-          <div className="rounded-md border">
+          <div className="overflow-hidden rounded-xl border">
             <Table>
               <TableHeader>
                 <TableRow>

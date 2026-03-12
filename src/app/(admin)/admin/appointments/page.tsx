@@ -34,10 +34,10 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
   let query = supabase
     .from("appointments")
     .select(
-      `id, appointment_date, appointment_time, status,
-       patients!appointments_patient_id_fkey(first_name, last_name),
+      `id, appointment_date, appointment_time, status, duration_minutes,
+       patients!appointments_patient_id_fkey(first_name, last_name, avatar_url),
        professionals!appointments_professional_id_fkey(
-         users!professionals_user_id_fkey(first_name, last_name)
+         users!professionals_user_id_fkey(first_name, last_name, avatar_url)
        )`,
       { count: "exact" }
     )
@@ -60,9 +60,10 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     const patient = apt.patients as unknown as {
       first_name: string | null;
       last_name: string | null;
+      avatar_url: string | null;
     } | null;
     const proData = apt.professionals as unknown as {
-      users: { first_name: string; last_name: string } | null;
+      users: { first_name: string; last_name: string; avatar_url: string | null } | null;
     } | null;
     const proUser = proData?.users ?? null;
 
@@ -70,23 +71,35 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
       id: apt.id,
       patient_name: patient
         ? `${patient.first_name ?? ""} ${patient.last_name ?? ""}`.trim() ||
-          "—"
-        : "—",
+          ""
+        : "",
+      patient_avatar_url: patient?.avatar_url ?? null,
       professional_name: proUser
         ? `${proUser.first_name} ${proUser.last_name}`
         : "—",
+      professional_avatar_url: proUser?.avatar_url ?? null,
       date: apt.appointment_date,
       time: apt.appointment_time.slice(0, 5),
       status: apt.status,
+      duration_minutes: (apt as Record<string, unknown>).duration_minutes as number | null,
     };
   });
+
+  const statusCounts = {
+    total: mapped.length,
+    confirmed: mapped.filter((r) => r.status === "confirmed").length,
+    cancelled: mapped.filter((r) => r.status === "cancelled").length,
+    pending: mapped.filter(
+      (r) => r.status === "pending" || r.status === "scheduled"
+    ).length,
+  };
 
   return (
     <div className="space-y-6">
       <AdminPageHeader section="appointments" />
 
-      <AppointmentsFilters />
-      <AppointmentsTable data={mapped} />
+      <AppointmentsFilters totalCount={count ?? 0} />
+      <AppointmentsTable data={mapped} statusCounts={statusCounts} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>
   );

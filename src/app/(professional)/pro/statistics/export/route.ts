@@ -21,6 +21,10 @@ function getDateRange(
       from.setDate(from.getDate() - 89);
       break;
     }
+    case "1y": {
+      from = new Date(selectedYear, 0, 1);
+      break;
+    }
     case "7d": {
       from = new Date(toDate);
       from.setDate(from.getDate() - 6);
@@ -79,6 +83,7 @@ export async function GET(request: NextRequest) {
       appointment_date,
       appointment_time,
       status,
+      price,
       created_via,
       duration_minutes,
       services(name),
@@ -101,6 +106,7 @@ export async function GET(request: NextRequest) {
     "Date",
     "Time",
     "Status",
+    "Price",
     "Service",
     "Duration (min)",
     "Created Via",
@@ -125,6 +131,7 @@ export async function GET(request: NextRequest) {
         escapeCsv(r.appointment_date),
         escapeCsv(r.appointment_time),
         escapeCsv(r.status),
+        String(r.price ?? 0),
         escapeCsv(serviceName),
         String(r.duration_minutes),
         escapeCsv(r.created_via ?? "-"),
@@ -135,7 +142,8 @@ export async function GET(request: NextRequest) {
   }
 
   const csv = csvLines.join("\n");
-  const filename = `statistics_${from}_${to}.csv`;
+  const today = new Date().toISOString().split("T")[0];
+  const filename = `docagora-stats-${range}-${today}.csv`;
 
   return new NextResponse(csv, {
     headers: {
