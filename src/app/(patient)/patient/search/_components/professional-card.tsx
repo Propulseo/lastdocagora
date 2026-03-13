@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { MapPin, Star, Clock, Loader2 } from "lucide-react"
+import { MapPin, Star, Clock, Loader2, Euro, Globe, Shield, Briefcase, CalendarCheck } from "lucide-react"
 import {
   getProfessionalName,
   getProfessionalInitials,
@@ -20,12 +20,35 @@ import type { PatientTranslations } from "@/locales/patient"
 export type ProfessionalResult = {
   id: string
   specialty: string | null
+  subspecialties: string[] | null
   city: string | null
+  neighborhood: string | null
+  address: string | null
+  postal_code: string | null
+  cabinet_name: string | null
+  consultation_fee: number | null
+  languages_spoken: string[] | null
+  insurances_accepted: string[] | null
+  third_party_payment: boolean | null
+  years_experience: number | null
+  practice_type: string | null
   rating: number | null
   total_reviews: number | null
   bio: string | null
+  accessibility_options: Record<string, unknown> | null
   nextSlot: string | null
   users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
+  available_slots?: string[]
+  requested_date?: string
+}
+
+const LANG_CODE_TO_LABEL: Record<string, string> = {
+  pt: "Português",
+  en: "English",
+  fr: "Français",
+  es: "Español",
+  de: "Deutsch",
+  it: "Italiano",
 }
 
 function formatSlotDate(slot: string, locale: string): string {
@@ -52,12 +75,13 @@ export function ProfessionalCard({
   locale: string
   t: PatientTranslations["search"]
 }) {
+  const hasAvailableSlots = prof.available_slots && prof.available_slots.length > 0
   const [nextSlot, setNextSlot] = useState<string | null>(prof.nextSlot)
-  const [loadingSlot, setLoadingSlot] = useState(!prof.nextSlot)
+  const [loadingSlot, setLoadingSlot] = useState(!prof.nextSlot && !hasAvailableSlots)
 
-  // Chargement paresseux du créneau — la carte s'affiche immédiatement
+  // Skip lazy-load when available_slots is already present (date-filtered search)
   useEffect(() => {
-    if (prof.nextSlot) return
+    if (prof.nextSlot || hasAvailableSlots) return
     let cancelled = false
     fetchNextSlot(prof.id).then((slot) => {
       if (!cancelled) {
@@ -68,7 +92,7 @@ export function ProfessionalCard({
       if (!cancelled) setLoadingSlot(false)
     })
     return () => { cancelled = true }
-  }, [prof.id, prof.nextSlot])
+  }, [prof.id, prof.nextSlot, hasAvailableSlots])
 
   const [bookingOpen, setBookingOpen] = useState(false)
   const { t: fullT } = usePatientTranslations()
@@ -109,18 +133,63 @@ export function ProfessionalCard({
             )}
           </div>
           <div className="flex-1 space-y-2">
-            {prof.city && (
+            {(prof.city || prof.neighborhood) && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="size-4 shrink-0" />
-                <span>{prof.city}</span>
+                <span>
+                  {[prof.neighborhood, prof.city].filter(Boolean).join(", ")}
+                  {prof.cabinet_name && ` — ${prof.cabinet_name}`}
+                </span>
               </div>
             )}
-            {loadingSlot ? (
+            {prof.consultation_fee != null && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Euro className="size-4 shrink-0" />
+                <span>{prof.consultation_fee}€</span>
+                {prof.third_party_payment && (
+                  <Badge variant="outline" className="ml-1 text-xs">Tiers payant</Badge>
+                )}
+              </div>
+            )}
+            {prof.languages_spoken && prof.languages_spoken.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Globe className="size-4 shrink-0" />
+                <span>{prof.languages_spoken.map((l) => LANG_CODE_TO_LABEL[l] ?? l).join(", ")}</span>
+              </div>
+            )}
+            {prof.years_experience != null && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Briefcase className="size-4 shrink-0" />
+                <span>{t.yearsExp.replace("{count}", String(prof.years_experience))}</span>
+              </div>
+            )}
+            {prof.insurances_accepted && prof.insurances_accepted.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Shield className="size-4 shrink-0" />
+                <span>{prof.insurances_accepted.join(", ")}</span>
+              </div>
+            )}
+            {hasAvailableSlots && prof.requested_date && (
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+                  <CalendarCheck className="size-4 shrink-0" />
+                  <span>{t.availableOn.replace("{date}", prof.requested_date)}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 pl-6">
+                  {prof.available_slots!.map((slot) => (
+                    <Badge key={slot} variant="outline" className="border-green-300 text-green-700 text-xs">
+                      {slot}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!hasAvailableSlots && loadingSlot ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 shrink-0 animate-spin" />
                 <span>{t.nextSlot.replace("{slot}", "...")}</span>
               </div>
-            ) : nextSlot ? (
+            ) : !hasAvailableSlots && nextSlot ? (
               <div className="flex items-center gap-2 text-sm text-green-600">
                 <Clock className="size-4 shrink-0" />
                 <span>

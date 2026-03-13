@@ -74,6 +74,10 @@ export type PatientTranslations = {
     aiErrorInput: string
     aiResultsFound: string
     aiNoResults: string
+    availableOn: string
+    noAvailability: string
+    yearsExp: string
+    moreSlots: string
   }
   professionalDetail: {
     backToSearch: string
@@ -333,6 +337,10 @@ export const ptPatient: PatientTranslations = {
     aiErrorInput: "Mensagem inv\u00e1lida. Tente ser mais espec\u00edfico.",
     aiResultsFound: "Encontrei {count} profissional(is) para si:",
     aiNoResults: "N\u00e3o encontrei nenhum profissional com esses crit\u00e9rios. Tente alargar a pesquisa (outra zona, menos filtros).",
+    availableOn: "Dispon\u00edvel em {date}",
+    noAvailability: "Sem disponibilidade nesta data",
+    yearsExp: "{count} anos de experi\u00eancia",
+    moreSlots: "+{count} mais",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",

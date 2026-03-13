@@ -94,6 +94,9 @@ export function AISearchChat({
       } else {
         const profs = data.professionals ?? []
         const debugInfo = data.debug ? ` [${data.debug}]` : ""
+        const noResultsMessage = data.requested_date
+          ? t.noAvailability
+          : t.aiNoResults + debugInfo
         setMessages((prev) => [
           ...prev,
           {
@@ -101,7 +104,7 @@ export function AISearchChat({
             content:
               profs.length > 0
                 ? t.aiResultsFound.replace("{count}", String(profs.length))
-                : t.aiNoResults + debugInfo,
+                : noResultsMessage,
             professionals: profs.length > 0 ? profs : undefined,
             isSearchResult: true,
           },

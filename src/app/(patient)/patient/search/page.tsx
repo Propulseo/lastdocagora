@@ -21,7 +21,10 @@ export default async function SearchPage({
   let profQuery = supabase
     .from("professionals")
     .select(
-      `id, specialty, city, rating, total_reviews, bio,
+      `id, specialty, subspecialties, city, neighborhood, address, postal_code,
+       cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
+       third_party_payment, years_experience, practice_type, rating, total_reviews,
+       bio, accessibility_options,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
     .order("rating", { ascending: false, nullsFirst: false })
@@ -50,10 +53,22 @@ export default async function SearchPage({
       return {
         id: prof.id,
         specialty: prof.specialty as string | null,
+        subspecialties: prof.subspecialties as string[] | null,
         city: prof.city as string | null,
+        neighborhood: prof.neighborhood as string | null,
+        address: prof.address as string | null,
+        postal_code: prof.postal_code as string | null,
+        cabinet_name: prof.cabinet_name as string | null,
+        consultation_fee: prof.consultation_fee as number | null,
+        languages_spoken: prof.languages_spoken as string[] | null,
+        insurances_accepted: prof.insurances_accepted as string[] | null,
+        third_party_payment: prof.third_party_payment as boolean | null,
+        years_experience: prof.years_experience as number | null,
+        practice_type: prof.practice_type as string | null,
         rating: prof.rating as number | null,
         total_reviews: prof.total_reviews as number | null,
         bio: prof.bio as string | null,
+        accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
         nextSlot: nextSlot as string | null,
         users: prof.users as { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null,
       }

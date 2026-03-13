@@ -76,6 +76,10 @@ export const enPatient: PatientTranslations = {
     aiErrorInput: "Invalid message. Try being more specific.",
     aiResultsFound: "I found {count} professional(s) for you:",
     aiNoResults: "No professionals found matching your criteria. Try broadening your search (different area, fewer filters).",
+    availableOn: "Available on {date}",
+    noAvailability: "No availability on this date",
+    yearsExp: "{count} years of experience",
+    moreSlots: "+{count} more",
   },
   professionalDetail: {
     backToSearch: "Back to search",

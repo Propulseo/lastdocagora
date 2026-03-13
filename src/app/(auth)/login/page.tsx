@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   Card,
   CardContent,
@@ -16,28 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Shield, Stethoscope, User } from "lucide-react";
-
-const DEMO_ACCOUNTS = [
-  {
-    label: "Admin",
-    email: "contact@docagora.com",
-    icon: Shield,
-    color: "bg-red-500/10 text-red-700 hover:bg-red-500/20 border-red-200",
-  },
-  {
-    label: "Profissional",
-    email: "pro@docagora.com",
-    icon: Stethoscope,
-    color: "bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 border-blue-200",
-  },
-  {
-    label: "Paciente",
-    email: "patient@docagora.com",
-    icon: User,
-    color: "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200",
-  },
-] as const;
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,22 +23,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
 
-  async function loginWith(loginEmail: string, loginPassword: string) {
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
     setError(null);
     setLoading(true);
 
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
-      password: loginPassword,
+      email,
+      password,
     });
 
     if (error) {
       setError(error.message);
       setLoading(false);
-      setLoadingDemo(null);
       return;
     }
 
@@ -82,18 +59,6 @@ export default function LoginPage() {
 
     router.refresh();
   }
-
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    await loginWith(email, password);
-  }
-
-  async function handleDemoLogin(demoEmail: string) {
-    setLoadingDemo(demoEmail);
-    await loginWith(demoEmail, "Password");
-  }
-
-  const isLoading = loading || !!loadingDemo;
 
   return (
     <div className="space-y-4">
@@ -118,7 +83,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -130,13 +95,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={loading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {loading && !loadingDemo && (
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Entrar
@@ -149,34 +114,6 @@ export default function LoginPage() {
             </p>
           </CardFooter>
         </form>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardDescription className="text-center">
-            Acesso rápido — Contas de demonstração
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {DEMO_ACCOUNTS.map((account) => (
-            <Button
-              key={account.email}
-              variant="outline"
-              className={`w-full justify-start gap-3 border ${account.color}`}
-              disabled={isLoading}
-              onClick={() => handleDemoLogin(account.email)}
-            >
-              {loadingDemo === account.email ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <account.icon className="h-4 w-4" />
-              )}
-              <span className="font-medium">{account.label}</span>
-              <Separator orientation="vertical" className="mx-1 h-4" />
-              <span className="text-xs opacity-70">{account.email}</span>
-            </Button>
-          ))}
-        </CardContent>
       </Card>
     </div>
   );

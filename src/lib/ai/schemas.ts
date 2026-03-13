@@ -16,6 +16,8 @@ export const aiSearchFiltersSchema = z.object({
     .enum(["rating", "consultation_fee", "years_experience"])
     .optional(),
   limit: z.number().min(1).max(50).optional(),
+  requested_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  requested_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
 })
 
 export type AISearchFilters = z.infer<typeof aiSearchFiltersSchema>

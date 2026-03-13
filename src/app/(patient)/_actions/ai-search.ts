@@ -26,14 +26,15 @@ type AISearchSuccess =
       professionals: ProfessionalResult[]
       lang: DetectedLang
       debug?: string
+      requested_date?: string
     }
 
 type AISearchResponse =
   | { success: true; data: AISearchSuccess }
   | { success: false; error: string }
 
-// Cache spécialités/villes en mémoire (5 min TTL)
-let contextCache: { specialties: string[]; cities: string[]; ts: number } | null = null
+// Cache spécialités/villes/quartiers en mémoire (5 min TTL)
+let contextCache: { specialties: string[]; cities: string[]; neighborhoods: string[]; ts: number } | null = null
 const CACHE_TTL = 5 * 60 * 1000
 
 async function getCachedContext(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -41,13 +42,15 @@ async function getCachedContext(supabase: Awaited<ReturnType<typeof createClient
     return contextCache
   }
   // RLS enforce déjà verification_status = 'verified'
-  const [specialtiesRes, citiesRes] = await Promise.all([
+  const [specialtiesRes, citiesRes, neighborhoodsRes] = await Promise.all([
     supabase.from("professionals").select("specialty"),
     supabase.from("professionals").select("city").not("city", "is", null),
+    supabase.from("professionals").select("neighborhood").not("neighborhood", "is", null),
   ])
   contextCache = {
     specialties: [...new Set((specialtiesRes.data ?? []).map((s) => s.specialty))].sort(),
     cities: [...new Set((citiesRes.data ?? []).map((c) => c.city).filter(Boolean) as string[])].sort(),
+    neighborhoods: [...new Set((neighborhoodsRes.data ?? []).map((n) => n.neighborhood).filter(Boolean) as string[])].sort(),
     ts: Date.now(),
   }
   return contextCache
@@ -94,13 +97,14 @@ export async function aiSearch(input: {
 
   // 3. Fetch context (cached) + detect language in parallel
   const openai = getOpenAIClient()
-  const [{ specialties, cities }, detectedLang] = await Promise.all([
+  const [{ specialties, cities, neighborhoods }, detectedLang] = await Promise.all([
     getCachedContext(supabase),
     detectLanguage(openai, message),
   ])
 
   // 4. Call OpenAI for filter extraction
-  const systemPrompt = buildSystemPrompt(specialties, cities)
+  const todayISO = new Date().toISOString().slice(0, 10)
+  const systemPrompt = buildSystemPrompt(specialties, cities, neighborhoods, todayISO)
 
   const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
     { role: "system", content: systemPrompt },
@@ -175,14 +179,27 @@ export async function aiSearch(input: {
   // 7. Build Supabase query from filters (sans nextSlot pour réponse instantanée)
   const { results: professionals, error: queryError } = await queryProfessionals(supabase, aiOutput.filters)
 
+  // 8. Filter by availability if a date was requested
+  const requestedDate = aiOutput.filters.requested_date
+  let filteredProfessionals = professionals
+  if (requestedDate) {
+    filteredProfessionals = await filterByAvailability(
+      supabase,
+      professionals,
+      requestedDate,
+      aiOutput.filters.requested_time
+    )
+  }
+
   return {
     success: true,
     data: {
       type: "search",
       message: aiOutput.message,
-      professionals,
+      professionals: filteredProfessionals,
       lang: detectedLang,
       debug: queryError ?? undefined,
+      requested_date: requestedDate,
     },
   }
 }
@@ -218,6 +235,50 @@ function normalizeLangCodes(langs: string[]): string[] {
   })
 }
 
+async function filterByAvailability(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  professionals: ProfessionalResult[],
+  requestedDate: string,
+  requestedTime?: string
+): Promise<ProfessionalResult[]> {
+  const results = await Promise.all(
+    professionals.map(async (prof) => {
+      try {
+        const { data, error } = await supabase.rpc("get_available_slots", {
+          p_professional_id: prof.id,
+          p_date: requestedDate,
+        })
+        if (error) {
+          console.error(`[ai-search] get_available_slots error for ${prof.id}:`, error.message)
+          return null
+        }
+        const slots = (data as { slot_start: string; slot_end: string }[] | null) ?? []
+        if (slots.length === 0) return null
+
+        // Extract HH:MM from slot_start (time format "HH:MM:SS" → slice 0,5)
+        let slotTimes = slots.map((s) => s.slot_start.slice(0, 5))
+
+        // If a specific time was requested, only keep matching slots
+        if (requestedTime) {
+          slotTimes = slotTimes.filter((t) => t === requestedTime)
+          if (slotTimes.length === 0) return null
+        }
+
+        // Limit to 6 slots max
+        return {
+          ...prof,
+          available_slots: slotTimes.slice(0, 6),
+          requested_date: requestedDate,
+        }
+      } catch {
+        console.error(`[ai-search] get_available_slots exception for ${prof.id}`)
+        return null
+      }
+    })
+  )
+  return results.filter((r) => r !== null) as ProfessionalResult[]
+}
+
 async function queryProfessionals(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: AISearchFilters
@@ -226,7 +287,10 @@ async function queryProfessionals(
   let query = supabase
     .from("professionals")
     .select(
-      `id, specialty, city, rating, total_reviews, bio,
+      `id, specialty, subspecialties, city, neighborhood, address, postal_code,
+       cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
+       third_party_payment, years_experience, practice_type, rating, total_reviews,
+       bio, accessibility_options,
        users ( first_name, last_name, avatar_url )`
     )
 
@@ -282,10 +346,22 @@ async function queryProfessionals(
   let results = (data ?? []).map((prof) => ({
     id: prof.id,
     specialty: prof.specialty,
+    subspecialties: prof.subspecialties,
     city: prof.city,
+    neighborhood: prof.neighborhood,
+    address: prof.address,
+    postal_code: prof.postal_code,
+    cabinet_name: prof.cabinet_name,
+    consultation_fee: prof.consultation_fee,
+    languages_spoken: prof.languages_spoken,
+    insurances_accepted: prof.insurances_accepted,
+    third_party_payment: prof.third_party_payment,
+    years_experience: prof.years_experience,
+    practice_type: prof.practice_type,
     rating: prof.rating,
     total_reviews: prof.total_reviews,
     bio: prof.bio,
+    accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
     nextSlot: null as string | null,
     users: prof.users as {
       first_name: string | null
