@@ -138,7 +138,7 @@ function NotificationIcon({ type }: { type: string }) {
   const iconClasses = "size-5"
   switch (type) {
     case "appointment":
-      return <Calendar className={`${iconClasses} text-blue-500`} />
+      return <Calendar className={`${iconClasses} text-primary`} />
     case "reminder":
       return <Bell className={`${iconClasses} text-yellow-500`} />
     case "alert":
@@ -146,7 +146,7 @@ function NotificationIcon({ type }: { type: string }) {
     case "success":
       return <CheckCircle className={`${iconClasses} text-green-500`} />
     case "info":
-      return <Info className={`${iconClasses} text-blue-500`} />
+      return <Info className={`${iconClasses} text-primary`} />
     default:
       return (
         <Bell className={`${iconClasses} text-muted-foreground`} />

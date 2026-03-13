@@ -46,7 +46,7 @@ interface AppointmentsClientProps {
 }
 
 const tabTriggerClass =
-  "data-[state=active]:text-[#2563eb] after:bg-[#2563eb] gap-2"
+  "data-[state=active]:text-[#3da4ab] after:bg-[#3da4ab] gap-2"
 
 export function AppointmentsClient({
   upcoming,
@@ -154,13 +154,13 @@ export function AppointmentsClient({
 const borderColors: Record<string, string> = {
   cancelled: "border-l-[#ef4444]",
   past: "border-l-[#9ca3af]",
-  upcoming: "border-l-[#2563eb]",
+  upcoming: "border-l-[#3da4ab]",
 }
 
 const avatarColors: Record<string, string> = {
   cancelled: "bg-red-50 text-red-600",
   past: "bg-gray-100 text-gray-500",
-  upcoming: "bg-blue-50 text-blue-700",
+  upcoming: "bg-[#e8f6f7] text-[#3da4ab]",
 }
 
 function AppointmentCard({
@@ -270,7 +270,7 @@ function StatusPill({
   labels: Record<string, string>
 }) {
   const styles: Record<string, string> = {
-    confirmed: "bg-blue-50 text-blue-700",
+    confirmed: "bg-[#e8f6f7] text-[#3da4ab]",
     pending: "bg-amber-50 text-amber-700",
     completed: "bg-gray-100 text-gray-600",
     cancelled: "bg-red-50 text-red-600",

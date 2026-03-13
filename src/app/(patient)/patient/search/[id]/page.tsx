@@ -97,7 +97,7 @@ export default async function ProfessionalDetailPage({
             <CardContent className="pt-6">
               <div className="flex gap-4">
                 <Avatar className="size-16">
-                  <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1 space-y-2">
                   <div>
@@ -118,26 +118,26 @@ export default async function ProfessionalDetailPage({
                     )}
                     {prof.city && (
                       <span className="flex items-center gap-1">
-                        <MapPin className="size-4" />
+                        <MapPin className="size-4 text-primary/60" />
                         {prof.city}
                       </span>
                     )}
                     {prof.years_experience != null && (
                       <span className="flex items-center gap-1">
-                        <Clock className="size-4" />
+                        <Clock className="size-4 text-primary/60" />
                         {t.professionalDetail.yearsExperience.replace("{count}", String(prof.years_experience))}
                       </span>
                     )}
                     {prof.cabinet_name && (
                       <span className="flex items-center gap-1">
-                        <Building2 className="size-4" />
+                        <Building2 className="size-4 text-primary/60" />
                         {prof.cabinet_name}
                       </span>
                     )}
                   </div>
                   {prof.languages_spoken && prof.languages_spoken.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2">
-                      <Globe className="size-4 text-muted-foreground" />
+                      <Globe className="size-4 text-primary/60" />
                       {prof.languages_spoken.map((lang) => (
                         <Badge key={lang} variant="outline">{lang}</Badge>
                       ))}
@@ -145,7 +145,7 @@ export default async function ProfessionalDetailPage({
                   )}
                   {prof.insurances_accepted && prof.insurances_accepted.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2">
-                      <Shield className="size-4 text-muted-foreground" />
+                      <Shield className="size-4 text-primary/60" />
                       {prof.insurances_accepted.map((ins) => (
                         <Badge key={ins} variant="outline">{ins}</Badge>
                       ))}
@@ -173,7 +173,7 @@ export default async function ProfessionalDetailPage({
               <CardContent>
                 <div className="space-y-3">
                   {services.map((svc) => (
-                    <div key={svc.id} className="flex items-start justify-between rounded-lg border p-4">
+                    <div key={svc.id} className="flex items-start justify-between rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.02]">
                       <div className="min-w-0 flex-1">
                         <p className="font-medium">{svc.name}</p>
                         {svc.description && <p className="mt-1 text-sm text-muted-foreground">{svc.description}</p>}
@@ -210,7 +210,7 @@ export default async function ProfessionalDetailPage({
                       <div key={r.id}>
                         <div className="flex items-start gap-3">
                           <Avatar size="sm">
-                            <AvatarFallback className="text-xs">{rvInit}</AvatarFallback>
+                            <AvatarFallback className="bg-primary/10 text-xs text-primary">{rvInit}</AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">

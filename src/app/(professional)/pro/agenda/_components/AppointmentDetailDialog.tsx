@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { UserCheck, UserMinus, UserX } from "lucide-react";
+import { CheckCircle, XCircle, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
@@ -22,12 +22,14 @@ const statusVariant: Record<
   completed: "outline",
   cancelled: "destructive",
   "no-show": "destructive",
+  no_show: "destructive",
 };
 
 interface AppointmentDetailDialogProps {
   selected: Appointment | null;
   onClose: () => void;
   onMarkAttendance: (status: AttendanceStatus) => void;
+  onStatusChange: (status: "confirmed" | "cancelled") => void;
   isUpdating: boolean;
 }
 
@@ -35,6 +37,7 @@ export function AppointmentDetailDialog({
   selected,
   onClose,
   onMarkAttendance,
+  onStatusChange,
   isUpdating,
 }: AppointmentDetailDialogProps) {
   const { t } = useProfessionalI18n();
@@ -45,6 +48,7 @@ export function AppointmentDetailDialog({
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
     "no-show": t.common.status.noShow,
+    no_show: t.common.status.noShow,
   };
 
   const selectedAttendance =
@@ -52,7 +56,13 @@ export function AppointmentDetailDialog({
   const canMark =
     selected &&
     selected.status !== "cancelled" &&
-    selected.status !== "no-show";
+    selected.status !== "no-show" &&
+    selected.status !== "no_show";
+
+  const canConfirm = selected?.status === "pending";
+  const canCancel =
+    selected &&
+    (selected.status === "pending" || selected.status === "confirmed");
 
   const attendanceActions = [
     {
@@ -129,6 +139,36 @@ export function AppointmentDetailDialog({
               </div>
             )}
 
+            {/* ── Confirm / Cancel actions ── */}
+            {(canConfirm || canCancel) && (
+              <div className="flex gap-2 border-t pt-4">
+                {canConfirm && (
+                  <Button
+                    size="sm"
+                    className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isUpdating}
+                    onClick={() => onStatusChange("confirmed")}
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {t.common.status.confirmed}
+                  </Button>
+                )}
+                {canCancel && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    disabled={isUpdating}
+                    onClick={() => onStatusChange("cancelled")}
+                  >
+                    <XCircle className="h-4 w-4" />
+                    {t.common.status.cancelled}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* ── Attendance marking ── */}
             {canMark && (
               <div className="border-t pt-4">
                 <p className="mb-3 text-sm font-medium">

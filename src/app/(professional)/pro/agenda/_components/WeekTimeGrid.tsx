@@ -38,7 +38,7 @@ interface WeekTimeGridProps {
   externalEvents: ExternalEvent[];
   loading: boolean;
   selectedDate: string;
-  onAttendanceChange: (appointmentId: string, status: string) => void;
+  onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
 }
 
 export function WeekTimeGrid({
@@ -221,6 +221,7 @@ export function WeekTimeGrid({
         selected={attendance.selected}
         onClose={() => attendance.setSelected(null)}
         onMarkAttendance={attendance.handleMarkAttendance}
+        onStatusChange={attendance.handleStatusChange}
         isUpdating={attendance.isUpdating}
       />
     </>

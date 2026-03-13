@@ -29,35 +29,42 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const { data: userData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        const role = userData?.role;
+        if (role === "admin") router.push("/admin/dashboard");
+        else if (role === "professional") router.push("/pro/dashboard");
+        else router.push("/patient/dashboard");
+      }
+
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro de conexão ao servidor"
+      );
       setLoading(false);
-      return;
     }
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data: userData } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      const role = userData?.role;
-      if (role === "admin") router.push("/admin/dashboard");
-      else if (role === "professional") router.push("/pro/dashboard");
-      else router.push("/patient/dashboard");
-    }
-
-    router.refresh();
   }
 
   return (

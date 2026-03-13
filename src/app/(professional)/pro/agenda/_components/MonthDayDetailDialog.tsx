@@ -19,6 +19,7 @@ const statusVariant: Record<
   completed: "outline",
   cancelled: "destructive",
   "no-show": "destructive",
+  no_show: "destructive",
 };
 
 interface MonthDayDetailDialogProps {
@@ -38,6 +39,7 @@ export function MonthDayDetailDialog({
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
     "no-show": t.common.status.noShow,
+    no_show: t.common.status.noShow,
   };
 
   return (

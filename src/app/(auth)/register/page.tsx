@@ -39,31 +39,38 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          role,
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (role === "professional") {
+        router.push("/pro/dashboard");
+      } else {
+        router.push("/patient/dashboard");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro de conexão ao servidor"
+      );
       setLoading(false);
-      return;
     }
-
-    if (role === "professional") {
-      router.push("/pro/dashboard");
-    } else {
-      router.push("/patient/dashboard");
-    }
-    router.refresh();
   }
 
   return (

@@ -29,15 +29,16 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   const [externalEventsKey, setExternalEventsKey] = useState(0);
 
   const handleAttendanceChange = useCallback(
-    (appointmentId: string, newStatus: string) => {
+    (appointmentId: string, newAttendanceStatus: string, newAppointmentStatus?: string) => {
       setAppointments((prev) =>
         prev.map((apt) =>
           apt.id === appointmentId
             ? {
                 ...apt,
+                ...(newAppointmentStatus ? { status: newAppointmentStatus } : {}),
                 appointment_attendance: {
                   id: apt.appointment_attendance?.id ?? "optimistic",
-                  status: newStatus,
+                  status: newAttendanceStatus,
                   marked_at: new Date().toISOString(),
                 },
               }

@@ -160,7 +160,7 @@ body.role-admin {
   --admin-info: oklch(0.6 0.15 245);
 }
 
-/* ─── Patient Theme: Clean White + Green Accent ─── */
+/* ─── Patient Theme: Clean White + Teal Secondary ─── */
 body.role-patient {
   --background: oklch(1 0 0);
   --foreground: oklch(0.21 0.03 265);
@@ -168,26 +168,54 @@ body.role-patient {
   --card-foreground: oklch(0.21 0.03 265);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.03 265);
-  --primary: oklch(0.546 0.245 263);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0.005 255);
-  --secondary-foreground: oklch(0.3 0.03 265);
+  --primary: #3da4ab;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f6f7;
+  --secondary-foreground: #3da4ab;
   --muted: oklch(0.97 0.005 255);
   --muted-foreground: oklch(0.5 0.02 260);
-  --accent: oklch(0.627 0.194 150);
-  --accent-foreground: oklch(1 0 0);
+  --accent: #e8f6f7;
+  --accent-foreground: #3da4ab;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0.005 255);
   --input: oklch(0.922 0.005 255);
-  --ring: oklch(0.546 0.245 263);
+  --ring: #3da4ab;
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.21 0.03 265);
-  --sidebar-primary: oklch(0.546 0.245 263);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.97 0.005 255);
-  --sidebar-accent-foreground: oklch(0.3 0.03 265);
+  --sidebar-primary: #3da4ab;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f6f7;
+  --sidebar-accent-foreground: #3da4ab;
   --sidebar-border: oklch(0.922 0.005 255);
-  --sidebar-ring: oklch(0.546 0.245 263);
+  --sidebar-ring: #3da4ab;
+}
+
+/* ─── Patient: primary button darker hover ─── */
+body.role-patient [data-slot="button"][data-variant="default"]:hover {
+  background-color: #2d8a91;
+}
+
+/* ─── Patient: outline button teal accent ─── */
+body.role-patient [data-slot="button"][data-variant="outline"] {
+  border-color: #3da4ab40;
+  color: #3da4ab;
+}
+body.role-patient [data-slot="button"][data-variant="outline"]:hover {
+  background-color: #e8f6f7;
+  border-color: #3da4ab;
+  color: #2d8a91;
+}
+
+/* ─── Patient: ghost button teal text on hover ─── */
+body.role-patient [data-slot="button"][data-variant="ghost"]:hover {
+  background-color: #e8f6f7;
+  color: #3da4ab;
+}
+
+/* ─── Patient: sidebar active item left accent ─── */
+body.role-patient [data-sidebar="menu-button"][data-active="true"] {
+  border-left: 2px solid #3da4ab;
+  background: #e8f6f7;
 }
 
 /* ─── Professional Theme: Blue Night (full dark) ─── */

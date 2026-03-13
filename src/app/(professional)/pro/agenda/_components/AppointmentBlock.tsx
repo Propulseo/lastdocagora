@@ -27,6 +27,7 @@ export function AppointmentBlock({
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
     "no-show": t.common.status.noShow,
+    no_show: t.common.status.noShow,
   };
 
   const attendanceLabel: Record<string, string> = {
@@ -60,7 +61,7 @@ export function AppointmentBlock({
   const attendanceRecord = appointment.appointment_attendance;
   const currentAttendance = attendanceRecord?.status ?? "waiting";
   const canShowAttendance =
-    appointment.status !== "cancelled" && appointment.status !== "no-show";
+    appointment.status !== "cancelled" && appointment.status !== "no-show" && appointment.status !== "no_show";
 
   return (
     <button

@@ -10,6 +10,7 @@ const statusDotColors: Record<string, string> = {
   pending: "bg-orange-500",
   cancelled: "bg-red-500",
   "no-show": "bg-red-500",
+  no_show: "bg-red-500",
   completed: "bg-gray-400",
 };
 

@@ -43,7 +43,7 @@ interface DayTimeGridProps {
   externalEvents: ExternalEvent[];
   loading: boolean;
   selectedDate: string;
-  onAttendanceChange: (appointmentId: string, status: string) => void;
+  onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
   onCreateAppointment: (startTime: string, endTime: string) => void;
 }
 
@@ -277,6 +277,7 @@ export function DayTimeGrid({
         selected={attendance.selected}
         onClose={() => attendance.setSelected(null)}
         onMarkAttendance={attendance.handleMarkAttendance}
+        onStatusChange={attendance.handleStatusChange}
         isUpdating={attendance.isUpdating}
       />
     </>

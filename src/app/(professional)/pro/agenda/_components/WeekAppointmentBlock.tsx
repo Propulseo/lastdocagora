@@ -32,7 +32,7 @@ export function WeekAppointmentBlock({
     : apt.title || t.agenda.manualAppointment;
 
   const currentAttendance = apt.appointment_attendance?.status ?? "waiting";
-  const canMark = apt.status !== "cancelled" && apt.status !== "no-show";
+  const canMark = apt.status !== "cancelled" && apt.status !== "no-show" && apt.status !== "no_show";
 
   return (
     <button

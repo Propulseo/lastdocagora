@@ -135,7 +135,7 @@ export function ProfessionalCard({
           <div className="flex-1 space-y-2">
             {(prof.city || prof.neighborhood) && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="size-4 shrink-0" />
+                <MapPin className="size-4 shrink-0 text-primary/60" />
                 <span>
                   {[prof.neighborhood, prof.city].filter(Boolean).join(", ")}
                   {prof.cabinet_name && ` — ${prof.cabinet_name}`}
@@ -144,7 +144,7 @@ export function ProfessionalCard({
             )}
             {prof.consultation_fee != null && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Euro className="size-4 shrink-0" />
+                <Euro className="size-4 shrink-0 text-primary/60" />
                 <span>{prof.consultation_fee}€</span>
                 {prof.third_party_payment && (
                   <Badge variant="outline" className="ml-1 text-xs">Tiers payant</Badge>
@@ -153,19 +153,19 @@ export function ProfessionalCard({
             )}
             {prof.languages_spoken && prof.languages_spoken.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Globe className="size-4 shrink-0" />
+                <Globe className="size-4 shrink-0 text-primary/60" />
                 <span>{prof.languages_spoken.map((l) => LANG_CODE_TO_LABEL[l] ?? l).join(", ")}</span>
               </div>
             )}
             {prof.years_experience != null && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Briefcase className="size-4 shrink-0" />
+                <Briefcase className="size-4 shrink-0 text-primary/60" />
                 <span>{t.yearsExp.replace("{count}", String(prof.years_experience))}</span>
               </div>
             )}
             {prof.insurances_accepted && prof.insurances_accepted.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="size-4 shrink-0" />
+                <Shield className="size-4 shrink-0 text-primary/60" />
                 <span>{prof.insurances_accepted.join(", ")}</span>
               </div>
             )}

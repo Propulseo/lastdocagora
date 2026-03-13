@@ -14,6 +14,7 @@ export const STATUS_COLORS: Record<string, string> = {
   pending: "bg-orange-500/10 border-l-orange-500 text-orange-200",
   cancelled: "bg-red-500/10 border-l-red-500 text-red-300",
   "no-show": "bg-red-500/10 border-l-red-500 text-red-300",
+  no_show: "bg-red-500/10 border-l-red-500 text-red-300",
   completed: "bg-gray-500/10 border-l-gray-400 text-gray-300",
 };
 
@@ -22,6 +23,7 @@ export const STATUS_PILL_COLORS: Record<string, string> = {
   pending: "border-orange-500/40 text-orange-300 bg-orange-500/10",
   cancelled: "border-red-500/40 text-red-300 bg-red-500/10",
   "no-show": "border-red-500/40 text-red-300 bg-red-500/10",
+  no_show: "border-red-500/40 text-red-300 bg-red-500/10",
   completed: "border-gray-500/40 text-gray-300 bg-gray-500/10",
 };
 

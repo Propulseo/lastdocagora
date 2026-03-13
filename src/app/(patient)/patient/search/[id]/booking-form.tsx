@@ -142,7 +142,7 @@ export function BookingForm({
                       "w-full rounded-lg border p-3 text-left transition-colors",
                       selectedService?.id === svc.id
                         ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "hover:border-muted-foreground/30"
+                        : "hover:border-primary/40 hover:bg-primary/[0.02]"
                     )}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -182,7 +182,7 @@ export function BookingForm({
               <p className="text-sm font-medium">{t.booking.step3}</p>
               {loadingSlots ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                  <Loader2 className="size-5 animate-spin text-primary" />
                   <span className="ml-2 text-sm text-muted-foreground">{t.booking.loadingSlots}</span>
                 </div>
               ) : slots.length === 0 ? (
