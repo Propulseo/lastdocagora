@@ -21,6 +21,7 @@ export type PatientTranslations = {
     pending: string
     cancelled: string
     completed: string
+    rejected: string
     noShow: string
   }
   dashboard: {
@@ -284,6 +285,7 @@ export const ptPatient: PatientTranslations = {
     pending: "Pendente",
     cancelled: "Cancelada",
     completed: "Conclu\u00edda",
+    rejected: "Recusada",
     noShow: "Faltou",
   },
   dashboard: {

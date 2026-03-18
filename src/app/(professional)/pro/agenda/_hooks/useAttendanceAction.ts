@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import {
   markAttendance,
   updateAppointmentStatus,
+  cancelAppointment,
+  rejectAppointment,
 } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment } from "../_types/agenda";
@@ -21,6 +23,8 @@ export function useAttendanceAction(
   const { t } = useProfessionalI18n();
   const [selected, setSelected] = useState<Appointment | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   async function handleMarkAttendance(newStatus: AttendanceStatus) {
     if (!selected || isUpdating) return;
@@ -90,7 +94,57 @@ export function useAttendanceAction(
       setSelected((prev) => (prev ? { ...prev, status: previousStatus } : null));
       toast.error(result.error);
     } else {
-      toast.success(t.agenda.attendance.updated);
+      toast.success(
+        newStatus === "confirmed"
+          ? t.agenda.appointmentAccepted
+          : t.agenda.attendance.updated,
+      );
+    }
+
+    setIsUpdating(false);
+  }
+
+  async function handleCancelAppointment(reason: string, notifyPatient: boolean) {
+    if (!selected || isUpdating) return;
+    const previousStatus = selected.status;
+
+    // Optimistic update
+    onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", "cancelled");
+    setSelected((prev) => (prev ? { ...prev, status: "cancelled" } : null));
+    setShowCancelDialog(false);
+    setIsUpdating(true);
+
+    const result = await cancelAppointment(selected.id, reason, notifyPatient);
+
+    if (!result.success) {
+      onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", previousStatus);
+      setSelected((prev) => (prev ? { ...prev, status: previousStatus } : null));
+      toast.error(t.agenda.cancellation.error);
+    } else {
+      toast.success(t.agenda.cancellation.cancelled);
+    }
+
+    setIsUpdating(false);
+  }
+
+  async function handleRejectAppointment(reason: string, notifyPatient: boolean) {
+    if (!selected || isUpdating) return;
+    const previousStatus = selected.status;
+
+    // Optimistic update
+    onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", "rejected");
+    setSelected((prev) => (prev ? { ...prev, status: "rejected" } : null));
+    setShowRejectDialog(false);
+    setIsUpdating(true);
+
+    const result = await rejectAppointment(selected.id, reason, notifyPatient);
+
+    if (!result.success) {
+      onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", previousStatus);
+      setSelected((prev) => (prev ? { ...prev, status: previousStatus } : null));
+      toast.error(t.agenda.rejection.error);
+    } else {
+      toast.success(t.agenda.rejection.rejected);
     }
 
     setIsUpdating(false);
@@ -100,7 +154,13 @@ export function useAttendanceAction(
     selected,
     setSelected,
     isUpdating,
+    showCancelDialog,
+    setShowCancelDialog,
+    showRejectDialog,
+    setShowRejectDialog,
     handleMarkAttendance,
     handleStatusChange,
+    handleCancelAppointment,
+    handleRejectAppointment,
   };
 }

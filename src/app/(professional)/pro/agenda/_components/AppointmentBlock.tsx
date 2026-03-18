@@ -26,6 +26,7 @@ export function AppointmentBlock({
     pending: t.common.status.pending,
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
+    rejected: t.common.status.rejected,
     "no-show": t.common.status.noShow,
     no_show: t.common.status.noShow,
   };
@@ -61,12 +62,12 @@ export function AppointmentBlock({
   const attendanceRecord = appointment.appointment_attendance;
   const currentAttendance = attendanceRecord?.status ?? "waiting";
   const canShowAttendance =
-    appointment.status !== "cancelled" && appointment.status !== "no-show" && appointment.status !== "no_show";
+    appointment.status !== "cancelled" && appointment.status !== "rejected" && appointment.status !== "pending" && appointment.status !== "no-show" && appointment.status !== "no_show";
 
   return (
     <button
       type="button"
-      className={`absolute left-16 right-2 overflow-hidden rounded-md px-3 py-1 text-left transition-opacity hover:opacity-80 ${colors} ${
+      className={`absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 ${colors} ${
         isManual && !patient?.first_name
           ? "border-l-[3px] border-dashed"
           : "border-l-[3px]"
@@ -108,6 +109,3 @@ export function AppointmentBlock({
     </button>
   );
 }
-
-// Re-export for backward compat
-export { HOUR_HEIGHT, START_HOUR };

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 interface ChartColors {
   primary: string;
@@ -47,6 +48,7 @@ function getCssVar(el: Element, name: string): string {
 
 export function useChartColors(): ChartColors {
   const [colors, setColors] = useState<ChartColors>(FALLBACK);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     // Read from document.body — theme overrides (body.role-professional)
@@ -64,7 +66,7 @@ export function useChartColors(): ChartColors {
       background: getCssVar(el, "--background") || FALLBACK.background,
       muted: getCssVar(el, "--muted-foreground") || FALLBACK.muted,
     });
-  }, []);
+  }, [resolvedTheme]);
 
   return colors;
 }

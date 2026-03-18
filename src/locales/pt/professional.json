@@ -33,7 +33,8 @@
       "pending": "Pendente",
       "completed": "Concluída",
       "cancelled": "Cancelada",
-      "noShow": "Não compareceu"
+      "noShow": "Não compareceu",
+      "rejected": "Recusada"
     }
   },
   "dashboard": {
@@ -183,8 +184,54 @@
       "statusAbsent": "Ausente",
       "late": "Atrasados"
     },
+    "dragActionTitle": "O que pretende fazer?",
+    "createPatientAppointment": "Criar consulta de paciente",
+    "openAvailabilitySlot": "Abrir horário disponível",
+    "availableLabel": "Disponível",
+    "availabilityCreated": "Horário de disponibilidade criado",
+    "availabilityCreateError": "Erro ao criar horário de disponibilidade",
+    "createAppointmentHere": "Criar consulta aqui",
     "otherSingular": "outro",
-    "otherPlural": "outros"
+    "otherPlural": "outros",
+    "acceptAppointment": "Aceitar consulta",
+    "appointmentAccepted": "Consulta aceite",
+    "rejectAppointment": "Recusar consulta",
+    "rejection": {
+      "title": "Recusar consulta",
+      "description": "Esta ação é irreversível. A consulta será marcada como recusada.",
+      "reason": "Motivo da recusa",
+      "reasonPlaceholder": "Selecione um motivo",
+      "reasons": {
+        "schedule_conflict": "Conflito de horário",
+        "outside_scope": "Fora do âmbito de competência",
+        "patient_unknown": "Paciente desconhecido",
+        "other": "Outro"
+      },
+      "otherReason": "Especifique o motivo",
+      "otherReasonPlaceholder": "Motivo da recusa...",
+      "notifyPatient": "Notificar o paciente",
+      "confirm": "Confirmar recusa",
+      "rejected": "Consulta recusada",
+      "error": "Erro ao recusar consulta"
+    },
+    "cancellation": {
+      "title": "Cancelar consulta",
+      "description": "Esta ação é irreversível. A consulta será marcada como cancelada.",
+      "reason": "Motivo do cancelamento",
+      "reasonPlaceholder": "Selecione um motivo",
+      "reasons": {
+        "professional_unavailable": "Indisponibilidade do profissional",
+        "patient_request": "Pedido do paciente",
+        "duplicate": "Duplicado / erro de agendamento",
+        "other": "Outro"
+      },
+      "otherReason": "Especifique o motivo",
+      "otherReasonPlaceholder": "Motivo do cancelamento...",
+      "notifyPatient": "Notificar o paciente",
+      "confirm": "Confirmar cancelamento",
+      "cancelled": "Consulta cancelada",
+      "error": "Erro ao cancelar consulta"
+    }
   },
   "patients": {
     "title": "Pacientes",
@@ -793,7 +840,14 @@
     "notificationChannels": "Canais de Notificação",
     "notificationChannelsDesc": "Como pretende receber notificações",
     "active": "Ativo",
-    "inactive": "Inativo"
+    "inactive": "Inativo",
+    "appearance": "Aparência",
+    "appearanceDesc": "Personalize a aparência da interface",
+    "theme": "Tema",
+    "themeDesc": "Escolha entre modo claro e escuro",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema"
   },
   "support": {
     "title": "Suporte",

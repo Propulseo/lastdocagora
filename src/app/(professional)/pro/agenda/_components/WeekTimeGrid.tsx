@@ -223,6 +223,12 @@ export function WeekTimeGrid({
         onMarkAttendance={attendance.handleMarkAttendance}
         onStatusChange={attendance.handleStatusChange}
         isUpdating={attendance.isUpdating}
+        showCancelDialog={attendance.showCancelDialog}
+        onShowCancelDialog={attendance.setShowCancelDialog}
+        onCancelAppointment={attendance.handleCancelAppointment}
+        showRejectDialog={attendance.showRejectDialog}
+        onShowRejectDialog={attendance.setShowRejectDialog}
+        onRejectAppointment={attendance.handleRejectAppointment}
       />
     </>
   );

@@ -18,6 +18,7 @@ const statusVariant: Record<
   pending: "secondary",
   completed: "outline",
   cancelled: "destructive",
+  rejected: "destructive",
   "no-show": "destructive",
   no_show: "destructive",
 };
@@ -38,6 +39,7 @@ export function MonthDayDetailDialog({
     pending: t.common.status.pending,
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
+    rejected: t.common.status.rejected,
     "no-show": t.common.status.noShow,
     no_show: t.common.status.noShow,
   };
@@ -83,10 +85,6 @@ export function MonthDayDetailDialog({
               <div>
                 <p className="text-muted-foreground">{t.agenda.service}</p>
                 <p>{selected.services?.name ?? "-"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">{t.agenda.type}</p>
-                <p className="capitalize">{selected.consultation_type}</p>
               </div>
             </div>
             {selected.notes && (

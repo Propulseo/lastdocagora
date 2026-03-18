@@ -12,6 +12,8 @@ import { getProfessionalI18n } from "@/lib/i18n/pro/server";
 import { ProfessionalI18nProvider } from "@/lib/i18n/pro";
 import { ProLayoutHeaderTitle } from "./_components/pro-layout-header-title";
 import { RoleBodyClass } from "@/components/role-body-class";
+import { ProThemeToggle } from "@/components/pro-theme-toggle";
+import { ProThemeSync } from "@/components/pro-theme-sync";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -78,6 +80,7 @@ export default async function ProfessionalLayout({
   return (
     <>
       <RoleBodyClass role="role-professional" />
+      <ProThemeSync userId={user.id} />
       <ProfessionalI18nProvider translations={t} locale={locale}>
         <SidebarProvider>
           <ProSidebar user={sidebarUser} openTicketCount={unreadCount} />
@@ -86,6 +89,9 @@ export default async function ProfessionalLayout({
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
+              <div className="ml-auto">
+                <ProThemeToggle />
+              </div>
             </header>
             <main className="pro-dashboard w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}

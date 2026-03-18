@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import type { Appointment, ExternalEvent } from "../_types/agenda";
+import { toast } from "sonner";
+import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 
 type PeriodFilter = "day" | "week" | "month";
@@ -27,6 +28,8 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
   const [externalEvents, setExternalEvents] = useState<ExternalEvent[]>([]);
   const [externalEventsKey, setExternalEventsKey] = useState(0);
+  const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
+  const [availabilityKey, setAvailabilityKey] = useState(0);
 
   const handleAttendanceChange = useCallback(
     (appointmentId: string, newAttendanceStatus: string, newAppointmentStatus?: string) => {
@@ -181,6 +184,30 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     loadExternalEvents();
   }, [supabase, userId, selectedDate, periodFilter, externalEventsKey]);
 
+  // Fetch availability slots
+  useEffect(() => {
+    async function loadAvailability() {
+      if (periodFilter !== "day") {
+        setAvailabilitySlots([]);
+        return;
+      }
+
+      const d = parseLocalDate(selectedDate);
+      const dayOfWeek = d.getDay();
+
+      const { data } = await supabase
+        .from("availability")
+        .select("id, start_time, end_time, is_recurring, specific_date, day_of_week")
+        .eq("professional_id", professionalId)
+        .eq("is_blocked", false)
+        .or(`and(is_recurring.eq.true,day_of_week.eq.${dayOfWeek}),specific_date.eq.${selectedDate}`);
+
+      setAvailabilitySlots((data as AvailabilitySlot[]) ?? []);
+    }
+
+    loadAvailability();
+  }, [supabase, professionalId, selectedDate, periodFilter, availabilityKey]);
+
   // Today stats
   const todayStr = toLocalDateStr(new Date());
   const todayAppointments = useMemo(
@@ -220,6 +247,34 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     setCreateDialogOpen(true);
   }, []);
 
+  const createAvailabilitySlot = useCallback(
+    async (startTime: string, endTime: string) => {
+      const d = parseLocalDate(selectedDate);
+      const { data, error } = await supabase
+        .from("availability")
+        .insert({
+          professional_id: professionalId,
+          professional_user_id: userId,
+          day_of_week: d.getDay(),
+          start_time: startTime,
+          end_time: endTime,
+          is_recurring: false,
+          specific_date: selectedDate,
+        })
+        .select("id")
+        .single();
+
+      if (error || !data) {
+        console.error("Availability insert failed:", error);
+        toast.error(error?.message ?? t.agenda.availabilityCreateError);
+      } else {
+        toast.success(t.agenda.availabilityCreated);
+        setAvailabilityKey((k) => k + 1);
+      }
+    },
+    [supabase, professionalId, userId, selectedDate, t],
+  );
+
   return {
     t,
     selectedDate,
@@ -244,5 +299,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     refresh,
     refreshExternalEvents,
     openCreateDialog,
+    availabilitySlots,
+    createAvailabilitySlot,
   };
 }

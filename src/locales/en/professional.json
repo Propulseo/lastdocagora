@@ -33,7 +33,8 @@
       "pending": "Pending",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "noShow": "No-show"
+      "noShow": "No-show",
+      "rejected": "Rejected"
     }
   },
   "dashboard": {
@@ -183,8 +184,54 @@
       "statusAbsent": "Absent",
       "late": "Late"
     },
+    "dragActionTitle": "What would you like to do?",
+    "createPatientAppointment": "Create patient appointment",
+    "openAvailabilitySlot": "Open an availability slot",
+    "availableLabel": "Available",
+    "availabilityCreated": "Availability slot created",
+    "availabilityCreateError": "Error creating availability slot",
+    "createAppointmentHere": "Create appointment here",
     "otherSingular": "other",
-    "otherPlural": "others"
+    "otherPlural": "others",
+    "acceptAppointment": "Accept appointment",
+    "appointmentAccepted": "Appointment accepted",
+    "rejectAppointment": "Reject appointment",
+    "rejection": {
+      "title": "Reject appointment",
+      "description": "This action is irreversible. The appointment will be marked as rejected.",
+      "reason": "Rejection reason",
+      "reasonPlaceholder": "Select a reason",
+      "reasons": {
+        "schedule_conflict": "Schedule conflict",
+        "outside_scope": "Outside scope of practice",
+        "patient_unknown": "Unknown patient",
+        "other": "Other"
+      },
+      "otherReason": "Specify reason",
+      "otherReasonPlaceholder": "Reason for rejection...",
+      "notifyPatient": "Notify patient",
+      "confirm": "Confirm rejection",
+      "rejected": "Appointment rejected",
+      "error": "Error rejecting appointment"
+    },
+    "cancellation": {
+      "title": "Cancel appointment",
+      "description": "This action is irreversible. The appointment will be marked as cancelled.",
+      "reason": "Cancellation reason",
+      "reasonPlaceholder": "Select a reason",
+      "reasons": {
+        "professional_unavailable": "Professional unavailable",
+        "patient_request": "Patient request",
+        "duplicate": "Duplicate / scheduling error",
+        "other": "Other"
+      },
+      "otherReason": "Specify reason",
+      "otherReasonPlaceholder": "Reason for cancellation...",
+      "notifyPatient": "Notify patient",
+      "confirm": "Confirm cancellation",
+      "cancelled": "Appointment cancelled",
+      "error": "Error cancelling appointment"
+    }
   },
   "patients": {
     "title": "Patients",
@@ -793,7 +840,14 @@
     "notificationChannels": "Notification Channels",
     "notificationChannelsDesc": "How you would like to receive notifications",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "appearance": "Appearance",
+    "appearanceDesc": "Customise the interface appearance",
+    "theme": "Theme",
+    "themeDesc": "Choose between light and dark mode",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "support": {
     "title": "Support",

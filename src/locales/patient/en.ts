@@ -23,6 +23,7 @@ export const enPatient: PatientTranslations = {
     pending: "Pending",
     cancelled: "Cancelled",
     completed: "Completed",
+    rejected: "Rejected",
     noShow: "No Show",
   },
   dashboard: {

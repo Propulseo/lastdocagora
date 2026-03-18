@@ -39,6 +39,7 @@ export function AgendaControlBar({
     { value: "pending", label: t.common.status.pending },
     { value: "completed", label: t.common.status.completed },
     { value: "cancelled", label: t.common.status.cancelled },
+    { value: "rejected", label: t.common.status.rejected },
     { value: "no-show", label: t.common.status.noShow },
   ];
 

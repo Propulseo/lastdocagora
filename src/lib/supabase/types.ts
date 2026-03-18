@@ -237,6 +237,8 @@ export type Database = {
           appointment_time: string
           cancellation_reason: string | null
           cancelled_at: string | null
+          cancelled_by: string | null
+          cancellation_notify_patient: boolean | null
           consultation_type: string
           created_at: string | null
           created_by_user_id: string | null
@@ -253,6 +255,9 @@ export type Database = {
           professional_id: string
           professional_user_id: string
           service_id: string | null
+          rejection_reason: string | null
+          decided_at: string | null
+          decided_by: string | null
           status: string
           title: string | null
           updated_at: string | null
@@ -262,6 +267,8 @@ export type Database = {
           appointment_time: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancellation_notify_patient?: boolean | null
           consultation_type: string
           created_at?: string | null
           created_by_user_id?: string | null
@@ -278,6 +285,9 @@ export type Database = {
           professional_id: string
           professional_user_id: string
           service_id?: string | null
+          rejection_reason?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
           status?: string
           title?: string | null
           updated_at?: string | null
@@ -287,6 +297,8 @@ export type Database = {
           appointment_time?: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancellation_notify_patient?: boolean | null
           consultation_type?: string
           created_at?: string | null
           created_by_user_id?: string | null
@@ -303,6 +315,9 @@ export type Database = {
           professional_id?: string
           professional_user_id?: string
           service_id?: string | null
+          rejection_reason?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
           status?: string
           title?: string | null
           updated_at?: string | null
@@ -1242,6 +1257,7 @@ export type Database = {
           notify_new_appointments: boolean
           notify_reminders: boolean
           patient_reminders: boolean
+          theme_preference: string
           updated_at: string
           user_id: string
         }
@@ -1256,6 +1272,7 @@ export type Database = {
           notify_new_appointments?: boolean
           notify_reminders?: boolean
           patient_reminders?: boolean
+          theme_preference?: string
           updated_at?: string
           user_id: string
         }
@@ -1270,6 +1287,7 @@ export type Database = {
           notify_new_appointments?: boolean
           notify_reminders?: boolean
           patient_reminders?: boolean
+          theme_preference?: string
           updated_at?: string
           user_id?: string
         }

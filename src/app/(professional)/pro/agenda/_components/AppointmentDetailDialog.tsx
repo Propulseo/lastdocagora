@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { CancelAppointmentDialog } from "./CancelAppointmentDialog";
+import { RejectAppointmentDialog } from "./RejectAppointmentDialog";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
 
@@ -21,6 +23,7 @@ const statusVariant: Record<
   pending: "secondary",
   completed: "outline",
   cancelled: "destructive",
+  rejected: "destructive",
   "no-show": "destructive",
   no_show: "destructive",
 };
@@ -31,6 +34,12 @@ interface AppointmentDetailDialogProps {
   onMarkAttendance: (status: AttendanceStatus) => void;
   onStatusChange: (status: "confirmed" | "cancelled") => void;
   isUpdating: boolean;
+  showCancelDialog: boolean;
+  onShowCancelDialog: (show: boolean) => void;
+  onCancelAppointment: (reason: string, notifyPatient: boolean) => void;
+  showRejectDialog: boolean;
+  onShowRejectDialog: (show: boolean) => void;
+  onRejectAppointment: (reason: string, notifyPatient: boolean) => void;
 }
 
 export function AppointmentDetailDialog({
@@ -39,6 +48,12 @@ export function AppointmentDetailDialog({
   onMarkAttendance,
   onStatusChange,
   isUpdating,
+  showCancelDialog,
+  onShowCancelDialog,
+  onCancelAppointment,
+  showRejectDialog,
+  onShowRejectDialog,
+  onRejectAppointment,
 }: AppointmentDetailDialogProps) {
   const { t } = useProfessionalI18n();
 
@@ -47,6 +62,7 @@ export function AppointmentDetailDialog({
     pending: t.common.status.pending,
     completed: t.common.status.completed,
     cancelled: t.common.status.cancelled,
+    rejected: t.common.status.rejected,
     "no-show": t.common.status.noShow,
     no_show: t.common.status.noShow,
   };
@@ -56,6 +72,8 @@ export function AppointmentDetailDialog({
   const canMark =
     selected &&
     selected.status !== "cancelled" &&
+    selected.status !== "rejected" &&
+    selected.status !== "pending" &&
     selected.status !== "no-show" &&
     selected.status !== "no_show";
 
@@ -127,10 +145,6 @@ export function AppointmentDetailDialog({
                 <p className="text-muted-foreground">{t.agenda.service}</p>
                 <p>{selected.services?.name ?? "-"}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">{t.agenda.type}</p>
-                <p className="capitalize">{selected.consultation_type}</p>
-              </div>
             </div>
             {selected.notes && (
               <div className="text-sm">
@@ -139,32 +153,44 @@ export function AppointmentDetailDialog({
               </div>
             )}
 
-            {/* ── Confirm / Cancel actions ── */}
-            {(canConfirm || canCancel) && (
+            {/* ── Accept / Reject actions (pending) ── */}
+            {canConfirm && (
               <div className="flex gap-2 border-t pt-4">
-                {canConfirm && (
-                  <Button
-                    size="sm"
-                    className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                    disabled={isUpdating}
-                    onClick={() => onStatusChange("confirmed")}
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    {t.common.status.confirmed}
-                  </Button>
-                )}
-                {canCancel && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex-1 gap-1.5"
-                    disabled={isUpdating}
-                    onClick={() => onStatusChange("cancelled")}
-                  >
-                    <XCircle className="h-4 w-4" />
-                    {t.common.status.cancelled}
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                  disabled={isUpdating}
+                  onClick={() => onStatusChange("confirmed")}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  {t.agenda.acceptAppointment}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex-1 gap-1.5"
+                  disabled={isUpdating}
+                  onClick={() => onShowRejectDialog(true)}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {t.agenda.rejectAppointment}
+                </Button>
+              </div>
+            )}
+
+            {/* ── Cancel action (confirmed) ── */}
+            {!canConfirm && canCancel && (
+              <div className="flex gap-2 border-t pt-4">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex-1 gap-1.5"
+                  disabled={isUpdating}
+                  onClick={() => onShowCancelDialog(true)}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {t.agenda.cancellation.title}
+                </Button>
               </div>
             )}
 
@@ -197,6 +223,20 @@ export function AppointmentDetailDialog({
             )}
           </div>
         )}
+
+        <CancelAppointmentDialog
+          open={showCancelDialog}
+          onOpenChange={onShowCancelDialog}
+          onConfirm={onCancelAppointment}
+          isUpdating={isUpdating}
+        />
+
+        <RejectAppointmentDialog
+          open={showRejectDialog}
+          onOpenChange={onShowRejectDialog}
+          onConfirm={onRejectAppointment}
+          isUpdating={isUpdating}
+        />
       </DialogContent>
     </Dialog>
   );

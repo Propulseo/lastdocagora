@@ -5,6 +5,7 @@ export type AppointmentStatus =
   | "pending"
   | "completed"
   | "cancelled"
+  | "rejected"
   | "no-show";
 
 export type VerificationStatus = "pending" | "verified" | "rejected";

@@ -63,10 +63,12 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         <DayTimeGrid
           appointments={agenda.appointments}
           externalEvents={agenda.externalEvents}
+          availabilitySlots={agenda.availabilitySlots}
           loading={agenda.loading}
           selectedDate={agenda.selectedDate}
           onAttendanceChange={agenda.handleAttendanceChange}
           onCreateAppointment={agenda.openCreateDialog}
+          onCreateAvailability={agenda.createAvailabilitySlot}
         />
       )}
 

@@ -56,6 +56,7 @@ const DEFAULT_LABELS: Record<string, Record<string, string>> = {
     confirmed: "Confirmada",
     completed: "Concluída",
     cancelled: "Cancelada",
+    rejected: "Recusada",
     no_show: "Falta",
   },
   ticket: {

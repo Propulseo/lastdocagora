@@ -33,7 +33,8 @@
       "pending": "En attente",
       "completed": "Terminé",
       "cancelled": "Annulé",
-      "noShow": "Absent"
+      "noShow": "Absent",
+      "rejected": "Refusé"
     }
   },
   "dashboard": {
@@ -183,8 +184,54 @@
       "statusAbsent": "Absent",
       "late": "En retard"
     },
+    "dragActionTitle": "Que souhaitez-vous faire ?",
+    "createPatientAppointment": "Créer un RDV patient",
+    "openAvailabilitySlot": "Ouvrir un créneau disponible",
+    "availableLabel": "Disponible",
+    "availabilityCreated": "Créneau de disponibilité créé",
+    "availabilityCreateError": "Erreur lors de la création du créneau",
+    "createAppointmentHere": "Créer un RDV ici",
     "otherSingular": "autre",
-    "otherPlural": "autres"
+    "otherPlural": "autres",
+    "acceptAppointment": "Accepter le RDV",
+    "appointmentAccepted": "RDV accepté",
+    "rejectAppointment": "Refuser le RDV",
+    "rejection": {
+      "title": "Refuser la consultation",
+      "description": "Cette action est irréversible. La consultation sera marquée comme refusée.",
+      "reason": "Motif du refus",
+      "reasonPlaceholder": "Sélectionnez un motif",
+      "reasons": {
+        "schedule_conflict": "Conflit d'horaire",
+        "outside_scope": "Hors champ de compétence",
+        "patient_unknown": "Patient inconnu",
+        "other": "Autre"
+      },
+      "otherReason": "Précisez le motif",
+      "otherReasonPlaceholder": "Motif du refus...",
+      "notifyPatient": "Notifier le patient",
+      "confirm": "Confirmer le refus",
+      "rejected": "Consultation refusée",
+      "error": "Erreur lors du refus"
+    },
+    "cancellation": {
+      "title": "Annuler la consultation",
+      "description": "Cette action est irréversible. La consultation sera marquée comme annulée.",
+      "reason": "Motif d'annulation",
+      "reasonPlaceholder": "Sélectionnez un motif",
+      "reasons": {
+        "professional_unavailable": "Indisponibilité du professionnel",
+        "patient_request": "Demande du patient",
+        "duplicate": "Doublon / erreur de planification",
+        "other": "Autre"
+      },
+      "otherReason": "Précisez le motif",
+      "otherReasonPlaceholder": "Motif de l'annulation...",
+      "notifyPatient": "Notifier le patient",
+      "confirm": "Confirmer l'annulation",
+      "cancelled": "Consultation annulée",
+      "error": "Erreur lors de l'annulation"
+    }
   },
   "patients": {
     "title": "Patients",
@@ -793,7 +840,14 @@
     "notificationChannels": "Canaux de Notification",
     "notificationChannelsDesc": "Comment souhaitez-vous recevoir les notifications",
     "active": "Actif",
-    "inactive": "Inactif"
+    "inactive": "Inactif",
+    "appearance": "Apparence",
+    "appearanceDesc": "Personnalisez l'apparence de l'interface",
+    "theme": "Thème",
+    "themeDesc": "Choisissez entre le mode clair et sombre",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système"
   },
   "support": {
     "title": "Support",

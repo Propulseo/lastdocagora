@@ -96,6 +96,132 @@ export async function markAttendance(
   return { success: true, data, appointmentStatus: newAppointmentStatus };
 }
 
+/* ─── Cancel appointment with reason (pro action) ─── */
+type CancelResult =
+  | { success: true; status: string }
+  | { success: false; error: string };
+
+export async function cancelAppointment(
+  appointmentId: string,
+  reason: string,
+  notifyPatient: boolean,
+): Promise<CancelResult> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!userData) return { success: false, error: "User not found" };
+
+  const isAdmin = userData.role === "admin";
+  const isProfessional = userData.role === "professional";
+  if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("id, status, professional_user_id")
+    .eq("id", appointmentId)
+    .single();
+
+  if (!appointment) return { success: false, error: "Appointment not found" };
+  if (!isAdmin && appointment.professional_user_id !== user.id) {
+    return { success: false, error: "Not your appointment" };
+  }
+
+  if (!["pending", "confirmed"].includes(appointment.status)) {
+    return { success: false, error: `Cannot cancel from ${appointment.status}` };
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({
+      status: "cancelled",
+      cancelled_at: now,
+      cancelled_by: user.id,
+      cancellation_reason: reason,
+      cancellation_notify_patient: notifyPatient,
+      updated_at: now,
+    })
+    .eq("id", appointmentId);
+
+  if (error) return { success: false, error: error.message };
+
+  // TODO: if notifyPatient && notification infrastructure exists, trigger notification here
+
+  return { success: true, status: "cancelled" };
+}
+
+/* ─── Reject appointment (pro action) ─── */
+type RejectResult =
+  | { success: true; status: string }
+  | { success: false; error: string };
+
+export async function rejectAppointment(
+  appointmentId: string,
+  reason: string,
+  notifyPatient: boolean,
+): Promise<RejectResult> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!userData) return { success: false, error: "User not found" };
+
+  const isAdmin = userData.role === "admin";
+  const isProfessional = userData.role === "professional";
+  if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("id, status, professional_user_id")
+    .eq("id", appointmentId)
+    .single();
+
+  if (!appointment) return { success: false, error: "Appointment not found" };
+  if (!isAdmin && appointment.professional_user_id !== user.id) {
+    return { success: false, error: "Not your appointment" };
+  }
+
+  if (appointment.status !== "pending") {
+    return { success: false, error: `Cannot reject from ${appointment.status}` };
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({
+      status: "rejected",
+      rejection_reason: reason,
+      decided_at: now,
+      decided_by: user.id,
+      cancellation_notify_patient: notifyPatient,
+      updated_at: now,
+    })
+    .eq("id", appointmentId);
+
+  if (error) return { success: false, error: error.message };
+
+  // TODO: if notifyPatient && notification infrastructure exists, trigger notification here
+
+  return { success: true, status: "rejected" };
+}
+
 /* ─── Confirm / Cancel appointment (pro action) ─── */
 type UpdateStatusResult =
   | { success: true; status: string }
@@ -145,6 +271,10 @@ export async function updateAppointmentStatus(
 
   const now = new Date().toISOString();
   const updateFields: Record<string, unknown> = { status: newStatus, updated_at: now };
+  if (newStatus === "confirmed") {
+    updateFields.decided_at = now;
+    updateFields.decided_by = user.id;
+  }
   if (newStatus === "cancelled") {
     updateFields.cancelled_at = now;
   }

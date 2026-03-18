@@ -16,6 +16,7 @@ const statusColors: Record<string, string> = {
   pending: "bg-amber-500",
   scheduled: "bg-blue-500",
   cancelled: "bg-red-500",
+  rejected: "bg-rose-500",
   no_show: "bg-red-500",
 };
 
@@ -25,6 +26,7 @@ const statusBadgeVariant: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   scheduled: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   cancelled: "bg-red-500/10 text-red-400 border-red-500/20",
+  rejected: "bg-rose-500/10 text-rose-400 border-rose-500/20",
   no_show: "bg-red-500/10 text-red-400 border-red-500/20",
 };
 

@@ -112,9 +112,9 @@ export function buildTrends(
   for (const r of rows) {
     const entry = map.get(r.appointment_date);
     if (!entry) continue;
-    if (r.status !== "cancelled") entry.total++;
+    if (r.status !== "cancelled" && r.status !== "rejected") entry.total++;
     if (r.status === "no-show") entry.noShow++;
-    if (r.status === "cancelled") entry.cancelled++;
+    if (r.status === "cancelled" || r.status === "rejected") entry.cancelled++;
   }
 
   return allDates.map((date) => {
@@ -127,7 +127,7 @@ export function buildHeatmap(rows: AppointmentRow[]): HeatmapCell[] {
   const map = new Map<string, number>();
 
   for (const r of rows) {
-    if (r.status === "cancelled") continue;
+    if (r.status === "cancelled" || r.status === "rejected") continue;
     const date = new Date(r.appointment_date + "T00:00:00");
     const day = date.getDay();
     const hour = parseInt(r.appointment_time?.split(":")[0] ?? "0", 10);
@@ -150,7 +150,7 @@ export function buildServiceBreakdown(rows: AppointmentRow[]): ServiceStat[] {
   for (const r of rows) {
     const name = r.services?.name ?? "—";
     const entry = map.get(name) ?? { total: 0, noShow: 0 };
-    if (r.status !== "cancelled") entry.total++;
+    if (r.status !== "cancelled" && r.status !== "rejected") entry.total++;
     if (r.status === "no-show") entry.noShow++;
     map.set(name, entry);
   }
@@ -211,7 +211,7 @@ export function buildRevenueTrends(
 
   let total = 0;
   for (const r of rows) {
-    if (r.status === "cancelled") continue;
+    if (r.status === "cancelled" || r.status === "rejected") continue;
     const price = Number(r.price) || 0;
     total += price;
     const entry = map.get(r.appointment_date);

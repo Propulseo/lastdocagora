@@ -218,8 +218,43 @@ body.role-patient [data-sidebar="menu-button"][data-active="true"] {
   background: #e8f6f7;
 }
 
-/* ─── Professional Theme: Blue Night (full dark) ─── */
+/* ─── Professional Theme: Clean Medical Light (default) ─── */
 body.role-professional {
+  --background: oklch(0.985 0.005 255);
+  --foreground: oklch(0.195 0.025 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.195 0.025 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.195 0.025 260);
+  --primary: oklch(0.55 0.20 255);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.965 0.008 255);
+  --secondary-foreground: oklch(0.35 0.08 260);
+  --muted: oklch(0.965 0.008 255);
+  --muted-foreground: oklch(0.50 0.015 260);
+  --accent: oklch(0.955 0.015 255);
+  --accent-foreground: oklch(0.35 0.08 260);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.915 0.008 255);
+  --input: oklch(0.915 0.008 255);
+  --ring: oklch(0.55 0.20 255);
+  --chart-1: oklch(0.55 0.20 255);
+  --chart-2: oklch(0.50 0.17 170);
+  --chart-3: oklch(0.60 0.18 80);
+  --chart-4: oklch(0.45 0.20 310);
+  --chart-5: oklch(0.55 0.22 25);
+  --sidebar: oklch(0.975 0.008 255);
+  --sidebar-foreground: oklch(0.195 0.025 260);
+  --sidebar-primary: oklch(0.55 0.20 255);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.945 0.02 255);
+  --sidebar-accent-foreground: oklch(0.35 0.08 260);
+  --sidebar-border: oklch(0.915 0.008 255);
+  --sidebar-ring: oklch(0.55 0.20 255);
+}
+
+/* ─── Professional Theme: Blue Night (dark mode) ─── */
+html.dark body.role-professional {
   --background: oklch(0.155 0.025 260);
   --foreground: oklch(1 0 0);
   --card: oklch(0.21 0.03 265);
@@ -265,6 +300,10 @@ body.role-professional {
 /* ─── Pro Dashboard: scoped card styling ─── */
 .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
   border-radius: 10px;
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
   border-color: oklch(1 0 0 / 6%);
   box-shadow: none;
 }

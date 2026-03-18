@@ -6,13 +6,13 @@ import { AppointmentsClient } from "./_components/AppointmentsClient"
 type Appointment = {
   id: string; appointment_date: string; appointment_time: string
   status: string; consultation_type: string; duration_minutes: number | null
-  notes: string | null; cancellation_reason: string | null
+  notes: string | null; cancellation_reason: string | null; rejection_reason: string | null
   professional_id: string; professional_user_id: string
   professionals: { specialty: string | null; users: { first_name: string | null; last_name: string | null } | null } | null
   services: { name: string | null } | null
 }
 
-const selectFields = `id, appointment_date, appointment_time, status, consultation_type, duration_minutes, notes, cancellation_reason, professional_id, professional_user_id, professionals!appointments_professional_id_fkey ( specialty, users!professionals_user_id_fkey ( first_name, last_name ) ), services ( name )`
+const selectFields = `id, appointment_date, appointment_time, status, consultation_type, duration_minutes, notes, cancellation_reason, rejection_reason, professional_id, professional_user_id, professionals!appointments_professional_id_fkey ( specialty, users!professionals_user_id_fkey ( first_name, last_name ) ), services ( name )`
 
 export default async function AppointmentsPage() {
   const user = await getCurrentUser()
@@ -41,8 +41,8 @@ export default async function AppointmentsPage() {
       .from("appointments")
       .select(selectFields)
       .eq("patient_user_id", user.id)
-      .eq("status", "cancelled")
-      .order("cancelled_at", { ascending: false, nullsFirst: false })
+      .in("status", ["cancelled", "rejected"])
+      .order("updated_at", { ascending: false, nullsFirst: false })
       .limit(20),
   ])
 

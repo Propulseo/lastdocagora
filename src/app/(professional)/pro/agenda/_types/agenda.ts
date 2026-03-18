@@ -17,6 +17,15 @@ export type Appointment = {
   } | null;
 };
 
+export type AvailabilitySlot = {
+  id: string;
+  start_time: string;
+  end_time: string;
+  is_recurring: boolean;
+  specific_date: string | null;
+  day_of_week: number;
+};
+
 export type ExternalEvent = {
   id: string;
   title: string;

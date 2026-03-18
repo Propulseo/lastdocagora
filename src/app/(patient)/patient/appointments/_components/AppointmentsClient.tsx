@@ -29,6 +29,7 @@ type Appointment = {
   duration_minutes: number | null
   notes: string | null
   cancellation_reason: string | null
+  rejection_reason: string | null
   professional_id: string
   professional_user_id: string
   professionals: {
@@ -186,6 +187,7 @@ function AppointmentCard({
     pending: t.status.pending,
     cancelled: t.status.cancelled,
     completed: t.status.completed,
+    rejected: t.status.rejected,
     no_show: t.status.noShow,
   }
 
@@ -258,6 +260,13 @@ function AppointmentCard({
           {t.appointments.reason.replace("{reason}", appt.cancellation_reason)}
         </p>
       )}
+
+      {/* Rejection reason */}
+      {appt.rejection_reason && (
+        <p className="mt-2 pl-[52px] text-xs italic text-muted-foreground">
+          {t.appointments.reason.replace("{reason}", appt.rejection_reason)}
+        </p>
+      )}
     </div>
   )
 }
@@ -274,6 +283,7 @@ function StatusPill({
     pending: "bg-amber-50 text-amber-700",
     completed: "bg-gray-100 text-gray-600",
     cancelled: "bg-red-50 text-red-600",
+    rejected: "bg-rose-50 text-rose-600",
     no_show: "bg-red-50 text-red-600",
   }
 

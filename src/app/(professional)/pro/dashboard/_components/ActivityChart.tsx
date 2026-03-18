@@ -106,7 +106,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
             <span
               className={cn(
                 "inline-flex items-center gap-0.5 font-medium",
-                weekDelta > 0 ? "text-emerald-400" : "text-red-400"
+                weekDelta > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
               )}
             >
               {weekDelta > 0 ? (
