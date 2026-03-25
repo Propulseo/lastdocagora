@@ -4,12 +4,17 @@ import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 
+type SyncTarget = "professional_settings" | "patient_settings";
+
 /**
- * Syncs the next-themes preference with the professional_settings table.
+ * Syncs the next-themes preference with a role-specific settings table.
  * - On mount: reads DB preference and applies it (DB is source of truth)
  * - On change: writes to DB in background
  */
-export function useSyncTheme(userId: string | undefined) {
+export function useSyncTheme(
+  userId: string | undefined | null,
+  target: SyncTarget = "professional_settings"
+) {
   const { theme, setTheme } = useTheme();
   const hasSynced = useRef(false);
 
@@ -20,7 +25,7 @@ export function useSyncTheme(userId: string | undefined) {
 
     const supabase = createClient();
     supabase
-      .from("professional_settings")
+      .from(target)
       .select("theme_preference")
       .eq("user_id", userId)
       .single()
@@ -29,7 +34,7 @@ export function useSyncTheme(userId: string | undefined) {
           setTheme(data.theme_preference);
         }
       });
-  }, [userId, setTheme]);
+  }, [userId, target, setTheme]);
 
   // On theme change: persist to DB
   useEffect(() => {
@@ -37,11 +42,11 @@ export function useSyncTheme(userId: string | undefined) {
 
     const supabase = createClient();
     supabase
-      .from("professional_settings")
+      .from(target)
       .update({ theme_preference: theme })
       .eq("user_id", userId)
       .then(() => {
         // silent — localStorage is the fast path
       });
-  }, [userId, theme]);
+  }, [userId, theme, target]);
 }
