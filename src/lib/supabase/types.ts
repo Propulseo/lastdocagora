@@ -235,15 +235,17 @@ export type Database = {
         Row: {
           appointment_date: string
           appointment_time: string
+          cancellation_notify_patient: boolean | null
           cancellation_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
-          cancellation_notify_patient: boolean | null
           consultation_type: string
           created_at: string | null
           created_by_user_id: string | null
           created_via: string
           date_time: string | null
+          decided_at: string | null
+          decided_by: string | null
           duration_minutes: number
           id: string
           location: string | null
@@ -254,10 +256,8 @@ export type Database = {
           price: number | null
           professional_id: string
           professional_user_id: string
-          service_id: string | null
           rejection_reason: string | null
-          decided_at: string | null
-          decided_by: string | null
+          service_id: string | null
           status: string
           title: string | null
           updated_at: string | null
@@ -265,15 +265,17 @@ export type Database = {
         Insert: {
           appointment_date: string
           appointment_time: string
+          cancellation_notify_patient?: boolean | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
-          cancellation_notify_patient?: boolean | null
           consultation_type: string
           created_at?: string | null
           created_by_user_id?: string | null
           created_via?: string
           date_time?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
           duration_minutes: number
           id?: string
           location?: string | null
@@ -284,10 +286,8 @@ export type Database = {
           price?: number | null
           professional_id: string
           professional_user_id: string
-          service_id?: string | null
           rejection_reason?: string | null
-          decided_at?: string | null
-          decided_by?: string | null
+          service_id?: string | null
           status?: string
           title?: string | null
           updated_at?: string | null
@@ -295,15 +295,17 @@ export type Database = {
         Update: {
           appointment_date?: string
           appointment_time?: string
+          cancellation_notify_patient?: boolean | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
-          cancellation_notify_patient?: boolean | null
           consultation_type?: string
           created_at?: string | null
           created_by_user_id?: string | null
           created_via?: string
           date_time?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
           duration_minutes?: number
           id?: string
           location?: string | null
@@ -314,18 +316,30 @@ export type Database = {
           price?: number | null
           professional_id?: string
           professional_user_id?: string
-          service_id?: string | null
           rejection_reason?: string | null
-          decided_at?: string | null
-          decided_by?: string | null
+          service_id?: string | null
           status?: string
           title?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "appointments_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_created_by_user_id_fkey"
             columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_decided_by_fkey"
+            columns: ["decided_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -1022,6 +1036,7 @@ export type Database = {
           public_profile: boolean
           reminder_frequency: string
           sms_notifications: boolean
+          theme_preference: string
           timezone: string
           updated_at: string
           user_id: string
@@ -1037,6 +1052,7 @@ export type Database = {
           public_profile?: boolean
           reminder_frequency?: string
           sms_notifications?: boolean
+          theme_preference?: string
           timezone?: string
           updated_at?: string
           user_id: string
@@ -1052,6 +1068,7 @@ export type Database = {
           public_profile?: boolean
           reminder_frequency?: string
           sms_notifications?: boolean
+          theme_preference?: string
           timezone?: string
           updated_at?: string
           user_id?: string
@@ -1305,7 +1322,9 @@ export type Database = {
           id: string
           insurances_accepted: string[] | null
           languages_spoken: string[] | null
+          latitude: number | null
           license_verified: boolean | null
+          longitude: number | null
           neighborhood: string | null
           office_hours: Json | null
           onboarding_completed: boolean | null
@@ -1335,7 +1354,9 @@ export type Database = {
           id?: string
           insurances_accepted?: string[] | null
           languages_spoken?: string[] | null
+          latitude?: number | null
           license_verified?: boolean | null
+          longitude?: number | null
           neighborhood?: string | null
           office_hours?: Json | null
           onboarding_completed?: boolean | null
@@ -1365,7 +1386,9 @@ export type Database = {
           id?: string
           insurances_accepted?: string[] | null
           languages_spoken?: string[] | null
+          latitude?: number | null
           license_verified?: boolean | null
+          longitude?: number | null
           neighborhood?: string | null
           office_hours?: Json | null
           onboarding_completed?: boolean | null
