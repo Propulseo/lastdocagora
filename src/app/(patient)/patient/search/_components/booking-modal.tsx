@@ -6,12 +6,12 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { format, getDay } from "date-fns"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogDescription,
+} from "@/components/shared/responsive-dialog"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
@@ -108,7 +108,11 @@ export function BookingModal({
 
     getBookingData(professionalId).then((result) => {
       if (!result.success) {
-        setLoadError(result.error)
+        if (result.error === "self_booking_not_allowed") {
+          setLoadError(t.booking.selfBookingError)
+        } else {
+          setLoadError(result.error)
+        }
         return
       }
 
@@ -126,7 +130,7 @@ export function BookingModal({
         setStep("service")
       }
     })
-  }, [open, professionalId])
+  }, [open, professionalId, t.booking.selfBookingError])
 
   const availableDays = new Set(availability.map((a) => a.day_of_week))
 
@@ -204,10 +208,10 @@ export function BookingModal({
   const { morning, afternoon } = groupSlotsByPeriod(slots)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 gap-0 overflow-hidden">
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 gap-0 overflow-hidden">
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <ResponsiveDialogHeader className="px-6 pt-6 pb-4 border-b">
           <div className="flex items-center gap-3">
             {step !== "loading" && step !== "service" && (
               <Button
@@ -223,16 +227,16 @@ export function BookingModal({
               </Button>
             )}
             <div className="min-w-0">
-              <DialogTitle className="truncate">{professionalName}</DialogTitle>
-              <DialogDescription className="truncate">
+              <ResponsiveDialogTitle className="truncate">{professionalName}</ResponsiveDialogTitle>
+              <ResponsiveDialogDescription className="truncate">
                 {professionalSpecialty}
                 {selectedService && step !== "service" && (
                   <> &middot; {selectedService.name}</>
                 )}
-              </DialogDescription>
+              </ResponsiveDialogDescription>
             </div>
           </div>
-        </DialogHeader>
+        </ResponsiveDialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-100px)]">
           <div className="px-6 py-5">
@@ -350,7 +354,7 @@ export function BookingModal({
                               <Sun className="size-3" />
                               <span>{t.booking.morning}</span>
                             </div>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                               {morning.map((slot) => {
                                 const time = slot.slot_start.slice(0, 5)
                                 return (
@@ -359,7 +363,7 @@ export function BookingModal({
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    className="rounded-lg font-mono text-sm hover:bg-primary hover:text-primary-foreground"
+                                    className="min-h-[44px] rounded-lg font-mono text-sm hover:bg-primary hover:text-primary-foreground"
                                     onClick={() => handleSlotSelect(time)}
                                   >
                                     {time}
@@ -375,7 +379,7 @@ export function BookingModal({
                               <Sunset className="size-3" />
                               <span>{t.booking.afternoon}</span>
                             </div>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                               {afternoon.map((slot) => {
                                 const time = slot.slot_start.slice(0, 5)
                                 return (
@@ -384,7 +388,7 @@ export function BookingModal({
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    className="rounded-lg font-mono text-sm hover:bg-primary hover:text-primary-foreground"
+                                    className="min-h-[44px] rounded-lg font-mono text-sm hover:bg-primary hover:text-primary-foreground"
                                     onClick={() => handleSlotSelect(time)}
                                   >
                                     {time}
@@ -453,7 +457,7 @@ export function BookingModal({
             )}
           </div>
         </ScrollArea>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

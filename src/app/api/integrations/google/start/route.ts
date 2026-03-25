@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCalendarConfig } from "@/lib/calendar/config";
 import crypto from "crypto";
@@ -9,14 +9,20 @@ const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
 ];
 
-export async function GET() {
+function agendaRedirect(request: NextRequest, param: string) {
+  const url = new URL("/pro/agenda", request.url);
+  url.searchParams.set("calendar_error", param);
+  return NextResponse.redirect(url);
+}
+
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return agendaRedirect(request, "not_authenticated");
   }
 
   // Verify user is a professional
@@ -27,18 +33,12 @@ export async function GET() {
     .single();
 
   if (!professional) {
-    return NextResponse.json(
-      { error: "Only professionals can connect calendars" },
-      { status: 403 }
-    );
+    return agendaRedirect(request, "not_professional");
   }
 
   const config = await getCalendarConfig();
   if (!config) {
-    return NextResponse.json(
-      { error: "Google Calendar not configured. Ask admin to set credentials in Settings." },
-      { status: 500 }
-    );
+    return agendaRedirect(request, "not_configured");
   }
 
   const redirectUri = `${config.appUrl}/api/integrations/google/callback`;

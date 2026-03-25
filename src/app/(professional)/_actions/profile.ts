@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
+import { geocodeAddress } from "@/app/_actions/geocode";
 
 // ---------------------------------------------------------------------------
 // Schemas per section
@@ -47,7 +48,7 @@ const updateProfileSchema = z.discriminatedUnion("section", [
 ]);
 
 type ActionResult =
-  | { success: true }
+  | { success: true; geocoded?: boolean }
   | { success: false; error: string };
 
 // ---------------------------------------------------------------------------
@@ -114,16 +115,31 @@ export async function updateProfile(
   }
 
   if (data.section === "location") {
+    const updatePayload: Record<string, unknown> = {
+      address: data.address || null,
+      city: data.city || null,
+      postal_code: data.postal_code || null,
+    };
+
+    let geocoded = false;
+    if (data.address || data.city) {
+      const coords = await geocodeAddress(data.address, data.city, data.postal_code);
+      if (coords) {
+        updatePayload.latitude = coords.latitude;
+        updatePayload.longitude = coords.longitude;
+        geocoded = true;
+      }
+    }
+
     const { error } = await supabase
       .from("professionals")
-      .update({
-        address: data.address || null,
-        city: data.city || null,
-        postal_code: data.postal_code || null,
-      })
+      .update(updatePayload)
       .eq("id", pro.id);
 
     if (error) return { success: false, error: error.message };
+
+    revalidatePath("/pro/profile");
+    return { success: true, geocoded };
   }
 
   if (data.section === "languages") {

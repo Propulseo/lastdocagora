@@ -6,7 +6,7 @@ import { frPatient } from "./fr"
 import { enPatient } from "./en"
 
 export type Locale = "pt" | "fr" | "en"
-export const DEFAULT_LOCALE: Locale = "fr"
+export const DEFAULT_LOCALE: Locale = "pt"
 export const LOCALE_COOKIE = "docagora_lang"
 
 const translations: Record<Locale, PatientTranslations> = {

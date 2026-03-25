@@ -290,7 +290,7 @@ async function queryProfessionals(
       `id, specialty, subspecialties, city, neighborhood, address, postal_code,
        cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
        third_party_payment, years_experience, practice_type, rating, total_reviews,
-       bio, accessibility_options,
+       bio, accessibility_options, latitude, longitude,
        users ( first_name, last_name, avatar_url )`
     )
 
@@ -362,6 +362,8 @@ async function queryProfessionals(
     total_reviews: prof.total_reviews,
     bio: prof.bio,
     accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
+    latitude: prof.latitude as number | null,
+    longitude: prof.longitude as number | null,
     nextSlot: null as string | null,
     users: prof.users as {
       first_name: string | null

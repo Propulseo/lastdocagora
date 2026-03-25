@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
+import { useIsMobileLg } from "@/hooks/use-mobile-lg";
 import { useAgendaData } from "../_hooks/useAgendaData";
 import { AgendaControlBar } from "./AgendaControlBar";
 import { AttendanceStats } from "./AttendanceStats";
@@ -24,6 +26,13 @@ interface AgendaClientProps {
 
 export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const agenda = useAgendaData({ professionalId, userId });
+  const isMobile = useIsMobileLg();
+
+  useEffect(() => {
+    if (isMobile && agenda.periodFilter !== "day") {
+      agenda.setPeriodFilter("day");
+    }
+  }, [isMobile, agenda.periodFilter]);
 
   return (
     <div className="space-y-5">
@@ -92,6 +101,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
             agenda.setSelectedDate(date);
             agenda.setPeriodFilter("day");
           }}
+          onAttendanceChange={agenda.handleAttendanceChange}
         />
       )}
 
@@ -120,6 +130,14 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         onOpenChange={agenda.setCalendarDialogOpen}
         onSyncComplete={agenda.refreshExternalEvents}
       />
+
+      {/* Mobile FAB for creating appointments */}
+      <button
+        className="fixed bottom-20 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform lg:hidden"
+        onClick={() => agenda.setCreateDialogOpen(true)}
+      >
+        <Plus className="size-6" />
+      </button>
     </div>
   );
 }

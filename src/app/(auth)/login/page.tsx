@@ -74,7 +74,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold">DOCAGORA</CardTitle>
           <CardDescription>Inicie sessão na sua conta</CardDescription>
         </CardHeader>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} noValidate>
           <CardContent className="space-y-4">
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">

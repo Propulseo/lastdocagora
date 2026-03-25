@@ -47,7 +47,7 @@ interface AppointmentsClientProps {
 }
 
 const tabTriggerClass =
-  "data-[state=active]:text-[#3da4ab] after:bg-[#3da4ab] gap-2"
+  "data-[state=active]:text-[#3da4ab] after:bg-[#3da4ab] gap-2 min-h-[44px]"
 
 export function AppointmentsClient({
   upcoming,
@@ -198,7 +198,7 @@ function AppointmentCard({
         borderColors[type]
       )}
     >
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         {/* Left: avatar + professional info */}
         <div className="flex min-w-0 items-center gap-3">
           <div
@@ -221,9 +221,9 @@ function AppointmentCard({
           </div>
         </div>
 
-        {/* Right: date/time + actions */}
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="text-right">
+        {/* Bottom on mobile / Right on desktop: date/time + actions */}
+        <div className="flex items-center justify-between gap-3 pl-[52px] lg:shrink-0 lg:pl-0">
+          <div className="lg:text-right">
             <p className="text-sm font-medium">
               {format(new Date(appt.appointment_date), t.appointments.dateFormat, {
                 locale: dateLocale,

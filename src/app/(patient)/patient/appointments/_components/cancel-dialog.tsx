@@ -6,14 +6,14 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from "@/components/shared/responsive-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, X } from "lucide-react"
@@ -59,21 +59,21 @@ export function CancelDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-destructive">
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="min-h-[44px] text-destructive">
           <X className="size-4" />
           {t.cancelDialog.trigger}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t.cancelDialog.title}</DialogTitle>
-          <DialogDescription>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{t.cancelDialog.title}</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             {t.cancelDialog.description.replace("{name}", professionalName)}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-2">
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
+        <div className="space-y-2 px-4 lg:px-0">
           <Label htmlFor="cancel-reason">{t.cancelDialog.reasonLabel}</Label>
           <Textarea
             id="cancel-reason"
@@ -83,9 +83,10 @@ export function CancelDialog({
             rows={3}
           />
         </div>
-        <DialogFooter>
+        <ResponsiveDialogFooter>
           <Button
             variant="outline"
+            className="min-h-[48px] w-full sm:w-auto"
             onClick={() => setOpen(false)}
             disabled={loading}
           >
@@ -93,14 +94,15 @@ export function CancelDialog({
           </Button>
           <Button
             variant="destructive"
+            className="min-h-[48px] w-full sm:w-auto"
             onClick={handleCancel}
             disabled={loading}
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
             {t.cancelDialog.confirm}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

@@ -11,8 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, UserCheck, Ban } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { updateUserStatus } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
@@ -43,21 +49,25 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function buildDuplicateSet(data: UserRow[]): Set<string> {
-  const nameMap = new Map<string, string[]>();
+/**
+ * Identifies users that share the same name across different roles.
+ * This is a valid multi-role scenario (e.g. someone is both patient and
+ * professional), NOT a duplicate account. The badge is informational.
+ */
+function buildMultiRoleSet(data: UserRow[]): Set<string> {
+  const nameMap = new Map<string, Set<string>>();
   for (const row of data) {
     const key = `${row.first_name} ${row.last_name}`.toLowerCase();
-    const roles = nameMap.get(key) ?? [];
-    roles.push(row.role);
-    nameMap.set(key, roles);
+    if (!nameMap.has(key)) nameMap.set(key, new Set());
+    nameMap.get(key)!.add(row.role);
   }
-  const duplicates = new Set<string>();
+  const multiRole = new Set<string>();
   for (const [key, roles] of nameMap) {
-    if (new Set(roles).size > 1) {
-      duplicates.add(key);
+    if (roles.size > 1) {
+      multiRole.add(key);
     }
   }
-  return duplicates;
+  return multiRole;
 }
 
 export function UsersTable({ data }: UsersTableProps) {
@@ -68,9 +78,11 @@ export function UsersTable({ data }: UsersTableProps) {
     label: string;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
-  const duplicates = buildDuplicateSet(data);
+  const multiRoleUsers = buildMultiRoleSet(data);
+  const [actionSheet, setActionSheet] = useState<UserRow | null>(null);
 
   function handleAction(userId: string, status: string, label: string) {
+    setActionSheet(null);
     setConfirm({ userId, status, label });
   }
 
@@ -97,7 +109,7 @@ export function UsersTable({ data }: UsersTableProps) {
       render: (row) => {
         const fullName = `${row.first_name} ${row.last_name}`;
         const bg = getAvatarColor(fullName);
-        const isDuplicate = duplicates.has(fullName.toLowerCase());
+        const isMultiRole = multiRoleUsers.has(fullName.toLowerCase());
         return (
           <div className="flex items-center gap-3">
             <Avatar className="size-[34px]">
@@ -115,7 +127,7 @@ export function UsersTable({ data }: UsersTableProps) {
                 <span className="text-[14px] font-semibold truncate">
                   {fullName}
                 </span>
-                {isDuplicate && (
+                {isMultiRole && (
                   <span
                     style={{
                       display: "inline-block",
@@ -123,11 +135,11 @@ export function UsersTable({ data }: UsersTableProps) {
                       padding: "2px 8px",
                       fontSize: "10px",
                       fontWeight: 600,
-                      backgroundColor: "#ffedd5",
-                      color: "#c2410c",
+                      backgroundColor: "#dbeafe",
+                      color: "#1d4ed8",
                     }}
                   >
-                    {t.users.duplicateAccount}
+                    {t.users.multiRoleAccount}
                   </span>
                 )}
               </div>
@@ -174,50 +186,144 @@ export function UsersTable({ data }: UsersTableProps) {
       header: "",
       className: "w-10",
       render: (row) => (
-        <div className="opacity-0 group-hover/row:opacity-100 transition-opacity">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" aria-label={t.common.actions}>
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {(row.status ?? "active") !== "active" && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleAction(row.id, "active", t.users.activate)
-                  }
-                >
-                  {t.users.activate}
-                </DropdownMenuItem>
-              )}
-              {(row.status ?? "active") !== "suspended" && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleAction(row.id, "suspended", t.users.suspend)
-                  }
-                  className="text-destructive"
-                >
-                  {t.users.suspend}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" aria-label={t.common.actions}>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {(row.status ?? "active") !== "active" && (
+              <DropdownMenuItem
+                onClick={() =>
+                  handleAction(row.id, "active", t.users.activate)
+                }
+              >
+                {t.users.activate}
+              </DropdownMenuItem>
+            )}
+            {(row.status ?? "active") !== "suspended" && (
+              <DropdownMenuItem
+                onClick={() =>
+                  handleAction(row.id, "suspended", t.users.suspend)
+                }
+                className="text-destructive"
+              >
+                {t.users.suspend}
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
 
   return (
     <>
-      <DataTable
-        columns={columns}
-        data={data}
-        rowKey={(row) => row.id}
-        emptyTitle={t.users.emptyTitle}
-        emptyDescription={t.common.noResultsHint}
-        variant="admin"
-      />
+      {/* Mobile card list */}
+      <div className="space-y-2 sm:hidden">
+        {data.map((row) => {
+          const fullName = `${row.first_name} ${row.last_name}`;
+          const bg = getAvatarColor(fullName);
+          return (
+            <div
+              key={row.id}
+              className="flex items-center gap-3 rounded-lg border p-3"
+            >
+              <Avatar className="size-10 shrink-0">
+                {row.avatar_url && <AvatarImage src={row.avatar_url} alt={fullName} />}
+                <AvatarFallback
+                  style={{ backgroundColor: bg, color: "white" }}
+                  className="text-[13px] font-semibold"
+                >
+                  {row.first_name?.[0] ?? ""}
+                  {row.last_name?.[0] ?? ""}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold truncate">{fullName}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {row.email}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <StatusBadge
+                  type="role"
+                  value={row.role}
+                  labels={t.statuses.role}
+                />
+                <StatusBadge
+                  type="userStatus"
+                  value={row.status ?? "active"}
+                  labels={t.statuses.userStatus}
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-[44px] min-w-[44px] shrink-0"
+                onClick={() => setActionSheet(row)}
+                aria-label={t.mobile.actions}
+              >
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block">
+        <DataTable
+          columns={columns}
+          data={data}
+          rowKey={(row) => row.id}
+          emptyTitle={t.users.emptyTitle}
+          emptyDescription={t.common.noResultsHint}
+          variant="admin"
+        />
+      </div>
+
+      {/* Mobile action sheet */}
+      <Sheet
+        open={!!actionSheet}
+        onOpenChange={(open) => !open && setActionSheet(null)}
+      >
+        <SheetContent side="bottom" className="pb-8">
+          <SheetHeader>
+            <SheetTitle>
+              {actionSheet
+                ? `${actionSheet.first_name} ${actionSheet.last_name}`
+                : ""}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-2 space-y-1">
+            {actionSheet && (actionSheet.status ?? "active") !== "active" && (
+              <button
+                onClick={() =>
+                  handleAction(actionSheet.id, "active", t.users.activate)
+                }
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+              >
+                <UserCheck className="size-4" />
+                {t.users.activate}
+              </button>
+            )}
+            {actionSheet && (actionSheet.status ?? "active") !== "suspended" && (
+              <button
+                onClick={() =>
+                  handleAction(actionSheet.id, "suspended", t.users.suspend)
+                }
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Ban className="size-4" />
+                {t.users.suspend}
+              </button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(open) => !open && setConfirm(null)}

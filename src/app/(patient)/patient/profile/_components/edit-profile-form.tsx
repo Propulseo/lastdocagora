@@ -9,12 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from "@/components/shared/responsive-dialog"
 import {
   Select,
   SelectContent,
@@ -22,8 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Pencil, Loader2 } from "lucide-react"
+import { Pencil, Loader2, CalendarDays } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format, parse } from "date-fns"
 import { usePatientTranslations } from "@/locales/locale-context"
 
 const LANGUAGE_OPTIONS = [
@@ -64,11 +67,14 @@ export function EditProfileForm({
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const router = useRouter()
-  const { t } = usePatientTranslations()
+  const { t, dateLocale } = usePatientTranslations()
 
   const [gender, setGender] = useState(patient?.gender ?? "")
   const [insurance, setInsurance] = useState(patient?.insurance_provider ?? "")
   const [languages, setLanguages] = useState<string[]>(patient?.languages_spoken ?? [])
+  const [birthDate, setBirthDate] = useState<Date | undefined>(
+    patient?.date_of_birth ? parse(patient.date_of_birth, "yyyy-MM-dd", new Date()) : undefined
+  )
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -126,17 +132,17 @@ export function EditProfileForm({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Pencil className="size-4" />
           {t.profile.editProfile}
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t.profile.editProfile}</DialogTitle>
-        </DialogHeader>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{t.profile.editProfile}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Personal */}
           <fieldset className="space-y-4">
@@ -151,13 +157,40 @@ export function EditProfileForm({
                 <Input id="last_name" {...register("last_name")} />
               </Field>
               <Field label={t.profile.phone} id="phone">
-                <Input id="phone" type="tel" {...register("phone")} />
+                <Input id="phone" type="tel" inputMode="tel" {...register("phone")} />
               </Field>
               <Field label={t.profile.birthDate} id="date_of_birth">
-                <Input id="date_of_birth" type="date" {...register("date_of_birth")} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarDays className="mr-2 size-4 text-muted-foreground" />
+                      {birthDate
+                        ? format(birthDate, "dd/MM/yyyy")
+                        : <span className="text-muted-foreground">{t.profile.selectPlaceholder}</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={birthDate}
+                      onSelect={(d) => {
+                        setBirthDate(d)
+                        setValue("date_of_birth", d ? format(d, "yyyy-MM-dd") : "")
+                      }}
+                      locale={dateLocale}
+                      captionLayout="dropdown"
+                      fromYear={1920}
+                      toYear={new Date().getFullYear()}
+                      disabled={(d) => d > new Date()}
+                    />
+                  </PopoverContent>
+                </Popover>
               </Field>
               <Field label={t.profile.gender} id="gender">
-                <Select value={gender} onValueChange={(v) => { setGender(v); setValue("gender", v) }}>
+                <Select value={gender || undefined} onValueChange={(v) => { setGender(v); setValue("gender", v) }}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t.profile.selectPlaceholder} />
                   </SelectTrigger>
@@ -169,7 +202,7 @@ export function EditProfileForm({
                 </Select>
               </Field>
               <Field label={t.profile.insuranceProvider} id="insurance_provider">
-                <Select value={insurance} onValueChange={(v) => setInsurance(v)}>
+                <Select value={insurance || undefined} onValueChange={(v) => setInsurance(v)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t.profile.selectPlaceholder} />
                   </SelectTrigger>
@@ -246,23 +279,24 @@ export function EditProfileForm({
             </div>
           </fieldset>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
+              className="min-h-[48px] w-full sm:w-auto"
               onClick={() => setOpen(false)}
               disabled={saving}
             >
               {t.profile.cancel}
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" className="min-h-[48px] w-full sm:w-auto" disabled={saving}>
               {saving && <Loader2 className="size-4 animate-spin" />}
               {t.profile.save}
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }
 

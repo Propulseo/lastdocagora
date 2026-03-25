@@ -22,9 +22,11 @@ ${cities.map((c) => `- ${c}`).join("\n")}
 ${neighborhoods.length > 0 ? `AVAILABLE NEIGHBORHOODS (use exact value):\n${neighborhoods.map((n) => `- ${n}`).join("\n")}` : ""}
 
 Available fields:
-- specialty: string (normalize to the closest match from the list above.
-  'clínico geral' / 'generaliste' / 'general practitioner' → use closest from list,
-  'dermatologue' / 'dermatologist' / 'dermatologista' → use closest from list,
+- specialty: string (the list above contains canonical keys. Normalize user input to the closest key.
+  'clínico geral' / 'generaliste' / 'general practitioner' → 'general_practitioner',
+  'dermatologue' / 'dermatologist' / 'dermatologista' → 'dermatology',
+  'cardiologue' / 'cardiologista' / 'cardiologist' → 'cardiology',
+  'dentiste' / 'dentista' / 'dentist' → 'dentist',
   etc.)
 - neighborhood: string (use exact value from the neighborhoods list above if available)
 - city: string (MUST use exact value from the list above — match user input to the closest city name, e.g. 'lisbonne'/'lisbon' → 'Lisboa', 'porto' → 'Porto')

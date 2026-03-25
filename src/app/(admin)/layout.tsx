@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./_components/admin-sidebar";
 import { AdminTopbar } from "./_components/admin-topbar";
+import { AdminMobileShell } from "./_components/admin-mobile-shell";
 import { RoleBodyClass } from "@/components/role-body-class";
 import { AdminI18nProvider } from "@/lib/i18n/admin/AdminI18nProvider";
 import { getAdminI18n } from "@/lib/i18n/admin/getAdminI18n";
@@ -55,15 +56,25 @@ export default async function AdminLayout({
       <RoleBodyClass role="role-admin" />
       <AdminI18nProvider translations={t} locale={locale}>
         <SidebarProvider>
-          <AdminSidebar
-            user={{
-              email: profile.email,
-              first_name: profile.first_name,
-              last_name: profile.last_name,
-            }}
-            openTicketCount={openTicketCount ?? 0}
-          />
+          <div className="hidden lg:contents">
+            <AdminSidebar
+              user={{
+                email: profile.email,
+                first_name: profile.first_name,
+                last_name: profile.last_name,
+              }}
+              openTicketCount={openTicketCount ?? 0}
+            />
+          </div>
           <SidebarInset>
+            <AdminMobileShell
+              user={{
+                email: profile.email,
+                first_name: profile.first_name,
+                last_name: profile.last_name,
+              }}
+              openTicketCount={openTicketCount ?? 0}
+            />
             <AdminTopbar />
             <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}

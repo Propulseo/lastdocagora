@@ -22,7 +22,7 @@ interface RemindersKpiStripProps {
   t: ReturnType<typeof useProfessionalI18n>["t"];
 }
 
-const cardClass = "h-24 p-4";
+const cardClass = "min-h-24 p-4";
 
 export function RemindersKpiStrip({
   kpiData,
@@ -41,7 +41,7 @@ export function RemindersKpiStrip({
   );
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="flex gap-4 overflow-x-auto flex-nowrap pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       <KPICard
         icon={Send}
         label={kpiLabels.sentThisMonth}

@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Plus } from "lucide-react";
+import { useMemo } from "react";
 import { useReminders } from "../_hooks/useReminders";
 import { RemindersKpiStrip } from "./RemindersKpiStrip";
 import { RulesCard } from "./RulesCard";
@@ -51,14 +52,23 @@ export function RemindersClient({
     kpiData,
   });
 
+  const liveKpiData = useMemo(
+    () => ({
+      ...kpiData,
+      activeRulesCount: rules.filter((r) => r.is_enabled).length,
+      totalRulesCount: rules.length,
+    }),
+    [kpiData, rules],
+  );
+
   return (
     <TooltipProvider>
       <Tabs defaultValue="reminders" className="space-y-5">
-        <TabsList>
-          <TabsTrigger value="reminders">{t.reminders.tabs.reminders}</TabsTrigger>
-          <TabsTrigger value="templates">{t.reminders.tabs.templates}</TabsTrigger>
-          <TabsTrigger value="history">{t.reminders.tabs.history}</TabsTrigger>
-          <TabsTrigger value="settings">{t.reminders.tabs.settings}</TabsTrigger>
+        <TabsList className="overflow-x-auto">
+          <TabsTrigger value="reminders" className="min-h-[44px]">{t.reminders.tabs.reminders}</TabsTrigger>
+          <TabsTrigger value="templates" className="min-h-[44px]">{t.reminders.tabs.templates}</TabsTrigger>
+          <TabsTrigger value="history" className="min-h-[44px]">{t.reminders.tabs.history}</TabsTrigger>
+          <TabsTrigger value="settings" className="min-h-[44px]">{t.reminders.tabs.settings}</TabsTrigger>
         </TabsList>
 
         {/* Reminders tab */}
@@ -77,7 +87,7 @@ export function RemindersClient({
           </div>
 
           <RemindersKpiStrip
-            kpiData={kpiData}
+            kpiData={liveKpiData}
             deliverabilityRate={deliverabilityRate}
             t={t}
           />

@@ -41,7 +41,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
   }));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="hidden sm:flex flex-col gap-4">
       {/* Weekly sparkline card */}
       <div className="rounded-xl border border-border/40 bg-card/50 p-4">
         <h3 className="text-sm font-semibold">{t.dashboard.weeklyActivity}</h3>

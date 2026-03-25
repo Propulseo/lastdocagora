@@ -4,12 +4,12 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogFooter,
+} from "@/components/shared/responsive-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -20,6 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarDays } from "lucide-react";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale/pt";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 
 interface NewAvailabilityModalProps {
@@ -43,6 +48,7 @@ export function NewAvailabilityModal({
   const [isRecurring, setIsRecurring] = useState(false);
   const [dayOfWeek, setDayOfWeek] = useState("1");
   const [specificDate, setSpecificDate] = useState("");
+  const [specificDateObj, setSpecificDateObj] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -95,14 +101,15 @@ export function NewAvailabilityModal({
     setIsRecurring(false);
     setDayOfWeek("1");
     setSpecificDate("");
+    setSpecificDateObj(undefined);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t.agenda.newAvailabilityTitle}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="p-6">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{t.agenda.newAvailabilityTitle}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4">
           <div className="flex items-center gap-3">
@@ -133,11 +140,31 @@ export function NewAvailabilityModal({
           ) : (
             <div className="space-y-2">
               <Label>{t.agenda.specificDate}</Label>
-              <Input
-                type="date"
-                value={specificDate}
-                onChange={(e) => setSpecificDate(e.target.value)}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarDays className="mr-2 size-4 text-muted-foreground" />
+                    {specificDateObj
+                      ? format(specificDateObj, "dd/MM/yyyy")
+                      : <span className="text-muted-foreground">{t.agenda.specificDate}</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={specificDateObj}
+                    onSelect={(d) => {
+                      setSpecificDateObj(d)
+                      setSpecificDate(d ? format(d, "yyyy-MM-dd") : "")
+                    }}
+                    locale={pt}
+                    disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
@@ -163,15 +190,15 @@ export function NewAvailabilityModal({
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <ResponsiveDialogFooter>
+          <Button variant="outline" className="min-h-[48px]" onClick={() => onOpenChange(false)}>
             {t.common.cancel}
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button className="min-h-[48px]" onClick={handleSave} disabled={saving}>
             {saving ? t.common.saving : t.agenda.createSlot}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

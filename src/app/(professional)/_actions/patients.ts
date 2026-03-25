@@ -351,19 +351,6 @@ export async function deletePatient(patientId: string): Promise<ActionResult> {
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  // Check if patient has appointments (prevent deletion if so)
-  const { count } = await supabase
-    .from("appointments")
-    .select("id", { count: "exact", head: true })
-    .eq("patient_id", patientId);
-
-  if (count && count > 0) {
-    return {
-      success: false,
-      error: "Cannot delete patient with existing appointments",
-    };
-  }
-
   // Get user_id before deleting patient
   const { data: patient } = await supabase
     .from("patients")
@@ -372,6 +359,13 @@ export async function deletePatient(patientId: string): Promise<ActionResult> {
     .single();
 
   if (!patient) return { success: false, error: "Patient not found" };
+
+  // Nullify patient_id on related appointments (preserve history)
+  // This is also handled by ON DELETE SET NULL FK, but explicit for clarity.
+  await supabase
+    .from("appointments")
+    .update({ patient_id: null })
+    .eq("patient_id", patientId);
 
   // Delete patient record
   const { error } = await supabase.from("patients").delete().eq("id", patientId);

@@ -117,7 +117,21 @@ export function BookingForm({
     }
   }
 
-  const canBook = selectedService && selectedDate && selectedSlot
+  const isSelfBooking = patientUserId === professionalUserId
+  const canBook = selectedService && selectedDate && selectedSlot && !isSelfBooking
+
+  if (isSelfBooking) {
+    return (
+      <Card>
+        <CardHeader><CardTitle>{t.booking.title}</CardTitle></CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {t.booking.selfBookingError}
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card>

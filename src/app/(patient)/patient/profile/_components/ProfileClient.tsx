@@ -182,7 +182,7 @@ export function ProfileClient({
 
       {/* Profile Header */}
       <Card>
-        <CardContent className="flex items-center gap-4 pt-6">
+        <CardContent className="flex flex-col items-center gap-4 pt-6 text-center sm:flex-row sm:items-center sm:text-left">
           <input
             ref={fileInputRef}
             type="file"
@@ -192,7 +192,7 @@ export function ProfileClient({
           />
           <button
             type="button"
-            className="relative group cursor-pointer rounded-full"
+            className="relative group cursor-pointer rounded-full min-h-[44px] min-w-[44px]"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             aria-label={t.profile.changePhoto}
@@ -219,7 +219,7 @@ export function ProfileClient({
               {firstName} {lastName}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {patient?.email ?? profile?.email ?? userEmail}
+              {userEmail ?? profile?.email ?? patient?.email}
             </p>
             {patient?.gender && (
               <Badge variant="secondary" className="mt-1">
@@ -243,7 +243,7 @@ export function ProfileClient({
             <InfoRow
               icon={<Mail className="size-4" />}
               label={t.profile.email}
-              value={patient?.email ?? profile?.email ?? "-"}
+              value={userEmail ?? profile?.email ?? patient?.email ?? "-"}
             />
             <InfoRow
               icon={<Phone className="size-4" />}

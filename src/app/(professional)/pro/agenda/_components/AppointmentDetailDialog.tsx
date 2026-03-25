@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/shared/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, UserCheck, UserMinus, UserX } from "lucide-react";
@@ -104,11 +104,11 @@ export function AppointmentDetailDialog({
   ];
 
   return (
-    <Dialog open={!!selected} onOpenChange={() => onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t.agenda.appointmentDetails}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveDialog open={!!selected} onOpenChange={() => onClose()}>
+      <ResponsiveDialogContent className="p-6">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{t.agenda.appointmentDetails}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         {selected && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -158,7 +158,7 @@ export function AppointmentDetailDialog({
               <div className="flex gap-2 border-t pt-4">
                 <Button
                   size="sm"
-                  className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 gap-1.5 min-h-[48px] bg-green-600 hover:bg-green-700 text-white"
                   disabled={isUpdating}
                   onClick={() => onStatusChange("confirmed")}
                 >
@@ -168,7 +168,7 @@ export function AppointmentDetailDialog({
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="flex-1 gap-1.5"
+                  className="flex-1 gap-1.5 min-h-[48px]"
                   disabled={isUpdating}
                   onClick={() => onShowRejectDialog(true)}
                 >
@@ -184,7 +184,7 @@ export function AppointmentDetailDialog({
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="flex-1 gap-1.5"
+                  className="flex-1 gap-1.5 min-h-[48px]"
                   disabled={isUpdating}
                   onClick={() => onShowCancelDialog(true)}
                 >
@@ -209,7 +209,7 @@ export function AppointmentDetailDialog({
                         key={action.status}
                         variant={isActive ? "default" : "outline"}
                         size="sm"
-                        className={`flex-1 gap-1.5 ${isActive ? action.activeClass : ""}`}
+                        className={`flex-1 gap-1.5 min-h-[48px] ${isActive ? action.activeClass : ""}`}
                         disabled={isUpdating}
                         onClick={() => onMarkAttendance(action.status)}
                       >
@@ -237,7 +237,7 @@ export function AppointmentDetailDialog({
           onConfirm={onRejectAppointment}
           isUpdating={isUpdating}
         />
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

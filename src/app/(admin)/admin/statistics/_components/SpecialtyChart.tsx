@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { translateSpecialty } from "@/locales/patient/specialties";
 import type { SpecialtyCount } from "../_lib/types";
 
 const GRADIENT_COLORS = [
@@ -14,8 +15,14 @@ const GRADIENT_COLORS = [
 ];
 
 export function SpecialtyChart({ data }: { data: SpecialtyCount[] }) {
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
   const s = t.statistics;
+
+  // Translate specialty keys for display
+  const translatedData = data.map((d) => ({
+    ...d,
+    specialty: translateSpecialty(d.specialty, locale) ?? d.specialty,
+  }));
 
   return (
     <Card>
@@ -26,10 +33,10 @@ export function SpecialtyChart({ data }: { data: SpecialtyCount[] }) {
         {data.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{s.noData}</p>
         ) : (
-          <div style={{ height: Math.max(200, data.length * 36) }}>
+          <div style={{ height: Math.max(200, translatedData.length * 36) }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={data} layout="vertical"
+                data={translatedData} layout="vertical"
                 margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} horizontal={false} />

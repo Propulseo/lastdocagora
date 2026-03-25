@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/shared/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useReminderForm } from "../_hooks/useReminderForm";
@@ -45,19 +45,19 @@ function ReminderForm({
   });
 
   return (
-    <DialogContent className="sm:max-w-md">
-      <DialogHeader>
-        <DialogTitle>
+    <ResponsiveDialogContent className="sm:max-w-md">
+      <ResponsiveDialogHeader>
+        <ResponsiveDialogTitle>
           {editRule
             ? form.t.reminders.dialog.editTitle
             : form.t.reminders.dialog.newTitle}
-        </DialogTitle>
-        <DialogDescription>
+        </ResponsiveDialogTitle>
+        <ResponsiveDialogDescription>
           {editRule
             ? form.t.reminders.dialog.editTitle
             : form.t.reminders.dialog.newTitle}
-        </DialogDescription>
-      </DialogHeader>
+        </ResponsiveDialogDescription>
+      </ResponsiveDialogHeader>
 
       <ReminderFormFields
         type={form.type}
@@ -80,7 +80,7 @@ function ReminderForm({
         t={form.t}
       />
 
-      <DialogFooter
+      <ResponsiveDialogFooter
         className={editRule ? "sm:justify-between" : "sm:justify-end"}
       >
         {editRule && (
@@ -138,8 +138,8 @@ function ReminderForm({
                 : form.t.reminders.dialog.create}
           </Button>
         </div>
-      </DialogFooter>
-    </DialogContent>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
   );
 }
 
@@ -151,7 +151,7 @@ export function NewReminderDialog({
   const formKey = `${formProps.editRule?.id ?? "new"}-${String(open)}`;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       {open && (
         <ReminderForm
           key={formKey}
@@ -159,6 +159,6 @@ export function NewReminderDialog({
           {...formProps}
         />
       )}
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

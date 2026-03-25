@@ -11,8 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal, X } from "lucide-react";
+import { Eye, MoreHorizontal, X as XIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { cancelAppointment } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
@@ -61,21 +67,23 @@ function KpiStrip({ counts, t }: { counts: StatusCounts; t: Record<string, strin
   ];
 
   return (
-    <div className="flex items-center h-12 gap-6 px-4 rounded-lg border bg-[#f9fafb]">
-      {items.map((item, i) => (
-        <div key={item.label} className="flex items-center gap-2">
-          {i > 0 && <div className="w-px h-5 bg-[#e5e7eb]" />}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[13px] text-[#6b7280]">{item.label}</span>
-            <span
-              className="text-[15px] font-semibold"
-              style={{ color: item.color }}
-            >
-              {item.value}
-            </span>
+    <div className="flex items-center h-12 gap-6 px-4 rounded-lg border bg-[#f9fafb] overflow-x-auto">
+      <div className="flex items-center gap-6 flex-nowrap min-w-max">
+        {items.map((item, i) => (
+          <div key={item.label} className="flex items-center gap-2">
+            {i > 0 && <div className="w-px h-5 bg-[#e5e7eb]" />}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px] text-[#6b7280] whitespace-nowrap">{item.label}</span>
+              <span
+                className="text-[15px] font-semibold"
+                style={{ color: item.color }}
+              >
+                {item.value}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -85,8 +93,16 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [actionSheet, setActionSheet] = useState<AppointmentRow | null>(null);
 
-  function handleCancel() {
+  function handleCancel(id?: string) {
+    const target = id ?? confirmCancel;
+    if (!target) return;
+    setActionSheet(null);
+    setConfirmCancel(target);
+  }
+
+  function executeCancel() {
     if (!confirmCancel) return;
     startTransition(async () => {
       const result = await cancelAppointment(confirmCancel);
@@ -197,7 +213,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
       header: "",
       className: "w-10",
       render: (row) => (
-        <div className="opacity-0 group-hover/row:opacity-100 transition-opacity">
+        <div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" aria-label={t.common.actions}>
@@ -218,7 +234,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
                   onClick={() => setConfirmCancel(row.id)}
                   className="text-destructive"
                 >
-                  <X className="size-4 mr-2" />
+                  <XIcon className="size-4 mr-2" />
                   {t.appointments.cancelAppointment}
                 </DropdownMenuItem>
               )}
@@ -232,14 +248,97 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
   return (
     <div className="space-y-4">
       <KpiStrip counts={statusCounts} t={t.appointments} />
-      <DataTable
-        columns={columns}
-        data={data}
-        rowKey={(row) => row.id}
-        emptyTitle={t.appointments.emptyTitle}
-        emptyDescription={t.common.noResultsHint}
-        variant="admin"
-      />
+
+      {/* Mobile card list */}
+      <div className="space-y-2 sm:hidden">
+        {data.map((row) => {
+          const shortDate = new Intl.DateTimeFormat(dateLocale, {
+            day: "numeric",
+            month: "short",
+          }).format(new Date(row.date));
+          return (
+            <div
+              key={row.id}
+              className="flex items-center gap-3 rounded-lg border p-3"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold truncate">
+                    {row.patient_name || t.appointments.deletedPatient}
+                  </p>
+                  <StatusBadge
+                    type="appointment"
+                    value={row.status}
+                    labels={t.statuses.appointment}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {row.professional_name !== "—" ? row.professional_name : ""} · {shortDate} · {row.time}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-[44px] min-w-[44px] shrink-0"
+                onClick={() => setActionSheet(row)}
+                aria-label={t.mobile.actions}
+              >
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block">
+        <DataTable
+          columns={columns}
+          data={data}
+          rowKey={(row) => row.id}
+          emptyTitle={t.appointments.emptyTitle}
+          emptyDescription={t.common.noResultsHint}
+          variant="admin"
+        />
+      </div>
+
+      {/* Mobile action sheet */}
+      <Sheet
+        open={!!actionSheet}
+        onOpenChange={(open) => !open && setActionSheet(null)}
+      >
+        <SheetContent side="bottom" className="pb-8">
+          <SheetHeader>
+            <SheetTitle>
+              {actionSheet?.patient_name || t.appointments.deletedPatient}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-2 space-y-1">
+            <button
+              onClick={() => {
+                setActionSheet(null);
+                toast.info(t.appointments.viewDetails);
+              }}
+              className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+            >
+              <Eye className="size-4" />
+              {t.appointments.viewDetails}
+            </button>
+            {actionSheet &&
+              actionSheet.status !== "completed" &&
+              actionSheet.status !== "cancelled" && (
+                <button
+                  onClick={() => handleCancel(actionSheet.id)}
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <XIcon className="size-4" />
+                  {t.appointments.cancelAppointment}
+                </button>
+              )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <ConfirmDialog
         open={!!confirmCancel}
         onOpenChange={(open) => !open && setConfirmCancel(null)}
@@ -248,7 +347,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
         confirmLabel={t.appointments.cancelAppointment}
         variant="destructive"
         loading={isPending}
-        onConfirm={handleCancel}
+        onConfirm={executeCancel}
       />
     </div>
   );

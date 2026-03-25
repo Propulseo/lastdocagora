@@ -1,34 +1,131 @@
 /**
- * Specialty names are stored in French in the database.
- * This map translates them to other supported locales.
- * The key is the exact French value from the `professionals.specialty` column.
+ * Specialty canonical keys.
+ *
+ * The database stores language-independent keys (e.g. "general_practitioner").
+ * This module translates them to the user's locale for display.
  */
 
-const specialtyTranslations: Record<string, { pt: string; en: string }> = {
-  "Cardiologie": { pt: "Cardiologia", en: "Cardiology" },
-  "Dentiste": { pt: "Dentista", en: "Dentist" },
-  "Dermatologie": { pt: "Dermatologia", en: "Dermatology" },
-  "Gynécologie": { pt: "Ginecologia", en: "Gynecology" },
-  "Médecin Généraliste": { pt: "Médico Generalista", en: "General Practitioner" },
-  "Neurologie": { pt: "Neurologia", en: "Neurology" },
-  "Ophtalmologie": { pt: "Oftalmologia", en: "Ophthalmology" },
-  "Orthopédie": { pt: "Ortopedia", en: "Orthopedics" },
-  "Pédiatrie": { pt: "Pediatria", en: "Pediatrics" },
-  "Psychiatrie": { pt: "Psiquiatria", en: "Psychiatry" },
-  // Add new specialties here as they appear in the database
-}
+// ---------------------------------------------------------------------------
+// Canonical specialty keys — these are the ONLY values stored in the DB.
+// ---------------------------------------------------------------------------
+
+export const SPECIALTY_KEYS = [
+  "general_practitioner",
+  "cardiology",
+  "dentist",
+  "dermatology",
+  "gynecology",
+  "neurology",
+  "ophthalmology",
+  "orthopedics",
+  "pediatrics",
+  "psychiatry",
+] as const;
+
+export type SpecialtyKey = (typeof SPECIALTY_KEYS)[number];
+
+// ---------------------------------------------------------------------------
+// Translation map — key → { pt, fr, en }
+// ---------------------------------------------------------------------------
+
+const specialtyTranslations: Record<
+  SpecialtyKey,
+  { pt: string; fr: string; en: string }
+> = {
+  general_practitioner: {
+    pt: "Médico Generalista",
+    fr: "Médecin Généraliste",
+    en: "General Practitioner",
+  },
+  cardiology: {
+    pt: "Cardiologia",
+    fr: "Cardiologie",
+    en: "Cardiology",
+  },
+  dentist: {
+    pt: "Dentista",
+    fr: "Dentiste",
+    en: "Dentist",
+  },
+  dermatology: {
+    pt: "Dermatologia",
+    fr: "Dermatologie",
+    en: "Dermatology",
+  },
+  gynecology: {
+    pt: "Ginecologia",
+    fr: "Gynécologie",
+    en: "Gynecology",
+  },
+  neurology: {
+    pt: "Neurologia",
+    fr: "Neurologie",
+    en: "Neurology",
+  },
+  ophthalmology: {
+    pt: "Oftalmologia",
+    fr: "Ophtalmologie",
+    en: "Ophthalmology",
+  },
+  orthopedics: {
+    pt: "Ortopedia",
+    fr: "Orthopédie",
+    en: "Orthopedics",
+  },
+  pediatrics: {
+    pt: "Pediatria",
+    fr: "Pédiatrie",
+    en: "Pediatrics",
+  },
+  psychiatry: {
+    pt: "Psiquiatria",
+    fr: "Psychiatrie",
+    en: "Psychiatry",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Legacy French → canonical key mapping (for DB migration)
+// ---------------------------------------------------------------------------
+
+export const LEGACY_FRENCH_TO_KEY: Record<string, SpecialtyKey> = {
+  "Médecin Généraliste": "general_practitioner",
+  "Cardiologie": "cardiology",
+  "Dentiste": "dentist",
+  "Dermatologie": "dermatology",
+  "Gynécologie": "gynecology",
+  "Neurologie": "neurology",
+  "Ophtalmologie": "ophthalmology",
+  "Orthopédie": "orthopedics",
+  "Pédiatrie": "pediatrics",
+  "Psychiatrie": "psychiatry",
+};
+
+// ---------------------------------------------------------------------------
+// Public helpers
+// ---------------------------------------------------------------------------
 
 /**
- * Translate a specialty name (stored in French in the DB) to the given locale.
- * Returns the original value if no translation exists or locale is "fr".
+ * Translate a specialty key (stored in DB) to the given locale.
+ * Falls back to the raw key if no translation exists.
  */
 export function translateSpecialty(
   specialty: string | null | undefined,
   locale: string,
 ): string | null {
-  if (!specialty) return null
-  if (locale === "fr") return specialty
-  const entry = specialtyTranslations[specialty]
-  if (!entry) return specialty
-  return (entry as Record<string, string>)[locale] ?? specialty
+  if (!specialty) return null;
+  const entry = specialtyTranslations[specialty as SpecialtyKey];
+  if (!entry) return specialty; // unknown key — show as-is
+  return (entry as Record<string, string>)[locale] ?? entry.pt;
+}
+
+/**
+ * Return all specialty options as { value, label } for the given locale.
+ * Useful for Select dropdowns and filter components.
+ */
+export function getSpecialtyOptions(locale: string) {
+  return SPECIALTY_KEYS.map((key) => ({
+    value: key,
+    label: translateSpecialty(key, locale) ?? key,
+  }));
 }

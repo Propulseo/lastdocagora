@@ -8,6 +8,13 @@ export type PatientTranslations = {
     searchProfessionals: string
     notifications: string
   }
+  mobileNav: {
+    home: string
+    search: string
+    appointments: string
+    messages: string
+    profile: string
+  }
   nav: {
     dashboard: string
     search: string
@@ -79,6 +86,17 @@ export type PatientTranslations = {
     noAvailability: string
     yearsExp: string
     moreSlots: string
+    mapTab: string
+    mapLocateMe: string
+    mapLocationDenied: string
+    mapNoCoordinates: string
+    mapNearbyPros: string
+    mapKmAway: string
+    mapNextAvailable: string
+    mapBook: string
+    mapViewProfile: string
+    mapFilterMap: string
+    mapLoading: string
   }
   professionalDetail: {
     backToSearch: string
@@ -111,6 +129,7 @@ export type PatientTranslations = {
     errorRequired: string
     successBooked: string
     errorBooking: string
+    selfBookingError: string
     dateFormat: string
     morning: string
     afternoon: string
@@ -272,6 +291,13 @@ export const ptPatient: PatientTranslations = {
     searchProfessionals: "Pesquisar profissionais",
     notifications: "Notifica\u00e7\u00f5es",
   },
+  mobileNav: {
+    home: "Início",
+    search: "Pesquisar",
+    appointments: "Consultas",
+    messages: "Mensagens",
+    profile: "Perfil",
+  },
   nav: {
     dashboard: "Painel",
     search: "Pesquisar",
@@ -343,6 +369,17 @@ export const ptPatient: PatientTranslations = {
     noAvailability: "Sem disponibilidade nesta data",
     yearsExp: "{count} anos de experi\u00eancia",
     moreSlots: "+{count} mais",
+    mapTab: "Mapa",
+    mapLocateMe: "Localizar-me",
+    mapLocationDenied: "Permissão de localização necessária",
+    mapNoCoordinates: "Este profissional não tem localização definida",
+    mapNearbyPros: "Profissionais próximos",
+    mapKmAway: "km de distância",
+    mapNextAvailable: "Próxima disponibilidade",
+    mapBook: "Agendar",
+    mapViewProfile: "Ver perfil completo",
+    mapFilterMap: "Filtrar mapa",
+    mapLoading: "A carregar mapa...",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",
@@ -375,6 +412,7 @@ export const ptPatient: PatientTranslations = {
     errorRequired: "Por favor, preencha todos os campos obrigat\u00f3rios.",
     successBooked: "Consulta agendada com sucesso!",
     errorBooking: "Erro ao agendar consulta. Tente novamente.",
+    selfBookingError: "Não é possível agendar uma consulta consigo mesmo.",
     dateFormat: "d 'de' MMMM 'de' yyyy",
     morning: "Manhã",
     afternoon: "Tarde",

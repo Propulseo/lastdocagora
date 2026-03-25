@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, UserX, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Users, UserX, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { EditPatientDialog } from "./edit-patient-dialog";
@@ -90,130 +90,153 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
             />
           ) : (
             <>
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{pt.patient}</TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        {pt.email}
-                      </TableHead>
-                      <TableHead className="hidden sm:table-cell">
-                        {pt.phone}
-                      </TableHead>
-                      <TableHead className="hidden lg:table-cell">
-                        {pt.insurance}
-                      </TableHead>
-                      <TableHead>{pt.lastAppointment}</TableHead>
-                      <TableHead className="text-right">
-                        {pt.appointments}
-                      </TableHead>
-                      <TableHead className="hidden xl:table-cell">
-                        {(pt.filters as Record<string, string>)?.statusLabel ?? "Status"}
-                      </TableHead>
-                      <TableHead className="w-10">
-                        <span className="sr-only">{pt.actions}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {patients.map((p) => {
-                      const initials =
-                        (p.first_name?.[0] ?? "") +
-                        (p.last_name?.[0] ?? "");
-                      return (
-                        <TableRow
-                          key={p.patient_id}
-                          className="cursor-pointer"
-                          onClick={() =>
-                            setSelectedPatientId(p.patient_id)
-                          }
-                        >
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="size-8">
-                                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
-                                  {initials || "?"}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">
-                                {p.first_name} {p.last_name}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden text-muted-foreground md:table-cell">
-                            {p.email ?? "-"}
-                          </TableCell>
-                          <TableCell className="hidden text-muted-foreground sm:table-cell">
-                            {p.phone ?? "-"}
-                          </TableCell>
-                          <TableCell className="hidden text-muted-foreground lg:table-cell">
-                            {p.insurance_provider
-                              ? ((pt.insuranceLabels as Record<string, string>)?.[
-                                  p.insurance_provider
-                                ] ?? p.insurance_provider)
-                              : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {p.last_appointment
-                              ? new Date(
-                                  p.last_appointment,
-                                ).toLocaleDateString(dateLocale)
-                              : "-"}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums font-medium">
-                            {p.total_appointments}
-                          </TableCell>
-                          <TableCell className="hidden xl:table-cell">
-                            <Badge
-                              variant={
-                                STATUS_BADGE_VARIANT[p.status] ?? "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {statusLabels[p.status] ?? p.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell
-                            onClick={(e) => e.stopPropagation()}
+              {/* Mobile card list */}
+              <div className="space-y-2 lg:hidden">
+                {patients.map((patient) => (
+                  <button
+                    key={patient.patient_id}
+                    onClick={() => setSelectedPatientId(patient.patient_id)}
+                    className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
+                  >
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
+                      {(patient.first_name?.[0] ?? "") + (patient.last_name?.[0] ?? "")}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{patient.first_name} {patient.last_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{patient.email || patient.phone || ""}</p>
+                    </div>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden lg:block">
+                <div className="rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{pt.patient}</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          {pt.email}
+                        </TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          {pt.phone}
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          {pt.insurance}
+                        </TableHead>
+                        <TableHead>{pt.lastAppointment}</TableHead>
+                        <TableHead className="text-right">
+                          {pt.appointments}
+                        </TableHead>
+                        <TableHead className="hidden xl:table-cell">
+                          {(pt.filters as Record<string, string>)?.statusLabel ?? "Status"}
+                        </TableHead>
+                        <TableHead className="w-10">
+                          <span className="sr-only">{pt.actions}</span>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {patients.map((p) => {
+                        const initials =
+                          (p.first_name?.[0] ?? "") +
+                          (p.last_name?.[0] ?? "");
+                        return (
+                          <TableRow
+                            key={p.patient_id}
+                            className="cursor-pointer"
+                            onClick={() =>
+                              setSelectedPatientId(p.patient_id)
+                            }
                           >
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                >
-                                  <MoreHorizontal className="size-4" />
-                                  <span className="sr-only">
-                                    {pt.actions}
-                                  </span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => setEditPatient(p)}
-                                >
-                                  <Pencil className="mr-2 size-4" />
-                                  {pt.editPatient}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  onClick={() =>
-                                    setDeletePatient(p)
-                                  }
-                                >
-                                  <Trash2 className="mr-2 size-4" />
-                                  {pt.deletePatient}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="size-8">
+                                  <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+                                    {initials || "?"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium">
+                                  {p.first_name} {p.last_name}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden text-muted-foreground md:table-cell">
+                              {p.email ?? "-"}
+                            </TableCell>
+                            <TableCell className="hidden text-muted-foreground sm:table-cell">
+                              {p.phone ?? "-"}
+                            </TableCell>
+                            <TableCell className="hidden text-muted-foreground lg:table-cell">
+                              {p.insurance_provider
+                                ? ((pt.insuranceLabels as Record<string, string>)?.[
+                                    p.insurance_provider
+                                  ] ?? p.insurance_provider)
+                                : "-"}
+                            </TableCell>
+                            <TableCell>
+                              {p.last_appointment
+                                ? new Date(
+                                    p.last_appointment,
+                                  ).toLocaleDateString(dateLocale)
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums font-medium">
+                              {p.total_appointments}
+                            </TableCell>
+                            <TableCell className="hidden xl:table-cell">
+                              <Badge
+                                variant={
+                                  STATUS_BADGE_VARIANT[p.status] ?? "secondary"
+                                }
+                                className="text-xs"
+                              >
+                                {statusLabels[p.status] ?? p.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8"
+                                  >
+                                    <MoreHorizontal className="size-4" />
+                                    <span className="sr-only">
+                                      {pt.actions}
+                                    </span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => setEditPatient(p)}
+                                  >
+                                    <Pencil className="mr-2 size-4" />
+                                    {pt.editPatient}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    variant="destructive"
+                                    onClick={() =>
+                                      setDeletePatient(p)
+                                    }
+                                  >
+                                    <Trash2 className="mr-2 size-4" />
+                                    {pt.deletePatient}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
 
               <Suspense>

@@ -1,4 +1,14 @@
 {
+  "mobile": {
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "notifications": "Notificações",
+    "filterButton": "Filtrar",
+    "viewFullStats": "Ver estatísticas completas",
+    "fullStatsHint": "Para análise completa, aceda via computador",
+    "viewMore": "Ver mais",
+    "actions": "Ações"
+  },
   "sidebar": {
     "groups": {
       "general": "Geral",
@@ -115,7 +125,8 @@
     "roleFilter": "Função",
     "allRoles": "Todas as funções",
     "totalCount": "{count} utilizadores",
-    "duplicateAccount": "Conta duplicada"
+    "duplicateAccount": "Conta duplicada",
+    "multiRoleAccount": "Multi-perfil"
   },
   "professionals": {
     "title": "Profissionais",

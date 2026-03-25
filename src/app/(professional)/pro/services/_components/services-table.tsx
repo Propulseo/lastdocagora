@@ -90,10 +90,10 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                         {sv.price}
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
-                        {(sv as unknown as Record<string, string>).appointmentsCol ?? "RDV"}
+                        {(sv as unknown as Record<string, string>).appointmentsCol ?? "Consultas"}
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
-                        {(sv as unknown as Record<string, string>).revenueCol ?? "Revenue"}
+                        {(sv as unknown as Record<string, string>).revenueCol ?? "Receitas"}
                       </TableHead>
                       <TableHead className="hidden md:table-cell">
                         {sv.type}

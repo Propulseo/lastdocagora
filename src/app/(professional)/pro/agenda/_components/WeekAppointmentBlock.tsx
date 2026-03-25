@@ -60,9 +60,12 @@ export function WeekAppointmentBlock({
         )}
         <p className="truncate text-[11px] font-medium leading-tight">
           {apt.appointment_time.slice(0, 5)}
+          {height < 28 && (
+            <span className="ml-1 font-normal opacity-80">{displayName}</span>
+          )}
         </p>
       </div>
-      {height >= 36 && (
+      {height >= 28 && (
         <p className="truncate text-[10px] leading-tight opacity-80">
           {displayName}
         </p>

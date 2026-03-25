@@ -35,10 +35,10 @@ const PRESETS: PeriodPreset[] = ["this-month", "last-month", "3-months", "this-y
 function usePresetLabels() {
   const { t } = useProfessionalI18n();
   return {
-    "this-month": t.statistics.compare?.thisMonth ?? "Ce mois",
-    "last-month": t.statistics.compare?.lastMonth ?? "Mois dernier",
-    "3-months": t.statistics.compare?.last3Months ?? "3 derniers mois",
-    "this-year": t.statistics.compare?.thisYear ?? "Cette année",
+    "this-month": t.statistics.compare?.thisMonth ?? "Este mês",
+    "last-month": t.statistics.compare?.lastMonth ?? "Mês passado",
+    "3-months": t.statistics.compare?.last3Months ?? "3 últimos meses",
+    "this-year": t.statistics.compare?.thisYear ?? "Este ano",
   } as Record<PeriodPreset, string>;
 }
 
@@ -211,7 +211,7 @@ export function CompareMode() {
       icon: CalendarCheck,
     },
     {
-      label: t.statistics.analyze?.totalRevenue ?? "Revenus",
+      label: t.statistics.analyze?.totalRevenue ?? "Receitas",
       valueA: formatCurrency(dataA.revenue, locale),
       valueB: formatCurrency(dataB.revenue, locale),
       delta: computeDelta(dataA.revenue, dataB.revenue),
@@ -238,7 +238,7 @@ export function CompareMode() {
       {/* Period selectors — two side-by-side cards */}
       <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr]">
         <PeriodSelector
-          label={t.statistics.compare?.periodA ?? "Période A"}
+          label={t.statistics.compare?.periodA ?? "Período A"}
           color="bg-emerald-500"
           borderColor="border-l-emerald-500"
           value={presetA}
@@ -251,7 +251,7 @@ export function CompareMode() {
           </div>
         </div>
         <PeriodSelector
-          label={t.statistics.compare?.periodB ?? "Période B"}
+          label={t.statistics.compare?.periodB ?? "Período B"}
           color="bg-blue-500"
           borderColor="border-l-blue-500"
           value={presetB}
@@ -268,8 +268,8 @@ export function CompareMode() {
             {...kpi}
             colorA="bg-emerald-500"
             colorB="bg-blue-500"
-            labelCurrent={t.statistics.compare?.current ?? "actuel"}
-            labelRef={t.statistics.compare?.reference ?? "réf."}
+            labelCurrent={t.statistics.compare?.current ?? "atual"}
+            labelRef={t.statistics.compare?.reference ?? "ref."}
           />
         ))}
       </div>
@@ -277,10 +277,10 @@ export function CompareMode() {
       {/* Overlay chart */}
       <CompareChart
         data={chartData}
-        title={t.statistics.compare?.evolution ?? "Évolution comparative"}
+        title={t.statistics.compare?.evolution ?? "Evolução comparativa"}
         labelA={labels[presetA]}
         labelB={labels[presetB]}
-        dayLabel={t.statistics.compare?.dayLabel ?? "Jour"}
+        dayLabel={t.statistics.compare?.dayLabel ?? "Dia"}
       />
 
       {/* AI Insights */}

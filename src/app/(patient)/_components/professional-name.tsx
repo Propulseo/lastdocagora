@@ -12,7 +12,7 @@ export function getProfessionalName(
   labels?: ProfessionalLabels
 ): string {
   const prefix = labels?.namePrefix ?? "Dr."
-  const fallback = labels?.fallbackName ?? "Professionnel"
+  const fallback = labels?.fallbackName ?? "Profissional"
   if (!professional?.users) return fallback
   const { first_name, last_name } = professional.users
   return `${prefix} ${first_name ?? ""} ${last_name ?? ""}`.trim()
@@ -22,7 +22,7 @@ export function getProfessionalSpecialty(
   professional: ProfessionalWithUser,
   labels?: ProfessionalLabels
 ): string {
-  return professional?.specialty ?? labels?.fallbackSpecialty ?? "Spécialité"
+  return professional?.specialty ?? labels?.fallbackSpecialty ?? ""
 }
 
 export function getProfessionalInitials(

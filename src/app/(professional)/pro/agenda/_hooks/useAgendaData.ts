@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toast } from "sonner";
@@ -14,6 +15,8 @@ interface UseAgendaDataParams {
 
 export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   const { t } = useProfessionalI18n();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [selectedDate, setSelectedDate] = useState(() => toLocalDateStr(new Date()));
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("day");
@@ -21,7 +24,40 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(
+    () => searchParams.get("create") === "true"
+  );
+
+  // Handle URL params: Google Calendar feedback
+  useEffect(() => {
+    const calendarError = searchParams.get("calendar_error");
+    const calendarConnected = searchParams.get("calendar_connected");
+    const shouldCreate = searchParams.get("create");
+
+    if (!calendarError && !calendarConnected && !shouldCreate) return;
+
+    if (calendarConnected === "google") {
+      toast.success("Google Calendar conectado com sucesso!");
+    } else if (calendarError) {
+      const messages: Record<string, string> = {
+        consent_denied: "Autorização Google Calendar recusada.",
+        not_configured: "Google Calendar não configurado. Contacte o administrador.",
+        not_professional: "Apenas profissionais podem conectar calendários.",
+        not_authenticated: "Sessão expirada. Faça login novamente.",
+        token_exchange: "Erro ao conectar Google Calendar. Tente novamente.",
+        encryption: "Erro ao conectar Google Calendar. Tente novamente.",
+        db_error: "Erro ao conectar Google Calendar. Tente novamente.",
+      };
+      toast.error(messages[calendarError] ?? "Erro ao conectar Google Calendar. Tente novamente.");
+    }
+
+    // Clean URL params
+    const url = new URL(window.location.href);
+    url.searchParams.delete("calendar_error");
+    url.searchParams.delete("calendar_connected");
+    url.searchParams.delete("create");
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [searchParams, router]);
   const [createStartTime, setCreateStartTime] = useState("");
   const [createEndTime, setCreateEndTime] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);

@@ -1,4 +1,16 @@
 {
+  "mobileNav": {
+    "dashboard": "Dashboard",
+    "agenda": "Agenda",
+    "patients": "Pacientes",
+    "statistics": "Estatísticas",
+    "more": "Mais",
+    "services": "Serviços",
+    "reminders": "Lembretes",
+    "support": "Suporte",
+    "profile": "Perfil",
+    "settings": "Definições"
+  },
   "sidebar": {
     "roleLabel": "Profissional",
     "logout": "Terminar sessão"
@@ -810,7 +822,11 @@
     "bio": "Biografia",
     "bioPlaceholder": "Descreva o seu percurso e abordagem...",
     "subspecialtiesHint": "Separe com vírgulas",
-    "languagesHint": "Separe com vírgulas"
+    "languagesHint": "Separe com vírgulas",
+    "geocodedVisible": "Visível no mapa de pesquisa",
+    "geocodedMissing": "Endereço não geocodificado — guarde o perfil para aparecer no mapa",
+    "saveSuccessGeocoded": "Perfil atualizado. Localização no mapa atualizada.",
+    "saveSuccessNoGeocode": "Perfil atualizado. Localização não encontrada — verifique o endereço."
   },
   "settings": {
     "title": "Configurações",

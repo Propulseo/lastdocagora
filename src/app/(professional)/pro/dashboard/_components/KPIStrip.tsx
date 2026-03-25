@@ -31,7 +31,7 @@ function Metric({ icon, label, value, delta, deltaLabel, isLast }: MetricProps) 
     <div
       className={cn(
         "flex items-center gap-3 px-4 py-3 md:px-6",
-        !isLast && "border-r border-border/40"
+        !isLast && "sm:border-r border-border/40"
       )}
     >
       <div className="text-muted-foreground">{icon}</div>
@@ -74,7 +74,7 @@ export function KPIStrip({ data }: KPIStripProps) {
     data;
 
   return (
-    <div className="flex h-20 items-stretch overflow-x-auto rounded-xl border border-border/40 bg-card/50">
+    <div className="grid grid-cols-2 gap-3 sm:flex sm:h-20 sm:items-stretch sm:overflow-x-auto rounded-xl border border-border/40 bg-card/50">
       <Metric
         icon={<CalendarCheck className="size-4" />}
         label={t.dashboard.appointmentsToday}

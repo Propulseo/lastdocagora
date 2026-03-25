@@ -51,7 +51,7 @@ export function DataTable<T>({
   const isAdmin = variant === "admin";
 
   return (
-    <div className="overflow-hidden rounded-xl border">
+    <div className="overflow-x-auto rounded-xl border">
       <Table>
         <TableHeader>
           <TableRow>

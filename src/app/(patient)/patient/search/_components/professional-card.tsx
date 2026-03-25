@@ -36,6 +36,8 @@ export type ProfessionalResult = {
   total_reviews: number | null
   bio: string | null
   accessibility_options: Record<string, unknown> | null
+  latitude: number | null
+  longitude: number | null
   nextSlot: string | null
   users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
   available_slots?: string[]
@@ -207,12 +209,12 @@ export function ProfessionalCard({
             )}
           </div>
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" size="sm" className="flex-1" asChild>
+            <Button variant="outline" size="sm" className="min-h-[44px] flex-1" asChild>
               <Link href={`/patient/search/${prof.id}`}>{t.viewProfile}</Link>
             </Button>
             <Button
               size="sm"
-              className="flex-1"
+              className="min-h-[44px] flex-1"
               onClick={() => setBookingOpen(true)}
             >
               {t.book}

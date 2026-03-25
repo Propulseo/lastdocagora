@@ -24,7 +24,7 @@ export default async function SearchPage({
       `id, specialty, subspecialties, city, neighborhood, address, postal_code,
        cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
        third_party_payment, years_experience, practice_type, rating, total_reviews,
-       bio, accessibility_options,
+       bio, accessibility_options, latitude, longitude,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
     .order("rating", { ascending: false, nullsFirst: false })
@@ -69,22 +69,17 @@ export default async function SearchPage({
         total_reviews: prof.total_reviews as number | null,
         bio: prof.bio as string | null,
         accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
+        latitude: prof.latitude as number | null,
+        longitude: prof.longitude as number | null,
         nextSlot: nextSlot as string | null,
         users: prof.users as { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null,
       }
     })
   )
 
-  const { data: specialties } = await supabase
-    .from("professionals")
-    .select("specialty")
-
-  const uniqueSpecialties = [...new Set((specialties ?? []).map((s) => s.specialty))].sort()
-
   return (
     <SearchContent
       professionals={profWithSlots}
-      specialties={uniqueSpecialties}
       query={query}
       specialtyFilter={specialtyFilter}
       cityFilter={cityFilter}

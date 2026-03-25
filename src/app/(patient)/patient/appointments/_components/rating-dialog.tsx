@@ -6,14 +6,14 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from "@/components/shared/responsive-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, Star } from "lucide-react"
@@ -73,21 +73,21 @@ export function RatingDialog({
   const displayRating = hoveredStar || rating
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="min-h-[44px]">
           <Star className="size-4" />
           {t.appointments.rate}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t.ratingDialog.title}</DialogTitle>
-          <DialogDescription>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{t.ratingDialog.title}</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             {t.ratingDialog.description.replace("{name}", professionalName)}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
+        <div className="space-y-4 px-4 lg:px-0">
           <div className="space-y-2">
             <Label>{t.ratingDialog.ratingLabel}</Label>
             <div className="flex items-center gap-1">
@@ -97,7 +97,7 @@ export function RatingDialog({
                   <button
                     key={starValue}
                     type="button"
-                    className="rounded p-0.5 transition-colors hover:bg-muted"
+                    className="min-h-[44px] min-w-[44px] rounded p-0.5 transition-colors hover:bg-muted flex items-center justify-center"
                     onMouseEnter={() => setHoveredStar(starValue)}
                     onMouseLeave={() => setHoveredStar(0)}
                     onClick={() => setRating(starValue)}
@@ -128,23 +128,25 @@ export function RatingDialog({
             />
           </div>
         </div>
-        <DialogFooter>
+        <ResponsiveDialogFooter>
           <Button
             variant="outline"
+            className="min-h-[48px] w-full sm:w-auto"
             onClick={() => setOpen(false)}
             disabled={loading}
           >
             {t.ratingDialog.cancel}
           </Button>
           <Button
+            className="min-h-[48px] w-full sm:w-auto"
             onClick={handleSubmit}
             disabled={loading || rating < 1}
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
             {loading ? t.ratingDialog.submitting : t.ratingDialog.submit}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

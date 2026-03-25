@@ -46,7 +46,7 @@ export function KPICard({
           <Icon className="size-5" />
         </div>
         <div className="min-w-0">
-          <p className="text-muted-foreground truncate text-sm">{label}</p>
+          <p className="text-muted-foreground text-sm leading-tight">{label}</p>
           <div className="flex items-baseline gap-2">
             <p
               className="text-2xl font-bold tabular-nums tracking-tight truncate"

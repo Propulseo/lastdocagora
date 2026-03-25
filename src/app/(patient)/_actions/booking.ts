@@ -67,6 +67,11 @@ export async function getBookingData(
   if (!patientRes.data) return { success: false, error: "patient_not_found" }
   if (!proRes.data) return { success: false, error: "professional_not_found" }
 
+  // Prevent self-booking: a professional cannot book themselves
+  if (user.id === proRes.data.user_id) {
+    return { success: false, error: "self_booking_not_allowed" }
+  }
+
   return {
     success: true,
     data: {

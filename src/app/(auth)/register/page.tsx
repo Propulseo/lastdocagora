@@ -34,9 +34,28 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  function validate(): string | null {
+    if (!firstName.trim()) return "O nome é obrigatório.";
+    if (!lastName.trim()) return "O apelido é obrigatório.";
+    if (!email.trim()) return "O email é obrigatório.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "Introduza um endereço de email válido.";
+    if (!password) return "A palavra-passe é obrigatória.";
+    if (password.length < 6)
+      return "A palavra-passe deve ter pelo menos 6 caracteres.";
+    return null;
+  }
+
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -79,7 +98,7 @@ export default function RegisterPage() {
         <CardTitle className="text-2xl font-bold">DOCAGORA</CardTitle>
         <CardDescription>Crie a sua conta</CardDescription>
       </CardHeader>
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleRegister} noValidate>
         <CardContent className="space-y-4">
           {error && (
             <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
@@ -108,7 +127,6 @@ export default function RegisterPage() {
                 id="firstName"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                required
               />
             </div>
             <div className="space-y-2">
@@ -117,7 +135,6 @@ export default function RegisterPage() {
                 id="lastName"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -129,7 +146,6 @@ export default function RegisterPage() {
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
           <div className="space-y-2">
@@ -140,8 +156,6 @@ export default function RegisterPage() {
               placeholder="Mínimo 6 caracteres"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-              required
             />
           </div>
         </CardContent>

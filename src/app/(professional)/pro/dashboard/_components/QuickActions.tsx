@@ -18,7 +18,7 @@ const actions = [
     icon: CalendarPlus,
     titleKey: "newAppointmentAction" as const,
     descKey: "newAppointmentDesc" as const,
-    href: "/pro/agenda",
+    href: "/pro/agenda?create=true",
   },
   {
     icon: UserPlus,
@@ -51,7 +51,7 @@ export function QuickActions({ data }: QuickActionsProps) {
           <Link
             key={action.href}
             href={action.href}
-            className="group flex flex-col gap-2 rounded-xl border border-border/40 bg-card/50 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.15),0_4px_12px_rgba(0,0,0,0.15)]"
+            className="group flex min-h-[80px] flex-col gap-2 rounded-xl border border-border/40 bg-card/50 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.15),0_4px_12px_rgba(0,0,0,0.15)]"
           >
             <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/15">
               <Icon className="size-4 text-primary" />

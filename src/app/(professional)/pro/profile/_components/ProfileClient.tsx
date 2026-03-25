@@ -23,13 +23,21 @@ import {
   Loader2,
   X,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
 import { fr } from "date-fns/locale/fr";
 import { enGB } from "date-fns/locale/en-GB";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { translateSpecialty } from "@/locales/patient/specialties";
+import { translateSpecialty, getSpecialtyOptions } from "@/locales/patient/specialties";
 import { useAvatarUpload } from "../_hooks/useAvatarUpload";
 import { updateProfile } from "@/app/(professional)/_actions/profile";
 import { toast } from "sonner";
@@ -59,6 +67,8 @@ interface Professional {
   address: string | null;
   city: string | null;
   postal_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
   languages_spoken: string[] | null;
   bio: string | null;
   rating: number | null;
@@ -209,7 +219,15 @@ export function ProfileClient({
     startTransition(async () => {
       const result = await updateProfile(input);
       if (result.success) {
-        toast.success(t.profile.saveSuccess);
+        if (editingSection === "location") {
+          if (result.geocoded) {
+            toast.success(t.profile.saveSuccessGeocoded);
+          } else {
+            toast.warning(t.profile.saveSuccessNoGeocode);
+          }
+        } else {
+          toast.success(t.profile.saveSuccess);
+        }
         setEditingSection(null);
         setFormValues({});
         router.refresh();
@@ -522,7 +540,26 @@ export function ProfileClient({
         <CardContent>
           {editingSection === "professional" ? (
             <div className="space-y-3">
-              {renderInput(t.profile.specialty, "specialty")}
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+                <label className="shrink-0 text-sm text-muted-foreground sm:w-40">
+                  {t.profile.specialty}
+                </label>
+                <Select
+                  value={formValues.specialty ?? ""}
+                  onValueChange={(v) => updateField("specialty", v)}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getSpecialtyOptions(locale).map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               {renderInput(t.profile.registrationNumber, "registration_number")}
               {renderInput(t.profile.practiceType, "practice_type")}
               {renderInput(t.profile.cabinetName, "cabinet_name")}
@@ -575,6 +612,21 @@ export function ProfileClient({
           )}
         </CardContent>
       </Card>
+
+      {/* Geocoding status */}
+      {editingSection !== "location" && (
+        professional.latitude != null && professional.longitude != null ? (
+          <Badge variant="outline" className="w-fit gap-1.5 border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950 dark:text-green-400">
+            <MapPin className="size-3" />
+            {t.profile.geocodedVisible}
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="w-fit gap-1.5 border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-950 dark:text-orange-400">
+            <MapPin className="size-3" />
+            {t.profile.geocodedMissing}
+          </Badge>
+        )
+      )}
 
       {/* ---- Languages ---- */}
       <Card>

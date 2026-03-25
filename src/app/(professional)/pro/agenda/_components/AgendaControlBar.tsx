@@ -82,7 +82,7 @@ export function AgendaControlBar({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Segmented period toggle */}
-      <div className="inline-flex rounded-lg bg-muted p-0.5">
+      <div className="hidden sm:inline-flex rounded-lg bg-muted p-0.5">
         {periodOptions.map((opt) => (
           <button
             key={opt.value}
@@ -100,7 +100,7 @@ export function AgendaControlBar({
       </div>
 
       {/* Status filter badges */}
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="flex items-center gap-1 overflow-x-auto flex-nowrap">
         {statusOptions.map((opt) => (
           <Badge
             key={opt.value}
@@ -117,11 +117,11 @@ export function AgendaControlBar({
       <div className="flex-1" />
 
       {/* Date navigation */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
         <Button
           variant="ghost"
           size="icon"
-          className="size-7"
+          className="size-7 sm:size-7 min-h-[44px] min-w-[44px]"
           onClick={() => navigate(-1)}
         >
           <ChevronLeft className="size-4" />
@@ -129,7 +129,7 @@ export function AgendaControlBar({
         <Button
           variant="ghost"
           size="icon"
-          className="size-7"
+          className="size-7 sm:size-7 min-h-[44px] min-w-[44px]"
           onClick={() => navigate(1)}
         >
           <ChevronRight className="size-4" />
@@ -137,7 +137,7 @@ export function AgendaControlBar({
         <span className="px-1 text-sm font-medium tabular-nums">
           {dateLabel}
         </span>
-        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={goToday}>
+        <Button variant="outline" size="sm" className="h-7 min-h-[44px] text-xs" onClick={goToday}>
           {t.common.today}
         </Button>
       </div>

@@ -79,14 +79,14 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
 
   return (
     <Tabs defaultValue="pages">
-      <TabsList>
-        <TabsTrigger value="pages">
+      <TabsList className="overflow-x-auto">
+        <TabsTrigger value="pages" className="min-h-[44px] sm:min-h-0">
           {t.content.tabPages}
           <Badge variant="secondary" className="ml-2">
             {publishedPages}/{pages.length}
           </Badge>
         </TabsTrigger>
-        <TabsTrigger value="faqs">
+        <TabsTrigger value="faqs" className="min-h-[44px] sm:min-h-0">
           {t.content.tabFaqs}
           <Badge variant="secondary" className="ml-2">
             {publishedFaqs}/{faqs.length}
@@ -96,48 +96,72 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
 
       <TabsContent value="pages" className="mt-4">
         {pages.length > 0 ? (
-          <div className="overflow-hidden rounded-xl border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead scope="col">{t.content.pagesSlug}</TableHead>
-                  <TableHead scope="col">{t.content.pagesTitlePt}</TableHead>
-                  <TableHead scope="col">
-                    {t.content.pagesPublished}
-                  </TableHead>
-                  <TableHead scope="col">
-                    {t.content.pagesUpdatedAt}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pages.map((page) => (
-                  <TableRow key={page.id}>
-                    <TableCell className="font-mono text-sm">
-                      {page.slug}
-                    </TableCell>
-                    <TableCell className="font-medium">
+          <>
+            {/* Mobile card list */}
+            <div className="space-y-2 sm:hidden">
+              {pages.map((page) => (
+                <div
+                  key={page.id}
+                  className="flex h-14 items-center gap-3 rounded-lg border px-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">
                       {page.title_pt}
-                    </TableCell>
-                    <TableCell>
-                      <PublishSwitch
-                        type="page"
-                        id={page.id}
-                        published={!!page.is_published}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {page.updated_at
-                        ? new Date(page.updated_at).toLocaleDateString(
-                            dateLocale
-                          )
-                        : "—"}
-                    </TableCell>
+                    </p>
+                  </div>
+                  <PublishSwitch
+                    type="page"
+                    id={page.id}
+                    published={!!page.is_published}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-hidden rounded-xl border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead scope="col">{t.content.pagesSlug}</TableHead>
+                    <TableHead scope="col">{t.content.pagesTitlePt}</TableHead>
+                    <TableHead scope="col">
+                      {t.content.pagesPublished}
+                    </TableHead>
+                    <TableHead scope="col">
+                      {t.content.pagesUpdatedAt}
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {pages.map((page) => (
+                    <TableRow key={page.id}>
+                      <TableCell className="font-mono text-sm">
+                        {page.slug}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {page.title_pt}
+                      </TableCell>
+                      <TableCell>
+                        <PublishSwitch
+                          type="page"
+                          id={page.id}
+                          published={!!page.is_published}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {page.updated_at
+                          ? new Date(page.updated_at).toLocaleDateString(
+                              dateLocale
+                            )
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <EmptyState
             title={t.content.pagesEmptyTitle}
@@ -148,46 +172,75 @@ export function ContentTabs({ pages, faqs }: ContentTabsProps) {
 
       <TabsContent value="faqs" className="mt-4">
         {faqs.length > 0 ? (
-          <div className="overflow-hidden rounded-xl border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead scope="col">
-                    {t.content.faqsQuestionPt}
-                  </TableHead>
-                  <TableHead scope="col">{t.content.faqsCategory}</TableHead>
-                  <TableHead scope="col">{t.content.faqsOrder}</TableHead>
-                  <TableHead scope="col">
-                    {t.content.faqsPublished}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {faqs.map((faq) => (
-                  <TableRow key={faq.id}>
-                    <TableCell className="max-w-md truncate font-medium">
+          <>
+            {/* Mobile card list */}
+            <div className="space-y-2 sm:hidden">
+              {faqs.map((faq) => (
+                <div
+                  key={faq.id}
+                  className="flex items-center gap-3 rounded-lg border px-3 py-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium line-clamp-2">
                       {faq.question_pt}
-                    </TableCell>
-                    <TableCell>
-                      {faq.category ? (
-                        <Badge variant="outline">{faq.category}</Badge>
-                      ) : (
-                        "—"
-                      )}
-                    </TableCell>
-                    <TableCell>{faq.display_order ?? "—"}</TableCell>
-                    <TableCell>
-                      <PublishSwitch
-                        type="faq"
-                        id={faq.id}
-                        published={!!faq.is_published}
-                      />
-                    </TableCell>
+                    </p>
+                    {faq.category && (
+                      <Badge variant="outline" className="mt-1 text-[10px]">
+                        {faq.category}
+                      </Badge>
+                    )}
+                  </div>
+                  <PublishSwitch
+                    type="faq"
+                    id={faq.id}
+                    published={!!faq.is_published}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-hidden rounded-xl border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead scope="col">
+                      {t.content.faqsQuestionPt}
+                    </TableHead>
+                    <TableHead scope="col">{t.content.faqsCategory}</TableHead>
+                    <TableHead scope="col">{t.content.faqsOrder}</TableHead>
+                    <TableHead scope="col">
+                      {t.content.faqsPublished}
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {faqs.map((faq) => (
+                    <TableRow key={faq.id}>
+                      <TableCell className="max-w-md truncate font-medium">
+                        {faq.question_pt}
+                      </TableCell>
+                      <TableCell>
+                        {faq.category ? (
+                          <Badge variant="outline">{faq.category}</Badge>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell>{faq.display_order ?? "—"}</TableCell>
+                      <TableCell>
+                        <PublishSwitch
+                          type="faq"
+                          id={faq.id}
+                          published={!!faq.is_published}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <EmptyState
             title={t.content.faqsEmptyTitle}

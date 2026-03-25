@@ -155,7 +155,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                 <div
                   key={apt.id}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50",
+                    "group flex min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50",
                     apt.isPast && "opacity-50"
                   )}
                 >

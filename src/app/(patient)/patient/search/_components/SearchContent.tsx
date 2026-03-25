@@ -11,13 +11,13 @@ import { Search as SearchIcon } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
-import { translateSpecialty } from "@/locales/patient/specialties"
+import { getSpecialtyOptions } from "@/locales/patient/specialties"
 import { SearchTabs } from "./search-tabs"
 import { ProfessionalCard, type ProfessionalResult } from "./professional-card"
+import { MapView } from "./MapView"
 
 interface SearchContentProps {
   professionals: ProfessionalResult[]
-  specialties: (string | null)[]
   query: string
   specialtyFilter: string
   cityFilter: string
@@ -25,7 +25,6 @@ interface SearchContentProps {
 
 export function SearchContent({
   professionals,
-  specialties,
   query,
   specialtyFilter,
   cityFilter,
@@ -48,8 +47,8 @@ export function SearchContent({
                   <SelectValue placeholder={t.search.specialtyPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  {specialties.map((s) => (
-                    <SelectItem key={s} value={s ?? ""}>{translateSpecialty(s, locale)}</SelectItem>
+                  {getSpecialtyOptions(locale).map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -57,7 +56,7 @@ export function SearchContent({
             <div className="w-full md:w-48">
               <Input name="city" placeholder={t.search.cityPlaceholder} defaultValue={cityFilter} className="rounded-xl" />
             </div>
-            <Button type="submit" className="rounded-xl">
+            <Button type="submit" className="min-h-[48px] rounded-xl lg:min-h-0">
               <SearchIcon className="size-4" />
               {t.search.searchButton}
             </Button>
@@ -72,7 +71,7 @@ export function SearchContent({
         </p>
 
         {professionals.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {professionals.map((prof) => (
               <ProfessionalCard
                 key={prof.id}
@@ -107,6 +106,7 @@ export function SearchContent({
 
       <SearchTabs
         classicContent={classicContent}
+        mapContent={<MapView professionals={professionals} locale={locale} t={t.search} />}
         locale={locale}
         t={t.search}
       />

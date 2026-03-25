@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/shared/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,7 +47,7 @@ export function TemplateFormDialog({
   const formKey = `${editTemplate?.id ?? "new"}-${String(open)}`;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       {open && (
         <TemplateForm
           key={formKey}
@@ -58,7 +58,7 @@ export function TemplateFormDialog({
           onSaved={onSaved}
         />
       )}
-    </Dialog>
+    </ResponsiveDialog>
   );
 }
 
@@ -78,19 +78,19 @@ function TemplateForm({
   });
 
   return (
-    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle>
+    <ResponsiveDialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <ResponsiveDialogHeader>
+        <ResponsiveDialogTitle>
           {editTemplate
             ? form.t.reminders.templates.dialog.editTitle
             : form.t.reminders.templates.dialog.newTitle}
-        </DialogTitle>
-        <DialogDescription>
+        </ResponsiveDialogTitle>
+        <ResponsiveDialogDescription>
           {editTemplate
             ? form.t.reminders.templates.dialog.editTitle
             : form.t.reminders.templates.dialog.newTitle}
-        </DialogDescription>
-      </DialogHeader>
+        </ResponsiveDialogDescription>
+      </ResponsiveDialogHeader>
 
       <div className="grid gap-4 py-4">
         {/* Name */}
@@ -166,7 +166,7 @@ function TemplateForm({
         />
       </div>
 
-      <DialogFooter>
+      <ResponsiveDialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           {form.t.common.cancel}
         </Button>
@@ -177,7 +177,7 @@ function TemplateForm({
               ? form.t.reminders.templates.dialog.save
               : form.t.reminders.templates.dialog.create}
         </Button>
-      </DialogFooter>
-    </DialogContent>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
   );
 }

@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getProfessionalId } from "@/lib/auth";
-import { getServerLocale } from "@/lib/i18n/server";
 import { ProPageHeader } from "../../_components/pro-page-header";
 import { RemindersClient } from "./_components/RemindersClient";
 import type {
@@ -25,7 +24,6 @@ export default async function RemindersPage() {
   ]);
 
   const supabase = await createClient();
-  const locale = await getServerLocale();
 
   // Compute current month boundaries (UTC)
   const now = new Date();
@@ -64,12 +62,12 @@ export default async function RemindersPage() {
       .eq("professional_id", professionalId)
       .order("created_at", { ascending: false }),
 
-    // Global templates (filtered by user's locale)
+    // Global templates (prefer user's locale, fallback to all)
     supabase
       .from("message_templates")
       .select("*")
       .eq("is_global", true)
-      .eq("locale", locale)
+      .eq("is_active", true)
       .order("created_at", { ascending: false }),
 
     // Notification history (last 100)

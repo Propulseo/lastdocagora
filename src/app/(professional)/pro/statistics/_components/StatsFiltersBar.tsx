@@ -66,7 +66,7 @@ export function StatsFiltersBar({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3 overflow-x-auto whitespace-nowrap">
       {/* Period toggle */}
       <div className="inline-flex items-center rounded-lg bg-muted p-0.5">
         {RANGES.map((range) => (
@@ -74,7 +74,7 @@ export function StatsFiltersBar({
             key={range}
             onClick={() => updateParam("range", range)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors min-h-[44px]",
               currentRange === range
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",

@@ -3,15 +3,14 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/shared/responsive-dialog";
+import { Button } from "@/components/ui/button";
 import { deletePatient } from "@/app/(professional)/_actions/patients";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
@@ -45,31 +44,33 @@ export function DeletePatientDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="p-6">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>
             {pt.deletePatient}: {patientName}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+          </ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             {pt.deletePatientConfirm}
             <br />
             <span className="mt-1 block text-xs text-muted-foreground">
               {pt.deletePatientWarning}
             </span>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-          <AlertDialogAction
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
+        <ResponsiveDialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t.common.cancel}
+          </Button>
+          <Button
             onClick={handleDelete}
             disabled={isDeleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {isDeleting ? pt.deleting : pt.deletePatient}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

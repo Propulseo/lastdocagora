@@ -43,8 +43,8 @@ export const chatMessageSchema = z.object({
 })
 
 export const aiSearchInputSchema = z.object({
-  message: z.string().min(1).max(500),
-  history: z.array(chatMessageSchema).max(20).default([]),
+  message: z.string().min(1, "A mensagem não pode estar vazia.").max(500, "A mensagem não pode exceder 500 caracteres."),
+  history: z.array(chatMessageSchema).max(20, "Histórico demasiado longo.").default([]),
 })
 
 export type AISearchInput = z.infer<typeof aiSearchInputSchema>

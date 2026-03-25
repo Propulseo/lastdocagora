@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { MonthDayCell } from "./MonthDayCell";
-import { MonthDayDetailDialog } from "./MonthDayDetailDialog";
+import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
+import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import { toLocalDateStr } from "../_lib/date-utils";
 
 /** Mon..Sun JS day indices */
@@ -48,6 +49,7 @@ interface MonthGridProps {
   loading: boolean;
   selectedDate: string;
   onDayClick: (date: string) => void;
+  onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
 }
 
 export function MonthGrid({
@@ -56,9 +58,10 @@ export function MonthGrid({
   loading,
   selectedDate,
   onDayClick,
+  onAttendanceChange,
 }: MonthGridProps) {
   const { t } = useProfessionalI18n();
-  const [selected, setSelected] = useState<Appointment | null>(null);
+  const attendance = useAttendanceAction(onAttendanceChange);
 
   const weeks = useMemo(() => getMonthGrid(selectedDate), [selectedDate]);
   const currentMonth = new Date(selectedDate + "T00:00:00").getMonth();
@@ -131,7 +134,7 @@ export function MonthGrid({
                     appointments={appointmentsByDate.get(date) ?? []}
                     externalEvents={externalByDate.get(date) ?? []}
                     onDayClick={onDayClick}
-                    onAppointmentClick={setSelected}
+                    onAppointmentClick={attendance.setSelected}
                   />
                 );
               })}
@@ -140,9 +143,18 @@ export function MonthGrid({
         </CardContent>
       </Card>
 
-      <MonthDayDetailDialog
-        selected={selected}
-        onClose={() => setSelected(null)}
+      <AppointmentDetailDialog
+        selected={attendance.selected}
+        onClose={() => attendance.setSelected(null)}
+        onMarkAttendance={attendance.handleMarkAttendance}
+        onStatusChange={attendance.handleStatusChange}
+        isUpdating={attendance.isUpdating}
+        showCancelDialog={attendance.showCancelDialog}
+        onShowCancelDialog={attendance.setShowCancelDialog}
+        onCancelAppointment={attendance.handleCancelAppointment}
+        showRejectDialog={attendance.showRejectDialog}
+        onShowRejectDialog={attendance.setShowRejectDialog}
+        onRejectAppointment={attendance.handleRejectAppointment}
       />
     </>
   );

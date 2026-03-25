@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Download } from "lucide-react";
+import { Download, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
@@ -47,13 +47,13 @@ export function StatisticsClient({ data }: { data: StatisticsData }) {
         description={s.description}
         action={
           <div className="flex items-center gap-3">
-            <div className="flex rounded-lg border bg-muted p-0.5">
+            <div className="flex rounded-lg border bg-muted p-0.5 overflow-x-auto">
               {PERIOD_OPTIONS.map((opt) => (
                 <button
                   key={opt}
                   onClick={() => setRange(opt)}
                   className={cn(
-                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors min-h-[44px] sm:min-h-0 whitespace-nowrap",
                     data.range === opt
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground",
@@ -63,7 +63,7 @@ export function StatisticsClient({ data }: { data: StatisticsData }) {
                 </button>
               ))}
             </div>
-            <Button variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:flex">
               <Download className="mr-1.5 size-4" />
               {s.exportCsv}
             </Button>
@@ -73,16 +73,25 @@ export function StatisticsClient({ data }: { data: StatisticsData }) {
 
       <KPIStrip kpis={data.kpis} />
 
-      <GrowthChart data={data.growth} />
+      {/* Charts: hidden on mobile */}
+      <div className="hidden sm:block">
+        <GrowthChart data={data.growth} />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="hidden sm:grid gap-6 lg:grid-cols-2">
         <ActivityChart data={data.activity} rates={data.rates} />
         <DistributionCharts proStatus={data.proStatus} bookingChannel={data.bookingChannel} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="hidden sm:grid gap-6 lg:grid-cols-2">
         <TopProfessionals data={data.topProfessionals} />
         <SpecialtyChart data={data.topSpecialties} />
+      </div>
+
+      {/* Mobile hint card */}
+      <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 sm:hidden">
+        <Monitor className="size-5 text-muted-foreground shrink-0" />
+        <p className="text-sm text-muted-foreground">{t.mobile.fullStatsHint}</p>
       </div>
 
       <AlertsPanel alerts={data.alerts} />

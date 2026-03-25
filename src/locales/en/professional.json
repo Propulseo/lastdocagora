@@ -1,4 +1,16 @@
 {
+  "mobileNav": {
+    "dashboard": "Dashboard",
+    "agenda": "Agenda",
+    "patients": "Patients",
+    "statistics": "Stats",
+    "more": "More",
+    "services": "Services",
+    "reminders": "Reminders",
+    "support": "Support",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
   "sidebar": {
     "roleLabel": "Professional",
     "logout": "Log out"
@@ -810,7 +822,11 @@
     "bio": "Biography",
     "bioPlaceholder": "Describe your background and approach...",
     "subspecialtiesHint": "Separate with commas",
-    "languagesHint": "Separate with commas"
+    "languagesHint": "Separate with commas",
+    "geocodedVisible": "Visible on the search map",
+    "geocodedMissing": "Address not geocoded — save your profile to appear on the map",
+    "saveSuccessGeocoded": "Profile updated. Map location updated.",
+    "saveSuccessNoGeocode": "Profile updated. Location not found — please check the address."
   },
   "settings": {
     "title": "Settings",

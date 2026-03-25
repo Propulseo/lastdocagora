@@ -68,16 +68,18 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
     <Tabs defaultValue="appointments" className="space-y-4">
       <TabsList>
         <TabsTrigger value="appointments">
-          {t.statistics.analyze?.tabAppointments ?? "Rendez-vous"}
+          {t.statistics.analyze?.tabAppointments ?? "Consultas"}
         </TabsTrigger>
         <TabsTrigger value="performance">
-          {t.statistics.analyze?.tabPerformance ?? "Performance"}
+          {t.statistics.analyze?.tabPerformance ?? "Desempenho"}
         </TabsTrigger>
       </TabsList>
 
       {/* ── Rendez-vous tab ── */}
       <TabsContent value="appointments" className="space-y-4">
-        <TrendsChart data={trends} />
+        <div className="hidden sm:block">
+          <TrendsChart data={trends} />
+        </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <MiniKpi
             label={t.statistics.kpi.totalAppointments}
@@ -102,7 +104,9 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
           />
         </div>
 
-        <HeatmapChart data={heatmap} />
+        <div className="hidden sm:block">
+          <HeatmapChart data={heatmap} />
+        </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
           <ServiceBreakdownChart data={serviceBreakdown} />
@@ -116,20 +120,20 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
       <TabsContent value="performance" className="space-y-4">
         <RevenueChart
           data={revenueTrends}
-          title={t.statistics.analyze?.revenueTitle ?? "Évolution des revenus"}
-          description={t.statistics.analyze?.revenueDesc ?? "Revenus quotidiens sur la période"}
+          title={t.statistics.analyze?.revenueTitle ?? "Evolução das receitas"}
+          description={t.statistics.analyze?.revenueDesc ?? "Receitas diárias no período"}
           locale={locale}
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MiniKpi
-            label={t.statistics.analyze?.totalRevenue ?? "Revenus totaux"}
+            label={t.statistics.analyze?.totalRevenue ?? "Receitas totais"}
             value={formatCurrency(totalRevenue, locale)}
             icon={Banknote}
             color="text-emerald-500"
             bg="bg-emerald-500/10"
           />
           <MiniKpi
-            label={t.statistics.analyze?.avgRevenue ?? "Revenu moyen / RDV"}
+            label={t.statistics.analyze?.avgRevenue ?? "Receita média / consulta"}
             value={formatCurrency(avgRevenue, locale)}
             icon={Banknote}
             color="text-blue-500"
@@ -143,7 +147,7 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
             bg="bg-violet-500/10"
           />
           <MiniKpi
-            label={t.statistics.analyze?.recurringPatients ?? "Patients récurrents"}
+            label={t.statistics.analyze?.recurringPatients ?? "Pacientes recorrentes"}
             value={String(kpi.returningPatientsCount)}
             icon={Users}
             color="text-amber-500"
