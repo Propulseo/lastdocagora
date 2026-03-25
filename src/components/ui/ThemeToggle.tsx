@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { Moon, Sun } from "lucide-react"
-import { useSyncExternalStore } from "react"
+import { useSyncExternalStore, useCallback } from "react"
 
 const subscribe = () => () => {}
 const getSnapshot = () => true
@@ -13,20 +13,72 @@ interface ThemeToggleProps {
   variant?: "icon" | "pill"
 }
 
+function useToggleTheme() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
+  const toggle = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const newTheme = isDark ? "light" : "dark"
+
+      // Fallback if View Transitions API not supported
+      if (
+        !document.startViewTransition ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        setTheme(newTheme)
+        return
+      }
+
+      // Get click position as animation origin
+      const x = e.clientX
+      const y = e.clientY
+
+      // Largest radius needed to cover the entire viewport
+      const maxRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+      )
+
+      const transition = document.startViewTransition(() => {
+        setTheme(newTheme)
+      })
+
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${maxRadius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 500,
+            easing: "ease-in-out",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        )
+      })
+    },
+    [isDark, setTheme],
+  )
+
+  return { isDark, toggle }
+}
+
 export function ThemeToggle({
   size = "md",
   variant = "icon"
 }: ThemeToggleProps) {
-  const { resolvedTheme, setTheme } = useTheme()
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
-  if (!mounted) return <div className={size === "sm" ? "size-8" : "size-9"} />
+  const { isDark, toggle } = useToggleTheme()
 
-  const isDark = resolvedTheme === "dark"
+  if (!mounted) return <div className={size === "sm" ? "size-8" : "size-9"} />
 
   if (variant === "pill") {
     return (
       <button
-        onClick={() => setTheme(isDark ? "light" : "dark")}
+        onClick={toggle}
         className={`
           relative flex items-center gap-2 px-3 py-1.5 rounded-full
           text-sm font-medium transition-colors
@@ -52,7 +104,7 @@ export function ThemeToggle({
 
   return (
     <button
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggle}
       className={`
         relative ${btnClass} flex items-center justify-center shrink-0
         transition-colors
