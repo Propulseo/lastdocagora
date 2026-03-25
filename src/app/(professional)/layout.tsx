@@ -12,8 +12,10 @@ import { getProfessionalI18n } from "@/lib/i18n/pro/server";
 import { ProfessionalI18nProvider } from "@/lib/i18n/pro";
 import { ProLayoutHeaderTitle } from "./_components/pro-layout-header-title";
 import { RoleBodyClass } from "@/components/role-body-class";
-import { ProThemeToggle } from "@/components/pro-theme-toggle";
-import { ProThemeSync } from "@/components/pro-theme-sync";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { ThemeSync } from "@/components/theme-sync";
+import { ProBottomNav } from "./_components/pro-bottom-nav";
+import { ProMobileHeader } from "./_components/pro-mobile-header";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -80,23 +82,27 @@ export default async function ProfessionalLayout({
   return (
     <>
       <RoleBodyClass role="role-professional" />
-      <ProThemeSync userId={user.id} />
+      <ThemeSync userId={user.id} target="professional_settings" />
       <ProfessionalI18nProvider translations={t} locale={locale}>
         <SidebarProvider>
-          <ProSidebar user={sidebarUser} openTicketCount={unreadCount} />
+          <div className="hidden lg:contents">
+            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} />
+          </div>
           <SidebarInset>
-            <header className="flex h-14 items-center border-b border-border/60 px-6">
+            <ProMobileHeader user={sidebarUser} />
+            <header className="hidden lg:flex h-14 items-center border-b border-border/60 px-6">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
               <div className="ml-auto">
-                <ProThemeToggle />
+                <ThemeToggle />
               </div>
             </header>
-            <main className="pro-dashboard w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
+            <main className="pro-dashboard w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
               {children}
             </main>
           </SidebarInset>
+          <ProBottomNav />
         </SidebarProvider>
       </ProfessionalI18nProvider>
     </>
