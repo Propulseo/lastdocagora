@@ -32,6 +32,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { adminNavGroups } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
@@ -126,6 +127,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
             </span>
           </div>
           <LanguageSwitcher locale={locale} />
+          <ThemeToggle size="sm" />
           <button
             onClick={handleLogout}
             className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"

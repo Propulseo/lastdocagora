@@ -5,6 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { adminNav } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function AdminTopbar() {
   const pathname = usePathname();
@@ -18,10 +19,13 @@ export function AdminTopbar() {
     : t.topbar.fallbackTitle;
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b border-border/60 px-6">
+    <header className="hidden lg:flex h-14 items-center gap-3 border-b border-border/60 px-6">
       <SidebarTrigger className="-ml-2" aria-label={t.topbar.toggleSidebar} />
       <Separator orientation="vertical" className="h-5" />
       <h2 className="text-sm font-medium">{title}</h2>
+      <div className="ml-auto">
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
