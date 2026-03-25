@@ -11,7 +11,10 @@ import { Separator } from "@/components/ui/separator"
 import { getLocale, getPatientTranslations } from "@/locales/patient"
 import { PatientLocaleProvider } from "@/locales/locale-context"
 import { RoleBodyClass } from "@/components/role-body-class"
+import { ThemeSync } from "@/components/theme-sync"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { PatientLayoutHeader } from "./_components/patient-layout-header"
+import { PatientBottomNav } from "./_components/patient-bottom-nav"
 
 export default async function PatientLayout({
   children,
@@ -60,19 +63,28 @@ export default async function PatientLayout({
   return (
     <>
       <RoleBodyClass role="role-patient" />
+      <ThemeSync userId={user.id} target="patient_settings" />
       <SidebarProvider>
         <PatientLocaleProvider locale={locale}>
-          <PatientSidebar user={userInfo} unreadCount={notificationCount} locale={locale} />
+          <div className="hidden lg:contents">
+            <PatientSidebar user={userInfo} unreadCount={notificationCount} locale={locale} />
+          </div>
           <SidebarInset>
             <header className="flex h-14 items-center border-b px-4">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
+              <div className="hidden lg:flex lg:items-center">
+                <SidebarTrigger />
+                <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
+              </div>
               <PatientLayoutHeader />
+              <div className="ml-auto">
+                <ThemeToggle size="sm" />
+              </div>
             </header>
-            <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
+            <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
               {children}
             </div>
           </SidebarInset>
+          <PatientBottomNav />
         </PatientLocaleProvider>
       </SidebarProvider>
     </>

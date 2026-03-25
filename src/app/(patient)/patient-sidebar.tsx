@@ -12,7 +12,6 @@ import {
   Settings,
   LogOut,
   Heart,
-  ChevronsUpDown,
 } from "lucide-react"
 import { patientNav } from "@/config/patient-nav"
 import {
@@ -28,17 +27,9 @@ import {
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 
 const iconMap = {
   LayoutDashboard,
@@ -128,69 +119,32 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-2">
-        <div className="flex items-center justify-end group-data-[collapsible=icon]:hidden">
+      <SidebarFooter className="border-t px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Avatar size="sm">
+            {user.avatarUrl && (
+              <AvatarImage src={user.avatarUrl} alt={user.name} />
+            )}
+            <AvatarFallback>{user.initials}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1 text-sm leading-tight">
+            <span className="truncate font-medium block">
+              {user.name}
+            </span>
+            <span className="text-muted-foreground truncate text-xs block">
+              {user.email}
+            </span>
+          </div>
           <LanguageSwitcher locale={locale} />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="w-full transition-colors duration-150"
-            >
-              <Avatar size="sm">
-                {user.avatarUrl && (
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                )}
-                <AvatarFallback>{user.initials}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-1 flex-col overflow-hidden text-left group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm font-medium">
-                  {user.name}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="start"
-            className="w-56"
+          <ThemeToggle size="sm" />
+          <button
+            onClick={handleLogout}
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={t.common.logout}
           >
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">{user.name}</p>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/patient/profile">
-                  <UserCircle className="size-4" />
-                  {t.common.myProfile}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/patient/settings">
-                  <Settings className="size-4" />
-                  {t.common.settings}
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={handleLogout}
-            >
-              <LogOut className="size-4" />
-              {t.common.logout}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <LogOut className="size-4" />
+          </button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
