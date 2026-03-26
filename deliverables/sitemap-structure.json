@@ -1,0 +1,628 @@
+{
+  "meta": {
+    "project": "DOCAGORA",
+    "version": "0.1.0",
+    "generated": "2026-03-25",
+    "description": "Complete multi-role sitemap for Figma wireframing — 29 pages, 8 user flows, full permissions matrix",
+    "priorityLegend": {
+      "P0": "MVP — Must have for launch",
+      "P1": "Post-MVP — Important but can follow",
+      "P2": "Future — Nice-to-have / planned"
+    }
+  },
+
+  "pages": [
+    {
+      "id": "root",
+      "path": "/",
+      "label": "Root Redirect",
+      "role": "all",
+      "auth": "public",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Server component — redirects authenticated users to role-specific dashboard, unauthenticated to /login"
+    },
+
+    {
+      "id": "auth-login",
+      "path": "/login",
+      "label": "Login",
+      "role": "public",
+      "auth": "public",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Email/password login with Supabase auth. Redirects authenticated users to /. Includes role-based post-login routing."
+    },
+    {
+      "id": "auth-register",
+      "path": "/register",
+      "label": "Register",
+      "role": "public",
+      "auth": "public",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Registration with role selection (patient or professional). Creates user + role-specific profile in Supabase."
+    },
+
+    {
+      "id": "patient-dashboard",
+      "path": "/patient/dashboard",
+      "label": "Patient Dashboard",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Welcome greeting, next appointment card, recent 5 appointments list. Landing page after patient login."
+    },
+    {
+      "id": "patient-search",
+      "path": "/patient/search",
+      "label": "Search Professionals",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": ["patient-search-detail"],
+      "notes": "Professional search with query, specialty, city filters. Three tabs: Classic grid, Map view, AI-powered search. Parallel availability slot lookup via RPC."
+    },
+    {
+      "id": "patient-search-detail",
+      "path": "/patient/search/[id]",
+      "label": "Professional Detail",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": "patient-search",
+      "children": [],
+      "notes": "Professional profile with bio, services, reviews, availability calendar, booking form. Dynamic route."
+    },
+    {
+      "id": "patient-appointments",
+      "path": "/patient/appointments",
+      "label": "My Appointments",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Tabbed view: upcoming, past, cancelled. Each card shows status, rating option for completed, cancellation dialog. Tracks which appointments have been rated."
+    },
+    {
+      "id": "patient-profile",
+      "path": "/patient/profile",
+      "label": "Patient Profile",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "User profile + patient details: address, insurance info, emergency contact. Edit form with Zod validation."
+    },
+    {
+      "id": "patient-messages",
+      "path": "/patient/messages",
+      "label": "Messages / Notifications",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Notifications list (50 max) with read status tracking. Serves as the notification center."
+    },
+    {
+      "id": "patient-notifications",
+      "path": "/patient/notifications",
+      "label": "Notifications Redirect",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P1",
+      "status": "redirect",
+      "parent": null,
+      "children": [],
+      "notes": "Redirects to /patient/messages. Exists for URL consistency."
+    },
+    {
+      "id": "patient-settings",
+      "path": "/patient/settings",
+      "label": "Patient Settings",
+      "role": "patient",
+      "auth": "patient,admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Notification preferences: email, SMS, appointment reminders, marketing. Toggle switches for each channel."
+    },
+
+    {
+      "id": "pro-dashboard",
+      "path": "/pro/dashboard",
+      "label": "Professional Dashboard",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "KPI strip (today appointments, revenue, patients, attendance rate), today's schedule, 7-day activity chart, quick actions, utility widgets. Staggered animation on load."
+    },
+    {
+      "id": "pro-agenda",
+      "path": "/pro/agenda",
+      "label": "Agenda / Calendar",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Full calendar with day/week/month views. Appointment management, attendance tracking (present/late/absent/no-show), availability slots creation. Manual appointment creation. Google Calendar integration dialog. Auto-switches to day view on mobile."
+    },
+    {
+      "id": "pro-patients",
+      "path": "/pro/patients",
+      "label": "Patients Management",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Patient list with KPIs (acquisition trends, insurance breakdown, frequency distribution). CRUD operations (create, edit, delete). Paginated table with search and filters. Charts for acquisition and insurance."
+    },
+    {
+      "id": "pro-services",
+      "path": "/pro/services",
+      "label": "Services Management",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Services CRUD with KPIs (revenue per service, appointment volume). Table with pricing, duration, active/inactive toggle. Charts for revenue and appointment volume."
+    },
+    {
+      "id": "pro-statistics",
+      "path": "/pro/statistics",
+      "label": "Statistics & Analytics",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Advanced analytics with KPIs (attendance, no-show, cancellation rates, revenue). Analyze and Compare modes. Heatmap, punctuality, service breakdown, AI insights. Date range and service filters. Year navigator."
+    },
+    {
+      "id": "pro-reminders",
+      "path": "/pro/reminders",
+      "label": "Reminders & Templates",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Reminder rules and message templates management. KPIs (sent, delivered, bounce rate). Delivery trends, channel distribution, status charts. Tabs: rules, templates, history, settings. Email/SMS/WhatsApp channels."
+    },
+    {
+      "id": "pro-profile",
+      "path": "/pro/profile",
+      "label": "Professional Profile",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Professional profile display with recent ratings (10 max). Profile editing."
+    },
+    {
+      "id": "pro-support",
+      "path": "/pro/support",
+      "label": "Support Tickets",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Support ticket list with KPIs (total, open, resolved). Ticket conversation threads. Create new ticket dialog."
+    },
+    {
+      "id": "pro-settings",
+      "path": "/pro/settings",
+      "label": "Professional Settings",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Auto-confirm appointments, notification channels, defaults. Toggle switches per setting."
+    },
+    {
+      "id": "pro-appointments-new",
+      "path": "/pro/appointments/new",
+      "label": "New Appointment Redirect",
+      "role": "professional",
+      "auth": "professional",
+      "priority": "P0",
+      "status": "redirect",
+      "parent": "pro-agenda",
+      "children": [],
+      "notes": "Redirects to /pro/agenda?create=true. Opens manual appointment creation dialog."
+    },
+
+    {
+      "id": "admin-dashboard",
+      "path": "/admin/dashboard",
+      "label": "Admin Dashboard",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Platform overview: KPIs (total patients, verified professionals, monthly appointments, open tickets), today's count, pending verifications, top professionals table."
+    },
+    {
+      "id": "admin-users",
+      "path": "/admin/users",
+      "label": "User Management",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "All users table with role/status/search filters. Pagination. Role badges, verification status, action buttons."
+    },
+    {
+      "id": "admin-professionals",
+      "path": "/admin/professionals",
+      "label": "Professional Management",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Professional list with specialty/city/status filters. Verification status management. Rating display. Pagination."
+    },
+    {
+      "id": "admin-appointments",
+      "path": "/admin/appointments",
+      "label": "Appointments Overview",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P0",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Platform-wide appointments table with status/date/professional filters. Advanced joins for participant data. Pagination."
+    },
+    {
+      "id": "admin-statistics",
+      "path": "/admin/statistics",
+      "label": "Platform Statistics",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Analytics dashboard: KPI strip, activity chart, growth chart, specialty distribution, professional/patient distribution, top professionals, alerts panel. Date range filtering."
+    },
+    {
+      "id": "admin-content",
+      "path": "/admin/content",
+      "label": "Content Management",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Content pages and FAQs management. Tabbed interface. Publication status toggling."
+    },
+    {
+      "id": "admin-support",
+      "path": "/admin/support",
+      "label": "Support Tickets",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "Support ticket management with status/priority/date filters. Ticket rows with priority badges."
+    },
+    {
+      "id": "admin-settings",
+      "path": "/admin/settings",
+      "label": "System Settings",
+      "role": "admin",
+      "auth": "admin",
+      "priority": "P1",
+      "status": "implemented",
+      "parent": null,
+      "children": [],
+      "notes": "System-wide settings grouped by prefix from system_settings table. Key-value configuration."
+    }
+  ],
+
+  "flows": [
+    {
+      "id": "flow-patient-booking",
+      "name": "Patient Booking Flow",
+      "role": "patient",
+      "priority": "P0",
+      "description": "Complete end-to-end appointment booking from search to confirmation",
+      "steps": [
+        { "page": "patient-search", "action": "Search by name, specialty, or city" },
+        { "page": "patient-search", "action": "Browse results in grid, map, or AI chat" },
+        { "page": "patient-search-detail", "action": "View professional profile, services, reviews (optional)" },
+        { "page": "patient-search", "action": "Click 'Book' on ProfessionalCard — opens BookingModal" },
+        { "page": "patient-search", "action": "Step 1: Select service (auto-skipped if single service)" },
+        { "page": "patient-search", "action": "Step 2: Pick date on calendar, choose time slot (morning/afternoon)" },
+        { "page": "patient-search", "action": "Step 3: Add optional notes, confirm booking" },
+        { "page": "patient-appointments", "action": "Appointment appears in 'Upcoming' tab" }
+      ]
+    },
+    {
+      "id": "flow-patient-manage",
+      "name": "Patient Appointment Management",
+      "role": "patient",
+      "priority": "P0",
+      "description": "View, cancel, and rate appointments",
+      "steps": [
+        { "page": "patient-appointments", "action": "View upcoming/past/cancelled tabs" },
+        { "page": "patient-appointments", "action": "Cancel upcoming appointment via CancelDialog (with reason)" },
+        { "page": "patient-appointments", "action": "Rate completed appointment via RatingDialog (score + comment)" }
+      ]
+    },
+    {
+      "id": "flow-patient-onboard",
+      "name": "Patient Registration & Onboarding",
+      "role": "patient",
+      "priority": "P0",
+      "description": "New patient registration and first login",
+      "steps": [
+        { "page": "auth-register", "action": "Fill registration form, select 'patient' role" },
+        { "page": "root", "action": "Auto-redirect to patient dashboard" },
+        { "page": "patient-dashboard", "action": "See welcome message, empty state prompts" },
+        { "page": "patient-profile", "action": "Complete profile (address, insurance, emergency contact)" }
+      ]
+    },
+    {
+      "id": "flow-pro-daily",
+      "name": "Professional Daily Workflow",
+      "role": "professional",
+      "priority": "P0",
+      "description": "Morning check-in and daily appointment management",
+      "steps": [
+        { "page": "pro-dashboard", "action": "Review KPIs: today's appointments, attendance rate, revenue" },
+        { "page": "pro-dashboard", "action": "Check today's schedule in TodaySchedule widget" },
+        { "page": "pro-agenda", "action": "Open agenda in day view (auto-selected on mobile)" },
+        { "page": "pro-agenda", "action": "Review and confirm pending appointments" },
+        { "page": "pro-agenda", "action": "Mark attendance: present, late, or absent for each patient" },
+        { "page": "pro-agenda", "action": "View appointment details via AppointmentDetailDialog" }
+      ]
+    },
+    {
+      "id": "flow-pro-availability",
+      "name": "Professional Availability Management",
+      "role": "professional",
+      "priority": "P0",
+      "description": "Set up and manage availability slots",
+      "steps": [
+        { "page": "pro-agenda", "action": "Navigate to week or month view" },
+        { "page": "pro-agenda", "action": "Click 'New Availability' button — opens NewAvailabilityModal" },
+        { "page": "pro-agenda", "action": "Set day, start time, end time, recurrence" },
+        { "page": "pro-agenda", "action": "Availability slots appear on calendar as green blocks" },
+        { "page": "pro-agenda", "action": "Patients can now book into these slots via search" }
+      ]
+    },
+    {
+      "id": "flow-pro-patient-mgmt",
+      "name": "Professional Patient Management",
+      "role": "professional",
+      "priority": "P0",
+      "description": "Manage patient records and create manual appointments",
+      "steps": [
+        { "page": "pro-patients", "action": "View patient list with KPIs and charts" },
+        { "page": "pro-patients", "action": "Create new patient via CreatePatientDialog" },
+        { "page": "pro-patients", "action": "Edit patient details via EditPatientDialog" },
+        { "page": "pro-agenda", "action": "Create manual appointment for existing patient via CreateManualAppointmentDialog" }
+      ]
+    },
+    {
+      "id": "flow-admin-verify",
+      "name": "Admin Professional Verification",
+      "role": "admin",
+      "priority": "P0",
+      "description": "Review and verify new professional registrations",
+      "steps": [
+        { "page": "admin-dashboard", "action": "See pending verifications count in KPI card" },
+        { "page": "admin-professionals", "action": "Filter by verification status 'pending'" },
+        { "page": "admin-professionals", "action": "Review professional profile, specialty, credentials" },
+        { "page": "admin-professionals", "action": "Approve or reject verification" }
+      ]
+    },
+    {
+      "id": "flow-admin-oversight",
+      "name": "Admin Platform Oversight",
+      "role": "admin",
+      "priority": "P0",
+      "description": "Monitor platform health and manage users",
+      "steps": [
+        { "page": "admin-dashboard", "action": "Review KPIs: patients, professionals, appointments, tickets" },
+        { "page": "admin-statistics", "action": "Analyze growth trends, specialty distribution, alerts" },
+        { "page": "admin-users", "action": "Search and manage user accounts" },
+        { "page": "admin-appointments", "action": "Monitor platform-wide appointments" },
+        { "page": "admin-support", "action": "Handle open support tickets by priority" }
+      ]
+    }
+  ],
+
+  "permissions": {
+    "legend": {
+      "full": "Full access — can view and interact with all features",
+      "read": "Read-only — can view but not modify",
+      "none": "No access — redirected away",
+      "redirect": "Automatically redirected to another page"
+    },
+    "matrix": [
+      { "page": "/",                      "public": "redirect", "patient": "redirect", "professional": "redirect", "admin": "redirect" },
+      { "page": "/login",                 "public": "full",     "patient": "redirect", "professional": "redirect", "admin": "redirect" },
+      { "page": "/register",              "public": "full",     "patient": "redirect", "professional": "redirect", "admin": "redirect" },
+      { "page": "/patient/dashboard",     "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/search",        "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/search/[id]",   "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/appointments",  "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/profile",       "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/messages",      "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/patient/notifications", "public": "none",     "patient": "redirect", "professional": "none",     "admin": "redirect" },
+      { "page": "/patient/settings",      "public": "none",     "patient": "full",     "professional": "none",     "admin": "full" },
+      { "page": "/pro/dashboard",         "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/agenda",            "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/patients",          "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/services",          "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/statistics",        "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/reminders",         "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/profile",           "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/support",           "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/settings",          "public": "none",     "patient": "none",     "professional": "full",     "admin": "none" },
+      { "page": "/pro/appointments/new",  "public": "none",     "patient": "none",     "professional": "redirect", "admin": "none" },
+      { "page": "/admin/dashboard",       "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/users",           "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/professionals",   "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/appointments",    "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/statistics",      "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/content",         "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/support",         "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" },
+      { "page": "/admin/settings",        "public": "none",     "patient": "none",     "professional": "none",     "admin": "full" }
+    ]
+  },
+
+  "apiRoutes": [
+    {
+      "path": "/api/integrations/google/start",
+      "method": "GET",
+      "auth": "professional",
+      "priority": "P2",
+      "description": "Initiates Google OAuth 2.0 flow for calendar integration"
+    },
+    {
+      "path": "/api/integrations/google/callback",
+      "method": "GET",
+      "auth": "professional",
+      "priority": "P2",
+      "description": "Handles OAuth callback, exchanges code for tokens, syncs calendars"
+    },
+    {
+      "path": "/api/integrations/connections",
+      "method": "GET,DELETE",
+      "auth": "professional",
+      "priority": "P2",
+      "description": "List or revoke calendar connections"
+    },
+    {
+      "path": "/api/integrations/calendars",
+      "method": "GET,PATCH",
+      "auth": "professional",
+      "priority": "P2",
+      "description": "List calendars, toggle sync selection"
+    },
+    {
+      "path": "/api/integrations/sync",
+      "method": "POST",
+      "auth": "professional",
+      "priority": "P2",
+      "description": "Trigger sync for all selected calendars"
+    }
+  ],
+
+  "navigation": {
+    "patient": {
+      "items": [
+        { "label": "Dashboard", "path": "/patient/dashboard", "icon": "LayoutDashboard" },
+        { "label": "Pesquisar", "path": "/patient/search", "icon": "Search" },
+        { "label": "Consultas", "path": "/patient/appointments", "icon": "Calendar" },
+        { "label": "Perfil", "path": "/patient/profile", "icon": "UserCircle" },
+        { "label": "Mensagens", "path": "/patient/messages", "icon": "Bell" },
+        { "label": "Definicoes", "path": "/patient/settings", "icon": "Settings" }
+      ]
+    },
+    "professional": {
+      "groups": [
+        {
+          "label": "Principal",
+          "items": [
+            { "label": "Dashboard", "path": "/pro/dashboard", "icon": "LayoutDashboard" },
+            { "label": "Agenda", "path": "/pro/agenda", "icon": "Calendar" },
+            { "label": "Pacientes", "path": "/pro/patients", "icon": "Users" }
+          ]
+        },
+        {
+          "label": "Gerir",
+          "items": [
+            { "label": "Lembretes", "path": "/pro/reminders", "icon": "Bell" },
+            { "label": "Servicos", "path": "/pro/services", "icon": "Briefcase" },
+            { "label": "Estatisticas", "path": "/pro/statistics", "icon": "BarChart3" }
+          ]
+        },
+        {
+          "label": "Conta",
+          "items": [
+            { "label": "Suporte", "path": "/pro/support", "icon": "LifeBuoy" },
+            { "label": "Meu Perfil", "path": "/pro/profile", "icon": "UserCircle" },
+            { "label": "Configuracoes", "path": "/pro/settings", "icon": "Settings" }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "groups": [
+        {
+          "label": "Geral",
+          "items": [
+            { "label": "Dashboard", "path": "/admin/dashboard", "icon": "LayoutDashboard" }
+          ]
+        },
+        {
+          "label": "Gestao",
+          "items": [
+            { "label": "Utilizadores", "path": "/admin/users", "icon": "Users" },
+            { "label": "Profissionais", "path": "/admin/professionals", "icon": "Stethoscope" },
+            { "label": "Consultas", "path": "/admin/appointments", "icon": "Calendar" },
+            { "label": "Estatisticas", "path": "/admin/statistics", "icon": "BarChart2" }
+          ]
+        },
+        {
+          "label": "Plataforma",
+          "items": [
+            { "label": "Conteudo", "path": "/admin/content", "icon": "FileText" },
+            { "label": "Suporte", "path": "/admin/support", "icon": "Headphones" },
+            { "label": "Definicoes", "path": "/admin/settings", "icon": "Settings" }
+          ]
+        }
+      ]
+    }
+  }
+}
