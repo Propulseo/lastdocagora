@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Building2, Globe, Shield, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,7 @@ export default async function ProfessionalDetailPage({
   const t = getPatientTranslations(locale)
   const dateLocale = getDateLocale(locale)
 
-  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, { data: patient }] = await Promise.all([
+  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, { data: patient }, { data: proInsurances }] = await Promise.all([
       supabase
         .from("professionals")
         .select(
@@ -65,6 +65,10 @@ export default async function ProfessionalDetailPage({
         .select("id")
         .eq("user_id", user.id)
         .single(),
+      supabase
+        .from("professional_insurances")
+        .select("insurance_provider_id, insurance_providers(name)")
+        .eq("professional_id", id),
     ])
 
   if (!professional) redirect("/patient/search")
@@ -76,7 +80,8 @@ export default async function ProfessionalDetailPage({
   const fullName = `${t.professional.namePrefix} ${u.first_name} ${u.last_name}`
   const initials = `${u.first_name?.[0] ?? ""}${u.last_name?.[0] ?? ""}`.toUpperCase()
 
-  const consultationTypeLabel = (_type: string) => {
+  const consultationTypeLabel = (type: string) => {
+    if (type === "online") return t.professionalDetail.online
     return t.professionalDetail.inPerson
   }
 
@@ -96,8 +101,15 @@ export default async function ProfessionalDetailPage({
           <Card>
             <CardContent className="pt-6">
               <div className="flex gap-4">
-                <Avatar className="size-16">
-                  <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">{initials}</AvatarFallback>
+                <Avatar className="size-24 md:size-32 border-2 border-background shadow-sm">
+                  <AvatarImage
+                    src={u.avatar_url ?? undefined}
+                    alt={fullName}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-primary/10 text-2xl md:text-3xl font-semibold text-primary">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1 space-y-2">
                   <div>
@@ -143,12 +155,17 @@ export default async function ProfessionalDetailPage({
                       ))}
                     </div>
                   )}
-                  {prof.insurances_accepted && prof.insurances_accepted.length > 0 && (
+                  {proInsurances && proInsurances.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2">
                       <Shield className="size-4 text-primary/60" />
-                      {prof.insurances_accepted.map((ins) => (
-                        <Badge key={ins} variant="outline">{ins}</Badge>
-                      ))}
+                      {proInsurances.map((row) => {
+                        const provider = row.insurance_providers as unknown as { name: string } | null
+                        return (
+                          <Badge key={row.insurance_provider_id} variant="outline">
+                            {provider?.name ?? row.insurance_provider_id}
+                          </Badge>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -246,7 +263,6 @@ export default async function ProfessionalDetailPage({
           <BookingForm
             professionalId={prof.id}
             professionalUserId={prof.user_id}
-            patientId={patient?.id ?? ""}
             patientUserId={user.id}
             services={services ?? []}
             availability={availability ?? []}

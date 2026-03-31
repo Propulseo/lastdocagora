@@ -76,5 +76,32 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(authRedirect);
   }
 
+  // Onboarding gate: redirect professionals who haven't completed onboarding
+  if (
+    user &&
+    pathname.startsWith("/pro/") &&
+    !pathname.startsWith("/pro/onboarding")
+  ) {
+    const { data: userRow } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (userRow?.role === "professional") {
+      const { data: pro } = await supabase
+        .from("professionals")
+        .select("onboarding_completed")
+        .eq("user_id", user.id)
+        .single();
+
+      if (pro && !pro.onboarding_completed) {
+        const onboardingRedirect = request.nextUrl.clone();
+        onboardingRedirect.pathname = "/pro/onboarding";
+        return NextResponse.redirect(onboardingRedirect);
+      }
+    }
+  }
+
   return supabaseResponse;
 }

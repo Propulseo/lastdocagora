@@ -13,6 +13,8 @@ import { getPresetRange } from "./compare-utils";
 export interface CompareState {
   presetA: PeriodPreset;
   presetB: PeriodPreset;
+  customRangeA: { from: string; to: string } | null;
+  customRangeB: { from: string; to: string } | null;
   dataA: PeriodStats | null;
   dataB: PeriodStats | null;
   loading: boolean;
@@ -23,16 +25,36 @@ export function useCompareData() {
   const [state, setState] = useState<CompareState>({
     presetA: "this-month",
     presetB: "last-month",
+    customRangeA: null,
+    customRangeB: null,
     dataA: null,
     dataB: null,
     loading: false,
   });
 
   const fetchBothPeriods = useCallback(
-    (presetA: PeriodPreset, presetB: PeriodPreset) => {
-      setState((prev) => ({ ...prev, presetA, presetB, loading: true }));
-      const rangeA = getPresetRange(presetA);
-      const rangeB = getPresetRange(presetB);
+    (
+      presetA: PeriodPreset,
+      presetB: PeriodPreset,
+      customA?: { from: string; to: string } | null,
+      customB?: { from: string; to: string } | null,
+    ) => {
+      setState((prev) => ({
+        ...prev,
+        presetA,
+        presetB,
+        customRangeA: customA ?? prev.customRangeA,
+        customRangeB: customB ?? prev.customRangeB,
+        loading: true,
+      }));
+
+      const rangeA = presetA === "custom" && customA ? customA : getPresetRange(presetA);
+      const rangeB = presetB === "custom" && customB ? customB : getPresetRange(presetB);
+
+      if (!rangeA.from || !rangeB.from) {
+        setState((prev) => ({ ...prev, loading: false }));
+        return;
+      }
 
       startTransition(async () => {
         const [dataA, dataB] = await Promise.all([
@@ -46,13 +68,15 @@ export function useCompareData() {
   );
 
   const setPresetA = useCallback(
-    (preset: PeriodPreset) => fetchBothPeriods(preset, state.presetB),
-    [fetchBothPeriods, state.presetB],
+    (preset: PeriodPreset, customRange?: { from: string; to: string } | null) =>
+      fetchBothPeriods(preset, state.presetB, customRange, state.customRangeB),
+    [fetchBothPeriods, state.presetB, state.customRangeB],
   );
 
   const setPresetB = useCallback(
-    (preset: PeriodPreset) => fetchBothPeriods(state.presetA, preset),
-    [fetchBothPeriods, state.presetA],
+    (preset: PeriodPreset, customRange?: { from: string; to: string } | null) =>
+      fetchBothPeriods(state.presetA, preset, state.customRangeA, customRange),
+    [fetchBothPeriods, state.presetA, state.customRangeA],
   );
 
   return {

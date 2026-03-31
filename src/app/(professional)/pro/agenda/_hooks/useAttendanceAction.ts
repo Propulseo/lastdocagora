@@ -5,6 +5,7 @@ import {
   updateAppointmentStatus,
   cancelAppointment,
   rejectAppointment,
+  proposeAlternativeTime,
 } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment } from "../_types/agenda";
@@ -25,6 +26,7 @@ export function useAttendanceAction(
   const [isUpdating, setIsUpdating] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showProposeDialog, setShowProposeDialog] = useState(false);
 
   async function handleMarkAttendance(newStatus: AttendanceStatus) {
     if (!selected || isUpdating) return;
@@ -150,6 +152,29 @@ export function useAttendanceAction(
     setIsUpdating(false);
   }
 
+  async function handleProposeAlternative(date: string, time: string, message: string) {
+    if (!selected || isUpdating) return;
+    const previousStatus = selected.status;
+
+    // Optimistic update
+    onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", "rejected");
+    setSelected((prev) => (prev ? { ...prev, status: "rejected" } : null));
+    setShowProposeDialog(false);
+    setIsUpdating(true);
+
+    const result = await proposeAlternativeTime(selected.id, date, time, message || undefined);
+
+    if (!result.success) {
+      onAttendanceChange(selected.id, selected.appointment_attendance?.status ?? "waiting", previousStatus);
+      setSelected((prev) => (prev ? { ...prev, status: previousStatus } : null));
+      toast.error(t.agenda.propose.error);
+    } else {
+      toast.success(t.agenda.propose.success);
+    }
+
+    setIsUpdating(false);
+  }
+
   return {
     selected,
     setSelected,
@@ -158,9 +183,12 @@ export function useAttendanceAction(
     setShowCancelDialog,
     showRejectDialog,
     setShowRejectDialog,
+    showProposeDialog,
+    setShowProposeDialog,
     handleMarkAttendance,
     handleStatusChange,
     handleCancelAppointment,
     handleRejectAppointment,
+    handleProposeAlternative,
   };
 }

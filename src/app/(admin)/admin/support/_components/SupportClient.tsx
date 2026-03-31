@@ -23,8 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { updateTicketStatus } from "@/app/(admin)/_actions/admin-actions";
+import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTransition } from "react";
@@ -60,8 +63,32 @@ function MobileTicketCard({ ticket }: { ticket: MappedTicket }) {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [, startTransition] = useTransition();
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const priority = ticket.priority ?? "medium";
+
+  async function handleReply() {
+    if (!replyText.trim()) return;
+    setSending(true);
+    const result = await replyToTicket(ticket.id, replyText);
+    setSending(false);
+    if (result.success) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          content: replyText.trim(),
+          created_at: new Date().toISOString(),
+          sender_id: "admin",
+        },
+      ]);
+      setReplyText("");
+      toast.success(t.support.replySent);
+    } else {
+      toast.error(result.error ?? t.support.replyError);
+    }
+  }
 
   async function toggleExpand() {
     if (!expanded && messages.length === 0) {
@@ -186,6 +213,24 @@ function MobileTicketCard({ ticket }: { ticket: MappedTicket }) {
               {t.support.noMessages}
             </p>
           )}
+          {/* Admin reply form */}
+          <div className="flex gap-2">
+            <Textarea
+              placeholder={t.support.replyPlaceholder}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              className="min-h-[60px] resize-none"
+            />
+            <Button
+              size="sm"
+              className="shrink-0 self-end"
+              disabled={sending || !replyText.trim()}
+              onClick={handleReply}
+            >
+              <Send className="size-4 mr-1" />
+              {sending ? "..." : t.support.sendButton}
+            </Button>
+          </div>
         </div>
       )}
     </div>

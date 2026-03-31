@@ -116,6 +116,7 @@ export type PatientDetailEnhanced = {
   totalSpent: number;
   avgSpent: number;
   allAppointments: {
+    id: string;
     date: string;
     time: string;
     status: string;
@@ -156,7 +157,7 @@ export async function getPatientDetailEnhanced(
       supabase
         .from("appointments")
         .select(
-          "appointment_date, appointment_time, status, notes, price, services(name), appointment_attendance(status, late_minutes)",
+          "id, appointment_date, appointment_time, status, notes, price, services(name), appointment_attendance(status, late_minutes)",
         )
         .eq("patient_id", patientId)
         .eq("professional_id", professionalId)
@@ -226,6 +227,7 @@ export async function getPatientDetailEnhanced(
       attendanceStatus = att[0].status;
     }
     return {
+      id: r.id,
       date: r.appointment_date,
       time: r.appointment_time,
       status: r.status,

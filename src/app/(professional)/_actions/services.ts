@@ -81,33 +81,43 @@ export async function updateService(
 }
 
 export async function deleteService(serviceId: string): Promise<ActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Not authenticated" };
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Not authenticated" };
 
-  // Check if service is used in appointments
-  const { count } = await supabase
-    .from("appointments")
-    .select("id", { count: "exact", head: true })
-    .eq("service_id", serviceId);
+    // Check if service is used in active appointments
+    const { count, error: countError } = await supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("service_id", serviceId)
+      .not("status", "in", '("cancelled","rejected")');
 
-  if (count && count > 0) {
+    if (countError) return { success: false, error: countError.message };
+
+    if (count && count > 0) {
+      return {
+        success: false,
+        error: `APPOINTMENTS_LINKED:${count}`,
+      };
+    }
+
+    const { error } = await supabase
+      .from("services")
+      .delete()
+      .eq("id", serviceId)
+      .eq("professional_user_id", user.id);
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath("/pro/services");
+    return { success: true };
+  } catch (err) {
     return {
       success: false,
-      error: "Cannot delete service with existing appointments. Deactivate it instead.",
+      error: err instanceof Error ? err.message : "Unknown error",
     };
   }
-
-  const { error } = await supabase
-    .from("services")
-    .delete()
-    .eq("id", serviceId)
-    .eq("professional_user_id", user.id);
-
-  if (error) return { success: false, error: error.message };
-
-  revalidatePath("/pro/services");
-  return { success: true };
 }

@@ -851,6 +851,36 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_providers: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       message_templates: {
         Row: {
           channel: string
@@ -1036,7 +1066,7 @@ export type Database = {
           public_profile: boolean
           reminder_frequency: string
           sms_notifications: boolean
-          theme_preference: string
+          theme_preference: string | null
           timezone: string
           updated_at: string
           user_id: string
@@ -1052,7 +1082,7 @@ export type Database = {
           public_profile?: boolean
           reminder_frequency?: string
           sms_notifications?: boolean
-          theme_preference?: string
+          theme_preference?: string | null
           timezone?: string
           updated_at?: string
           user_id: string
@@ -1068,7 +1098,7 @@ export type Database = {
           public_profile?: boolean
           reminder_frequency?: string
           sms_notifications?: boolean
-          theme_preference?: string
+          theme_preference?: string | null
           timezone?: string
           updated_at?: string
           user_id?: string
@@ -1098,7 +1128,9 @@ export type Database = {
           first_name: string | null
           gender: string | null
           id: string
+          insurance_number: string | null
           insurance_provider: string | null
+          insurance_provider_id: string | null
           languages_spoken: string[] | null
           last_name: string | null
           phone: string | null
@@ -1120,7 +1152,9 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id?: string
+          insurance_number?: string | null
           insurance_provider?: string | null
+          insurance_provider_id?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
           phone?: string | null
@@ -1142,7 +1176,9 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id?: string
+          insurance_number?: string | null
           insurance_provider?: string | null
+          insurance_provider_id?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
           phone?: string | null
@@ -1170,6 +1206,13 @@ export type Database = {
             columns: ["created_by_professional_id"]
             isOneToOne: false
             referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_insurance_provider_id_fkey"
+            columns: ["insurance_provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
             referencedColumns: ["id"]
           },
           {
@@ -1255,6 +1298,56 @@ export type Database = {
           },
           {
             foreignKeyName: "payments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_insurances: {
+        Row: {
+          created_at: string | null
+          id: string
+          insurance_provider_id: string
+          professional_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          insurance_provider_id: string
+          professional_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          insurance_provider_id?: string
+          professional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_insurances_insurance_provider_id_fkey"
+            columns: ["insurance_provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_insurances_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "professional_insurances_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_insurances_professional_id_fkey"
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "top_professionals"
@@ -1822,8 +1915,7 @@ export type Database = {
           comment: string | null
           created_at: string | null
           id: string | null
-          patient_first_name: string | null
-          patient_last_name: string | null
+          patient_identifier: string | null
           professional_id: string | null
           professional_user_id: string | null
           rating: number | null

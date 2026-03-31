@@ -12,6 +12,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { Clock, Loader2, CheckCircle2 } from "lucide-react"
+import { createAppointment } from "@/app/(patient)/_actions/booking"
 import { usePatientTranslations } from "@/locales/locale-context"
 
 type Service = {
@@ -28,14 +29,13 @@ type Slot = { slot_start: string; slot_end: string }
 
 interface BookingFormProps {
   professionalId: string; professionalUserId: string
-  patientId: string; patientUserId: string
+  patientUserId: string
   services: Service[]; availability: Availability[]
 }
 
 export function BookingForm({
   professionalId,
   professionalUserId,
-  patientId,
   patientUserId,
   services,
   availability,
@@ -91,22 +91,22 @@ export function BookingForm({
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd")
       const timeStr = selectedSlot.length === 5 ? `${selectedSlot}:00` : selectedSlot
-      const { error } = await supabase.from("appointments").insert({
-        patient_id: patientId,
-        patient_user_id: patientUserId,
-        professional_id: professionalId,
-        professional_user_id: professionalUserId,
-        service_id: selectedService.id,
-        appointment_date: dateStr,
-        appointment_time: timeStr,
-        duration_minutes: selectedService.duration_minutes,
-        price: selectedService.price,
-        consultation_type: selectedService.consultation_type,
-        status: "pending",
-        notes: values.notes || null,
+      const result = await createAppointment({
+        professionalId,
+        serviceId: selectedService.id,
+        appointmentDate: dateStr,
+        appointmentTime: timeStr,
+        notes: values.notes || undefined,
       })
 
-      if (error) throw error
+      if (!result.success) {
+        if (result.error === "self_booking_not_allowed") {
+          toast.error(t.booking.selfBookingError)
+        } else {
+          toast.error(t.booking.errorBooking)
+        }
+        return
+      }
 
       toast.success(t.booking.successBooked)
       router.push("/patient/appointments")
@@ -168,6 +168,8 @@ export function BookingForm({
                     <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="size-3" />
                       <span>{svc.duration_minutes} {t.professionalDetail.min}</span>
+                      <span>&middot;</span>
+                      <span>{svc.consultation_type === "online" ? t.professionalDetail.online : t.professionalDetail.inPerson}</span>
                     </div>
                   </button>
                 ))

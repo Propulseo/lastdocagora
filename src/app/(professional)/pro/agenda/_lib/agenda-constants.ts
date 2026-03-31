@@ -51,3 +51,18 @@ export const STAT_COLORS: Record<string, string> = {
   absent: "text-red-600 dark:text-red-400",
   waiting: "text-orange-600 dark:text-orange-400",
 };
+
+// ─── Payment status colors ───
+export const PAYMENT_BADGE_COLORS: Record<string, string> = {
+  paid: "border-green-500/40 text-green-700 dark:text-green-300 bg-green-500/10",
+  invoiced: "border-orange-500/40 text-orange-700 dark:text-orange-300 bg-orange-500/10",
+  reminder_sent: "border-blue-500/40 text-blue-700 dark:text-blue-300 bg-blue-500/10",
+  unpaid: "border-red-500/40 text-red-700 dark:text-red-300 bg-red-500/10",
+};
+
+export const PAYMENT_DOT_COLORS: Record<string, string> = {
+  paid: "bg-green-500",
+  invoiced: "bg-orange-500",
+  reminder_sent: "bg-blue-500",
+  unpaid: "bg-red-500",
+};

@@ -5,6 +5,7 @@
     "patients": "Patients",
     "statistics": "Stats",
     "more": "Plus",
+    "today": "Aujourd'hui",
     "services": "Services",
     "reminders": "Rappels",
     "support": "Support",
@@ -21,6 +22,7 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "agenda": "Agenda",
+    "today": "Aujourd'hui",
     "patients": "Patients",
     "reminders": "Rappels",
     "services": "Services",
@@ -196,6 +198,14 @@
       "statusAbsent": "Absent",
       "late": "En retard"
     },
+    "paymentPaid": "Payé",
+    "paymentInvoiced": "Facturé",
+    "paymentUnpaid": "Non payé",
+    "paymentReminder": "Rappel envoyé",
+    "paymentPending": "En attente",
+    "financialSummary": "Résumé financier",
+    "confirmedRevenue": "confirmés",
+    "pendingRevenue": "en attente",
     "dragActionTitle": "Que souhaitez-vous faire ?",
     "createPatientAppointment": "Créer un RDV patient",
     "openAvailabilitySlot": "Ouvrir un créneau disponible",
@@ -226,6 +236,20 @@
       "rejected": "Consultation refusée",
       "error": "Erreur lors du refus"
     },
+    "propose": {
+      "button": "Proposer un autre horaire",
+      "title": "Proposer un horaire alternatif",
+      "description": "Suggérez une nouvelle date et heure au patient. Le RDV actuel sera refusé.",
+      "date": "Date proposée",
+      "datePlaceholder": "Sélectionnez une date",
+      "time": "Heure proposée",
+      "timePlaceholder": "Sélectionnez une heure",
+      "message": "Message au patient (facultatif)",
+      "messagePlaceholder": "Ex : Je vous suggère cet horaire pour disponibilité...",
+      "confirm": "Envoyer la proposition",
+      "success": "Proposition envoyée au patient",
+      "error": "Erreur lors de l'envoi de la proposition"
+    },
     "cancellation": {
       "title": "Annuler la consultation",
       "description": "Cette action est irréversible. La consultation sera marquée comme annulée.",
@@ -243,7 +267,34 @@
       "confirm": "Confirmer l'annulation",
       "cancelled": "Consultation annulée",
       "error": "Erreur lors de l'annulation"
+    },
+    "walkIn": {
+      "button": "Walk-in",
+      "dialogTitle": "Enregistrer un walk-in",
+      "patientName": "Nom du patient",
+      "patientNamePlaceholder": "Nom complet du patient",
+      "service": "Service",
+      "servicePlaceholder": "Sélectionnez un service",
+      "time": "Heure d'arrivée",
+      "phone": "Téléphone (optionnel)",
+      "phonePlaceholder": "+351 912 345 678",
+      "email": "Email (optionnel)",
+      "emailPlaceholder": "email@exemple.com",
+      "notes": "Notes (optionnel)",
+      "notesPlaceholder": "Remarques sur le walk-in...",
+      "submit": "Enregistrer le walk-in",
+      "success": "Walk-in enregistré avec succès",
+      "error": "Erreur lors de l'enregistrement du walk-in",
+      "badge": "Walk-in"
     }
+  },
+  "today": {
+    "title": "Consultations du Jour",
+    "noAppointments": "Aucune consultation pour aujourd'hui",
+    "currentAppointment": "En cours",
+    "viewDetails": "Voir détails",
+    "filters": { "all": "Tous", "pending": "En attente", "confirmed": "Confirmé", "present": "Présent", "absent": "Absent" },
+    "stats": { "total": "consultations", "confirmed": "confirmées", "present": "présents", "pending": "en attente" }
   },
   "patients": {
     "title": "Patients",
@@ -371,7 +422,11 @@
         "completed": "Terminé",
         "cancelled": "Annulé",
         "no-show": "Absent"
-      }
+      },
+      "notesPlaceholder": "Ajouter des notes sur cette consultation...",
+      "saveNotes": "Enregistrer les notes",
+      "notesSaved": "Notes enregistrées",
+      "notesError": "Erreur lors de l'enregistrement des notes"
     }
   },
   "services": {
@@ -662,6 +717,7 @@
       "allChannels": "Tous",
       "channelPatient": "Patient",
       "channelManual": "Manuel",
+      "channelWalkIn": "Walk-in",
       "status": "Statut",
       "allStatuses": "Tous les statuts",
       "statusCompleted": "Terminé",
@@ -682,7 +738,14 @@
       "sampleWarning": "Basé sur {{count}} consultations — données limitées",
       "noAttendanceData": "Pas de données de présence",
       "markAttendanceCta": "Marquez la présence depuis l'agenda pour alimenter cette statistique.",
-      "goToAgenda": "Aller à l'agenda"
+      "goToAgenda": "Aller à l'agenda",
+      "avgGap": "Temps entre consultations",
+      "avgGapSub": "Intervalle moyen entre consultations",
+      "billableHours": "Heures facturables",
+      "billableHoursSub": "Consultations réalisées",
+      "occupancyRate": "Taux d'occupation",
+      "walkInCount": "Walk-ins",
+      "walkInCountSub": "Sur la période sélectionnée"
     },
     "trends": {
       "title": "Tendances",
@@ -706,7 +769,8 @@
       "title": "Canal de réservation",
       "description": "Qui crée les rendez-vous",
       "patientBooking": "Patient",
-      "manual": "Manuel (pro)"
+      "manual": "Manuel (pro)",
+      "walkIn": "Walk-in"
     },
     "punctuality": {
       "title": "Ponctualité",
@@ -776,7 +840,10 @@
       "insightsError": "Impossible de générer les insights.",
       "current": "actuel",
       "reference": "réf.",
-      "dayLabel": "Jour"
+      "dayLabel": "Jour",
+      "custom": "Période personnalisée",
+      "startDate": "Date début",
+      "endDate": "Date fin"
     }
   },
   "profile": {
@@ -826,7 +893,10 @@
     "geocodedVisible": "Visible sur la carte de recherche",
     "geocodedMissing": "Adresse non géocodifiée — enregistrez le profil pour apparaître sur la carte",
     "saveSuccessGeocoded": "Profil mis à jour. Position sur la carte mise à jour.",
-    "saveSuccessNoGeocode": "Profil mis à jour. Adresse introuvable — vérifiez l'adresse."
+    "saveSuccessNoGeocode": "Profil mis à jour. Adresse introuvable — vérifiez l'adresse.",
+    "insuranceSection": "Assurances acceptées",
+    "insuranceDescription": "Sélectionnez les assurances acceptées",
+    "noInsuranceSelected": "Aucune assurance sélectionnée"
   },
   "settings": {
     "title": "Paramètres",
@@ -927,5 +997,170 @@
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "updatedAt": "Mis à jour"
+  },
+  "onboarding": {
+    "title": "Bienvenue sur DOCAGORA",
+    "subtitle": "Configurons votre compte professionnel en quelques étapes",
+    "steps": {
+      "profile": "Profil",
+      "specialty": "Spécialité",
+      "services": "Services",
+      "availability": "Disponibilité",
+      "address": "Adresse",
+      "verification": "Vérification",
+      "complete": "Terminé"
+    },
+    "navigation": {
+      "next": "Suivant",
+      "previous": "Précédent",
+      "saving": "Enregistrement...",
+      "skip": "Ignorer",
+      "stepOf": "Étape {current} de {total}"
+    },
+    "step1": {
+      "title": "Informations personnelles",
+      "subtitle": "Comment vos patients vous verront",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Votre prénom",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Votre nom",
+      "bio": "Biographie",
+      "bioPlaceholder": "Décrivez votre parcours et approche clinique...",
+      "bioHint": "{count}/500 caractères",
+      "registrationNumber": "Numéro d'inscription",
+      "registrationNumberPlaceholder": "Ex : 12345",
+      "languages": "Langues parlées",
+      "languagesPlaceholder": "Portugais, Anglais, Français...",
+      "languagesHint": "Séparez par des virgules",
+      "photo": "Photo de profil",
+      "photoHint": "JPG, PNG ou WebP — max 2 Mo"
+    },
+    "step2": {
+      "title": "Spécialité et pratique",
+      "subtitle": "Aidez les patients à vous trouver",
+      "specialty": "Spécialité principale",
+      "specialtyPlaceholder": "Sélectionnez votre spécialité",
+      "subspecialties": "Sous-spécialités",
+      "subspecialtiesPlaceholder": "Dermatologie esthétique, Chirurgie...",
+      "subspecialtiesHint": "Séparez par des virgules",
+      "yearsExperience": "Années d'expérience",
+      "yearsExperiencePlaceholder": "Ex : 10",
+      "practiceType": "Type de pratique",
+      "practiceTypePlaceholder": "Sélectionnez le type",
+      "practiceTypes": {
+        "liberal": "Libéral",
+        "hospital": "Hospitalier",
+        "clinic": "Clinique",
+        "mixed": "Mixte"
+      },
+      "consultationTypes": "Types de consultation proposés",
+      "inPerson": "En cabinet",
+      "teleconsultation": "Téléconsultation",
+      "homeVisit": "À domicile",
+      "consultationFee": "Tarif consultation (€)",
+      "consultationFeePlaceholder": "Ex : 50",
+      "thirdPartyPayment": "Accepte le tiers payant",
+      "insurances": "Assurances acceptées",
+      "insurancesPlaceholder": "ADSE, Médis, Multicare...",
+      "insurancesHint": "Séparez par des virgules",
+      "insurancesMultiSelect": "Sélectionnez les assurances"
+    },
+    "step3": {
+      "title": "Vos services",
+      "subtitle": "Définissez les services que vous proposez",
+      "addService": "Ajouter un service",
+      "serviceName": "Nom du service",
+      "serviceNamePlaceholder": "Ex : Consultation générale",
+      "serviceDescription": "Description (optionnel)",
+      "serviceDescriptionPlaceholder": "Brève description du service...",
+      "serviceDuration": "Durée",
+      "servicePrice": "Prix (€)",
+      "servicePricePlaceholder": "Ex : 50",
+      "removeService": "Supprimer",
+      "existingServices": "Services existants",
+      "newServices": "Nouveaux services",
+      "minOneService": "Ajoutez au moins un service",
+      "durations": {
+        "15": "15 min",
+        "30": "30 min",
+        "45": "45 min",
+        "60": "1 heure",
+        "90": "1h30"
+      }
+    },
+    "step4": {
+      "title": "Disponibilité hebdomadaire",
+      "subtitle": "Définissez vos horaires de consultation",
+      "addSlot": "Ajouter un créneau",
+      "removeSlot": "Supprimer",
+      "startTime": "Début",
+      "endTime": "Fin",
+      "quickAdd": "Ajout rapide",
+      "morning": "Matin (09:00-13:00)",
+      "afternoon": "Après-midi (14:00-18:00)",
+      "days": {
+        "1": "Lundi",
+        "2": "Mardi",
+        "3": "Mercredi",
+        "4": "Jeudi",
+        "5": "Vendredi",
+        "6": "Samedi",
+        "0": "Dimanche"
+      },
+      "existingSlots": "Créneaux existants",
+      "minOneSlot": "Ajoutez au moins un créneau",
+      "startBeforeEnd": "Le début doit être avant la fin"
+    },
+    "step5": {
+      "title": "Adresse du cabinet",
+      "subtitle": "Où les patients peuvent vous trouver",
+      "cabinetName": "Nom du cabinet",
+      "cabinetNamePlaceholder": "Ex : Clinique Santé Plus",
+      "address": "Adresse",
+      "addressPlaceholder": "Ex : 15 Rue de la Paix",
+      "city": "Ville",
+      "cityPlaceholder": "Ex : Lisbonne",
+      "postalCode": "Code postal",
+      "postalCodePlaceholder": "Ex : 1000-001",
+      "optional": "Cette étape est optionnelle — vous pourrez la compléter plus tard"
+    },
+    "step6": {
+      "title": "Vérification et résumé",
+      "subtitle": "Vérifiez vos informations avant de finaliser",
+      "summary": {
+        "profile": "Profil",
+        "specialty": "Spécialité",
+        "services": "Services",
+        "availability": "Disponibilité",
+        "address": "Adresse",
+        "edit": "Modifier"
+      },
+      "documents": "Documents de vérification",
+      "license": "Carte professionnelle",
+      "diploma": "Diplôme",
+      "uploadHint": "PDF, JPG ou PNG — max 5 Mo",
+      "uploaded": "Envoyé",
+      "upload": "Envoyer",
+      "verificationNote": "La vérification de vos documents peut prendre jusqu'à 48 heures. Vous pouvez commencer à utiliser la plateforme en attendant.",
+      "servicesCount": "{count} service(s)",
+      "slotsCount": "{count} créneau(x)",
+      "notDefined": "Non défini"
+    },
+    "step7": {
+      "title": "Tout est prêt !",
+      "subtitle": "Votre compte professionnel est configuré",
+      "message": "Les patients peuvent maintenant vous trouver et prendre rendez-vous. Vous pouvez toujours ajuster vos paramètres dans le tableau de bord.",
+      "goToDashboard": "Aller au tableau de bord"
+    },
+    "errors": {
+      "firstNameRequired": "Le prénom est obligatoire",
+      "lastNameRequired": "Le nom est obligatoire",
+      "registrationRequired": "Le numéro d'inscription est obligatoire",
+      "specialtyRequired": "Sélectionnez une spécialité",
+      "saveError": "Erreur lors de l'enregistrement. Veuillez réessayer.",
+      "uploadError": "Erreur lors de l'envoi du fichier",
+      "fileTooLarge": "Le fichier dépasse 5 Mo",
+      "invalidFormat": "Format non supporté"
+    }
   }
 }

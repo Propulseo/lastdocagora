@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,9 @@ interface NewAvailabilityModalProps {
   professionalId: string;
   userId: string;
   onCreated: () => void;
+  initialStartTime?: string;
+  initialEndTime?: string;
+  initialDate?: string;
 }
 
 export function NewAvailabilityModal({
@@ -41,6 +44,9 @@ export function NewAvailabilityModal({
   professionalId,
   userId,
   onCreated,
+  initialStartTime,
+  initialEndTime,
+  initialDate,
 }: NewAvailabilityModalProps) {
   const { t } = useProfessionalI18n();
   const [startTime, setStartTime] = useState("09:00");
@@ -51,6 +57,18 @@ export function NewAvailabilityModal({
   const [specificDateObj, setSpecificDateObj] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  // Pre-fill from drag when modal opens
+  useEffect(() => {
+    if (!open) return;
+    if (initialStartTime) setStartTime(initialStartTime);
+    if (initialEndTime) setEndTime(initialEndTime);
+    if (initialDate) {
+      setSpecificDate(initialDate);
+      setSpecificDateObj(new Date(initialDate + "T00:00:00"));
+      setIsRecurring(false);
+    }
+  }, [open, initialStartTime, initialEndTime, initialDate]);
 
   const dayOptions = t.agenda.days.map((label, index) => ({
     value: String(index),

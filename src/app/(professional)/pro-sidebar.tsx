@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   LifeBuoy,
+  ListChecks,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +35,7 @@ import { professionalNav, navGroups } from "@/config/professional-nav";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { useProNotificationsStore } from "@/stores/pro-notifications-store";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   LayoutDashboard,
@@ -45,6 +47,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWi
   UserCircle,
   Settings,
   LifeBuoy,
+  ListChecks,
 };
 
 interface ProSidebarProps {
@@ -61,6 +64,7 @@ export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useProfessionalI18n();
+  const pendingCount = useProNotificationsStore((s) => s.pendingCount);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -111,6 +115,10 @@ export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
                             <span>{label}</span>
                           </Link>
                         </SidebarMenuButton>
+                        {item.icon === "Calendar" &&
+                          pendingCount > 0 && (
+                            <SidebarMenuBadge>{pendingCount}</SidebarMenuBadge>
+                          )}
                         {item.icon === "LifeBuoy" &&
                           openTicketCount != null &&
                           openTicketCount > 0 && (

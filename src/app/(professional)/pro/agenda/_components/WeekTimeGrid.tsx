@@ -229,6 +229,9 @@ export function WeekTimeGrid({
         showRejectDialog={attendance.showRejectDialog}
         onShowRejectDialog={attendance.setShowRejectDialog}
         onRejectAppointment={attendance.handleRejectAppointment}
+        showProposeDialog={attendance.showProposeDialog}
+        onShowProposeDialog={attendance.setShowProposeDialog}
+        onProposeAlternative={attendance.handleProposeAlternative}
       />
     </>
   );

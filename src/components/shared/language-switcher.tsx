@@ -13,6 +13,7 @@ import {
 import { setClientLocale } from "@/lib/i18n/locale-store"
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n/types"
 import { cn } from "@/lib/utils"
+import { updateUserLocale } from "@/app/_actions/locale"
 
 const localeLabels: Record<SupportedLocale, { short: string; full: string }> = {
   pt: { short: "PT", full: "Português" },
@@ -31,6 +32,7 @@ export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   const handleSelect = (next: SupportedLocale) => {
     if (next === locale) return
     setClientLocale(next)
+    updateUserLocale(next)
     startTransition(() => {
       router.refresh()
     })

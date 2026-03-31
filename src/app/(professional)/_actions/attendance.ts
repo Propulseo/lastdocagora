@@ -96,6 +96,53 @@ export async function markAttendance(
   return { success: true, data, appointmentStatus: newAppointmentStatus };
 }
 
+/* ─── Save appointment notes (pro action) ─── */
+type SaveNotesResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export async function saveAppointmentNotes(
+  appointmentId: string,
+  notes: string,
+): Promise<SaveNotesResult> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!userData) return { success: false, error: "User not found" };
+
+  const isAdmin = userData.role === "admin";
+  const isProfessional = userData.role === "professional";
+  if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("id, professional_user_id")
+    .eq("id", appointmentId)
+    .single();
+
+  if (!appointment) return { success: false, error: "Appointment not found" };
+  if (!isAdmin && appointment.professional_user_id !== user.id) {
+    return { success: false, error: "Not your appointment" };
+  }
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({ notes: notes.trim() || null, updated_at: new Date().toISOString() })
+    .eq("id", appointmentId);
+
+  if (error) return { success: false, error: error.message };
+
+  return { success: true };
+}
+
 /* ─── Cancel appointment with reason (pro action) ─── */
 type CancelResult =
   | { success: true; status: string }
@@ -154,7 +201,28 @@ export async function cancelAppointment(
 
   if (error) return { success: false, error: error.message };
 
-  // TODO: if notifyPatient && notification infrastructure exists, trigger notification here
+  if (notifyPatient) {
+    // Fetch patient user_id and professional name for notification
+    const { data: apptDetails } = await supabase
+      .from("appointments")
+      .select("patient_user_id, professionals!appointments_professional_id_fkey(users!professionals_user_id_fkey(first_name, last_name))")
+      .eq("id", appointmentId)
+      .single();
+
+    const patientUserId = apptDetails?.patient_user_id;
+    const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+
+    if (patientUserId) {
+      await supabase.from("notifications").insert({
+        user_id: patientUserId,
+        title: "Consulta cancelada",
+        message: `${proName} cancelou a sua consulta.${reason ? ` Motivo: ${reason}` : ""}`,
+        type: "cancellation",
+        related_id: appointmentId,
+      });
+    }
+  }
 
   return { success: true, status: "cancelled" };
 }
@@ -217,7 +285,110 @@ export async function rejectAppointment(
 
   if (error) return { success: false, error: error.message };
 
-  // TODO: if notifyPatient && notification infrastructure exists, trigger notification here
+  if (notifyPatient) {
+    const { data: apptDetails } = await supabase
+      .from("appointments")
+      .select("patient_user_id, professionals!appointments_professional_id_fkey(users!professionals_user_id_fkey(first_name, last_name))")
+      .eq("id", appointmentId)
+      .single();
+
+    const patientUserId = apptDetails?.patient_user_id;
+    const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+
+    if (patientUserId) {
+      await supabase.from("notifications").insert({
+        user_id: patientUserId,
+        title: "Consulta recusada",
+        message: `${proName} recusou o seu pedido de consulta.${reason ? ` Motivo: ${reason}` : ""}`,
+        type: "appointment_rejected",
+        related_id: appointmentId,
+      });
+    }
+  }
+
+  return { success: true, status: "rejected" };
+}
+
+/* ─── Propose alternative time (pro action) ─── */
+export async function proposeAlternativeTime(
+  appointmentId: string,
+  proposedDate: string,
+  proposedTime: string,
+  message?: string,
+): Promise<RejectResult> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!userData) return { success: false, error: "User not found" };
+
+  const isAdmin = userData.role === "admin";
+  const isProfessional = userData.role === "professional";
+  if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("id, status, professional_user_id")
+    .eq("id", appointmentId)
+    .single();
+
+  if (!appointment) return { success: false, error: "Appointment not found" };
+  if (!isAdmin && appointment.professional_user_id !== user.id) {
+    return { success: false, error: "Not your appointment" };
+  }
+
+  if (appointment.status !== "pending") {
+    return { success: false, error: `Cannot propose alternative from ${appointment.status}` };
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({
+      status: "rejected",
+      rejection_reason: `Horário alternativo proposto: ${proposedDate} às ${proposedTime}`,
+      decided_at: now,
+      decided_by: user.id,
+      cancellation_notify_patient: true,
+      updated_at: now,
+    })
+    .eq("id", appointmentId);
+
+  if (error) return { success: false, error: error.message };
+
+  // Always notify patient for alternative proposals
+  const { data: apptDetails } = await supabase
+    .from("appointments")
+    .select("patient_user_id, professionals!appointments_professional_id_fkey(users!professionals_user_id_fkey(first_name, last_name))")
+    .eq("id", appointmentId)
+    .single();
+
+  const patientUserId = apptDetails?.patient_user_id;
+  const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
+  const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+
+  if (patientUserId) {
+    const msg = message?.trim()
+      ? `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}. ${message.trim()}`
+      : `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}.`;
+
+    await supabase.from("notifications").insert({
+      user_id: patientUserId,
+      title: "Novo horário proposto",
+      message: msg,
+      type: "alternative_proposed",
+      related_id: appointmentId,
+    });
+  }
 
   return { success: true, status: "rejected" };
 }
@@ -285,6 +456,32 @@ export async function updateAppointmentStatus(
     .eq("id", appointmentId);
 
   if (error) return { success: false, error: error.message };
+
+  // Notify patient about status change
+  if (newStatus === "confirmed" || newStatus === "cancelled") {
+    const { data: apptDetails } = await supabase
+      .from("appointments")
+      .select("patient_user_id, professionals!appointments_professional_id_fkey(users!professionals_user_id_fkey(first_name, last_name))")
+      .eq("id", appointmentId)
+      .single();
+
+    const patientUserId = apptDetails?.patient_user_id;
+    const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+
+    if (patientUserId) {
+      const isConfirmed = newStatus === "confirmed";
+      await supabase.from("notifications").insert({
+        user_id: patientUserId,
+        title: isConfirmed ? "Consulta confirmada" : "Consulta cancelada",
+        message: isConfirmed
+          ? `${proName} confirmou a sua consulta.`
+          : `${proName} cancelou a sua consulta.`,
+        type: isConfirmed ? "appointment_confirmed" : "cancellation",
+        related_id: appointmentId,
+      });
+    }
+  }
 
   return { success: true, status: newStatus };
 }

@@ -22,6 +22,7 @@ import {
   Pencil,
   Loader2,
   X,
+  Shield,
 } from "lucide-react";
 import {
   Select,
@@ -40,6 +41,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { translateSpecialty, getSpecialtyOptions } from "@/locales/patient/specialties";
 import { useAvatarUpload } from "../_hooks/useAvatarUpload";
 import { updateProfile } from "@/app/(professional)/_actions/profile";
+import { updateProfessionalInsurances } from "@/app/(professional)/_actions/insurance";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -54,6 +56,11 @@ interface UserProfile {
   phone: string | null;
   avatar_url: string | null;
   language: string | null;
+}
+
+interface InsuranceProviderData {
+  id: string;
+  name: string;
 }
 
 interface Professional {
@@ -83,8 +90,7 @@ interface Rating {
   created_at: string;
   appointment_date: string;
   service_name: string | null;
-  patient_first_name: string | null;
-  patient_last_name: string | null;
+  patient_identifier: string | null;
 }
 
 interface ProfileClientProps {
@@ -92,13 +98,15 @@ interface ProfileClientProps {
   userProfile: UserProfile;
   professional: Professional;
   recentRatings: Rating[];
+  insuranceProviders: InsuranceProviderData[];
+  professionalInsuranceIds: string[];
 }
 
 // ---------------------------------------------------------------------------
 // Section key type
 // ---------------------------------------------------------------------------
 
-type SectionKey = "personal" | "professional" | "location" | "languages";
+type SectionKey = "personal" | "professional" | "location" | "languages" | "insurances";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -109,6 +117,8 @@ export function ProfileClient({
   userProfile,
   professional,
   recentRatings,
+  insuranceProviders,
+  professionalInsuranceIds,
 }: ProfileClientProps) {
   const { t, locale } = useProfessionalI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -142,6 +152,7 @@ export function ProfileClient({
 
   // Form values stored as flat record so we can reuse one pattern
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [selectedInsuranceIds, setSelectedInsuranceIds] = useState<string[]>(professionalInsuranceIds);
 
   function startEditing(section: SectionKey) {
     const values: Record<string, string> = {};
@@ -163,6 +174,8 @@ export function ProfileClient({
       values.postal_code = professional.postal_code ?? "";
     } else if (section === "languages") {
       values.languages_spoken = professional.languages_spoken?.join(", ") ?? "";
+    } else if (section === "insurances") {
+      setSelectedInsuranceIds(professionalInsuranceIds);
     }
     setFormValues(values);
     setEditingSection(section);
@@ -179,6 +192,21 @@ export function ProfileClient({
 
   function handleSave() {
     if (!editingSection) return;
+
+    if (editingSection === "insurances") {
+      startTransition(async () => {
+        const result = await updateProfessionalInsurances(selectedInsuranceIds);
+        if (result.success) {
+          toast.success(t.profile.saveSuccess);
+          setEditingSection(null);
+          setFormValues({});
+          router.refresh();
+        } else {
+          toast.error(t.profile.saveError);
+        }
+      });
+      return;
+    }
 
     let input: Parameters<typeof updateProfile>[0];
 
@@ -461,11 +489,9 @@ export function ProfileClient({
           <CardContent>
             <div className="space-y-4">
               {recentRatings.map((r, idx) => {
-                const patientName = r.patient_first_name
-                  ? `${r.patient_first_name} ${r.patient_last_name ?? ""}`.trim()
-                  : t.profile.patient;
-                const patientInitials = r.patient_first_name
-                  ? `${r.patient_first_name[0]}${r.patient_last_name?.[0] ?? ""}`.toUpperCase()
+                const patientName = r.patient_identifier ?? t.profile.patient;
+                const patientInitials = r.patient_identifier
+                  ? r.patient_identifier.slice(0, 2).toUpperCase()
                   : "P";
                 return (
                   <div key={r.id}>
@@ -642,6 +668,61 @@ export function ProfileClient({
           ) : (
             <div className="space-y-3">
               {renderField(t.profile.spokenLanguages, professional.languages_spoken?.join(", "), t.profile.notDefined)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ---- Insurances ---- */}
+      <Card>
+        {renderSectionHeader(Shield, t.profile.insuranceSection, "insurances")}
+        <CardContent>
+          {editingSection === "insurances" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">{t.profile.insuranceDescription}</p>
+              <div className="flex flex-wrap gap-2">
+                {insuranceProviders.map((provider) => {
+                  const selected = selectedInsuranceIds.includes(provider.id);
+                  return (
+                    <button
+                      key={provider.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedInsuranceIds((prev) =>
+                          selected
+                            ? prev.filter((x) => x !== provider.id)
+                            : [...prev, provider.id],
+                        )
+                      }
+                      className="min-h-[44px]"
+                    >
+                      <Badge
+                        variant={selected ? "default" : "outline"}
+                        className="cursor-pointer px-3 py-1.5 text-sm transition-colors"
+                      >
+                        {provider.name}
+                      </Badge>
+                    </button>
+                  );
+                })}
+              </div>
+              {renderSectionFooter()}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {professionalInsuranceIds.length > 0 ? (
+                insuranceProviders
+                  .filter((p) => professionalInsuranceIds.includes(p.id))
+                  .map((p) => (
+                    <Badge key={p.id} variant="secondary">
+                      {p.name}
+                    </Badge>
+                  ))
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  {t.profile.noInsuranceSelected}
+                </span>
+              )}
             </div>
           )}
         </CardContent>

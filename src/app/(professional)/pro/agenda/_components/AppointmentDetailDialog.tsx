@@ -8,10 +8,11 @@ import {
 } from "@/components/shared/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, UserCheck, UserMinus, UserX } from "lucide-react";
+import { CheckCircle, XCircle, CalendarClock, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { CancelAppointmentDialog } from "./CancelAppointmentDialog";
 import { RejectAppointmentDialog } from "./RejectAppointmentDialog";
+import { ProposeAlternativeDialog } from "./ProposeAlternativeDialog";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
 
@@ -40,6 +41,9 @@ interface AppointmentDetailDialogProps {
   showRejectDialog: boolean;
   onShowRejectDialog: (show: boolean) => void;
   onRejectAppointment: (reason: string, notifyPatient: boolean) => void;
+  showProposeDialog: boolean;
+  onShowProposeDialog: (show: boolean) => void;
+  onProposeAlternative: (date: string, time: string, message: string) => void;
 }
 
 export function AppointmentDetailDialog({
@@ -54,6 +58,9 @@ export function AppointmentDetailDialog({
   showRejectDialog,
   onShowRejectDialog,
   onRejectAppointment,
+  showProposeDialog,
+  onShowProposeDialog,
+  onProposeAlternative,
 }: AppointmentDetailDialogProps) {
   const { t } = useProfessionalI18n();
 
@@ -118,6 +125,11 @@ export function AppointmentDetailDialog({
                   : selected.title || t.agenda.manualAppointment}
               </p>
               <div className="flex items-center gap-2">
+                {selected.created_via === "walk_in" && (
+                  <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700">
+                    Walk-in
+                  </Badge>
+                )}
                 {selected.created_via === "manual" && (
                   <Badge variant="outline">
                     {t.agenda.manualAppointment}
@@ -174,6 +186,16 @@ export function AppointmentDetailDialog({
                 >
                   <XCircle className="h-4 w-4" />
                   {t.agenda.rejectAppointment}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-1.5 min-h-[44px]"
+                  disabled={isUpdating}
+                  onClick={() => onShowProposeDialog(true)}
+                >
+                  <CalendarClock className="h-4 w-4" />
+                  {t.agenda.propose.button}
                 </Button>
               </div>
             )}
@@ -235,6 +257,13 @@ export function AppointmentDetailDialog({
           open={showRejectDialog}
           onOpenChange={onShowRejectDialog}
           onConfirm={onRejectAppointment}
+          isUpdating={isUpdating}
+        />
+
+        <ProposeAlternativeDialog
+          open={showProposeDialog}
+          onOpenChange={onShowProposeDialog}
+          onConfirm={onProposeAlternative}
           isUpdating={isUpdating}
         />
       </ResponsiveDialogContent>

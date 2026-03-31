@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarPlus, Clock } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 
@@ -26,9 +26,19 @@ export function DragActionSelector({
   const { t } = useProfessionalI18n();
   const ref = useRef<HTMLDivElement>(null);
   const firstBtnRef = useRef<HTMLButtonElement>(null);
+  const [adjustedPos, setAdjustedPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!open) return;
+
+    // Clamp position within viewport bounds
+    const menuW = 224; // w-56 = 14rem = 224px
+    const menuH = 100; // approximate height
+    const pad = 8;
+    const x = Math.min(position.x, window.innerWidth - menuW - pad);
+    const y = Math.min(position.y, window.innerHeight - menuH - pad);
+    setAdjustedPos({ x: Math.max(pad, x), y: Math.max(pad, y) });
+
     // Auto-focus first button
     firstBtnRef.current?.focus();
 
@@ -47,7 +57,7 @@ export function DragActionSelector({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [open, onClose]);
+  }, [open, onClose, position.x, position.y]);
 
   if (!open) return null;
 
@@ -55,7 +65,7 @@ export function DragActionSelector({
     <div
       ref={ref}
       className="fixed z-50 w-56 rounded-lg border bg-popover p-2 shadow-md"
-      style={{ left: position.x, top: position.y }}
+      style={{ left: adjustedPos.x, top: adjustedPos.y }}
     >
       <p className="mb-1.5 px-1 text-xs font-medium text-muted-foreground">
         {startTime} – {endTime}

@@ -1,6 +1,7 @@
 export const professionalNav = [
   { title: "Dashboard", href: "/pro/dashboard", icon: "LayoutDashboard", group: "main", translationKey: "dashboard" },
   { title: "Agenda", href: "/pro/agenda", icon: "Calendar", group: "main", translationKey: "agenda" },
+  { title: "Hoje", href: "/pro/today", icon: "ListChecks", group: "main", translationKey: "today" },
   { title: "Pacientes", href: "/pro/patients", icon: "Users", group: "main", translationKey: "patients" },
   { title: "Lembretes", href: "/pro/reminders", icon: "Bell", group: "manage", translationKey: "reminders" },
   { title: "Serviços", href: "/pro/services", icon: "Briefcase", group: "manage", translationKey: "services" },

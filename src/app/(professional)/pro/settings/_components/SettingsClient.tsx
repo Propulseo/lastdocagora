@@ -13,8 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Settings, Bell, Calendar, Palette, Sun, Moon, Monitor } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/shared/page-header";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+
+type NotificationKey = "notify_new_appointments" | "notify_cancellations" | "notify_reminders";
 
 interface SettingsData {
   auto_confirm: boolean;
@@ -32,6 +37,7 @@ interface SettingDisplay {
   label: string;
   description: string;
   value: boolean;
+  settingKey?: NotificationKey;
 }
 
 interface SettingsClientProps {
@@ -42,8 +48,36 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   const { t } = useProfessionalI18n();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [notifSettings, setNotifSettings] = useState({
+    notify_new_appointments: settings.notify_new_appointments,
+    notify_cancellations: settings.notify_cancellations,
+    notify_reminders: settings.notify_reminders,
+  });
 
   useEffect(() => setMounted(true), []);
+
+  async function handleToggle(key: NotificationKey, value: boolean) {
+    const prev = notifSettings[key];
+    setNotifSettings((s) => ({ ...s, [key]: value }));
+
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("professional_settings")
+      .upsert(
+        { user_id: user.id, [key]: value, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+
+    if (error) {
+      setNotifSettings((s) => ({ ...s, [key]: prev }));
+      toast.error("Erro ao guardar definição");
+    } else {
+      toast.success("Definição atualizada");
+    }
+  }
 
   const appointmentSettings: SettingDisplay[] = [
     {
@@ -62,17 +96,20 @@ export function SettingsClient({ settings }: SettingsClientProps) {
     {
       label: t.settings.newAppointments,
       description: t.settings.newAppointmentsDesc,
-      value: settings.notify_new_appointments,
+      value: notifSettings.notify_new_appointments,
+      settingKey: "notify_new_appointments",
     },
     {
       label: t.settings.cancellations,
       description: t.settings.cancellationsDesc,
-      value: settings.notify_cancellations,
+      value: notifSettings.notify_cancellations,
+      settingKey: "notify_cancellations",
     },
     {
       label: t.settings.remindersLabel,
       description: t.settings.remindersDesc,
-      value: settings.notify_reminders,
+      value: notifSettings.notify_reminders,
+      settingKey: "notify_reminders",
     },
   ];
 
@@ -196,9 +233,16 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       {setting.description}
                     </p>
                   </div>
-                  <Badge variant={setting.value ? "default" : "secondary"}>
-                    {setting.value ? t.settings.active : t.settings.inactive}
-                  </Badge>
+                  {setting.settingKey ? (
+                    <Switch
+                      checked={setting.value}
+                      onCheckedChange={(v) => handleToggle(setting.settingKey!, v)}
+                    />
+                  ) : (
+                    <Badge variant={setting.value ? "default" : "secondary"}>
+                      {setting.value ? t.settings.active : t.settings.inactive}
+                    </Badge>
+                  )}
                 </div>
               </div>
             ))}

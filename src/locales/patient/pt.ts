@@ -97,6 +97,9 @@ export type PatientTranslations = {
     mapViewProfile: string
     mapFilterMap: string
     mapLoading: string
+    insuranceFilter: string
+    insuranceAll: string
+    insuranceBadgeMore: string
   }
   professionalDetail: {
     backToSearch: string
@@ -107,6 +110,7 @@ export type PatientTranslations = {
     reviewsTitle: string
     min: string
     inPerson: string
+    online: string
     fallbackReviewer: string
   }
   booking: {
@@ -123,6 +127,8 @@ export type PatientTranslations = {
     summaryService: string
     summaryDate: string
     summaryTime: string
+    summaryInsurance: string
+    summaryInsuranceNumber: string
     submitting: string
     confirm: string
     errorLoadSlots: string
@@ -218,6 +224,8 @@ export type PatientTranslations = {
     insuranceAgeas: string
     insuranceAllianz: string
     insuranceOther: string
+    insuranceNumber: string
+    insuranceNumberPlaceholder: string
     changePhoto: string
     uploadError: string
     fileTooLarge: string
@@ -380,6 +388,9 @@ export const ptPatient: PatientTranslations = {
     mapViewProfile: "Ver perfil completo",
     mapFilterMap: "Filtrar mapa",
     mapLoading: "A carregar mapa...",
+    insuranceFilter: "Seguro",
+    insuranceAll: "Todos os seguros",
+    insuranceBadgeMore: "+{count}",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",
@@ -390,6 +401,7 @@ export const ptPatient: PatientTranslations = {
     reviewsTitle: "Avalia\u00e7\u00f5es",
     min: "min",
     inPerson: "Presencial",
+    online: "Teleconsulta",
     fallbackReviewer: "Paciente",
   },
   booking: {
@@ -406,6 +418,8 @@ export const ptPatient: PatientTranslations = {
     summaryService: "Servi\u00e7o:",
     summaryDate: "Data:",
     summaryTime: "Hor\u00e1rio:",
+    summaryInsurance: "Seguro:",
+    summaryInsuranceNumber: "N.\u00b0 seguro:",
     submitting: "A agendar...",
     confirm: "Confirmar Agendamento",
     errorLoadSlots: "Erro ao carregar hor\u00e1rios dispon\u00edveis.",
@@ -501,6 +515,8 @@ export const ptPatient: PatientTranslations = {
     insuranceAgeas: "Ageas",
     insuranceAllianz: "Allianz",
     insuranceOther: "Outro",
+    insuranceNumber: "N\u00famero do seguro",
+    insuranceNumberPlaceholder: "Ex: 123456789",
     changePhoto: "Alterar foto",
     uploadError: "Erro ao enviar a foto. Tente novamente.",
     fileTooLarge: "O ficheiro é demasiado grande (máx. 2 MB).",

@@ -9,6 +9,7 @@ import {
   Users,
   BarChart2,
   MoreHorizontal,
+  ListChecks,
   Briefcase,
   Bell,
   HeadphonesIcon,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { useProNotificationsStore } from "@/stores/pro-notifications-store";
 import {
   Sheet,
   SheetContent,
@@ -33,6 +35,7 @@ const primaryTabs = [
 ] as const;
 
 const secondaryItems = [
+  { key: "today" as const, href: "/pro/today", icon: ListChecks },
   { key: "services" as const, href: "/pro/services", icon: Briefcase },
   { key: "reminders" as const, href: "/pro/reminders", icon: Bell },
   { key: "support" as const, href: "/pro/support", icon: HeadphonesIcon },
@@ -45,6 +48,7 @@ export function ProBottomNav() {
   const router = useRouter();
   const { t } = useProfessionalI18n();
   const [moreOpen, setMoreOpen] = useState(false);
+  const pendingCount = useProNotificationsStore((s) => s.pendingCount);
 
   const isActive = (href: string) => {
     if (href === "/pro/dashboard") return pathname === href;
@@ -67,11 +71,16 @@ export function ProBottomNav() {
                 key={tab.href}
                 href={tab.href}
                 className={cn(
-                  "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
+                  "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
                   active ? "text-primary font-medium" : "text-muted-foreground"
                 )}
               >
                 <Icon className="size-5" />
+                {tab.key === "agenda" && pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
+                    {pendingCount > 9 ? "9+" : pendingCount}
+                  </span>
+                )}
                 <span className="text-[10px]">{t.mobileNav[tab.key]}</span>
               </Link>
             );

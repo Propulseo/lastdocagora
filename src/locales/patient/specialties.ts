@@ -20,6 +20,11 @@ export const SPECIALTY_KEYS = [
   "orthopedics",
   "pediatrics",
   "psychiatry",
+  "physiotherapy",
+  "nutrition",
+  "oncology",
+  "psychology",
+  "other",
 ] as const;
 
 export type SpecialtyKey = (typeof SPECIALTY_KEYS)[number];
@@ -82,6 +87,31 @@ const specialtyTranslations: Record<
     fr: "Psychiatrie",
     en: "Psychiatry",
   },
+  physiotherapy: {
+    pt: "Fisioterapia",
+    fr: "Physiothérapie",
+    en: "Physiotherapy",
+  },
+  nutrition: {
+    pt: "Nutrição",
+    fr: "Nutrition",
+    en: "Nutrition",
+  },
+  oncology: {
+    pt: "Oncologia",
+    fr: "Oncologie",
+    en: "Oncology",
+  },
+  psychology: {
+    pt: "Psicologia",
+    fr: "Psychologie",
+    en: "Psychology",
+  },
+  other: {
+    pt: "Outra",
+    fr: "Autre",
+    en: "Other",
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -99,6 +129,11 @@ export const LEGACY_FRENCH_TO_KEY: Record<string, SpecialtyKey> = {
   "Orthopédie": "orthopedics",
   "Pédiatrie": "pediatrics",
   "Psychiatrie": "psychiatry",
+  "Physiothérapie": "physiotherapy",
+  "Nutrition": "nutrition",
+  "Oncologie": "oncology",
+  "Psychologie": "psychology",
+  "Autre": "other",
 };
 
 // ---------------------------------------------------------------------------

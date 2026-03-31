@@ -1,12 +1,14 @@
-import ptAdmin from "../../../../locales/pt/admin.json";
-import frAdmin from "../../../../locales/fr/admin.json";
+import ptAdmin from "@/locales/pt/admin.json";
+import frAdmin from "@/locales/fr/admin.json";
+import enAdmin from "@/locales/en/admin.json";
 
 // PT is source of truth — derive the canonical type from it
 export type AdminTranslations = typeof ptAdmin;
 
-// Compile-time validation: FR must match PT structure exactly.
-// If FR is missing a key, TypeScript will error HERE, not at runtime.
+// Compile-time validation: FR and EN must match PT structure exactly.
+// If a locale is missing a key, TypeScript will error HERE, not at runtime.
 const frAdminChecked: AdminTranslations = frAdmin;
+const enAdminChecked: AdminTranslations = enAdmin;
 
 export const supportedLocales = ["pt", "fr", "en"] as const;
 export type SupportedLocale = (typeof supportedLocales)[number];
@@ -18,7 +20,7 @@ export type AdminSidebarItemKey = keyof AdminTranslations["sidebar"]["items"];
 const translations: Record<SupportedLocale, AdminTranslations> = {
   pt: ptAdmin,
   fr: frAdminChecked,
-  en: ptAdmin, // fallback to PT until English admin translations are created
+  en: enAdminChecked,
 };
 
 export function getAdminTranslations(

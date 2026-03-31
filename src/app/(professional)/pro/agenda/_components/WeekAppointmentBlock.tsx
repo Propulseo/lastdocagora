@@ -7,6 +7,7 @@ import {
   START_HOUR,
   STATUS_COLORS,
   ATTENDANCE_DOT_COLORS,
+  PAYMENT_DOT_COLORS,
 } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 
@@ -26,6 +27,7 @@ export function WeekAppointmentBlock({
   const height = (apt.duration_minutes / 60) * HOUR_HEIGHT;
   const colors = STATUS_COLORS[apt.status] ?? STATUS_COLORS.completed;
   const isManual = apt.created_via === "manual";
+  const isWalkIn = apt.created_via === "walk_in";
   const patient = apt.patients;
   const displayName = patient?.first_name
     ? `${patient.first_name} ${patient.last_name}`
@@ -39,8 +41,8 @@ export function WeekAppointmentBlock({
       type="button"
       className={cn(
         "absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-left transition-opacity hover:opacity-80 border-l-2",
-        colors,
-        isManual && !patient?.first_name && "border-dashed",
+        isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
+        isManual && !patient?.first_name && !isWalkIn && "border-dashed",
       )}
       style={{
         top: `${topOffset}px`,
@@ -50,11 +52,22 @@ export function WeekAppointmentBlock({
       onClick={() => onClick(apt)}
     >
       <div className="flex items-center gap-1">
+        {isWalkIn && (
+          <span className="text-[9px] font-bold text-amber-600">W</span>
+        )}
         {canMark && (
           <span
             className={cn(
               "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
               ATTENDANCE_DOT_COLORS[currentAttendance] ?? "bg-gray-400",
+            )}
+          />
+        )}
+        {apt.payment_status && (
+          <span
+            className={cn(
+              "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
+              PAYMENT_DOT_COLORS[apt.payment_status] ?? "bg-muted",
             )}
           />
         )}

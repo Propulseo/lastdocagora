@@ -13,8 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { updateTicketStatus } from "@/app/(admin)/_actions/admin-actions";
+import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
@@ -45,6 +48,8 @@ export function TicketRow({ ticket }: TicketRowProps) {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [, startTransition] = useTransition();
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
 
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
 
@@ -72,6 +77,28 @@ export function TicketRow({ ticket }: TicketRowProps) {
         toast.error(result.error ?? t.common.errorUpdating);
       }
     });
+  }
+
+  async function handleReply() {
+    if (!replyText.trim()) return;
+    setSending(true);
+    const result = await replyToTicket(ticket.id, replyText);
+    setSending(false);
+    if (result.success) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          content: replyText.trim(),
+          created_at: new Date().toISOString(),
+          sender_id: "admin",
+        },
+      ]);
+      setReplyText("");
+      toast.success(t.support.replySent);
+    } else {
+      toast.error(result.error ?? t.support.replyError);
+    }
   }
 
   const priority = ticket.priority ?? "medium";
@@ -179,6 +206,28 @@ export function TicketRow({ ticket }: TicketRowProps) {
                 {t.support.noMessages}
               </p>
             )}
+            {/* Admin reply form */}
+            <div className="mt-3 flex gap-2">
+              <Textarea
+                placeholder={t.support.replyPlaceholder}
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                className="min-h-[60px] resize-none"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <Button
+                size="sm"
+                className="shrink-0 self-end"
+                disabled={sending || !replyText.trim()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReply();
+                }}
+              >
+                <Send className="size-4 mr-1" />
+                {sending ? "..." : t.support.sendButton}
+              </Button>
+            </div>
           </TableCell>
         </TableRow>
       )}

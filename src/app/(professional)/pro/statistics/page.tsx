@@ -15,8 +15,12 @@ import {
   buildPunctuality,
   buildInsights,
   buildRevenueTrends,
+  computeAvgGapMinutes,
+  computeBillableHours,
+  computeOccupancyRate,
   type AppointmentRow,
   type HistoryRow,
+  type AvailabilityRow,
 } from "./_lib/aggregation";
 
 // ---------------------------------------------------------------------------
@@ -57,8 +61,8 @@ export default async function StatisticsPage({
     ? new Date(proData.created_at).getFullYear()
     : currentYear;
 
-  // --- 4 parallel queries ---
-  const [kpiResult, chartResult, insightsResult, servicesResult] =
+  // --- 5 parallel queries ---
+  const [kpiResult, chartResult, insightsResult, servicesResult, availabilityResult] =
     await Promise.all([
       // 1) KPI via RPC
       supabase.rpc("get_pro_dashboard_stats", {
@@ -76,7 +80,7 @@ export default async function StatisticsPage({
           .select(
             `
             id, appointment_date, appointment_time, status, created_via,
-            service_id, patient_id, price,
+            service_id, patient_id, price, duration_minutes,
             services(name),
             appointment_attendance(status, late_minutes)
           `,
@@ -113,6 +117,13 @@ export default async function StatisticsPage({
         .eq("professional_id", professionalId)
         .eq("is_active", true)
         .order("name"),
+
+      // 5) Availability slots for occupancy calculation
+      supabase
+        .from("availability")
+        .select("start_time, end_time, is_recurring, specific_date, day_of_week")
+        .eq("professional_id", professionalId)
+        .eq("is_blocked", false),
     ]);
 
   // --- Parse RPC result ---
@@ -132,6 +143,10 @@ export default async function StatisticsPage({
     returningPatientsCount: kpi?.returning_patients_count ?? 0,
     totalInRange: kpi?.total_in_range ?? 0,
     totalWithAttendance: kpi?.total_with_attendance ?? 0,
+    avgGapMinutes: 0,
+    billableHours: 0,
+    occupancyRate: 0,
+    walkInCount: 0,
   };
 
   // --- Aggregate chart data ---
@@ -146,6 +161,13 @@ export default async function StatisticsPage({
   const punctuality = buildPunctuality(chartRows);
   const insights = buildInsights(serviceBreakdown, heatmap, historyRows);
   const { trends: revenueTrends, total: totalRevenue } = buildRevenueTrends(chartRows, allDates);
+
+  // --- Compute operational KPIs ---
+  const availabilityRows = (availabilityResult.data ?? []) as unknown as AvailabilityRow[];
+  kpiData.avgGapMinutes = computeAvgGapMinutes(chartRows);
+  kpiData.billableHours = computeBillableHours(chartRows);
+  kpiData.occupancyRate = computeOccupancyRate(chartRows, availabilityRows, from, to);
+  kpiData.walkInCount = chartRows.filter((r) => r.created_via === "walk_in").length;
 
   const servicesList = (servicesResult.data ?? []).map((s) => ({
     id: s.id,

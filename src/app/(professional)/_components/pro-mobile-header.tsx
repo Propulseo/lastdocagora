@@ -2,6 +2,8 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { useProfessionalI18n } from "@/lib/i18n/pro";
 
 interface ProMobileHeaderProps {
   user: {
@@ -12,6 +14,7 @@ interface ProMobileHeaderProps {
 }
 
 export function ProMobileHeader({ user }: ProMobileHeaderProps) {
+  const { locale } = useProfessionalI18n();
   const initials =
     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
@@ -21,6 +24,7 @@ export function ProMobileHeader({ user }: ProMobileHeaderProps) {
       <span className="mx-auto max-w-[200px] truncate text-center text-sm font-medium">
         {user.firstName} {user.lastName}
       </span>
+      <LanguageSwitcher locale={locale} />
       <ThemeToggle size="sm" />
       <Avatar className="ml-2 size-8">
         {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={initials} />}

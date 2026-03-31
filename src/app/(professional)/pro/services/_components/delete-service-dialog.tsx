@@ -39,6 +39,11 @@ export function DeleteServiceDialog({
     if (result.success) {
       toast.success(sv.serviceDeleted);
       onOpenChange(false);
+    } else if (result.error?.startsWith("APPOINTMENTS_LINKED:")) {
+      const count = result.error.split(":")[1];
+      toast.error(
+        `Impossible de supprimer : ${count} consultation(s) utilisent ce service. Désactivez-le à la place.`,
+      );
     } else {
       toast.error(sv.errorDeleting);
     }

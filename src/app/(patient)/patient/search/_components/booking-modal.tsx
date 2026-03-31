@@ -26,7 +26,7 @@ import {
   Sun,
   Sunset,
 } from "lucide-react"
-import { getBookingData } from "@/app/(patient)/_actions/booking"
+import { getBookingData, createAppointment } from "@/app/(patient)/_actions/booking"
 import type {
   BookingService,
   BookingAvailability,
@@ -75,10 +75,6 @@ export function BookingModal({
   const [step, setStep] = useState<BookingStep>("loading")
   const [services, setServices] = useState<BookingService[]>([])
   const [availability, setAvailability] = useState<BookingAvailability[]>([])
-  const [patientId, setPatientId] = useState("")
-  const [patientUserId, setPatientUserId] = useState("")
-  const [professionalUserId, setProfessionalUserId] = useState("")
-
   const [selectedService, setSelectedService] = useState<BookingService | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
@@ -87,6 +83,7 @@ export function BookingModal({
   const [submitting, setSubmitting] = useState(false)
   const [notes, setNotes] = useState("")
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [patientInsurance, setPatientInsurance] = useState<{ name: string; number: string | null } | null>(null)
   const loadedRef = useRef(false)
 
   // Load booking data when modal opens
@@ -119,9 +116,7 @@ export function BookingModal({
       const { data } = result
       setServices(data.services)
       setAvailability(data.availability)
-      setPatientId(data.patientId)
-      setPatientUserId(data.patientUserId)
-      setProfessionalUserId(data.professionalUserId)
+      setPatientInsurance(data.patientInsurance ?? null)
 
       if (data.services.length === 1) {
         setSelectedService(data.services[0])
@@ -179,21 +174,21 @@ export function BookingModal({
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd")
       const timeStr = selectedSlot.length === 5 ? `${selectedSlot}:00` : selectedSlot
-      const { error } = await supabase.from("appointments").insert({
-        patient_id: patientId,
-        patient_user_id: patientUserId,
-        professional_id: professionalId,
-        professional_user_id: professionalUserId,
-        service_id: selectedService.id,
-        appointment_date: dateStr,
-        appointment_time: timeStr,
-        duration_minutes: selectedService.duration_minutes,
-        price: selectedService.price,
-        consultation_type: selectedService.consultation_type,
-        status: "pending",
-        notes: notes || null,
+      const result = await createAppointment({
+        professionalId,
+        serviceId: selectedService.id,
+        appointmentDate: dateStr,
+        appointmentTime: timeStr,
+        notes: notes || undefined,
       })
-      if (error) throw error
+      if (!result.success) {
+        if (result.error === "self_booking_not_allowed") {
+          toast.error(t.booking.selfBookingError)
+        } else {
+          toast.error(t.booking.errorBooking)
+        }
+        return
+      }
 
       toast.success(t.booking.successBooked)
       onOpenChange(false)
@@ -286,6 +281,8 @@ export function BookingModal({
                       <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Clock className="size-3" />
                         <span>{svc.duration_minutes} {t.professionalDetail.min}</span>
+                        <span>&middot;</span>
+                        <span>{svc.consultation_type === "online" ? t.professionalDetail.online : t.professionalDetail.inPerson}</span>
                       </div>
                     </button>
                   ))
@@ -420,6 +417,18 @@ export function BookingModal({
                     </span>
                     <span className="text-muted-foreground">{t.booking.summaryTime}</span>
                     <span className="font-medium text-right">{selectedSlot}</span>
+                    {patientInsurance && (
+                      <>
+                        <span className="text-muted-foreground">{t.booking.summaryInsurance}</span>
+                        <span className="font-medium text-right">{patientInsurance.name}</span>
+                        {patientInsurance.number && (
+                          <>
+                            <span className="text-muted-foreground">{t.booking.summaryInsuranceNumber}</span>
+                            <span className="font-medium text-right">{patientInsurance.number}</span>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
 

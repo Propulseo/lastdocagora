@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Star, Clock, Loader2, Euro, Globe, Shield, Briefcase, CalendarCheck } from "lucide-react"
 import {
   getProfessionalName,
@@ -111,8 +111,12 @@ export function ProfessionalCard({
       <Card className="flex flex-col transition-shadow hover:shadow-md">
         <CardContent className="flex flex-1 flex-col gap-4 pt-6">
           <div className="flex items-start gap-3">
-            <Avatar size="lg">
-              <AvatarFallback className="bg-primary/10 text-primary">
+            <Avatar className="size-16 md:size-20 border-2 border-background shadow-sm">
+              <AvatarImage
+                src={prof.users?.avatar_url ?? undefined}
+                alt={profName}
+              />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg md:text-xl">
                 {getProfessionalInitials(profData, fullT.professional)}
               </AvatarFallback>
             </Avatar>
@@ -168,7 +172,18 @@ export function ProfessionalCard({
             {prof.insurances_accepted && prof.insurances_accepted.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Shield className="size-4 shrink-0 text-primary/60" />
-                <span>{prof.insurances_accepted.join(", ")}</span>
+                <div className="flex flex-wrap gap-1">
+                  {prof.insurances_accepted.slice(0, 3).map((ins) => (
+                    <Badge key={ins} variant="outline" className="text-xs">
+                      {ins}
+                    </Badge>
+                  ))}
+                  {prof.insurances_accepted.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      {t.insuranceBadgeMore?.replace("{count}", String(prof.insurances_accepted.length - 3)) ?? `+${prof.insurances_accepted.length - 3}`}
+                    </Badge>
+                  )}
+                </div>
               </div>
             )}
             {hasAvailableSlots && prof.requested_date && (

@@ -32,7 +32,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
   const hasData = total > 0;
 
-  const pieColors = [colors.chart2, colors.chart4];
+  const pieColors = [colors.chart2, colors.chart4, "#f59e0b"];
 
   return (
     <Card>

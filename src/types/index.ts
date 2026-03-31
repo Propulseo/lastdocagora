@@ -34,4 +34,4 @@ export type NotificationChannel = "email" | "sms" | "push";
 
 export type ReminderTrigger = "before" | "after" | "immediate";
 
-export type CreatedVia = "patient_booking" | "manual";
+export type CreatedVia = "patient_booking" | "manual" | "walk_in";

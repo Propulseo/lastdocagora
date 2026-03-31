@@ -6,7 +6,7 @@ import { SearchContent } from "./_components/SearchContent"
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; specialty?: string; city?: string }>
+  searchParams: Promise<{ q?: string; specialty?: string; city?: string; insurance?: string }>
 }) {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
@@ -17,6 +17,26 @@ export default async function SearchPage({
   const query = params.q ?? ""
   const specialtyFilter = params.specialty ?? ""
   const cityFilter = params.city ?? ""
+  const insuranceFilter = params.insurance ?? ""
+
+  // If insurance filter, get matching professional IDs from junction table
+  let insuranceProIds: string[] | null = null
+  if (insuranceFilter) {
+    const { data: providerRow } = await supabase
+      .from("insurance_providers")
+      .select("id")
+      .eq("slug", insuranceFilter)
+      .single()
+    if (providerRow) {
+      const { data: junctionRows } = await supabase
+        .from("professional_insurances")
+        .select("professional_id")
+        .eq("insurance_provider_id", providerRow.id)
+      insuranceProIds = (junctionRows ?? []).map((r) => r.professional_id)
+    } else {
+      insuranceProIds = []
+    }
+  }
 
   let profQuery = supabase
     .from("professionals")
@@ -32,8 +52,21 @@ export default async function SearchPage({
 
   if (specialtyFilter) profQuery = profQuery.ilike("specialty", `%${specialtyFilter}%`)
   if (cityFilter) profQuery = profQuery.ilike("city", `%${cityFilter}%`)
+  if (insuranceProIds !== null && insuranceProIds.length > 0) {
+    profQuery = profQuery.in("id", insuranceProIds)
+  } else if (insuranceProIds !== null && insuranceProIds.length === 0) {
+    // No professionals match this insurance — return empty
+    profQuery = profQuery.in("id", ["00000000-0000-0000-0000-000000000000"])
+  }
 
   const { data: professionals } = await profQuery
+
+  // Fetch insurance providers for filter dropdown
+  const { data: insuranceProviders } = await supabase
+    .from("insurance_providers")
+    .select("id, name, slug")
+    .eq("is_active", true)
+    .order("display_order")
 
   let filteredProfessionals = professionals ?? []
   if (query) {
@@ -83,6 +116,8 @@ export default async function SearchPage({
       query={query}
       specialtyFilter={specialtyFilter}
       cityFilter={cityFilter}
+      insuranceFilter={insuranceFilter}
+      insuranceProviders={(insuranceProviders ?? []) as Array<{ id: string; name: string; slug: string }>}
     />
   )
 }

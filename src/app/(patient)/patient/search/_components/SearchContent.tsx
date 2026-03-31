@@ -16,11 +16,15 @@ import { SearchTabs } from "./search-tabs"
 import { ProfessionalCard, type ProfessionalResult } from "./professional-card"
 import { MapView } from "./MapView"
 
+type InsuranceProviderOption = { id: string; name: string; slug: string }
+
 interface SearchContentProps {
   professionals: ProfessionalResult[]
   query: string
   specialtyFilter: string
   cityFilter: string
+  insuranceFilter?: string
+  insuranceProviders?: InsuranceProviderOption[]
 }
 
 export function SearchContent({
@@ -28,6 +32,8 @@ export function SearchContent({
   query,
   specialtyFilter,
   cityFilter,
+  insuranceFilter,
+  insuranceProviders,
 }: SearchContentProps) {
   const { t, locale } = usePatientTranslations()
 
@@ -56,6 +62,21 @@ export function SearchContent({
             <div className="w-full md:w-48">
               <Input name="city" placeholder={t.search.cityPlaceholder} defaultValue={cityFilter} className="rounded-xl" />
             </div>
+            {insuranceProviders && insuranceProviders.length > 0 && (
+              <div className="w-full md:w-48">
+                <Select name="insurance" defaultValue={insuranceFilter || undefined}>
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue placeholder={t.search.insuranceFilter} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t.search.insuranceAll}</SelectItem>
+                    {insuranceProviders.map((ins) => (
+                      <SelectItem key={ins.slug} value={ins.slug}>{ins.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button type="submit" className="min-h-[48px] rounded-xl lg:min-h-0">
               <SearchIcon className="size-4" />
               {t.search.searchButton}

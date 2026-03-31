@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,11 @@ import {
   DollarSign,
   CheckCircle,
   Target,
+  ChevronDown,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { saveAppointmentNotes } from "@/app/(professional)/_actions/attendance";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import {
   getPatientDetailEnhanced,
@@ -72,11 +77,15 @@ export function PatientDrawer({
   onClose,
 }: PatientDrawerProps) {
   const { t } = useProfessionalI18n();
+  const isMobile = useIsMobile();
   const dt = t.patients.drawer;
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR" | "en-GB";
 
   const [data, setData] = useState<PatientDetailEnhanced | null>(null);
   const [loading, setLoading] = useState(false);
+  const [expandedAptId, setExpandedAptId] = useState<string | null>(null);
+  const [editingNotes, setEditingNotes] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
 
   useEffect(() => {
     if (!patientId) {
@@ -143,7 +152,14 @@ export function PatientDrawer({
 
   return (
     <Sheet open={!!patientId} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0">
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "h-[90vh] w-full rounded-t-2xl p-0"
+            : "w-full sm:max-w-2xl p-0"
+        }
+      >
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{dt.title}</SheetTitle>
         </SheetHeader>
@@ -351,46 +367,91 @@ export function PatientDrawer({
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {data.allAppointments.map((apt, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start justify-between rounded-lg border p-3"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">
-                              {new Date(apt.date).toLocaleDateString(
-                                dateLocale,
-                              )}{" "}
-                              <span className="font-normal text-muted-foreground">
-                                {apt.time.slice(0, 5)}
-                              </span>
-                            </p>
-                            {apt.attendanceStatus && (
-                              <span
-                                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ATTENDANCE_COLORS[apt.attendanceStatus] ?? ""}`}
+                    {data.allAppointments.map((apt) => {
+                      const isExpanded = expandedAptId === apt.id;
+                      return (
+                        <div key={apt.id} className="rounded-lg border overflow-hidden">
+                          <button
+                            type="button"
+                            className="flex w-full items-start justify-between p-3 text-left hover:bg-accent/50 transition-colors"
+                            onClick={() => {
+                              if (isExpanded) {
+                                setExpandedAptId(null);
+                              } else {
+                                setExpandedAptId(apt.id);
+                                setEditingNotes(apt.notes ?? "");
+                              }
+                            }}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium">
+                                  {new Date(apt.date).toLocaleDateString(dateLocale)}{" "}
+                                  <span className="font-normal text-muted-foreground">
+                                    {apt.time.slice(0, 5)}
+                                  </span>
+                                </p>
+                                {apt.attendanceStatus && (
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ATTENDANCE_COLORS[apt.attendanceStatus] ?? ""}`}
+                                  >
+                                    {attendanceLabels[apt.attendanceStatus] ?? apt.attendanceStatus}
+                                  </span>
+                                )}
+                              </div>
+                              {apt.serviceName && (
+                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                  {apt.serviceName}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 ml-2 shrink-0">
+                              <Badge variant={STATUS_VARIANT[apt.status] ?? "outline"} className="text-xs">
+                                {statusLabels[apt.status] ?? apt.status}
+                              </Badge>
+                              <ChevronDown className={`size-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                            </div>
+                          </button>
+                          {isExpanded && (
+                            <div className="border-t px-3 pb-3 pt-2 space-y-2">
+                              <Textarea
+                                value={editingNotes}
+                                onChange={(e) => setEditingNotes(e.target.value)}
+                                placeholder={(dt as Record<string, unknown>).notesPlaceholder as string}
+                                rows={3}
+                                className="text-sm"
+                              />
+                              <Button
+                                size="sm"
+                                disabled={savingNotes}
+                                onClick={async () => {
+                                  setSavingNotes(true);
+                                  const result = await saveAppointmentNotes(apt.id, editingNotes);
+                                  setSavingNotes(false);
+                                  if (result.success) {
+                                    toast.success((dt as Record<string, unknown>).notesSaved as string);
+                                    // Optimistic update
+                                    setData((prev) => {
+                                      if (!prev) return prev;
+                                      return {
+                                        ...prev,
+                                        allAppointments: prev.allAppointments.map((a) =>
+                                          a.id === apt.id ? { ...a, notes: editingNotes.trim() || null } : a
+                                        ),
+                                      };
+                                    });
+                                  } else {
+                                    toast.error((dt as Record<string, unknown>).notesError as string);
+                                  }
+                                }}
                               >
-                                {attendanceLabels[apt.attendanceStatus] ??
-                                  apt.attendanceStatus}
-                              </span>
-                            )}
-                          </div>
-                          {apt.serviceName && (
-                            <p className="mt-0.5 text-xs text-muted-foreground">
-                              {apt.serviceName}
-                            </p>
+                                {savingNotes ? t.common.saving : (dt as Record<string, unknown>).saveNotes as string}
+                              </Button>
+                            </div>
                           )}
                         </div>
-                        <Badge
-                          variant={
-                            STATUS_VARIANT[apt.status] ?? "outline"
-                          }
-                          className="ml-2 shrink-0 text-xs"
-                        >
-                          {statusLabels[apt.status] ?? apt.status}
-                        </Badge>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

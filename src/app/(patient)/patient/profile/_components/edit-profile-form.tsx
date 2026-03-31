@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { createClient } from "@/lib/supabase/client"
@@ -41,11 +41,15 @@ const LANGUAGE_OPTIONS = [
   { value: "it", labelKey: "langIt" },
 ] as const
 
+type InsuranceProviderOption = { id: string; name: string; slug: string }
+
 type PatientData = {
   first_name: string | null; last_name: string | null; phone: string | null
   date_of_birth: string | null; address: string | null; city: string | null
   postal_code: string | null; gender: string | null; languages_spoken: string[] | null
   insurance_provider: string | null
+  insurance_provider_id: string | null
+  insurance_number: string | null
   emergency_contact_name: string | null; emergency_contact_phone: string | null
   emergency_contact_relationship: string | null
 }
@@ -71,10 +75,25 @@ export function EditProfileForm({
 
   const [gender, setGender] = useState(patient?.gender ?? "")
   const [insurance, setInsurance] = useState(patient?.insurance_provider ?? "")
+  const [insuranceProviderId, setInsuranceProviderId] = useState(patient?.insurance_provider_id ?? "")
+  const [insuranceNumber, setInsuranceNumber] = useState(patient?.insurance_number ?? "")
+  const [insuranceProviders, setInsuranceProviders] = useState<InsuranceProviderOption[]>([])
   const [languages, setLanguages] = useState<string[]>(patient?.languages_spoken ?? [])
   const [birthDate, setBirthDate] = useState<Date | undefined>(
     patient?.date_of_birth ? parse(patient.date_of_birth, "yyyy-MM-dd", new Date()) : undefined
   )
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from("insurance_providers")
+      .select("id, name, slug")
+      .eq("is_active", true)
+      .order("display_order")
+      .then(({ data }) => {
+        if (data) setInsuranceProviders(data)
+      })
+  }, [])
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -106,6 +125,8 @@ export function EditProfileForm({
       emergency_contact_relationship: str(data.emergency_contact_relationship),
       languages_spoken: languages.length > 0 ? languages : [],
       insurance_provider: insurance || null,
+      insurance_provider_id: insuranceProviderId || null,
+      insurance_number: insuranceNumber || null,
     }
     const [{ error: pErr }, { error: uErr }] = await Promise.all([
       supabase.from("patients").upsert(payload, { onConflict: "user_id" }),
@@ -202,21 +223,33 @@ export function EditProfileForm({
                 </Select>
               </Field>
               <Field label={t.profile.insuranceProvider} id="insurance_provider">
-                <Select value={insurance || undefined} onValueChange={(v) => setInsurance(v)}>
+                <Select
+                  value={insuranceProviderId || insurance || undefined}
+                  onValueChange={(v) => {
+                    setInsuranceProviderId(v)
+                    const provider = insuranceProviders.find((p) => p.id === v)
+                    setInsurance(provider?.slug ?? v)
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t.profile.selectPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">{t.profile.insuranceNone}</SelectItem>
-                    <SelectItem value="medis">{t.profile.insuranceMedis}</SelectItem>
-                    <SelectItem value="multicare">{t.profile.insuranceMulticare}</SelectItem>
-                    <SelectItem value="advancecare">{t.profile.insuranceAdvanceCare}</SelectItem>
-                    <SelectItem value="fidelidade">{t.profile.insuranceFidelidade}</SelectItem>
-                    <SelectItem value="ageas">{t.profile.insuranceAgeas}</SelectItem>
-                    <SelectItem value="allianz">{t.profile.insuranceAllianz}</SelectItem>
-                    <SelectItem value="other">{t.profile.insuranceOther}</SelectItem>
+                    {insuranceProviders.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+              </Field>
+              <Field label={t.profile.insuranceNumber} id="insurance_number">
+                <Input
+                  id="insurance_number"
+                  value={insuranceNumber}
+                  onChange={(e) => setInsuranceNumber(e.target.value)}
+                  placeholder={t.profile.insuranceNumberPlaceholder}
+                  maxLength={50}
+                />
               </Field>
               <Field label={t.profile.languagesSpoken} id="languages_spoken" className="sm:col-span-2">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

@@ -6,7 +6,8 @@ export type PeriodPreset =
   | "this-month"
   | "last-month"
   | "3-months"
-  | "this-year";
+  | "this-year"
+  | "custom";
 
 export interface PeriodRange {
   from: string;
@@ -46,6 +47,8 @@ export function getPresetRange(preset: PeriodPreset): { from: string; to: string
     }
     case "this-year":
       return { from: toISO(new Date(y, 0, 1)), to: toISO(now) };
+    case "custom":
+      return { from: "", to: "" };
   }
 }
 

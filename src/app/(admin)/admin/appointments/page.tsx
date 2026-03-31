@@ -31,11 +31,13 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
 
   const supabase = await createClient();
 
+  // RGPD Art. 9 — Données de santé :
+  // L'admin plateforme n'a pas accès aux données médicales des patients.
+  // Affichage uniquement d'identifiants anonymisés.
   let query = supabase
     .from("appointments")
     .select(
-      `id, appointment_date, appointment_time, status, duration_minutes,
-       patients!appointments_patient_id_fkey(first_name, last_name, avatar_url),
+      `id, patient_id, appointment_date, appointment_time, status, duration_minutes,
        professionals!appointments_professional_id_fkey(
          users!professionals_user_id_fkey(first_name, last_name, avatar_url)
        )`,
@@ -57,23 +59,21 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
   const { data: appointments, count } = await query;
 
   const mapped = (appointments ?? []).map((apt) => {
-    const patient = apt.patients as unknown as {
-      first_name: string | null;
-      last_name: string | null;
-      avatar_url: string | null;
-    } | null;
     const proData = apt.professionals as unknown as {
       users: { first_name: string; last_name: string; avatar_url: string | null } | null;
     } | null;
     const proUser = proData?.users ?? null;
 
+    // RGPD: anonymize patient — show only last 5 chars of ID
+    const patientId = (apt as Record<string, unknown>).patient_id as string | null;
+    const anonymizedPatient = patientId
+      ? `Patient #${patientId.slice(-5)}`
+      : "";
+
     return {
       id: apt.id,
-      patient_name: patient
-        ? `${patient.first_name ?? ""} ${patient.last_name ?? ""}`.trim() ||
-          ""
-        : "",
-      patient_avatar_url: patient?.avatar_url ?? null,
+      patient_name: anonymizedPatient,
+      patient_avatar_url: null,
       professional_name: proUser
         ? `${proUser.first_name} ${proUser.last_name}`
         : "—",

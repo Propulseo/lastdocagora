@@ -50,6 +50,8 @@ type PatientData = {
   avatar_url: string | null
   languages_spoken: string[] | null
   insurance_provider: string | null
+  insurance_provider_id: string | null
+  insurance_number: string | null
   emergency_contact_name: string | null
   emergency_contact_phone: string | null
   emergency_contact_relationship: string | null

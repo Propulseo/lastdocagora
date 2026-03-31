@@ -7,6 +7,7 @@ import {
   STATUS_COLORS,
   STATUS_PILL_COLORS,
   ATTENDANCE_BADGE_COLORS,
+  PAYMENT_BADGE_COLORS,
 } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 
@@ -38,6 +39,13 @@ export function AppointmentBlock({
     absent: t.agenda.attendance.statusAbsent,
   };
 
+  const paymentLabel: Record<string, string> = {
+    paid: t.agenda.paymentPaid ?? "Pago",
+    invoiced: t.agenda.paymentInvoiced ?? "Fatura enviada",
+    reminder_sent: t.agenda.paymentReminder ?? "Lembrete enviado",
+    unpaid: t.agenda.paymentUnpaid ?? "Não pago",
+  };
+
   const [hours, minutes] = appointment.appointment_time.split(":").map(Number);
   const topOffset = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
   const height = (appointment.duration_minutes / 60) * HOUR_HEIGHT;
@@ -54,6 +62,7 @@ export function AppointmentBlock({
   const colors = STATUS_COLORS[appointment.status] ?? STATUS_COLORS.completed;
   const pillColors = STATUS_PILL_COLORS[appointment.status] ?? STATUS_PILL_COLORS.completed;
   const isManual = appointment.created_via === "manual";
+  const isWalkIn = appointment.created_via === "walk_in";
 
   const displayName = patient?.first_name
     ? `${patient.first_name} ${patient.last_name}`
@@ -67,8 +76,10 @@ export function AppointmentBlock({
   return (
     <button
       type="button"
-      className={`absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 ${colors} ${
-        isManual && !patient?.first_name
+      className={`absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 ${
+        isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors
+      } ${
+        isManual && !patient?.first_name && !isWalkIn
           ? "border-l-[3px] border-dashed"
           : "border-l-[3px]"
       }`}
@@ -76,6 +87,10 @@ export function AppointmentBlock({
       onClick={() => onClick(appointment)}
       onMouseDown={(e) => e.stopPropagation()}
     >
+      {/* Walk-in badge */}
+      {isWalkIn && height >= 40 && (
+        <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">Walk-in</span>
+      )}
       {/* Top row: name + status pill */}
       <div className="flex items-start justify-between gap-1">
         <p className="truncate text-[13px] font-bold leading-tight">{displayName}</p>
@@ -104,6 +119,17 @@ export function AppointmentBlock({
           }`}
         >
           {attendanceLabel[currentAttendance] ?? currentAttendance}
+        </span>
+      )}
+
+      {/* Payment badge */}
+      {height >= 50 && (
+        <span
+          className={`mt-0.5 inline-block rounded-sm border px-1.5 py-0 text-[10px] font-medium leading-4 ${
+            PAYMENT_BADGE_COLORS[appointment.payment_status ?? ""] ?? "border-muted text-muted-foreground bg-muted/30"
+          }`}
+        >
+          {paymentLabel[appointment.payment_status ?? ""] ?? (t.agenda.paymentPending ?? "Pendente")}
         </span>
       )}
     </button>

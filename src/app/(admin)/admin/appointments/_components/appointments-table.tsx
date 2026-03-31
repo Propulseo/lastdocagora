@@ -117,6 +117,9 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
 
   const columns: ColumnDef<AppointmentRow>[] = [
     {
+      // RGPD Art. 9 — Données de santé :
+      // L'admin plateforme n'a pas accès aux données médicales des patients
+      // Affichage uniquement d'identifiants anonymisés
       key: "patient",
       header: t.appointments.tablePatient,
       render: (row) => {
@@ -127,25 +130,10 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
             </span>
           );
         }
-        const bg = AVATAR_COLORS[hashStr(row.patient_name) % AVATAR_COLORS.length];
-        const initials = row.patient_name
-          .split(" ")
-          .map((w) => w[0])
-          .join("")
-          .slice(0, 2);
         return (
-          <div className="flex items-center gap-2">
-            <Avatar className="size-[30px]">
-              {row.patient_avatar_url && <AvatarImage src={row.patient_avatar_url} alt={row.patient_name} />}
-              <AvatarFallback
-                style={{ backgroundColor: bg, color: "white" }}
-                className="text-[11px] font-semibold"
-              >
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-[14px] font-medium">{row.patient_name}</span>
-          </div>
+          <span className="text-[13px] font-medium text-muted-foreground">
+            {row.patient_name}
+          </span>
         );
       },
     },
@@ -263,7 +251,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold truncate">
+                  <p className="text-sm font-medium text-muted-foreground truncate">
                     {row.patient_name || t.appointments.deletedPatient}
                   </p>
                   <StatusBadge
@@ -312,6 +300,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
             <SheetTitle>
               {actionSheet?.patient_name || t.appointments.deletedPatient}
             </SheetTitle>
+            {/* RGPD: patient_name is already anonymized (Patient #xxxxx) */}
           </SheetHeader>
           <div className="mt-2 space-y-1">
             <button

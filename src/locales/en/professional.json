@@ -5,6 +5,7 @@
     "patients": "Patients",
     "statistics": "Stats",
     "more": "More",
+    "today": "Today",
     "services": "Services",
     "reminders": "Reminders",
     "support": "Support",
@@ -21,6 +22,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "agenda": "Schedule",
+    "today": "Today",
     "patients": "Patients",
     "reminders": "Reminders",
     "services": "Services",
@@ -196,6 +198,14 @@
       "statusAbsent": "Absent",
       "late": "Late"
     },
+    "paymentPaid": "Paid",
+    "paymentInvoiced": "Invoiced",
+    "paymentUnpaid": "Unpaid",
+    "paymentReminder": "Reminder sent",
+    "paymentPending": "Pending",
+    "financialSummary": "Financial summary",
+    "confirmedRevenue": "confirmed",
+    "pendingRevenue": "pending",
     "dragActionTitle": "What would you like to do?",
     "createPatientAppointment": "Create patient appointment",
     "openAvailabilitySlot": "Open an availability slot",
@@ -226,6 +236,20 @@
       "rejected": "Appointment rejected",
       "error": "Error rejecting appointment"
     },
+    "propose": {
+      "button": "Propose alternative time",
+      "title": "Propose alternative time",
+      "description": "Suggest a new date and time to the patient. The current appointment will be rejected.",
+      "date": "Proposed date",
+      "datePlaceholder": "Select a date",
+      "time": "Proposed time",
+      "timePlaceholder": "Select a time",
+      "message": "Message to patient (optional)",
+      "messagePlaceholder": "E.g.: I suggest this time due to availability...",
+      "confirm": "Send proposal",
+      "success": "Proposal sent to patient",
+      "error": "Error sending proposal"
+    },
     "cancellation": {
       "title": "Cancel appointment",
       "description": "This action is irreversible. The appointment will be marked as cancelled.",
@@ -243,7 +267,34 @@
       "confirm": "Confirm cancellation",
       "cancelled": "Appointment cancelled",
       "error": "Error cancelling appointment"
+    },
+    "walkIn": {
+      "button": "Walk-in",
+      "dialogTitle": "Register walk-in",
+      "patientName": "Patient name",
+      "patientNamePlaceholder": "Patient full name",
+      "service": "Service",
+      "servicePlaceholder": "Select a service",
+      "time": "Arrival time",
+      "phone": "Phone (optional)",
+      "phonePlaceholder": "+351 912 345 678",
+      "email": "Email (optional)",
+      "emailPlaceholder": "email@example.com",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Walk-in notes...",
+      "submit": "Register walk-in",
+      "success": "Walk-in registered successfully",
+      "error": "Error registering walk-in",
+      "badge": "Walk-in"
     }
+  },
+  "today": {
+    "title": "Today's Appointments",
+    "noAppointments": "No appointments for today",
+    "currentAppointment": "Current",
+    "viewDetails": "View details",
+    "filters": { "all": "All", "pending": "Pending", "confirmed": "Confirmed", "present": "Present", "absent": "Absent" },
+    "stats": { "total": "appointments", "confirmed": "confirmed", "present": "present", "pending": "pending" }
   },
   "patients": {
     "title": "Patients",
@@ -371,7 +422,11 @@
         "completed": "Completed",
         "cancelled": "Cancelled",
         "no-show": "No-show"
-      }
+      },
+      "notesPlaceholder": "Add notes about this consultation...",
+      "saveNotes": "Save notes",
+      "notesSaved": "Notes saved",
+      "notesError": "Error saving notes"
     }
   },
   "services": {
@@ -662,6 +717,7 @@
       "allChannels": "All",
       "channelPatient": "Patient",
       "channelManual": "Manual",
+      "channelWalkIn": "Walk-in",
       "status": "Status",
       "allStatuses": "All statuses",
       "statusCompleted": "Completed",
@@ -682,7 +738,14 @@
       "sampleWarning": "Based on {{count}} appointments — limited data",
       "noAttendanceData": "No attendance data",
       "markAttendanceCta": "Mark attendance in the schedule to populate this statistic.",
-      "goToAgenda": "Go to schedule"
+      "goToAgenda": "Go to schedule",
+      "avgGap": "Time between appointments",
+      "avgGapSub": "Average gap between appointments",
+      "billableHours": "Billable hours",
+      "billableHoursSub": "Completed appointments",
+      "occupancyRate": "Occupancy rate",
+      "walkInCount": "Walk-ins",
+      "walkInCountSub": "In selected period"
     },
     "trends": {
       "title": "Trends",
@@ -706,7 +769,8 @@
       "title": "Booking channel",
       "description": "Who creates the appointments",
       "patientBooking": "Patient",
-      "manual": "Manual (pro)"
+      "manual": "Manual (pro)",
+      "walkIn": "Walk-in"
     },
     "punctuality": {
       "title": "Punctuality",
@@ -776,7 +840,10 @@
       "insightsError": "Unable to generate insights.",
       "current": "current",
       "reference": "ref.",
-      "dayLabel": "Day"
+      "dayLabel": "Day",
+      "custom": "Custom period",
+      "startDate": "Start date",
+      "endDate": "End date"
     }
   },
   "profile": {
@@ -826,7 +893,10 @@
     "geocodedVisible": "Visible on the search map",
     "geocodedMissing": "Address not geocoded — save your profile to appear on the map",
     "saveSuccessGeocoded": "Profile updated. Map location updated.",
-    "saveSuccessNoGeocode": "Profile updated. Location not found — please check the address."
+    "saveSuccessNoGeocode": "Profile updated. Location not found — please check the address.",
+    "insuranceSection": "Accepted insurance",
+    "insuranceDescription": "Select the insurances you accept",
+    "noInsuranceSelected": "No insurance selected"
   },
   "settings": {
     "title": "Settings",
@@ -927,5 +997,170 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "updatedAt": "Updated"
+  },
+  "onboarding": {
+    "title": "Welcome to DOCAGORA",
+    "subtitle": "Let's set up your professional account in a few steps",
+    "steps": {
+      "profile": "Profile",
+      "specialty": "Specialty",
+      "services": "Services",
+      "availability": "Availability",
+      "address": "Address",
+      "verification": "Verification",
+      "complete": "Complete"
+    },
+    "navigation": {
+      "next": "Next",
+      "previous": "Previous",
+      "saving": "Saving...",
+      "skip": "Skip",
+      "stepOf": "Step {current} of {total}"
+    },
+    "step1": {
+      "title": "Personal information",
+      "subtitle": "How your patients will see you",
+      "firstName": "First name",
+      "firstNamePlaceholder": "Your first name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Your last name",
+      "bio": "Bio",
+      "bioPlaceholder": "Describe your background and clinical approach...",
+      "bioHint": "{count}/500 characters",
+      "registrationNumber": "Registration number",
+      "registrationNumberPlaceholder": "E.g. 12345",
+      "languages": "Spoken languages",
+      "languagesPlaceholder": "Portuguese, English, French...",
+      "languagesHint": "Separate with commas",
+      "photo": "Profile photo",
+      "photoHint": "JPG, PNG or WebP — max 2 MB"
+    },
+    "step2": {
+      "title": "Specialty and practice",
+      "subtitle": "Help patients find you",
+      "specialty": "Main specialty",
+      "specialtyPlaceholder": "Select your specialty",
+      "subspecialties": "Subspecialties",
+      "subspecialtiesPlaceholder": "Aesthetic dermatology, Surgery...",
+      "subspecialtiesHint": "Separate with commas",
+      "yearsExperience": "Years of experience",
+      "yearsExperiencePlaceholder": "E.g. 10",
+      "practiceType": "Practice type",
+      "practiceTypePlaceholder": "Select type",
+      "practiceTypes": {
+        "liberal": "Private",
+        "hospital": "Hospital",
+        "clinic": "Clinic",
+        "mixed": "Mixed"
+      },
+      "consultationTypes": "Consultation types offered",
+      "inPerson": "In-person",
+      "teleconsultation": "Teleconsultation",
+      "homeVisit": "Home visit",
+      "consultationFee": "Consultation fee (€)",
+      "consultationFeePlaceholder": "E.g. 50",
+      "thirdPartyPayment": "Accepts third-party payment",
+      "insurances": "Accepted insurances",
+      "insurancesPlaceholder": "ADSE, Médis, Multicare...",
+      "insurancesHint": "Separate with commas",
+      "insurancesMultiSelect": "Select accepted insurances"
+    },
+    "step3": {
+      "title": "Your services",
+      "subtitle": "Define the services you offer to patients",
+      "addService": "Add service",
+      "serviceName": "Service name",
+      "serviceNamePlaceholder": "E.g. General consultation",
+      "serviceDescription": "Description (optional)",
+      "serviceDescriptionPlaceholder": "Brief service description...",
+      "serviceDuration": "Duration",
+      "servicePrice": "Price (€)",
+      "servicePricePlaceholder": "E.g. 50",
+      "removeService": "Remove",
+      "existingServices": "Existing services",
+      "newServices": "New services",
+      "minOneService": "Add at least one service",
+      "durations": {
+        "15": "15 min",
+        "30": "30 min",
+        "45": "45 min",
+        "60": "1 hour",
+        "90": "1h30"
+      }
+    },
+    "step4": {
+      "title": "Weekly availability",
+      "subtitle": "Set your consultation hours",
+      "addSlot": "Add slot",
+      "removeSlot": "Remove",
+      "startTime": "Start",
+      "endTime": "End",
+      "quickAdd": "Quick add",
+      "morning": "Morning (09:00-13:00)",
+      "afternoon": "Afternoon (14:00-18:00)",
+      "days": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "0": "Sunday"
+      },
+      "existingSlots": "Existing slots",
+      "minOneSlot": "Add at least one slot",
+      "startBeforeEnd": "Start must be before end"
+    },
+    "step5": {
+      "title": "Office address",
+      "subtitle": "Where patients can find you",
+      "cabinetName": "Office name",
+      "cabinetNamePlaceholder": "E.g. Health Clinic",
+      "address": "Address",
+      "addressPlaceholder": "E.g. 123 Main Street",
+      "city": "City",
+      "cityPlaceholder": "E.g. Lisbon",
+      "postalCode": "Postal code",
+      "postalCodePlaceholder": "E.g. 1000-001",
+      "optional": "This step is optional — you can complete it later"
+    },
+    "step6": {
+      "title": "Verification and summary",
+      "subtitle": "Review your information before finishing",
+      "summary": {
+        "profile": "Profile",
+        "specialty": "Specialty",
+        "services": "Services",
+        "availability": "Availability",
+        "address": "Address",
+        "edit": "Edit"
+      },
+      "documents": "Verification documents",
+      "license": "Professional license",
+      "diploma": "Diploma",
+      "uploadHint": "PDF, JPG or PNG — max 5 MB",
+      "uploaded": "Uploaded",
+      "upload": "Upload",
+      "verificationNote": "Document verification may take up to 48 hours. You can start using the platform while you wait.",
+      "servicesCount": "{count} service(s)",
+      "slotsCount": "{count} slot(s)",
+      "notDefined": "Not defined"
+    },
+    "step7": {
+      "title": "All set!",
+      "subtitle": "Your professional account is configured",
+      "message": "Patients can now find you and book appointments. You can always adjust your settings in the dashboard.",
+      "goToDashboard": "Go to dashboard"
+    },
+    "errors": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "registrationRequired": "Registration number is required",
+      "specialtyRequired": "Select a specialty",
+      "saveError": "Error saving. Please try again.",
+      "uploadError": "Error uploading file",
+      "fileTooLarge": "File exceeds 5 MB",
+      "invalidFormat": "Unsupported format"
+    }
   }
 }

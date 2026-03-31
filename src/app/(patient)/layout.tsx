@@ -15,6 +15,7 @@ import { ThemeSync } from "@/components/theme-sync"
 import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { PatientLayoutHeader } from "./_components/patient-layout-header"
 import { PatientBottomNav } from "./_components/patient-bottom-nav"
+import { PatientRealtimeNotifier } from "./_components/patient-realtime-notifier"
 
 export default async function PatientLayout({
   children,
@@ -62,6 +63,7 @@ export default async function PatientLayout({
 
   return (
     <>
+      <PatientRealtimeNotifier userId={user.id} />
       <RoleBodyClass role="role-patient" />
       <ThemeSync userId={user.id} target="patient_settings" />
       <SidebarProvider>

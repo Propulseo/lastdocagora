@@ -125,6 +125,9 @@ export function StatsFiltersBar({
           <SelectItem value="manual">
             {t.statistics.filters.channelManual}
           </SelectItem>
+          <SelectItem value="walk_in">
+            {(t.statistics.filters as Record<string, string>).channelWalkIn ?? "Walk-in"}
+          </SelectItem>
         </SelectContent>
       </Select>
 

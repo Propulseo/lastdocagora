@@ -16,6 +16,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ThemeSync } from "@/components/theme-sync";
 import { ProBottomNav } from "./_components/pro-bottom-nav";
 import { ProMobileHeader } from "./_components/pro-mobile-header";
+import { ProRealtimeNotifier } from "./_components/pro-realtime-notifier";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -35,14 +36,13 @@ export default async function ProfessionalLayout({
 
   const supabase = await createClient();
 
-  const [{ data: userProfile }, { locale, t }, { data: ticketsWithMessages }] =
+  const [{ data: userProfile }, { data: ticketsWithMessages }, { data: proRecord }] =
     await Promise.all([
       supabase
         .from("users")
         .select("first_name, last_name, email, avatar_url, language")
         .eq("id", user.id)
         .single(),
-      getProfessionalI18n(),
       supabase
         .from("support_tickets")
         .select("id, ticket_messages(sender_id, created_at)")
@@ -53,7 +53,18 @@ export default async function ProfessionalLayout({
           ascending: false,
         })
         .limit(1, { referencedTable: "ticket_messages" }),
+      supabase
+        .from("professionals")
+        .select("onboarding_completed")
+        .eq("user_id", user.id)
+        .single(),
     ]);
+
+  if (!userProfile) {
+    redirect("/login");
+  }
+
+  const { locale, t } = await getProfessionalI18n(userProfile.language);
 
   let unreadCount = 0;
   if (ticketsWithMessages) {
@@ -68,9 +79,7 @@ export default async function ProfessionalLayout({
     }
   }
 
-  if (!userProfile) {
-    redirect("/login");
-  }
+  const onboardingCompleted = proRecord?.onboarding_completed === true;
 
   const sidebarUser = {
     email: userProfile.email,
@@ -79,8 +88,21 @@ export default async function ProfessionalLayout({
     avatarUrl: userProfile.avatar_url,
   };
 
+  // Minimal shell during onboarding — no sidebar, no bottom nav
+  if (!onboardingCompleted) {
+    return (
+      <>
+        <RoleBodyClass role="role-professional" />
+        <ProfessionalI18nProvider translations={t} locale={locale}>
+          <div className="min-h-screen bg-background">{children}</div>
+        </ProfessionalI18nProvider>
+      </>
+    );
+  }
+
   return (
     <>
+      <ProRealtimeNotifier professionalUserId={user.id} />
       <RoleBodyClass role="role-professional" />
       <ThemeSync userId={user.id} target="professional_settings" />
       <ProfessionalI18nProvider translations={t} locale={locale}>

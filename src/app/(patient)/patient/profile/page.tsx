@@ -20,6 +20,7 @@ export default async function ProfilePage() {
       .select(
         `first_name, last_name, email, phone, date_of_birth, address, city,
          postal_code, gender, avatar_url, languages_spoken, insurance_provider,
+         insurance_provider_id, insurance_number,
          emergency_contact_name, emergency_contact_phone,
          emergency_contact_relationship`
       )

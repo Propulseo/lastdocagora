@@ -8,6 +8,9 @@ import {
   Clock,
   UserPlus,
   CalendarDays,
+  Timer,
+  Hourglass,
+  Percent,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
@@ -28,6 +31,10 @@ export interface KpiData {
   returningPatientsCount: number;
   totalInRange: number;
   totalWithAttendance: number;
+  avgGapMinutes: number;
+  billableHours: number;
+  occupancyRate: number;
+  walkInCount: number;
 }
 
 export function KpiCards({ data }: { data: KpiData }) {
@@ -96,10 +103,41 @@ export function KpiCards({ data }: { data: KpiData }) {
       color: "text-violet-500",
       bg: "bg-violet-500/10",
     },
+    {
+      label: t.statistics.kpi.avgGap ?? "Tempo entre consultas",
+      value: `${data.avgGapMinutes} min`,
+      sub: t.statistics.kpi.avgGapSub ?? "Tempo médio de intervalo",
+      icon: Timer,
+      color: "text-teal-500",
+      bg: "bg-teal-500/10",
+    },
+    {
+      label: t.statistics.kpi.billableHours ?? "Horas faturáveis",
+      value: `${data.billableHours}h`,
+      sub: t.statistics.kpi.billableHoursSub ?? "Consultas realizadas",
+      icon: Hourglass,
+      color: "text-indigo-500",
+      bg: "bg-indigo-500/10",
+    },
+    {
+      label: t.statistics.kpi.occupancyRate ?? "Taxa de ocupação",
+      value: `${data.occupancyRate}%`,
+      icon: Percent,
+      color: "text-cyan-500",
+      bg: "bg-cyan-500/10",
+    },
+    {
+      label: (t.statistics.kpi as Record<string, string>).walkInCount ?? "Walk-ins",
+      value: String(data.walkInCount),
+      sub: (t.statistics.kpi as Record<string, string>).walkInCountSub ?? "No período selecionado",
+      icon: UserPlus,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+    },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((card) => (
         <Card key={card.label}>
           <CardContent className="flex flex-col gap-2 p-4">

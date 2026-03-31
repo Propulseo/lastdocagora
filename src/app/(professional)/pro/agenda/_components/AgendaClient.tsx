@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { useIsMobileLg } from "@/hooks/use-mobile-lg";
 import { useAgendaData } from "../_hooks/useAgendaData";
@@ -15,6 +15,7 @@ import { MonthGrid } from "./MonthGrid";
 import { NewAvailabilityModal } from "./NewAvailabilityModal";
 import { CreateManualAppointmentDialog } from "./CreateManualAppointmentDialog";
 import { CalendarIntegrationDialog } from "./CalendarIntegrationDialog";
+import { WalkInDialog } from "./WalkInDialog";
 
 // Re-export types for backward compat (consumed by page.tsx)
 export type { Appointment, ExternalEvent } from "../_types/agenda";
@@ -27,6 +28,7 @@ interface AgendaClientProps {
 export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const agenda = useAgendaData({ professionalId, userId });
   const isMobile = useIsMobileLg();
+  const [walkInDialogOpen, setWalkInDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isMobile && agenda.periodFilter !== "day") {
@@ -41,6 +43,14 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         description={agenda.t.agenda.description}
         action={
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2"
+              onClick={() => setWalkInDialogOpen(true)}
+            >
+              <UserPlus className="size-4" />
+              {(agenda.t.agenda.walkIn as Record<string, string>).button}
+            </Button>
             <Button
               variant="outline"
               onClick={() => agenda.setCalendarDialogOpen(true)}
@@ -68,6 +78,23 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
       <AttendanceStats stats={agenda.stats} />
       <AttendanceRate stats={agenda.stats} />
 
+      {agenda.periodFilter === "day" && (agenda.financialStats.confirmedRevenue > 0 || agenda.financialStats.pendingRevenue > 0) && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">
+            {agenda.t.agenda.financialSummary ?? "Resumo financeiro"}
+          </span>
+          <span>
+            {agenda.financialStats.totalAppointments} {agenda.financialStats.totalAppointments === 1 ? "consulta" : "consultas"}
+          </span>
+          <span className="text-green-600 dark:text-green-400">
+            {agenda.financialStats.confirmedRevenue}€ {agenda.t.agenda.confirmedRevenue ?? "confirmados"}
+          </span>
+          <span className="text-orange-600 dark:text-orange-400">
+            {agenda.financialStats.pendingRevenue}€ {agenda.t.agenda.pendingRevenue ?? "pendentes"}
+          </span>
+        </div>
+      )}
+
       {agenda.periodFilter === "day" && (
         <DayTimeGrid
           appointments={agenda.appointments}
@@ -77,7 +104,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           selectedDate={agenda.selectedDate}
           onAttendanceChange={agenda.handleAttendanceChange}
           onCreateAppointment={agenda.openCreateDialog}
-          onCreateAvailability={agenda.createAvailabilitySlot}
+          onCreateAvailability={agenda.openAvailabilityModal}
         />
       )}
 
@@ -123,6 +150,9 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         professionalId={professionalId}
         userId={userId}
         onCreated={agenda.refresh}
+        initialStartTime={agenda.modalStartTime}
+        initialEndTime={agenda.modalEndTime}
+        initialDate={agenda.selectedDate}
       />
 
       <CalendarIntegrationDialog
@@ -130,6 +160,21 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         onOpenChange={agenda.setCalendarDialogOpen}
         onSyncComplete={agenda.refreshExternalEvents}
       />
+
+      <WalkInDialog
+        open={walkInDialogOpen}
+        onOpenChange={setWalkInDialogOpen}
+        professionalId={professionalId}
+        onCreated={agenda.refresh}
+      />
+
+      {/* Mobile FAB for walk-ins */}
+      <button
+        className="fixed bottom-36 right-4 z-40 flex size-12 items-center justify-center rounded-full bg-amber-500 text-white shadow-lg active:scale-95 transition-transform lg:hidden"
+        onClick={() => setWalkInDialogOpen(true)}
+      >
+        <UserPlus className="size-5" />
+      </button>
 
       {/* Mobile FAB for creating appointments */}
       <button
