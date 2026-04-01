@@ -27,6 +27,7 @@ type AISearchSuccess =
       lang: DetectedLang
       debug?: string
       requested_date?: string
+      fallback_level?: 1 | 2 | 3 | 4
     }
 
 type AISearchResponse =
@@ -41,11 +42,10 @@ async function getCachedContext(supabase: Awaited<ReturnType<typeof createClient
   if (contextCache && Date.now() - contextCache.ts < CACHE_TTL) {
     return contextCache
   }
-  // RLS enforce déjà verification_status = 'verified'
   const [specialtiesRes, citiesRes, neighborhoodsRes] = await Promise.all([
-    supabase.from("professionals").select("specialty"),
-    supabase.from("professionals").select("city").not("city", "is", null),
-    supabase.from("professionals").select("neighborhood").not("neighborhood", "is", null),
+    supabase.from("professionals").select("specialty").eq("verification_status", "verified"),
+    supabase.from("professionals").select("city").eq("verification_status", "verified").not("city", "is", null),
+    supabase.from("professionals").select("neighborhood").eq("verification_status", "verified").not("neighborhood", "is", null),
   ])
   contextCache = {
     specialties: [...new Set((specialtiesRes.data ?? []).map((s) => s.specialty))].sort(),
@@ -176,8 +176,8 @@ export async function aiSearch(input: {
     }
   }
 
-  // 7. Build Supabase query from filters (sans nextSlot pour réponse instantanée)
-  const { results: professionals, error: queryError } = await queryProfessionals(supabase, aiOutput.filters)
+  // 7. Build Supabase query from filters with progressive fallback
+  const { results: professionals, error: queryError, level } = await queryProfessionals(supabase, aiOutput.filters)
 
   // 8. Filter by availability if a date was requested
   const requestedDate = aiOutput.filters.requested_date
@@ -200,6 +200,7 @@ export async function aiSearch(input: {
       lang: detectedLang,
       debug: queryError ?? undefined,
       requested_date: requestedDate,
+      fallback_level: level,
     },
   }
 }
@@ -279,71 +280,38 @@ async function filterByAvailability(
   return results.filter((r) => r !== null) as ProfessionalResult[]
 }
 
-async function queryProfessionals(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  filters: AISearchFilters
-): Promise<{ results: ProfessionalResult[]; error?: string }> {
-  // RLS enforce déjà verification_status = 'verified', pas besoin de filtrer ici
-  let query = supabase
-    .from("professionals")
-    .select(
-      `id, specialty, subspecialties, city, neighborhood, address, postal_code,
+// City name normalization: common English/French names → Portuguese
+const CITY_ALIASES: Record<string, string> = {
+  lisbon: "Lisboa",
+  lisbonne: "Lisboa",
+  oporto: "Porto",
+  coimbra: "Coimbra",
+  faro: "Faro",
+  braga: "Braga",
+  evora: "Évora",
+  évora: "Évora",
+}
+
+function normalizeCity(city: string): string {
+  return CITY_ALIASES[city.toLowerCase().trim()] ?? city
+}
+
+const SELECT_COLUMNS = `id, specialty, subspecialties, city, neighborhood, address, postal_code,
        cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
        third_party_payment, years_experience, practice_type, rating, total_reviews,
        bio, accessibility_options, latitude, longitude,
        users ( first_name, last_name, avatar_url )`
-    )
 
-  if (filters.specialty) {
-    query = query.ilike("specialty", `%${filters.specialty}%`)
-  }
-  if (filters.city) {
-    query = query.ilike("city", `%${filters.city}%`)
-  }
-  if (filters.neighborhood) {
-    query = query.ilike("neighborhood", `%${filters.neighborhood}%`)
-  }
-  if (filters.languages_spoken && filters.languages_spoken.length > 0) {
-    query = query.overlaps("languages_spoken", normalizeLangCodes(filters.languages_spoken))
-  }
-  if (filters.insurances_accepted && filters.insurances_accepted.length > 0) {
-    query = query.overlaps("insurances_accepted", filters.insurances_accepted)
-  }
-  if (filters.third_party_payment !== undefined) {
-    query = query.eq("third_party_payment", filters.third_party_payment)
-  }
-  if (filters.max_consultation_fee !== undefined) {
-    query = query.lte("consultation_fee", filters.max_consultation_fee)
-  }
-  if (filters.min_rating !== undefined) {
-    query = query.gte("rating", filters.min_rating)
-  }
-  if (filters.min_years_experience !== undefined) {
-    query = query.gte("years_experience", filters.min_years_experience)
-  }
-  if (filters.practice_type) {
-    query = query.ilike("practice_type", `%${filters.practice_type}%`)
-  }
+function baseQuery(supabase: Awaited<ReturnType<typeof createClient>>) {
+  return supabase
+    .from("professionals")
+    .select(SELECT_COLUMNS)
+    .eq("verification_status", "verified")
+}
 
-  // Sorting
-  if (filters.sort_by === "consultation_fee") {
-    query = query.order("consultation_fee", { ascending: true, nullsFirst: false })
-  } else if (filters.sort_by === "years_experience") {
-    query = query.order("years_experience", { ascending: false, nullsFirst: false })
-  } else {
-    query = query.order("rating", { ascending: false, nullsFirst: false })
-  }
-
-  query = query.limit(filters.limit ?? 10)
-
-  const { data, error } = await query
-
-  if (error) {
-    console.error("[ai-search] Supabase query error:", error)
-    return { results: [], error: `DB: ${error.message} (${error.code})` }
-  }
-
-  let results = (data ?? []).map((prof) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapResults(data: any[]): ProfessionalResult[] {
+  return data.map((prof) => ({
     id: prof.id,
     specialty: prof.specialty,
     subspecialties: prof.subspecialties,
@@ -371,16 +339,99 @@ async function queryProfessionals(
       avatar_url?: string | null
     } | null,
   }))
+}
 
-  // Client-side name filtering if name filter was provided
-  if (filters.name) {
-    const lowerName = filters.name.toLowerCase()
-    results = results.filter((prof) => {
-      const fullName =
-        `${prof.users?.first_name ?? ""} ${prof.users?.last_name ?? ""}`.toLowerCase()
-      return fullName.includes(lowerName)
-    })
+function filterByName(results: ProfessionalResult[], name: string): ProfessionalResult[] {
+  const lowerName = name.toLowerCase()
+  return results.filter((prof) => {
+    const fullName =
+      `${prof.users?.first_name ?? ""} ${prof.users?.last_name ?? ""}`.toLowerCase()
+    return fullName.includes(lowerName)
+  })
+}
+
+async function queryProfessionals(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  filters: AISearchFilters
+): Promise<{ results: ProfessionalResult[]; error?: string; level: 1 | 2 | 3 | 4 }> {
+  const normalizedCity = filters.city ? normalizeCity(filters.city) : undefined
+  const limit = filters.limit ?? 10
+
+  const sortOrder = (q: ReturnType<typeof baseQuery>) => {
+    if (filters.sort_by === "consultation_fee") {
+      return q.order("consultation_fee", { ascending: true, nullsFirst: false })
+    } else if (filters.sort_by === "years_experience") {
+      return q.order("years_experience", { ascending: false, nullsFirst: false })
+    }
+    return q.order("rating", { ascending: false, nullsFirst: false })
   }
 
-  return { results }
+  // --- Level 1: All AI-extracted filters ---
+  {
+    let q = baseQuery(supabase)
+    if (filters.specialty) q = q.ilike("specialty", `%${filters.specialty}%`)
+    if (normalizedCity) q = q.ilike("city", `%${normalizedCity}%`)
+    if (filters.neighborhood) q = q.ilike("neighborhood", `%${filters.neighborhood}%`)
+    if (filters.languages_spoken && filters.languages_spoken.length > 0) {
+      q = q.overlaps("languages_spoken", normalizeLangCodes(filters.languages_spoken))
+    }
+    if (filters.insurances_accepted && filters.insurances_accepted.length > 0) {
+      q = q.overlaps("insurances_accepted", filters.insurances_accepted)
+    }
+    if (filters.third_party_payment !== undefined) q = q.eq("third_party_payment", filters.third_party_payment)
+    if (filters.max_consultation_fee !== undefined) q = q.lte("consultation_fee", filters.max_consultation_fee)
+    if (filters.min_rating !== undefined) q = q.gte("rating", filters.min_rating)
+    if (filters.min_years_experience !== undefined) q = q.gte("years_experience", filters.min_years_experience)
+    if (filters.practice_type) q = q.ilike("practice_type", `%${filters.practice_type}%`)
+
+    const { data, error } = await sortOrder(q).limit(limit)
+    if (error) {
+      console.error("[ai-search] Supabase query error (L1):", error)
+      return { results: [], error: `DB: ${error.message} (${error.code})`, level: 1 }
+    }
+    let results = mapResults(data ?? [])
+    if (filters.name) results = filterByName(results, filters.name)
+    if (results.length > 0) return { results, level: 1 }
+  }
+
+  // --- Level 2: Relaxed — specialty + city only ---
+  if (filters.specialty && normalizedCity) {
+    let q = baseQuery(supabase)
+      .ilike("specialty", `%${filters.specialty}%`)
+      .ilike("city", `%${normalizedCity}%`)
+
+    const { data, error } = await sortOrder(q).limit(limit)
+    if (error) {
+      console.error("[ai-search] Supabase query error (L2):", error)
+    } else {
+      const results = mapResults(data ?? [])
+      if (results.length > 0) return { results, level: 2 }
+    }
+  }
+
+  // --- Level 3: Minimal — specialty only ---
+  if (filters.specialty) {
+    let q = baseQuery(supabase).ilike("specialty", `%${filters.specialty}%`)
+
+    const { data, error } = await sortOrder(q).limit(limit)
+    if (error) {
+      console.error("[ai-search] Supabase query error (L3):", error)
+    } else {
+      const results = mapResults(data ?? [])
+      if (results.length > 0) return { results, level: 3 }
+    }
+  }
+
+  // --- Level 4: Last resort — all verified professionals by rating ---
+  {
+    const { data, error } = await baseQuery(supabase)
+      .order("rating", { ascending: false, nullsFirst: false })
+      .limit(limit)
+
+    if (error) {
+      console.error("[ai-search] Supabase query error (L4):", error)
+      return { results: [], error: `DB: ${error.message} (${error.code})`, level: 4 }
+    }
+    return { results: mapResults(data ?? []), level: 4 }
+  }
 }

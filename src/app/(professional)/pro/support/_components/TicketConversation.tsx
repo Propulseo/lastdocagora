@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { sendMessage } from "@/app/(professional)/_actions/pro-support-actions";
 import { cn } from "@/lib/utils";
+import { TicketMessageBubble } from "./ticket-message-bubble";
 
 type Message = {
   id: string;
@@ -156,79 +157,22 @@ export function TicketConversation({
           </div>
         ) : (
           messages.map((msg, i) => {
-            const isOwn = msg.sender_id === userId;
-            const time = new Date(msg.created_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-
-            // Show date separator
             const prevMsg = messages[i - 1];
             const msgDate = new Date(msg.created_at).toLocaleDateString();
             const prevDate = prevMsg
               ? new Date(prevMsg.created_at).toLocaleDateString()
               : null;
-            const showDateSep = msgDate !== prevDate;
 
             return (
-              <div key={msg.id}>
-                {showDateSep && (
-                  <div className="my-2 flex items-center gap-3">
-                    <div className="h-px flex-1 bg-border/30" />
-                    <span className="text-[10px] text-muted-foreground/40">
-                      {new Date(msg.created_at).toLocaleDateString(undefined, {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                    <div className="h-px flex-1 bg-border/30" />
-                  </div>
-                )}
-
-                <div
-                  className={cn(
-                    "flex",
-                    isOwn ? "justify-end" : "justify-start"
-                  )}
-                >
-                  <div className="flex max-w-[75%] flex-col gap-0.5">
-                    {/* Sender label */}
-                    <span
-                      className={cn(
-                        "text-[10px] font-medium",
-                        isOwn
-                          ? "text-right text-muted-foreground/50"
-                          : "text-primary/70"
-                      )}
-                    >
-                      {isOwn
-                        ? (s.you as string)
-                        : (s.adminLabel as string)}
-                    </span>
-                    {/* Bubble */}
-                    <div
-                      className={cn(
-                        "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-                        isOwn
-                          ? "rounded-br-md bg-primary text-primary-foreground"
-                          : "rounded-bl-md bg-muted/60"
-                      )}
-                    >
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
-                    </div>
-                    {/* Time */}
-                    <span
-                      className={cn(
-                        "text-[10px] text-muted-foreground/40",
-                        isOwn ? "text-right" : "text-left"
-                      )}
-                    >
-                      {time}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <TicketMessageBubble
+                key={msg.id}
+                content={msg.content}
+                createdAt={msg.created_at}
+                isOwn={msg.sender_id === userId}
+                showDateSeparator={msgDate !== prevDate}
+                youLabel={s.you as string}
+                adminLabel={s.adminLabel as string}
+              />
             );
           })
         )}

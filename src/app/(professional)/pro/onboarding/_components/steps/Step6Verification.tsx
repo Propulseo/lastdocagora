@@ -1,25 +1,18 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { forwardRef, useImperativeHandle } from "react";
 import {
   User,
   Stethoscope,
   Briefcase,
   Calendar,
   MapPin,
-  Upload,
-  CheckCircle,
-  Info,
-  Pencil,
 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { translateSpecialty } from "@/locales/patient/specialties";
-import { createClient } from "@/lib/supabase/client";
-import { toast } from "sonner";
 import type { StepHandle } from "./Step1Profile";
+import { SummaryCard } from "./SummaryCard";
+import { DocumentUploadCard } from "./DocumentUploadCard";
 
 interface Step6Props {
   userId: string;
@@ -58,13 +51,6 @@ interface Step6Props {
   onSubmit: () => void;
 }
 
-const ACCEPTED_DOC_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-];
-const MAX_DOC_SIZE = 5 * 1024 * 1024; // 5MB
-
 export const Step6Verification = forwardRef<StepHandle, Step6Props>(
   function Step6Verification(
     {
@@ -82,47 +68,6 @@ export const Step6Verification = forwardRef<StepHandle, Step6Props>(
     const { t, locale } = useProfessionalI18n();
     const ob = t.onboarding;
 
-    const [licenseUploaded, setLicenseUploaded] = useState(false);
-    const [diplomaUploaded, setDiplomaUploaded] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const licenseRef = useRef<HTMLInputElement>(null);
-    const diplomaRef = useRef<HTMLInputElement>(null);
-
-    const supabase = createClient();
-
-    async function uploadDoc(
-      file: File,
-      docType: "license" | "diploma",
-    ) {
-      if (!ACCEPTED_DOC_TYPES.includes(file.type)) {
-        toast.error(ob.errors.invalidFormat);
-        return;
-      }
-      if (file.size > MAX_DOC_SIZE) {
-        toast.error(ob.errors.fileTooLarge);
-        return;
-      }
-
-      setUploading(true);
-      try {
-        const ext = file.name.split(".").pop() ?? "pdf";
-        const path = `${userId}/${docType}.${ext}`;
-
-        const { error } = await supabase.storage
-          .from("professional-docs")
-          .upload(path, file, { upsert: true, contentType: file.type });
-
-        if (error) throw error;
-
-        if (docType === "license") setLicenseUploaded(true);
-        else setDiplomaUploaded(true);
-      } catch {
-        toast.error(ob.errors.uploadError);
-      } finally {
-        setUploading(false);
-      }
-    }
-
     useImperativeHandle(ref, () => ({
       submit() {
         onSubmit();
@@ -130,7 +75,6 @@ export const Step6Verification = forwardRef<StepHandle, Step6Props>(
       },
     }));
 
-    // Resolve display values from stepData or initial props
     const name =
       stepData.step1
         ? `${stepData.step1.first_name} ${stepData.step1.last_name}`
@@ -157,7 +101,6 @@ export const Step6Verification = forwardRef<StepHandle, Step6Props>(
           <p className="text-sm text-muted-foreground">{ob.step6.subtitle}</p>
         </div>
 
-        {/* Summary cards */}
         <div className="space-y-3">
           <SummaryCard
             icon={User}
@@ -197,141 +140,22 @@ export const Step6Verification = forwardRef<StepHandle, Step6Props>(
           />
         </div>
 
-        {/* Document upload */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{ob.step6.documents}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">{ob.step6.license}</p>
-                <p className="text-xs text-muted-foreground">{ob.step6.uploadHint}</p>
-              </div>
-              {licenseUploaded ? (
-                <span className="flex items-center gap-1 text-sm text-green-600">
-                  <CheckCircle className="size-4" />
-                  {ob.step6.uploaded}
-                </span>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => licenseRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    <Upload className="size-3.5" />
-                    {ob.step6.upload}
-                  </Button>
-                  <input
-                    ref={licenseRef}
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) uploadDoc(file, "license");
-                      e.target.value = "";
-                    }}
-                  />
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">{ob.step6.diploma}</p>
-                <p className="text-xs text-muted-foreground">{ob.step6.uploadHint}</p>
-              </div>
-              {diplomaUploaded ? (
-                <span className="flex items-center gap-1 text-sm text-green-600">
-                  <CheckCircle className="size-4" />
-                  {ob.step6.uploaded}
-                </span>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => diplomaRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    <Upload className="size-3.5" />
-                    {ob.step6.upload}
-                  </Button>
-                  <input
-                    ref={diplomaRef}
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) uploadDoc(file, "diploma");
-                      e.target.value = "";
-                    }}
-                  />
-                </>
-              )}
-            </div>
-
-            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
-              <Info className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                {ob.step6.verificationNote}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <DocumentUploadCard
+          userId={userId}
+          labels={{
+            documents: ob.step6.documents,
+            license: ob.step6.license,
+            diploma: ob.step6.diploma,
+            uploadHint: ob.step6.uploadHint,
+            upload: ob.step6.upload,
+            uploaded: ob.step6.uploaded,
+            verificationNote: ob.step6.verificationNote,
+            invalidFormat: ob.errors.invalidFormat,
+            fileTooLarge: ob.errors.fileTooLarge,
+            uploadError: ob.errors.uploadError,
+          }}
+        />
       </div>
     );
   },
 );
-
-// ---------------------------------------------------------------------------
-// Summary card sub-component
-// ---------------------------------------------------------------------------
-
-function SummaryCard({
-  icon: Icon,
-  title,
-  value,
-  sub,
-  onEdit,
-  editLabel,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  value: string;
-  sub?: string;
-  onEdit: () => void;
-  editLabel: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center justify-between py-3">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-muted p-2">
-            <Icon className="size-4 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">{title}</p>
-            <p className="text-sm font-medium">{value}</p>
-            {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 gap-1 text-xs"
-          onClick={onEdit}
-        >
-          <Pencil className="size-3" />
-          {editLabel}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}

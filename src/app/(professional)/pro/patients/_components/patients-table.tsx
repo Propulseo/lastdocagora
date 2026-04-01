@@ -16,21 +16,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, UserX, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
+import { Users, UserX, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { EditPatientDialog } from "./edit-patient-dialog";
 import { DeletePatientDialog } from "./delete-patient-dialog";
 import { PatientDrawer } from "./patient-drawer";
+import { PatientRowActions } from "./patient-row-actions";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import type { PatientRow } from "../_lib/types";
 
@@ -41,13 +35,8 @@ interface PatientsTableProps {
   totalUnfiltered: number;
 }
 
-const STATUS_BADGE_VARIANT: Record<
-  string,
-  "default" | "secondary" | "outline"
-> = {
-  active: "default",
-  inactive: "secondary",
-  new: "outline",
+const STATUS_BADGE_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
+  active: "default", inactive: "secondary", new: "outline",
 };
 
 export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps) {
@@ -199,37 +188,16 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
                             <TableCell
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8"
-                                  >
-                                    <MoreHorizontal className="size-4" />
-                                    <span className="sr-only">
-                                      {pt.actions}
-                                    </span>
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => setEditPatient(p)}
-                                  >
-                                    <Pencil className="mr-2 size-4" />
-                                    {pt.editPatient}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() =>
-                                      setDeletePatient(p)
-                                    }
-                                  >
-                                    <Trash2 className="mr-2 size-4" />
-                                    {pt.deletePatient}
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              <PatientRowActions
+                                patient={p}
+                                labels={{
+                                  actions: pt.actions,
+                                  editPatient: pt.editPatient,
+                                  deletePatient: pt.deletePatient,
+                                }}
+                                onEdit={setEditPatient}
+                                onDelete={setDeletePatient}
+                              />
                             </TableCell>
                           </TableRow>
                         );
@@ -266,11 +234,10 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
 
       <PatientDrawer
         patientId={selectedPatientId}
-        patientName={
-          selectedPatientId
-            ? `${patients.find((p) => p.patient_id === selectedPatientId)?.first_name ?? ""} ${patients.find((p) => p.patient_id === selectedPatientId)?.last_name ?? ""}`.trim()
-            : ""
-        }
+        patientName={(() => {
+          const sp = patients.find((p) => p.patient_id === selectedPatientId);
+          return sp ? `${sp.first_name ?? ""} ${sp.last_name ?? ""}`.trim() : "";
+        })()}
         onClose={() => setSelectedPatientId(null)}
       />
     </>

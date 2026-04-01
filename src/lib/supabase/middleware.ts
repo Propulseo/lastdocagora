@@ -53,7 +53,10 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     pathname === "/" ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/register");
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/patient/search") ||
+    pathname.startsWith("/api/health") ||
+    pathname.startsWith("/api/landing-chat");
 
   // If not authenticated and trying to access protected route
   if (!user && !isPublicRoute) {
@@ -69,10 +72,20 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // If authenticated on auth pages, redirect to root (which resolves role dashboard)
+  // If authenticated on auth pages, redirect to the redirect param or root
   if (user && (pathname.startsWith("/login") || pathname.startsWith("/register"))) {
+    const redirectParam = request.nextUrl.searchParams.get("redirect");
     const authRedirect = request.nextUrl.clone();
-    authRedirect.pathname = "/";
+    if (redirectParam && redirectParam.startsWith("/")) {
+      authRedirect.pathname = redirectParam.split("?")[0];
+      const redirectQuery = redirectParam.split("?")[1];
+      if (redirectQuery) {
+        const params = new URLSearchParams(redirectQuery);
+        params.forEach((value, key) => authRedirect.searchParams.set(key, value));
+      }
+    } else {
+      authRedirect.pathname = "/";
+    }
     return NextResponse.redirect(authRedirect);
   }
 
@@ -103,5 +116,6 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  supabaseResponse.headers.set("x-pathname", pathname);
   return supabaseResponse;
 }

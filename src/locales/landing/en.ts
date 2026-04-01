@@ -1,0 +1,130 @@
+import type { LandingTranslations } from "./pt"
+
+export const enLanding: LandingTranslations = {
+  header: {
+    login: "Log in",
+    register: "Sign up",
+    proCtaShort: "Professional?",
+    proCta: "Are you a professional?",
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
+    forPatients: "For Patients",
+    forProfessionals: "For Professionals",
+    theme: "Theme",
+  },
+  hero: {
+    title: "Find your doctor in",
+    titleHighlight: "Portugal",
+    subtitle:
+      "Book in-person or teleconsultation appointments with the best healthcare professionals. Fast, simple and secure.",
+    smartSearch: "Smart search",
+    classicSearch: "Classic search",
+    searchSpecialtyPlaceholder: "Specialty or doctor name",
+    searchCityPlaceholder: "City",
+    searchButton: "Search",
+    pillToday: "Available today",
+    pillDirectPayment: "Direct payment",
+    pillTeleconsultation: "Teleconsultation",
+    trustedBy: "Trusted by thousands of patients in Portugal",
+  },
+  stats: {
+    satisfaction: "96%",
+    satisfactionLabel: "Patient satisfaction",
+    patients: "10,000+",
+    patientsLabel: "Registered patients",
+    professionals: "500+",
+    professionalsLabel: "Verified professionals",
+  },
+  benefits: {
+    title: "Your health companion",
+    subtitle:
+      "Everything you need to manage your health in one place.",
+    card1Title: "Easy booking",
+    card1Description:
+      "Book appointments in just a few clicks. See real-time availability and choose the time that suits you best.",
+    card2Title: "Direct communication",
+    card2Description:
+      "Exchange messages with your healthcare professional securely. Share documents and receive guidance.",
+    card3Title: "Protected data",
+    card3Description:
+      "Your health data is protected with end-to-end encryption, in compliance with GDPR.",
+  },
+  rgpd: {
+    title: "Your health. Your data.",
+    subtitle:
+      "We protect your information with the highest European security standards.",
+    description:
+      "DOCAGORA fully complies with the General Data Protection Regulation (GDPR) and Portuguese Law No. 58/2019. Your health data is encrypted, never shared with third parties without your consent, and you can exercise your rights of access, rectification and deletion at any time.",
+    badge: "GDPR Compliant",
+  },
+  mobileApp: {
+    title: "DOCAGORA in your pocket",
+    subtitle:
+      "Book appointments, receive reminders and communicate with your doctor — all in the palm of your hand.",
+    rating: "4.8/5 — Coming soon",
+    comingSoon: "Coming soon to stores",
+    appStore: "App Store",
+    googlePlay: "Google Play",
+  },
+  proCta: {
+    title: "Join the DOCAGORA network",
+    subtitle:
+      "Increase your visibility and simplify your practice management.",
+    benefit1: "Smart digital agenda with automatic reminders",
+    benefit2: "Verified professional profile visible to thousands of patients",
+    benefit3: "Integrated teleconsultation with secure video and chat",
+    benefit4: "Statistics dashboard and payment management",
+    button: "List my practice",
+  },
+  footer: {
+    description:
+      "The reference platform for booking medical appointments in Portugal.",
+    forPatients: "For Patients",
+    searchProfessional: "Search professional",
+    myAppointments: "My appointments",
+    createAccount: "Create account",
+    forProfessionals: "For Professionals",
+    listPractice: "List practice",
+    manageAgenda: "Manage agenda",
+    joinNetwork: "Join the network",
+    specialties: "Specialties",
+    legal: "Legal",
+    terms: "Terms of use",
+    privacy: "Privacy policy",
+    cookies: "Cookie policy",
+    rgpd: "GDPR",
+    copyright: "DOCAGORA. All rights reserved.",
+  },
+  authModal: {
+    title: "Log in to continue",
+    description:
+      "To book an appointment, you need a DOCAGORA account.",
+    login: "Log in",
+    register: "Create account",
+    cancel: "Cancel",
+  },
+  chat: {
+    title: "DocAgora Assistant",
+    subtitle: "Smart professional search",
+    freeSearches: "free searches",
+    placeholder: "Describe the professional you're looking for...",
+    placeholderDisabled: "Create an account to continue...",
+    sectionIntro: "Or search with our smart assistant",
+    welcome: "Hello! I'm the DocAgora assistant. Describe the healthcare professional you're looking for and I'll find the best options for you.",
+    errorMessage: "An error occurred. Please try again.",
+    viewProfiles: "Create an account to view full profiles and book appointments",
+    wallTitle: "Like the results?",
+    wallDescription: "Create a free account to continue searching without limits and access all features.",
+    wallBenefit1: "Unlimited AI-powered searches",
+    wallBenefit2: "Online appointment booking",
+    wallBenefit3: "Automatic reminders",
+    wallBenefit4: "Appointment history",
+    wallCreateAccount: "Create free account",
+    wallLogin: "I already have an account",
+    wallRgpd: "Your data is protected in compliance with GDPR.",
+    suggestion1: "Dentist in Lisbon",
+    suggestion2: "Family doctor in Porto",
+    suggestion3: "Dermatologist who speaks English",
+    suggestion4: "Affordable psychologist",
+  },
+}

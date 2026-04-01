@@ -1,0 +1,130 @@
+import type { LandingTranslations } from "./pt"
+
+export const frLanding: LandingTranslations = {
+  header: {
+    login: "Se connecter",
+    register: "Creer un compte",
+    proCtaShort: "Professionnel ?",
+    proCta: "Vous etes professionnel ?",
+    menuOpen: "Ouvrir le menu",
+    menuClose: "Fermer le menu",
+    forPatients: "Pour les Patients",
+    forProfessionals: "Pour les Professionnels",
+    theme: "Thème",
+  },
+  hero: {
+    title: "Trouvez votre medecin au",
+    titleHighlight: "Portugal",
+    subtitle:
+      "Prenez rendez-vous en presentiel ou en teleconsultation avec les meilleurs professionnels de sante. Rapide, simple et securise.",
+    smartSearch: "Recherche intelligente",
+    classicSearch: "Recherche classique",
+    searchSpecialtyPlaceholder: "Specialite ou nom du medecin",
+    searchCityPlaceholder: "Ville",
+    searchButton: "Rechercher",
+    pillToday: "Disponible aujourd'hui",
+    pillDirectPayment: "Paiement direct",
+    pillTeleconsultation: "Teleconsultation",
+    trustedBy: "La confiance de milliers de patients au Portugal",
+  },
+  stats: {
+    satisfaction: "96%",
+    satisfactionLabel: "Satisfaction des patients",
+    patients: "10 000+",
+    patientsLabel: "Patients inscrits",
+    professionals: "500+",
+    professionalsLabel: "Professionnels verifies",
+  },
+  benefits: {
+    title: "Votre compagnon sante",
+    subtitle:
+      "Tout ce dont vous avez besoin pour gerer votre sante en un seul endroit.",
+    card1Title: "Prise de rendez-vous facile",
+    card1Description:
+      "Prenez rendez-vous en quelques clics. Consultez les disponibilites en temps reel et choisissez l'horaire qui vous convient.",
+    card2Title: "Communication directe",
+    card2Description:
+      "Echangez des messages avec votre professionnel de sante en toute securite. Partagez des documents et recevez des conseils.",
+    card3Title: "Donnees protegees",
+    card3Description:
+      "Vos donnees de sante sont protegees par un chiffrement de bout en bout, en conformite avec le RGPD.",
+  },
+  rgpd: {
+    title: "Votre sante. Vos donnees.",
+    subtitle:
+      "Nous protegeons vos informations avec les plus hauts standards de securite europeens.",
+    description:
+      "DOCAGORA respecte integralement le Reglement General sur la Protection des Donnees (RGPD) et la Loi portugaise n. 58/2019. Vos donnees de sante sont chiffrees, jamais partagees avec des tiers sans votre consentement, et vous pouvez exercer vos droits d'acces, de rectification et de suppression a tout moment.",
+    badge: "Conforme RGPD",
+  },
+  mobileApp: {
+    title: "DOCAGORA dans votre poche",
+    subtitle:
+      "Prenez rendez-vous, recevez des rappels et communiquez avec votre medecin — tout dans la paume de votre main.",
+    rating: "4.8/5 — Bientot disponible",
+    comingSoon: "Bientot sur les stores",
+    appStore: "App Store",
+    googlePlay: "Google Play",
+  },
+  proCta: {
+    title: "Rejoignez le reseau DOCAGORA",
+    subtitle:
+      "Augmentez votre visibilite et simplifiez la gestion de votre cabinet.",
+    benefit1: "Agenda numerique intelligent avec rappels automatiques",
+    benefit2: "Profil professionnel verifie et visible par des milliers de patients",
+    benefit3: "Teleconsultation integree avec video et chat securises",
+    benefit4: "Tableau de bord statistique et gestion des paiements",
+    button: "Lister mon cabinet",
+  },
+  footer: {
+    description:
+      "La plateforme de reference pour la prise de rendez-vous medicaux au Portugal.",
+    forPatients: "Pour les Patients",
+    searchProfessional: "Rechercher un professionnel",
+    myAppointments: "Mes rendez-vous",
+    createAccount: "Creer un compte",
+    forProfessionals: "Pour les Professionnels",
+    listPractice: "Lister un cabinet",
+    manageAgenda: "Gerer l'agenda",
+    joinNetwork: "Rejoindre le reseau",
+    specialties: "Specialites",
+    legal: "Mentions legales",
+    terms: "Conditions d'utilisation",
+    privacy: "Politique de confidentialite",
+    cookies: "Politique de cookies",
+    rgpd: "RGPD",
+    copyright: "DOCAGORA. Tous droits reserves.",
+  },
+  authModal: {
+    title: "Connectez-vous pour continuer",
+    description:
+      "Pour prendre rendez-vous, vous devez avoir un compte DOCAGORA.",
+    login: "Se connecter",
+    register: "Creer un compte",
+    cancel: "Annuler",
+  },
+  chat: {
+    title: "Assistant DocAgora",
+    subtitle: "Recherche intelligente de professionnels",
+    freeSearches: "recherches gratuites",
+    placeholder: "Decrivez le professionnel que vous recherchez...",
+    placeholderDisabled: "Creez un compte pour continuer...",
+    sectionIntro: "Ou recherchez avec notre assistant intelligent",
+    welcome: "Bonjour ! Je suis l'assistant DocAgora. Decrivez-moi le professionnel de sante que vous recherchez et je trouverai les meilleures options pour vous.",
+    errorMessage: "Une erreur est survenue. Veuillez reessayer.",
+    viewProfiles: "Creez un compte pour voir les profils complets et prendre rendez-vous",
+    wallTitle: "Les resultats vous plaisent ?",
+    wallDescription: "Creez un compte gratuit pour continuer vos recherches sans limites et acceder a toutes les fonctionnalites.",
+    wallBenefit1: "Recherches illimitees avec assistant IA",
+    wallBenefit2: "Prise de rendez-vous en ligne",
+    wallBenefit3: "Rappels automatiques",
+    wallBenefit4: "Historique de rendez-vous",
+    wallCreateAccount: "Creer un compte gratuit",
+    wallLogin: "J'ai deja un compte",
+    wallRgpd: "Vos donnees sont protegees en conformite avec le RGPD.",
+    suggestion1: "Dentiste a Lisbonne",
+    suggestion2: "Medecin generaliste a Porto",
+    suggestion3: "Dermatologue qui parle francais",
+    suggestion4: "Psychologue pas cher",
+  },
+}

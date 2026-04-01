@@ -22,6 +22,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
   const to = from + PAGE_SIZE - 1;
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   let query = supabase
     .from("users")
@@ -50,7 +51,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
       <AdminPageHeader section="users" />
 
       <UsersFilters totalCount={count ?? 0} />
-      <UsersTable data={(users ?? []) as never[]} />
+      <UsersTable data={(users ?? []) as never[]} currentUserId={user?.id} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>
   );

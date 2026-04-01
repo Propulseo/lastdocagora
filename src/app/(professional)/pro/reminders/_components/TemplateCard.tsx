@@ -16,16 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { TemplateDeleteDialog } from "./template-delete-dialog";
 import {
   Mail,
   MessageSquare,
@@ -230,28 +221,15 @@ export function TemplateCard({
         </CardContent>
       </Card>
 
-      {/* Delete confirmation */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t.reminders.templates.deleteConfirm}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.reminders.templates.deleteDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {t.reminders.templates.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <TemplateDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        confirmTitle={t.reminders.templates.deleteConfirm}
+        confirmDescription={t.reminders.templates.deleteDescription}
+        cancelLabel={t.common.cancel}
+        deleteLabel={t.reminders.templates.delete}
+      />
     </>
   );
 }

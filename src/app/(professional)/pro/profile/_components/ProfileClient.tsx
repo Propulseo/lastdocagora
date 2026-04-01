@@ -1,727 +1,161 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  UserCircle,
-  MapPin,
-  Globe,
-  Stethoscope,
-  Star,
-  MessageSquare,
-  Pencil,
-  Loader2,
-  X,
-  Shield,
-} from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { UserCircle, MapPin, Globe, Stethoscope, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { format } from "date-fns";
-import { pt } from "date-fns/locale/pt";
-import { fr } from "date-fns/locale/fr";
-import { enGB } from "date-fns/locale/en-GB";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { translateSpecialty, getSpecialtyOptions } from "@/locales/patient/specialties";
-import { useAvatarUpload } from "../_hooks/useAvatarUpload";
-import { updateProfile } from "@/app/(professional)/_actions/profile";
-import { updateProfessionalInsurances } from "@/app/(professional)/_actions/insurance";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { ProfileAvatarHeader } from "./ProfileAvatarHeader";
+import { ProfileRatingsSection } from "./ProfileRatingsSection";
+import { useProfileEditing } from "./useProfileEditing";
+import { DisplayField, EditField, EditTextarea, SectionCardHeader, SectionCardFooter } from "./ProfileFieldHelpers";
+import type { ProfileClientProps } from "./profile-types";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface UserProfile {
-  first_name: string | null;
-  last_name: string | null;
-  email: string;
-  phone: string | null;
-  avatar_url: string | null;
-  language: string | null;
-}
-
-interface InsuranceProviderData {
-  id: string;
-  name: string;
-}
-
-interface Professional {
-  id: string;
-  specialty: string | null;
-  registration_number: string | null;
-  practice_type: string | null;
-  cabinet_name: string | null;
-  years_experience: number | null;
-  subspecialties: string[] | null;
-  address: string | null;
-  city: string | null;
-  postal_code: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  languages_spoken: string[] | null;
-  bio: string | null;
-  rating: number | null;
-  total_reviews: number | null;
-  verification_status: string | null;
-}
-
-interface Rating {
-  id: string;
-  rating: number;
-  comment: string | null;
-  created_at: string;
-  appointment_date: string;
-  service_name: string | null;
-  patient_identifier: string | null;
-}
-
-interface ProfileClientProps {
-  userId: string;
-  userProfile: UserProfile;
-  professional: Professional;
-  recentRatings: Rating[];
-  insuranceProviders: InsuranceProviderData[];
-  professionalInsuranceIds: string[];
-}
-
-// ---------------------------------------------------------------------------
-// Section key type
-// ---------------------------------------------------------------------------
-
-type SectionKey = "personal" | "professional" | "location" | "languages" | "insurances";
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
-export function ProfileClient({
-  userId,
-  userProfile,
-  professional,
-  recentRatings,
-  insuranceProviders,
-  professionalInsuranceIds,
-}: ProfileClientProps) {
+export function ProfileClient({ userId, userProfile, professional, recentRatings, insuranceProviders, professionalInsuranceIds }: ProfileClientProps) {
   const { t, locale } = useProfessionalI18n();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-
-  const { uploading, upload, remove } = useAvatarUpload({
-    userId,
-    t: {
-      uploadSuccess: t.profile.uploadSuccess,
-      uploadError: t.profile.uploadError,
-      fileTooLarge: t.profile.fileTooLarge,
-      invalidFormat: t.profile.invalidFormat,
-      deleteSuccess: t.profile.deleteSuccess,
-    },
+  const editing = useProfileEditing({
+    userProfile, professional, professionalInsuranceIds,
+    translations: { saveSuccess: t.profile.saveSuccess, saveError: t.profile.saveError, saveSuccessGeocoded: t.profile.saveSuccessGeocoded, saveSuccessNoGeocode: t.profile.saveSuccessNoGeocode },
   });
 
-  const dateLocale = locale === "fr" ? fr : locale === "en" ? enGB : pt;
-
-  const initials =
-    (userProfile.first_name?.[0] ?? "") + (userProfile.last_name?.[0] ?? "");
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) upload(file);
-    e.target.value = "";
-  }
-
-  // ---- Editing state per section ----
-  const [editingSection, setEditingSection] = useState<SectionKey | null>(null);
-  const [isPending, startTransition] = useTransition();
-
-  // Form values stored as flat record so we can reuse one pattern
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const [selectedInsuranceIds, setSelectedInsuranceIds] = useState<string[]>(professionalInsuranceIds);
-
-  function startEditing(section: SectionKey) {
-    const values: Record<string, string> = {};
-    if (section === "personal") {
-      values.first_name = userProfile.first_name ?? "";
-      values.last_name = userProfile.last_name ?? "";
-      values.phone = userProfile.phone ?? "";
-    } else if (section === "professional") {
-      values.specialty = professional.specialty ?? "";
-      values.registration_number = professional.registration_number ?? "";
-      values.practice_type = professional.practice_type ?? "";
-      values.cabinet_name = professional.cabinet_name ?? "";
-      values.years_experience = professional.years_experience?.toString() ?? "";
-      values.subspecialties = professional.subspecialties?.join(", ") ?? "";
-      values.bio = professional.bio ?? "";
-    } else if (section === "location") {
-      values.address = professional.address ?? "";
-      values.city = professional.city ?? "";
-      values.postal_code = professional.postal_code ?? "";
-    } else if (section === "languages") {
-      values.languages_spoken = professional.languages_spoken?.join(", ") ?? "";
-    } else if (section === "insurances") {
-      setSelectedInsuranceIds(professionalInsuranceIds);
-    }
-    setFormValues(values);
-    setEditingSection(section);
-  }
-
-  function cancelEditing() {
-    setEditingSection(null);
-    setFormValues({});
-  }
-
-  function updateField(key: string, value: string) {
-    setFormValues((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function handleSave() {
-    if (!editingSection) return;
-
-    if (editingSection === "insurances") {
-      startTransition(async () => {
-        const result = await updateProfessionalInsurances(selectedInsuranceIds);
-        if (result.success) {
-          toast.success(t.profile.saveSuccess);
-          setEditingSection(null);
-          setFormValues({});
-          router.refresh();
-        } else {
-          toast.error(t.profile.saveError);
-        }
-      });
-      return;
-    }
-
-    let input: Parameters<typeof updateProfile>[0];
-
-    if (editingSection === "personal") {
-      input = {
-        section: "personal",
-        first_name: formValues.first_name ?? "",
-        last_name: formValues.last_name ?? "",
-        phone: formValues.phone ?? "",
-      };
-    } else if (editingSection === "professional") {
-      input = {
-        section: "professional",
-        specialty: formValues.specialty ?? "",
-        registration_number: formValues.registration_number ?? "",
-        practice_type: formValues.practice_type ?? "",
-        cabinet_name: formValues.cabinet_name ?? "",
-        years_experience: formValues.years_experience
-          ? Number(formValues.years_experience)
-          : undefined,
-        subspecialties: formValues.subspecialties ?? "",
-        bio: formValues.bio ?? "",
-      };
-    } else if (editingSection === "location") {
-      input = {
-        section: "location",
-        address: formValues.address ?? "",
-        city: formValues.city ?? "",
-        postal_code: formValues.postal_code ?? "",
-      };
-    } else {
-      input = {
-        section: "languages",
-        languages_spoken: formValues.languages_spoken ?? "",
-      };
-    }
-
-    startTransition(async () => {
-      const result = await updateProfile(input);
-      if (result.success) {
-        if (editingSection === "location") {
-          if (result.geocoded) {
-            toast.success(t.profile.saveSuccessGeocoded);
-          } else {
-            toast.warning(t.profile.saveSuccessNoGeocode);
-          }
-        } else {
-          toast.success(t.profile.saveSuccess);
-        }
-        setEditingSection(null);
-        setFormValues({});
-        router.refresh();
-      } else {
-        toast.error(t.profile.saveError);
-      }
-    });
-  }
-
-  // ---- Read-only field definitions ----
-
-  const reviewCount = professional.total_reviews ?? 0;
-
-  // ---- Render helpers ----
-
-  function renderField(label: string, value: string | null | undefined, fallback: string) {
-    return (
-      <div className="flex justify-between gap-4">
-        <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
-        <span className="text-right text-sm font-medium">{value || fallback}</span>
-      </div>
-    );
-  }
-
-  function renderInput(label: string, key: string, opts?: { placeholder?: string }) {
-    return (
-      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
-        <label className="shrink-0 text-sm text-muted-foreground sm:w-40">
-          {label}
-        </label>
-        <Input
-          value={formValues[key] ?? ""}
-          onChange={(e) => updateField(key, e.target.value)}
-          placeholder={opts?.placeholder}
-          className="flex-1"
-        />
-      </div>
-    );
-  }
-
-  function renderTextarea(label: string, key: string, opts?: { placeholder?: string }) {
-    return (
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm text-muted-foreground">{label}</label>
-        <Textarea
-          value={formValues[key] ?? ""}
-          onChange={(e) => updateField(key, e.target.value)}
-          placeholder={opts?.placeholder}
-          rows={3}
-        />
-      </div>
-    );
-  }
-
-  function renderSectionHeader(
-    icon: React.ComponentType<{ className?: string }>,
-    title: string,
-    sectionKey: SectionKey,
-  ) {
-    const Icon = icon;
-    const isEditing = editingSection === sectionKey;
-    return (
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Icon className="size-4 text-muted-foreground" />
-            {title}
-          </CardTitle>
-          {!isEditing && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-xs"
-              onClick={() => startEditing(sectionKey)}
-              disabled={editingSection !== null && editingSection !== sectionKey}
-            >
-              <Pencil className="size-3" />
-              {t.profile.edit}
-            </Button>
-          )}
-          {isEditing && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={cancelEditing}
-              disabled={isPending}
-            >
-              <X className="size-4" />
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-    );
-  }
-
-  function renderSectionFooter() {
-    return (
-      <div className="flex justify-end gap-2 pt-4">
-        <Button variant="outline" size="sm" onClick={cancelEditing} disabled={isPending}>
-          {t.profile.cancel}
-        </Button>
-        <Button size="sm" onClick={handleSave} disabled={isPending}>
-          {isPending ? (
-            <>
-              <Loader2 className="size-3 animate-spin" />
-              {t.profile.saving}
-            </>
-          ) : (
-            t.profile.save
-          )}
-        </Button>
-      </div>
-    );
-  }
-
-  // ---- Render ----
+  const footerProps = { onCancel: editing.cancelEditing, onSave: editing.handleSave, isPending: editing.isPending, cancelLabel: t.profile.cancel, saveLabel: t.profile.save, savingLabel: t.profile.saving };
+  const headerBase = { editingSection: editing.editingSection, onEdit: editing.startEditing, onCancel: editing.cancelEditing, isPending: editing.isPending, editLabel: t.profile.edit };
 
   return (
     <div className="space-y-5">
-      {/* Header with avatar */}
-      <div className="flex items-center gap-5">
-        <div className="flex flex-col items-center gap-1.5">
-          <button
-            type="button"
-            className="group relative size-24 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            onClick={() => !uploading && fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            <Avatar className="size-24">
-              <AvatarImage
-                src={userProfile.avatar_url ?? undefined}
-                alt={userProfile.first_name ?? undefined}
-              />
-              <AvatarFallback className="bg-primary/10 text-2xl font-semibold text-primary">
-                {initials || "?"}
-              </AvatarFallback>
-            </Avatar>
+      <ProfileAvatarHeader userId={userId} userProfile={userProfile} professional={professional} />
+      <ProfileRatingsSection professional={professional} recentRatings={recentRatings} />
 
-            <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition-colors group-hover:bg-black/40">
-              {uploading ? (
-                <Loader2 className="size-6 animate-spin text-white" />
-              ) : (
-                <span className="flex flex-col items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Pencil className="size-4 text-white" />
-                  <span className="text-[10px] font-medium text-white">
-                    {t.profile.changePhoto}
-                  </span>
-                </span>
-              )}
-            </span>
-
-            {!uploading && (
-              <span className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-foreground shadow-sm">
-                <Pencil className="size-3 text-background" />
-              </span>
-            )}
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-
-          {userProfile.avatar_url && !uploading && (
-            <button
-              type="button"
-              onClick={remove}
-              className="text-xs text-muted-foreground hover:text-destructive"
-            >
-              {t.profile.deletePhoto}
-            </button>
-          )}
-        </div>
-
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight">
-              {userProfile.first_name} {userProfile.last_name}
-            </h1>
-            <StatusBadge type="verification" value={professional.verification_status ?? "pending"} />
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {translateSpecialty(professional.specialty, locale)}
-            {professional.cabinet_name && ` \u2014 ${professional.cabinet_name}`}
-          </p>
-        </div>
-      </div>
-
-      {/* Rating + Bio */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-xl bg-amber-50 p-2.5">
-              <Star className="size-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">
-                {professional.rating?.toFixed(1) ?? "-"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {reviewCount} {reviewCount !== 1 ? t.profile.reviewPlural : t.profile.reviewSingular}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {professional.bio && (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {professional.bio}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Recent ratings */}
-      {recentRatings.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <MessageSquare className="size-4 text-muted-foreground" />
-              {t.profile.recentReviews}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentRatings.map((r, idx) => {
-                const patientName = r.patient_identifier ?? t.profile.patient;
-                const patientInitials = r.patient_identifier
-                  ? r.patient_identifier.slice(0, 2).toUpperCase()
-                  : "P";
-                return (
-                  <div key={r.id}>
-                    {idx > 0 && <Separator className="mb-4" />}
-                    <div className="flex items-start gap-3">
-                      <Avatar className="size-8">
-                        <AvatarFallback className="text-xs">{patientInitials}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-medium">{patientName}</span>
-                          <div className="flex items-center gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`size-3 ${
-                                  i < r.rating
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-muted-foreground"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(r.created_at), "d MMM yyyy", { locale: dateLocale })}
-                          </span>
-                        </div>
-                        {r.service_name && (
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {r.service_name}
-                          </p>
-                        )}
-                        {r.comment && (
-                          <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ---- Personal Info ---- */}
+      {/* Personal Info */}
       <Card>
-        {renderSectionHeader(UserCircle, t.profile.personalInfo, "personal")}
+        <SectionCardHeader icon={UserCircle} title={t.profile.personalInfo} sectionKey="personal" {...headerBase} />
         <CardContent>
-          {editingSection === "personal" ? (
+          {editing.editingSection === "personal" ? (
             <div className="space-y-3">
-              {renderInput(t.profile.firstName, "first_name")}
-              {renderInput(t.profile.lastName, "last_name")}
-              {renderInput(t.profile.phone, "phone")}
-              {renderSectionFooter()}
+              <EditField label={t.profile.firstName} value={editing.formValues.first_name ?? ""} onChange={(v) => editing.updateField("first_name", v)} />
+              <EditField label={t.profile.lastName} value={editing.formValues.last_name ?? ""} onChange={(v) => editing.updateField("last_name", v)} />
+              <EditField label={t.profile.phone} value={editing.formValues.phone ?? ""} onChange={(v) => editing.updateField("phone", v)} />
+              <SectionCardFooter {...footerProps} />
             </div>
           ) : (
             <div className="space-y-3">
-              {renderField(t.profile.name, `${userProfile.first_name} ${userProfile.last_name}`, "")}
-              <Separator />
-              {renderField(t.profile.email, userProfile.email, "")}
-              <Separator />
-              {renderField(t.profile.phone, userProfile.phone, t.profile.notDefined)}
+              <DisplayField label={t.profile.name} value={`${userProfile.first_name} ${userProfile.last_name}`} fallback="" />
+              <Separator /><DisplayField label={t.profile.email} value={userProfile.email} fallback="" />
+              <Separator /><DisplayField label={t.profile.phone} value={userProfile.phone} fallback={t.profile.notDefined} />
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* ---- Professional Info ---- */}
+      {/* Professional Info */}
       <Card>
-        {renderSectionHeader(Stethoscope, t.profile.professionalInfo, "professional")}
+        <SectionCardHeader icon={Stethoscope} title={t.profile.professionalInfo} sectionKey="professional" {...headerBase} />
         <CardContent>
-          {editingSection === "professional" ? (
+          {editing.editingSection === "professional" ? (
             <div className="space-y-3">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
-                <label className="shrink-0 text-sm text-muted-foreground sm:w-40">
-                  {t.profile.specialty}
-                </label>
-                <Select
-                  value={formValues.specialty ?? ""}
-                  onValueChange={(v) => updateField("specialty", v)}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getSpecialtyOptions(locale).map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                <label className="shrink-0 text-sm text-muted-foreground sm:w-40">{t.profile.specialty}</label>
+                <Select value={editing.formValues.specialty ?? ""} onValueChange={(v) => editing.updateField("specialty", v)}>
+                  <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>{getSpecialtyOptions(locale).map((opt) => (<SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
-              {renderInput(t.profile.registrationNumber, "registration_number")}
-              {renderInput(t.profile.practiceType, "practice_type")}
-              {renderInput(t.profile.cabinetName, "cabinet_name")}
-              {renderInput(t.profile.yearsExperience, "years_experience")}
-              {renderInput(t.profile.subspecialties, "subspecialties", {
-                placeholder: t.profile.subspecialtiesHint,
-              })}
-              {renderTextarea(t.profile.bio, "bio", {
-                placeholder: t.profile.bioPlaceholder,
-              })}
-              {renderSectionFooter()}
+              <EditField label={t.profile.registrationNumber} value={editing.formValues.registration_number ?? ""} onChange={(v) => editing.updateField("registration_number", v)} />
+              <EditField label={t.profile.practiceType} value={editing.formValues.practice_type ?? ""} onChange={(v) => editing.updateField("practice_type", v)} />
+              <EditField label={t.profile.cabinetName} value={editing.formValues.cabinet_name ?? ""} onChange={(v) => editing.updateField("cabinet_name", v)} />
+              <EditField label={t.profile.yearsExperience} value={editing.formValues.years_experience ?? ""} onChange={(v) => editing.updateField("years_experience", v)} />
+              <EditField label={t.profile.subspecialties} value={editing.formValues.subspecialties ?? ""} onChange={(v) => editing.updateField("subspecialties", v)} placeholder={t.profile.subspecialtiesHint} />
+              <EditTextarea label={t.profile.bio} value={editing.formValues.bio ?? ""} onChange={(v) => editing.updateField("bio", v)} placeholder={t.profile.bioPlaceholder} />
+              <SectionCardFooter {...footerProps} />
             </div>
           ) : (
             <div className="space-y-3">
-              {renderField(t.profile.specialty, translateSpecialty(professional.specialty, locale), t.profile.notDefined)}
-              <Separator />
-              {renderField(t.profile.registrationNumber, professional.registration_number, t.profile.notDefined)}
-              <Separator />
-              {renderField(t.profile.practiceType, professional.practice_type, t.profile.notDefined)}
-              <Separator />
-              {renderField(t.profile.cabinetName, professional.cabinet_name, t.profile.notDefined)}
-              <Separator />
-              {renderField(t.profile.yearsExperience, professional.years_experience?.toString(), t.profile.notDefined)}
-              <Separator />
-              {renderField(t.profile.subspecialties, professional.subspecialties?.join(", "), t.profile.none)}
+              <DisplayField label={t.profile.specialty} value={translateSpecialty(professional.specialty, locale)} fallback={t.profile.notDefined} />
+              <Separator /><DisplayField label={t.profile.registrationNumber} value={professional.registration_number} fallback={t.profile.notDefined} />
+              <Separator /><DisplayField label={t.profile.practiceType} value={professional.practice_type} fallback={t.profile.notDefined} />
+              <Separator /><DisplayField label={t.profile.cabinetName} value={professional.cabinet_name} fallback={t.profile.notDefined} />
+              <Separator /><DisplayField label={t.profile.yearsExperience} value={professional.years_experience?.toString()} fallback={t.profile.notDefined} />
+              <Separator /><DisplayField label={t.profile.subspecialties} value={professional.subspecialties?.join(", ")} fallback={t.profile.none} />
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* ---- Location ---- */}
+      {/* Location */}
       <Card>
-        {renderSectionHeader(MapPin, t.profile.location, "location")}
+        <SectionCardHeader icon={MapPin} title={t.profile.location} sectionKey="location" {...headerBase} />
         <CardContent>
-          {editingSection === "location" ? (
+          {editing.editingSection === "location" ? (
             <div className="space-y-3">
-              {renderInput(t.profile.address, "address")}
-              {renderInput(t.profile.city, "city")}
-              {renderInput(t.profile.postalCode, "postal_code")}
-              {renderSectionFooter()}
+              <EditField label={t.profile.address} value={editing.formValues.address ?? ""} onChange={(v) => editing.updateField("address", v)} />
+              <EditField label={t.profile.city} value={editing.formValues.city ?? ""} onChange={(v) => editing.updateField("city", v)} />
+              <EditField label={t.profile.postalCode} value={editing.formValues.postal_code ?? ""} onChange={(v) => editing.updateField("postal_code", v)} />
+              <SectionCardFooter {...footerProps} />
             </div>
           ) : (
             <div className="space-y-3">
-              {renderField(t.profile.address, professional.address, t.profile.notDefinedFeminine)}
-              <Separator />
-              {renderField(t.profile.city, professional.city, t.profile.notDefinedFeminine)}
-              <Separator />
-              {renderField(t.profile.postalCode, professional.postal_code, t.profile.notDefined)}
+              <DisplayField label={t.profile.address} value={professional.address} fallback={t.profile.notDefinedFeminine} />
+              <Separator /><DisplayField label={t.profile.city} value={professional.city} fallback={t.profile.notDefinedFeminine} />
+              <Separator /><DisplayField label={t.profile.postalCode} value={professional.postal_code} fallback={t.profile.notDefined} />
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Geocoding status */}
-      {editingSection !== "location" && (
+      {editing.editingSection !== "location" && (
         professional.latitude != null && professional.longitude != null ? (
           <Badge variant="outline" className="w-fit gap-1.5 border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950 dark:text-green-400">
-            <MapPin className="size-3" />
-            {t.profile.geocodedVisible}
+            <MapPin className="size-3" />{t.profile.geocodedVisible}
           </Badge>
         ) : (
           <Badge variant="outline" className="w-fit gap-1.5 border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-950 dark:text-orange-400">
-            <MapPin className="size-3" />
-            {t.profile.geocodedMissing}
+            <MapPin className="size-3" />{t.profile.geocodedMissing}
           </Badge>
         )
       )}
 
-      {/* ---- Languages ---- */}
+      {/* Languages */}
       <Card>
-        {renderSectionHeader(Globe, t.profile.languages, "languages")}
+        <SectionCardHeader icon={Globe} title={t.profile.languages} sectionKey="languages" {...headerBase} />
         <CardContent>
-          {editingSection === "languages" ? (
+          {editing.editingSection === "languages" ? (
             <div className="space-y-3">
-              {renderInput(t.profile.spokenLanguages, "languages_spoken", {
-                placeholder: t.profile.languagesHint,
-              })}
-              {renderSectionFooter()}
+              <EditField label={t.profile.spokenLanguages} value={editing.formValues.languages_spoken ?? ""} onChange={(v) => editing.updateField("languages_spoken", v)} placeholder={t.profile.languagesHint} />
+              <SectionCardFooter {...footerProps} />
             </div>
           ) : (
-            <div className="space-y-3">
-              {renderField(t.profile.spokenLanguages, professional.languages_spoken?.join(", "), t.profile.notDefined)}
-            </div>
+            <DisplayField label={t.profile.spokenLanguages} value={professional.languages_spoken?.join(", ")} fallback={t.profile.notDefined} />
           )}
         </CardContent>
       </Card>
 
-      {/* ---- Insurances ---- */}
+      {/* Insurances */}
       <Card>
-        {renderSectionHeader(Shield, t.profile.insuranceSection, "insurances")}
+        <SectionCardHeader icon={Shield} title={t.profile.insuranceSection} sectionKey="insurances" {...headerBase} />
         <CardContent>
-          {editingSection === "insurances" ? (
+          {editing.editingSection === "insurances" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">{t.profile.insuranceDescription}</p>
               <div className="flex flex-wrap gap-2">
                 {insuranceProviders.map((provider) => {
-                  const selected = selectedInsuranceIds.includes(provider.id);
+                  const selected = editing.selectedInsuranceIds.includes(provider.id);
                   return (
-                    <button
-                      key={provider.id}
-                      type="button"
-                      onClick={() =>
-                        setSelectedInsuranceIds((prev) =>
-                          selected
-                            ? prev.filter((x) => x !== provider.id)
-                            : [...prev, provider.id],
-                        )
-                      }
-                      className="min-h-[44px]"
-                    >
-                      <Badge
-                        variant={selected ? "default" : "outline"}
-                        className="cursor-pointer px-3 py-1.5 text-sm transition-colors"
-                      >
-                        {provider.name}
-                      </Badge>
+                    <button key={provider.id} type="button" onClick={() => editing.setSelectedInsuranceIds((prev) => selected ? prev.filter((x) => x !== provider.id) : [...prev, provider.id])} className="min-h-[44px]">
+                      <Badge variant={selected ? "default" : "outline"} className="cursor-pointer px-3 py-1.5 text-sm transition-colors">{provider.name}</Badge>
                     </button>
                   );
                 })}
               </div>
-              {renderSectionFooter()}
+              <SectionCardFooter {...footerProps} />
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
               {professionalInsuranceIds.length > 0 ? (
-                insuranceProviders
-                  .filter((p) => professionalInsuranceIds.includes(p.id))
-                  .map((p) => (
-                    <Badge key={p.id} variant="secondary">
-                      {p.name}
-                    </Badge>
-                  ))
+                insuranceProviders.filter((p) => professionalInsuranceIds.includes(p.id)).map((p) => (<Badge key={p.id} variant="secondary">{p.name}</Badge>))
               ) : (
-                <span className="text-sm text-muted-foreground">
-                  {t.profile.noInsuranceSelected}
-                </span>
+                <span className="text-sm text-muted-foreground">{t.profile.noInsuranceSelected}</span>
               )}
             </div>
           )}

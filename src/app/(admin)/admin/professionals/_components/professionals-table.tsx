@@ -8,24 +8,21 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MapPin, MoreHorizontal, ShieldCheck, Star, CheckCircle, XCircle } from "lucide-react";
+import { MapPin, MoreHorizontal, ShieldCheck, Star, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { updateVerificationStatus } from "@/app/(admin)/_actions/admin-actions";
+import { updateVerificationStatus, deleteUser } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { translateSpecialty } from "@/locales/patient/specialties";
+import { ProfessionalMobileList } from "./professional-mobile-list";
 
-interface ProfessionalRow {
+export interface ProfessionalRow {
   id: string;
+  user_id: string;
   name: string;
   avatar_url: string | null;
   specialty: string;
@@ -39,12 +36,12 @@ interface ProfessionalsTableProps {
   data: ProfessionalRow[];
 }
 
-const AVATAR_COLORS = [
+export const AVATAR_COLORS = [
   "#3b82f6", "#ef4444", "#10b981", "#f59e0b",
   "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
 ];
 
-const SPECIALTY_COLORS = [
+export const SPECIALTY_COLORS = [
   { bg: "#eff6ff", text: "#1d4ed8" },
   { bg: "#f0fdf4", text: "#15803d" },
   { bg: "#fef3c7", text: "#92400e" },
@@ -55,7 +52,7 @@ const SPECIALTY_COLORS = [
   { bg: "#f0f9ff", text: "#0369a1" },
 ];
 
-function hashStr(s: string): number {
+export function hashStr(s: string): number {
   let hash = 0;
   for (const ch of s) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0;
   return Math.abs(hash);
@@ -65,25 +62,42 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
   const { t, locale } = useAdminI18n();
   const [confirm, setConfirm] = useState<{
     id: string;
+    userId: string;
     status: string;
     label: string;
+    action: "verification" | "delete";
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionSheet, setActionSheet] = useState<ProfessionalRow | null>(null);
 
-  function handleAction(id: string, status: string, label: string) {
+  function handleAction(id: string, status: string, label: string, userId?: string) {
     setActionSheet(null);
-    setConfirm({ id, status, label });
+    setConfirm({
+      id,
+      userId: userId ?? "",
+      status,
+      label,
+      action: status === "delete" ? "delete" : "verification",
+    });
   }
 
   function handleConfirm() {
     if (!confirm) return;
     startTransition(async () => {
-      const result = await updateVerificationStatus(confirm.id, confirm.status);
-      if (result.success) {
-        toast.success(t.professionals.statusUpdated);
+      if (confirm.action === "delete") {
+        const result = await deleteUser(confirm.userId);
+        if (result.success) {
+          toast.success(t.professionals.professionalDeleted);
+        } else {
+          toast.error(result.error ?? t.common.errorUpdating);
+        }
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        const result = await updateVerificationStatus(confirm.id, confirm.status);
+        if (result.success) {
+          toast.success(t.professionals.statusUpdated);
+        } else {
+          toast.error(result.error ?? t.common.errorUpdating);
+        }
       }
       setConfirm(null);
     });
@@ -95,26 +109,17 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
       header: t.common.name,
       render: (row) => {
         const bg = AVATAR_COLORS[hashStr(row.name) % AVATAR_COLORS.length];
-        const initials = row.name
-          .split(" ")
-          .map((w) => w[0])
-          .join("")
-          .slice(0, 2);
+        const initials = row.name.split(" ").map((w) => w[0]).join("").slice(0, 2);
         return (
           <div className="flex items-center gap-3">
             <Avatar className="size-[34px]">
               {row.avatar_url && <AvatarImage src={row.avatar_url} alt={row.name} />}
-              <AvatarFallback
-                style={{ backgroundColor: bg, color: "white" }}
-                className="text-[13px] font-semibold"
-              >
+              <AvatarFallback style={{ backgroundColor: bg, color: "white" }} className="text-[13px] font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <span className="text-[14px] font-semibold">{row.name}</span>
-            {row.verification_status === "verified" && (
-              <ShieldCheck className="text-primary size-4" />
-            )}
+            {row.verification_status === "verified" && <ShieldCheck className="text-primary size-4" />}
           </div>
         );
       },
@@ -123,18 +128,12 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
       key: "specialty",
       header: t.professionals.tableSpecialty,
       render: (row) => {
-        const color =
-          SPECIALTY_COLORS[hashStr(row.specialty) % SPECIALTY_COLORS.length];
+        const color = SPECIALTY_COLORS[hashStr(row.specialty) % SPECIALTY_COLORS.length];
         return (
           <span
             style={{
-              display: "inline-block",
-              borderRadius: "9999px",
-              padding: "4px 10px",
-              fontSize: "11px",
-              fontWeight: 600,
-              backgroundColor: color.bg,
-              color: color.text,
+              display: "inline-block", borderRadius: "9999px", padding: "4px 10px",
+              fontSize: "11px", fontWeight: 600, backgroundColor: color.bg, color: color.text,
             }}
           >
             {translateSpecialty(row.specialty, locale) ?? row.specialty}
@@ -152,7 +151,7 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
             {row.city}
           </div>
         ) : (
-          "—"
+          "\u2014"
         ),
     },
     {
@@ -162,15 +161,11 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         row.rating != null && row.rating > 0 ? (
           <div className="flex items-center gap-1 text-[13px]">
             <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" />
-            <span className="font-medium text-[#92400e]">
-              {row.rating.toFixed(1)}
-            </span>
-            <span className="text-[#6b7280]">
-              ({row.total_reviews ?? 0})
-            </span>
+            <span className="font-medium text-[#92400e]">{row.rating.toFixed(1)}</span>
+            <span className="text-[#6b7280]">({row.total_reviews ?? 0})</span>
           </div>
         ) : (
-          <span className="text-[#9ca3af]">—</span>
+          <span className="text-[#9ca3af]">{"\u2014"}</span>
         ),
     },
     {
@@ -181,9 +176,7 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
           type="verification"
           value={row.verification_status}
           labels={t.statuses.verification}
-          className={
-            row.verification_status === "pending" ? "animate-pulse" : undefined
-          }
+          className={row.verification_status === "pending" ? "animate-pulse" : undefined}
         />
       ),
     },
@@ -201,31 +194,27 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
           <DropdownMenuContent align="end">
             {row.verification_status !== "verified" && (
               <DropdownMenuItem
-                onClick={() =>
-                  setConfirm({
-                    id: row.id,
-                    status: "verified",
-                    label: t.professionals.verify,
-                  })
-                }
+                onClick={() => handleAction(row.id, "verified", t.professionals.verify)}
               >
                 {t.professionals.verify}
               </DropdownMenuItem>
             )}
             {row.verification_status !== "rejected" && (
               <DropdownMenuItem
-                onClick={() =>
-                  setConfirm({
-                    id: row.id,
-                    status: "rejected",
-                    label: t.professionals.reject,
-                  })
-                }
+                onClick={() => handleAction(row.id, "rejected", t.professionals.reject)}
                 className="text-destructive"
               >
                 {t.professionals.reject}
               </DropdownMenuItem>
             )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => handleAction(row.id, "delete", t.professionals.delete, row.user_id)}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 size-4" />
+              {t.professionals.delete}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -234,82 +223,14 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
 
   return (
     <>
-      {/* Mobile card list */}
-      <div className="space-y-2 sm:hidden">
-        {data.map((row) => {
-          const bg = AVATAR_COLORS[hashStr(row.name) % AVATAR_COLORS.length];
-          const initials = row.name
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 2);
-          const specColor =
-            SPECIALTY_COLORS[hashStr(row.specialty) % SPECIALTY_COLORS.length];
-          return (
-            <div
-              key={row.id}
-              className={`flex items-center gap-3 rounded-lg border p-3 ${
-                row.verification_status === "pending"
-                  ? "border-l-[3px] border-l-[#f97316]"
-                  : ""
-              }`}
-            >
-              <Avatar className="size-10 shrink-0">
-                {row.avatar_url && <AvatarImage src={row.avatar_url} alt={row.name} />}
-                <AvatarFallback
-                  style={{ backgroundColor: bg, color: "white" }}
-                  className="text-[13px] font-semibold"
-                >
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-semibold truncate">{row.name}</p>
-                  {row.verification_status === "verified" && (
-                    <ShieldCheck className="text-primary size-3.5 shrink-0" />
-                  )}
-                </div>
-                <span
-                  style={{
-                    display: "inline-block",
-                    borderRadius: "9999px",
-                    padding: "2px 8px",
-                    fontSize: "10px",
-                    fontWeight: 600,
-                    backgroundColor: specColor.bg,
-                    color: specColor.text,
-                    marginTop: 2,
-                  }}
-                >
-                  {translateSpecialty(row.specialty, locale) ?? row.specialty}
-                </span>
-              </div>
-              <div className="shrink-0">
-                <StatusBadge
-                  type="verification"
-                  value={row.verification_status}
-                  labels={t.statuses.verification}
-                  className={
-                    row.verification_status === "pending" ? "animate-pulse" : undefined
-                  }
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="min-h-[44px] min-w-[44px] shrink-0"
-                onClick={() => setActionSheet(row)}
-                aria-label={t.mobile.actions}
-              >
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </div>
-          );
-        })}
-      </div>
+      <ProfessionalMobileList
+        data={data}
+        actionSheet={actionSheet}
+        onOpenActionSheet={setActionSheet}
+        onCloseActionSheet={() => setActionSheet(null)}
+        onAction={handleAction}
+      />
 
-      {/* Desktop table */}
       <div className="hidden sm:block">
         <DataTable
           columns={columns}
@@ -319,70 +240,26 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
           emptyDescription={t.common.noResultsHint}
           variant="admin"
           rowClassName={(row) =>
-            row.verification_status === "pending"
-              ? "border-l-[3px] border-l-[#f97316]"
-              : undefined
+            row.verification_status === "pending" ? "border-l-[3px] border-l-[#f97316]" : undefined
           }
         />
       </div>
 
-      {/* Mobile action sheet */}
-      <Sheet
-        open={!!actionSheet}
-        onOpenChange={(open) => !open && setActionSheet(null)}
-      >
-        <SheetContent side="bottom" className="pb-8">
-          <SheetHeader>
-            <SheetTitle>{actionSheet?.name ?? ""}</SheetTitle>
-          </SheetHeader>
-          <div className="mt-2 space-y-1">
-            {actionSheet && actionSheet.verification_status !== "verified" && (
-              <button
-                onClick={() =>
-                  handleAction(
-                    actionSheet.id,
-                    "verified",
-                    t.professionals.verify
-                  )
-                }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
-              >
-                <CheckCircle className="size-4" />
-                {t.professionals.verify}
-              </button>
-            )}
-            {actionSheet && actionSheet.verification_status !== "rejected" && (
-              <button
-                onClick={() =>
-                  handleAction(
-                    actionSheet.id,
-                    "rejected",
-                    t.professionals.reject
-                  )
-                }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <XCircle className="size-4" />
-                {t.professionals.reject}
-              </button>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(open) => !open && setConfirm(null)}
-        title={t.professionals.confirmTitle.replace(
-          "{action}",
-          confirm?.label ?? ""
-        )}
-        description={t.professionals.confirmDescription.replace(
-          "{action}",
-          confirm?.label?.toLowerCase() ?? ""
-        )}
+        title={
+          confirm?.action === "delete"
+            ? t.professionals.deleteConfirmTitle
+            : t.professionals.confirmTitle.replace("{action}", confirm?.label ?? "")
+        }
+        description={
+          confirm?.action === "delete"
+            ? t.professionals.deleteConfirmDescription
+            : t.professionals.confirmDescription.replace("{action}", confirm?.label?.toLowerCase() ?? "")
+        }
         confirmLabel={confirm?.label ?? t.common.confirm}
-        variant={confirm?.status === "rejected" ? "destructive" : "default"}
+        variant={confirm?.action === "delete" || confirm?.status === "rejected" ? "destructive" : "default"}
         loading={isPending}
         onConfirm={handleConfirm}
       />

@@ -38,6 +38,28 @@ export function AISearchChat({
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Restore conversation from landing page handoff
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("chat") !== "1") return
+
+    import("@/lib/landing-chat-session").then(({ getHandoffConversation, clearHandoffConversation }) => {
+      const handoff = getHandoffConversation()
+      if (handoff && handoff.messages.length > 0) {
+        const restored: ChatEntry[] = handoff.messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        }))
+        setMessages((prev) => [...prev, ...restored])
+        clearHandoffConversation()
+      }
+      // Remove ?chat=1 from URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete("chat")
+      window.history.replaceState({}, "", url.pathname + url.search)
+    })
+  }, [])
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -93,19 +115,39 @@ export function AISearchChat({
         ])
       } else {
         const profs = data.professionals ?? []
-        const debugInfo = data.debug ? ` [${data.debug}]` : ""
-        const noResultsMessage = data.requested_date
-          ? t.noAvailability
-          : t.aiNoResults + debugInfo
+        const level = data.fallback_level ?? 1
+
+        let resultMessage: string
+        let emptySuggestions: string[] | undefined
+
+        if (profs.length > 0) {
+          const count = String(profs.length)
+          if (level === 1) {
+            resultMessage = t.aiResultsFound.replace("{count}", count)
+          } else if (level === 2) {
+            resultMessage = t.aiResultsRelaxed.replace("{count}", count)
+          } else if (level === 3) {
+            resultMessage = t.aiResultsSpecialtyOnly.replace("{count}", count)
+          } else {
+            resultMessage = t.aiResultsTopRated
+          }
+        } else if (data.requested_date) {
+          resultMessage = t.noAvailability
+        } else {
+          resultMessage = t.aiNoResults
+          emptySuggestions = [
+            t.aiSuggestion1,
+            t.aiSuggestAll,
+          ]
+        }
+
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content:
-              profs.length > 0
-                ? t.aiResultsFound.replace("{count}", String(profs.length))
-                : noResultsMessage,
+            content: resultMessage,
             professionals: profs.length > 0 ? profs : undefined,
+            suggestions: emptySuggestions,
             isSearchResult: true,
           },
         ])

@@ -77,6 +77,7 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
     } | null;
     return {
       id: pro.id,
+      user_id: pro.user_id,
       name: user ? `${user.first_name} ${user.last_name}` : "—",
       avatar_url: user?.avatar_url ?? null,
       specialty: pro.specialty,

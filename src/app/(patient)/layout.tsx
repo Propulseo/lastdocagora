@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
 import { PatientSidebar } from "./patient-sidebar"
@@ -16,6 +17,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { PatientLayoutHeader } from "./_components/patient-layout-header"
 import { PatientBottomNav } from "./_components/patient-bottom-nav"
 import { PatientRealtimeNotifier } from "./_components/patient-realtime-notifier"
+import { PublicSearchHeader } from "./_components/public-search-header"
 
 export default async function PatientLayout({
   children,
@@ -23,11 +25,33 @@ export default async function PatientLayout({
   children: React.ReactNode
 }) {
   const user = await getCurrentUser()
+  const headersList = await headers()
+  const pathname = headersList.get("x-pathname") ?? ""
 
-  if (!user || (user.role !== "patient" && user.role !== "admin")) {
+  // Anonymous users on search pages get a minimal public layout
+  const isPublicSearch = !user && pathname.startsWith("/patient/search")
+
+  if (!user && !isPublicSearch) {
     redirect("/login")
   }
 
+  if (user && user.role !== "patient" && user.role !== "admin") {
+    redirect("/login")
+  }
+
+  if (isPublicSearch) {
+    const locale = await getLocale()
+    return (
+      <PatientLocaleProvider locale={locale}>
+        <PublicSearchHeader />
+        <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
+          {children}
+        </div>
+      </PatientLocaleProvider>
+    )
+  }
+
+  // Authenticated patient layout
   const supabase = await createClient()
 
   const [{ data: profile }, { count: unreadCount }, locale] = await Promise.all(
@@ -35,12 +59,12 @@ export default async function PatientLayout({
       supabase
         .from("users")
         .select("first_name, last_name, email, avatar_url")
-        .eq("id", user.id)
+        .eq("id", user!.id)
         .single(),
       supabase
         .from("notifications")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
+        .eq("user_id", user!.id)
         .eq("is_read", false),
       getLocale(),
     ]
@@ -51,8 +75,8 @@ export default async function PatientLayout({
   const userInfo = {
     name: profile
       ? `${profile.first_name} ${profile.last_name}`
-      : user.email ?? t.common.patient,
-    email: profile?.email ?? user.email ?? "",
+      : user!.email ?? t.common.patient,
+    email: profile?.email ?? user!.email ?? "",
     avatarUrl: profile?.avatar_url ?? undefined,
     initials: profile
       ? `${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase()
@@ -63,9 +87,9 @@ export default async function PatientLayout({
 
   return (
     <>
-      <PatientRealtimeNotifier userId={user.id} />
+      <PatientRealtimeNotifier userId={user!.id} />
       <RoleBodyClass role="role-patient" />
-      <ThemeSync userId={user.id} target="patient_settings" />
+      <ThemeSync userId={user!.id} target="patient_settings" />
       <SidebarProvider>
         <PatientLocaleProvider locale={locale}>
           <div className="hidden lg:contents">

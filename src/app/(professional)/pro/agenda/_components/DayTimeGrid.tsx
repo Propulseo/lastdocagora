@@ -4,14 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import {
-  HOUR_HEIGHT,
-  START_HOUR,
-  END_HOUR,
-  SLOT_MINUTES,
-  OFF_HOURS_START,
-  OFF_HOURS_END,
-} from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock } from "./AppointmentBlock";
 import { AvailabilityBlock } from "./AvailabilityBlock";
@@ -21,10 +14,7 @@ import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import { toLocalDateStr } from "../_lib/date-utils";
 
-const hours = Array.from(
-  { length: END_HOUR - START_HOUR + 1 },
-  (_, i) => START_HOUR + i,
-);
+const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
 
 function pixelToTime(y: number): string {
   const totalMinutes = (y / HOUR_HEIGHT) * 60;
@@ -40,12 +30,7 @@ function snapPixel(y: number): number {
   return (snapped / 60) * HOUR_HEIGHT;
 }
 
-interface PendingDrag {
-  startTime: string;
-  endTime: string;
-  mouseX: number;
-  mouseY: number;
-}
+interface PendingDrag { startTime: string; endTime: string; mouseX: number; mouseY: number }
 
 interface DayTimeGridProps {
   appointments: Appointment[];
@@ -70,15 +55,11 @@ export function DayTimeGrid({
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
   const attendance = useAttendanceAction(onAttendanceChange);
-
-  // Drag state
   const gridRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
   const [pendingDrag, setPendingDrag] = useState<PendingDrag | null>(null);
-
-  // Current time line
   const todayStr = toLocalDateStr(new Date());
   const isToday = selectedDate === todayStr;
   const [, setTick] = useState(0);
@@ -89,7 +70,6 @@ export function DayTimeGrid({
     return () => clearInterval(interval);
   }, [isToday]);
 
-  // Auto-scroll to current hour on mount
   useEffect(() => {
     if (!gridRef.current?.parentElement) return;
     const now = new Date();
@@ -177,20 +157,11 @@ export function DayTimeGrid({
   }
 
   const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
-
-  const selectionTop =
-    dragStartY != null && dragCurrentY != null
-      ? Math.min(dragStartY, dragCurrentY)
-      : 0;
-  const selectionHeight =
-    dragStartY != null && dragCurrentY != null
-      ? Math.abs(dragCurrentY - dragStartY)
-      : 0;
-
-  // Current time position
+  const hasDrag = dragStartY != null && dragCurrentY != null;
+  const selectionTop = hasDrag ? Math.min(dragStartY, dragCurrentY) : 0;
+  const selectionHeight = hasDrag ? Math.abs(dragCurrentY - dragStartY) : 0;
   const now = new Date();
-  const currentTimeTop =
-    (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
+  const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
 
   return (
     <>
@@ -205,7 +176,6 @@ export function DayTimeGrid({
             onMouseUp={(e) => handleMouseUp(e)}
             onMouseLeave={handleMouseLeave}
           >
-            {/* Off-hours striping */}
             {OFF_HOURS_START > START_HOUR && (
               <div
                 className="absolute left-[3.75rem] right-0 bg-muted/20 pointer-events-none"
@@ -225,15 +195,11 @@ export function DayTimeGrid({
               />
             )}
 
-            {/* Gutter separator */}
             <div className="absolute top-0 bottom-0 left-[3.75rem] w-px bg-border pointer-events-none" />
-
-            {/* Hour + half-hour grid lines */}
             {hours.map((hour) => {
               const top = (hour - START_HOUR) * HOUR_HEIGHT;
               return (
                 <Fragment key={hour}>
-                  {/* Full hour line */}
                   <div
                     className="absolute left-[3.75rem] right-0 border-t border-muted"
                     style={{ top: `${top}px` }}
@@ -242,7 +208,6 @@ export function DayTimeGrid({
                       {hour.toString().padStart(2, "0")}:00
                     </span>
                   </div>
-                  {/* Half-hour line */}
                   <div
                     className="absolute left-[3.75rem] right-0 border-t border-dashed border-muted/50"
                     style={{ top: `${top + HOUR_HEIGHT / 2}px` }}
@@ -251,7 +216,6 @@ export function DayTimeGrid({
               );
             })}
 
-            {/* Availability slots */}
             {availabilitySlots.map((slot) => (
               <AvailabilityBlock
                 key={slot.id}
@@ -260,7 +224,6 @@ export function DayTimeGrid({
               />
             ))}
 
-            {/* Appointments */}
             {appointments.map((apt) => (
               <AppointmentBlock
                 key={apt.id}
@@ -269,31 +232,23 @@ export function DayTimeGrid({
               />
             ))}
 
-            {/* External calendar events */}
             <ExternalEventOverlay
               events={externalEvents}
               selectedDate={selectedDate}
             />
 
-            {/* Current time indicator */}
             {isToday && currentTimeTop > 0 && currentTimeTop < totalHeight && (
-              <div
-                className="absolute left-0 right-0 z-[30] pointer-events-none"
-                style={{ top: `${currentTimeTop}px` }}
-              >
+              <div className="absolute left-0 right-0 z-[30] pointer-events-none" style={{ top: `${currentTimeTop}px` }}>
                 <div className="relative flex items-center">
-                  {/* Time label in gutter */}
                   <span className="absolute right-[calc(100%-3.5rem)] text-[10px] font-semibold text-red-500 tabular-nums whitespace-nowrap">
                     {now.getHours().toString().padStart(2, "0")}:{now.getMinutes().toString().padStart(2, "0")}
                   </span>
-                  {/* Dot + line */}
                   <span className="absolute left-[3.5rem] size-2.5 -translate-y-px rounded-full bg-red-500 ring-2 ring-background" />
                   <div className="absolute left-[3.75rem] right-0 h-[2px] bg-red-500/80" />
                 </div>
               </div>
             )}
 
-            {/* Drag selection overlay */}
             {isDragging && selectionHeight > 0 && (
               <div
                 className="absolute left-16 right-2 rounded-md bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]"

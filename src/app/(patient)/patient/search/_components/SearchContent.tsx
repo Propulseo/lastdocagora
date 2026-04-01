@@ -25,6 +25,7 @@ interface SearchContentProps {
   cityFilter: string
   insuranceFilter?: string
   insuranceProviders?: InsuranceProviderOption[]
+  isAuthenticated?: boolean
 }
 
 export function SearchContent({
@@ -34,6 +35,7 @@ export function SearchContent({
   cityFilter,
   insuranceFilter,
   insuranceProviders,
+  isAuthenticated = true,
 }: SearchContentProps) {
   const { t, locale } = usePatientTranslations()
 

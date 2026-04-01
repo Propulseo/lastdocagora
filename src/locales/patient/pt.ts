@@ -81,7 +81,12 @@ export type PatientTranslations = {
     aiErrorRephrase: string
     aiErrorInput: string
     aiResultsFound: string
+    aiResultsRelaxed: string
+    aiResultsSpecialtyOnly: string
+    aiResultsTopRated: string
     aiNoResults: string
+    aiSuggestBroader: string
+    aiSuggestAll: string
     availableOn: string
     noAvailability: string
     yearsExp: string
@@ -287,6 +292,59 @@ export type PatientTranslations = {
     titleReminder: string
     titleSupportReply: string
   }
+  auth: {
+    rolePatient: string
+    roleProfessional: string
+    email: string
+    emailPlaceholder: string
+    password: string
+    passwordPlaceholder: string
+    showPassword: string
+    hidePassword: string
+    orContinueWith: string
+    google: string
+    loginTitle: string
+    loginSubtitle: string
+    loginCreateAccount: string
+    forgotPassword: string
+    loginButton: string
+    loginErrorInvalid: string
+    loginErrorNotConfirmed: string
+    loginErrorTooMany: string
+    registerTitle: string
+    registerSubtitle: string
+    registerLogin: string
+    firstName: string
+    lastName: string
+    confirmPassword: string
+    confirmPasswordPlaceholder: string
+    registerButton: string
+    registerProLabel: string
+    specialty: string
+    specialtyPlaceholder: string
+    orderNumber: string
+    orderNumberPlaceholder: string
+    passwordWeak: string
+    passwordFair: string
+    passwordGood: string
+    passwordStrong: string
+    rgpdTerms: string
+    rgpdPrivacy: string
+    rgpdHealthData: string
+    rgpdMarketing: string
+    rgpdNote: string
+    termsLink: string
+    privacyLink: string
+    leftPanelTagline: string
+    leftPanelDescription: string
+    leftPanelStat1: string
+    leftPanelStat2: string
+    leftPanelStat3: string
+    leftPanelCopyright: string
+    leftPanelSubtitle: string
+    errorConnection: string
+    passwordMismatch: string
+  }
 }
 
 export const ptPatient: PatientTranslations = {
@@ -362,17 +420,22 @@ export const ptPatient: PatientTranslations = {
     aiWelcome: "Ol\u00e1! Sou o assistente de pesquisa DOCAGORA. Descreva o profissional de sa\u00fade que procura e eu encontro os melhores resultados para si.",
     aiPlaceholder: "Descreva o que procura...",
     aiThinking: "A procurar...",
-    aiSuggestion1: "M\u00e9dico que fale ingl\u00eas em Lisboa",
-    aiSuggestion2: "Dentista bem avaliado e barato",
-    aiSuggestion3: "M\u00e9dico de fam\u00edlia no Pr\u00edncipe Real",
-    aiSuggestion4: "Pediatra com seguro aceite",
+    aiSuggestion1: "M\u00e9dico de fam\u00edlia em Lisboa",
+    aiSuggestion2: "Dentista bem avaliado",
+    aiSuggestion3: "Psic\u00f3logo no Porto",
+    aiSuggestion4: "Cardiologista teleconsulta",
     aiError: "Ocorreu um erro. Tente novamente.",
     aiErrorAuth: "Precisa de estar autenticado para usar a pesquisa inteligente.",
     aiErrorService: "O servi\u00e7o de pesquisa inteligente est\u00e1 temporariamente indispon\u00edvel.",
     aiErrorRephrase: "N\u00e3o consegui interpretar o pedido. Tente reformular.",
     aiErrorInput: "Mensagem inv\u00e1lida. Tente ser mais espec\u00edfico.",
     aiResultsFound: "Encontrei {count} profissional(is) para si:",
-    aiNoResults: "N\u00e3o encontrei nenhum profissional com esses crit\u00e9rios. Tente alargar a pesquisa (outra zona, menos filtros).",
+    aiResultsRelaxed: "Encontrei {count} profissional(is) (alguns filtros relaxados):",
+    aiResultsSpecialtyOnly: "N\u00e3o encontrei na sua cidade, mas encontrei {count} profissional(is) nesta especialidade:",
+    aiResultsTopRated: "Sem correspond\u00eancia espec\u00edfica, aqui est\u00e3o os nossos profissionais mais bem avaliados:",
+    aiNoResults: "N\u00e3o encontrei nenhum profissional com esses crit\u00e9rios.",
+    aiSuggestBroader: "Tentar: {query}",
+    aiSuggestAll: "Ver todos os profissionais",
     availableOn: "Dispon\u00edvel em {date}",
     noAvailability: "Sem disponibilidade nesta data",
     yearsExp: "{count} anos de experi\u00eancia",
@@ -577,5 +640,58 @@ export const ptPatient: PatientTranslations = {
     titleCancellation: "Agendamento cancelado",
     titleReminder: "Lembrete",
     titleSupportReply: "Resposta ao seu ticket",
+  },
+  auth: {
+    rolePatient: "Paciente",
+    roleProfessional: "Profissional",
+    email: "Email",
+    emailPlaceholder: "nome@exemplo.pt",
+    password: "Palavra-passe",
+    passwordPlaceholder: "••••••••",
+    showPassword: "Mostrar palavra-passe",
+    hidePassword: "Ocultar palavra-passe",
+    orContinueWith: "ou continuar com",
+    google: "Google",
+    loginTitle: "Bem-vindo de volta",
+    loginSubtitle: "Novo no DocAgora?",
+    loginCreateAccount: "Criar conta gratuita",
+    forgotPassword: "Esqueceu-se?",
+    loginButton: "Iniciar sessão",
+    loginErrorInvalid: "Email ou palavra-passe incorretos. Verifique os seus dados e tente novamente.",
+    loginErrorNotConfirmed: "O seu email ainda não foi confirmado. Verifique a sua caixa de entrada.",
+    loginErrorTooMany: "Demasiadas tentativas. Aguarde alguns minutos antes de tentar novamente.",
+    registerTitle: "Criar a sua conta",
+    registerSubtitle: "Já tem conta?",
+    registerLogin: "Iniciar sessão",
+    firstName: "Nome",
+    lastName: "Apelido",
+    confirmPassword: "Confirmar palavra-passe",
+    confirmPasswordPlaceholder: "Repetir palavra-passe",
+    registerButton: "Criar conta",
+    registerProLabel: "Profissional de saúde",
+    specialty: "Especialidade",
+    specialtyPlaceholder: "Selecionar especialidade",
+    orderNumber: "Número da Ordem",
+    orderNumberPlaceholder: "Ex: 12345",
+    passwordWeak: "Fraca",
+    passwordFair: "Razoável",
+    passwordGood: "Boa",
+    passwordStrong: "Forte",
+    rgpdTerms: "Aceito os Termos de Serviço",
+    rgpdPrivacy: "Aceito a Política de Privacidade",
+    rgpdHealthData: "Autorizo o tratamento dos meus dados de saúde (Art. 9 RGPD)",
+    rgpdMarketing: "Aceito receber comunicações de marketing",
+    rgpdNote: "Ao criar conta, concorda com os nossos",
+    termsLink: "Termos de Serviço",
+    privacyLink: "Política de Privacidade",
+    leftPanelTagline: "A sua saúde merece o melhor cuidado",
+    leftPanelDescription: "Encontre profissionais de saúde qualificados e marque consultas de forma simples e segura.",
+    leftPanelStat1: "Profissionais verificados",
+    leftPanelStat2: "Consultas agendadas",
+    leftPanelStat3: "Dados protegidos (RGPD)",
+    leftPanelCopyright: "© 2026 DocAgora · Lisboa, Portugal",
+    leftPanelSubtitle: "Portugal · Saúde Digital",
+    errorConnection: "Erro de conexão ao servidor",
+    passwordMismatch: "As palavras-passe não coincidem",
   },
 }

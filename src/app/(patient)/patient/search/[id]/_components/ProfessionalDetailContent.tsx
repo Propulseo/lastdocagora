@@ -1,0 +1,237 @@
+import { format } from "date-fns"
+import { type Locale } from "date-fns/locale"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import { Star, MapPin, Clock, Building2, Globe, Shield } from "lucide-react"
+import { translateSpecialty } from "@/locales/patient/specialties"
+
+interface ProfessionalUser { first_name: string; last_name: string; avatar_url: string | null }
+
+interface Service { id: string; name: string; description: string | null; duration_minutes: number; price: number; consultation_type: string }
+
+interface ReviewData {
+  id: string
+  rating: number | null
+  comment: string | null
+  created_at: string | null
+  appointments?: { patients?: { users?: { first_name?: string; last_name?: string } | null } | null } | null
+}
+
+interface InsuranceRow { insurance_provider_id: string; insurance_providers: unknown }
+
+interface ProfessionalDetailContentProps {
+  prof: {
+    specialty: string
+    city: string | null
+    rating: number | null
+    total_reviews: number | null
+    bio: string | null
+    cabinet_name: string | null
+    years_experience: number | null
+    languages_spoken: string[] | null
+    users: ProfessionalUser
+  }
+  services: Service[]
+  reviews: ReviewData[]
+  proInsurances: InsuranceRow[]
+  t: {
+    professional: { namePrefix: string }
+    professionalDetail: {
+      reviews: string
+      yearsExperience: string
+      about: string
+      services: string
+      min: string
+      online: string
+      inPerson: string
+      reviewsTitle: string
+      fallbackReviewer: string
+    }
+    booking: { priceOnRequest: string }
+  }
+  locale: string
+  dateLocale: Locale
+}
+
+export function ProfessionalDetailContent({
+  prof,
+  services,
+  reviews,
+  proInsurances,
+  t,
+  locale,
+  dateLocale,
+}: ProfessionalDetailContentProps) {
+  const u = prof.users
+  const fullName = `${t.professional.namePrefix} ${u.first_name} ${u.last_name}`
+  const initials = `${u.first_name?.[0] ?? ""}${u.last_name?.[0] ?? ""}`.toUpperCase()
+
+  const consultationTypeLabel = (type: string) => {
+    if (type === "online") return t.professionalDetail.online
+    return t.professionalDetail.inPerson
+  }
+
+  return (
+    <div className="space-y-6 lg:col-span-2">
+      {/* Header card */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex gap-4">
+            <Avatar className="size-24 md:size-32 border-2 border-background shadow-sm">
+              <AvatarImage
+                src={u.avatar_url ?? undefined}
+                alt={fullName}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-primary/10 text-2xl md:text-3xl font-semibold text-primary">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1 space-y-2">
+              <div>
+                <h1 className="text-xl font-bold">{fullName}</h1>
+                <Badge variant="secondary" className="mt-1">{translateSpecialty(prof.specialty, locale)}</Badge>
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                {prof.rating != null && (
+                  <span className="flex items-center gap-1">
+                    <Star className="size-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium text-foreground">
+                      {prof.rating.toFixed(1)}
+                    </span>
+                    {prof.total_reviews != null && (
+                      <span>({t.professionalDetail.reviews.replace("{count}", String(prof.total_reviews))})</span>
+                    )}
+                  </span>
+                )}
+                {prof.city && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="size-4 text-primary/60" />
+                    {prof.city}
+                  </span>
+                )}
+                {prof.years_experience != null && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="size-4 text-primary/60" />
+                    {t.professionalDetail.yearsExperience.replace("{count}", String(prof.years_experience))}
+                  </span>
+                )}
+                {prof.cabinet_name && (
+                  <span className="flex items-center gap-1">
+                    <Building2 className="size-4 text-primary/60" />
+                    {prof.cabinet_name}
+                  </span>
+                )}
+              </div>
+              {prof.languages_spoken && prof.languages_spoken.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Globe className="size-4 text-primary/60" />
+                  {prof.languages_spoken.map((lang) => (
+                    <Badge key={lang} variant="outline">{lang}</Badge>
+                  ))}
+                </div>
+              )}
+              {proInsurances && proInsurances.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Shield className="size-4 text-primary/60" />
+                  {proInsurances.map((row) => {
+                    const provider = row.insurance_providers as { name: string } | null
+                    return (
+                      <Badge key={row.insurance_provider_id} variant="outline">
+                        {provider?.name ?? row.insurance_provider_id}
+                      </Badge>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bio */}
+      {prof.bio && (
+        <Card>
+          <CardHeader><CardTitle>{t.professionalDetail.about}</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed text-muted-foreground">{prof.bio}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Services */}
+      {services && services.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>{t.professionalDetail.services}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {services.map((svc) => (
+                <div key={svc.id} className="flex items-start justify-between rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.02]">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{svc.name}</p>
+                    {svc.description && <p className="mt-1 text-sm text-muted-foreground">{svc.description}</p>}
+                    <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1"><Clock className="size-3.5" />{svc.duration_minutes} {t.professionalDetail.min}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {consultationTypeLabel(svc.consultation_type)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="ml-4 shrink-0 text-sm font-semibold">
+                    {svc.price > 0 ? `${svc.price} \u20ac` : t.booking.priceOnRequest}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reviews */}
+      {reviews && reviews.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>{t.professionalDetail.reviewsTitle}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {reviews.map((review) => {
+                const r = review as ReviewData
+                const rv = r.appointments?.patients?.users
+                const rvInit = rv ? `${rv.first_name?.[0] ?? ""}${rv.last_name?.[0] ?? ""}`.toUpperCase() : "?"
+                return (
+                  <div key={r.id}>
+                    <div className="flex items-start gap-3">
+                      <Avatar size="sm">
+                        <AvatarFallback className="bg-primary/10 text-xs text-primary">{rvInit}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-medium">
+                            {rv ? `${rv.first_name ?? ""} ${rv.last_name ?? ""}` : t.professionalDetail.fallbackReviewer}
+                          </span>
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`size-3 ${i < (r.rating ?? 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+                            ))}
+                          </div>
+                          {r.created_at && (
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(r.created_at), "d MMM yyyy", { locale: dateLocale })}
+                            </span>
+                          )}
+                        </div>
+                        {r.comment && <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>}
+                      </div>
+                    </div>
+                    <Separator className="mt-4" />
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}

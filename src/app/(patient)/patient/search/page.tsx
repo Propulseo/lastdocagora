@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth"
 import { SearchContent } from "./_components/SearchContent"
 
@@ -9,7 +8,7 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string; specialty?: string; city?: string; insurance?: string }>
 }) {
   const user = await getCurrentUser()
-  if (!user) redirect("/login")
+  const isAuthenticated = !!user
 
   const supabase = await createClient()
 
@@ -118,6 +117,7 @@ export default async function SearchPage({
       cityFilter={cityFilter}
       insuranceFilter={insuranceFilter}
       insuranceProviders={(insuranceProviders ?? []) as Array<{ id: string; name: string; slug: string }>}
+      isAuthenticated={isAuthenticated}
     />
   )
 }

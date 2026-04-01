@@ -10,22 +10,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import { Clock, Loader2, CheckCircle2 } from "lucide-react"
+import { Loader2, CheckCircle2 } from "lucide-react"
 import { createAppointment } from "@/app/(patient)/_actions/booking"
 import { usePatientTranslations } from "@/locales/locale-context"
-
-type Service = {
-  id: string; name: string; description: string | null
-  duration_minutes: number; price: number; consultation_type: string
-}
+import { ServiceSelector, SlotPicker, type Service, type Slot } from "./booking-form-steps"
 
 type Availability = {
   day_of_week: number; start_time: string; end_time: string
   is_recurring: boolean | null; specific_date: string | null
 }
-
-type Slot = { slot_start: string; slot_end: string }
 
 interface BookingFormProps {
   professionalId: string; professionalUserId: string
@@ -57,7 +50,6 @@ export function BookingForm({
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     if (date < today) return true
-    // date-fns getDay: 0=Sunday, matches Supabase day_of_week convention
     const dow = getDay(date)
     return !availableDays.has(dow)
   }
@@ -138,46 +130,13 @@ export function BookingForm({
       <CardHeader><CardTitle>{t.booking.title}</CardTitle></CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Step 1: Select service */}
-          <div className="space-y-2">
-            <p className="text-sm font-medium">{t.booking.step1}</p>
-            <div className="space-y-2">
-              {services.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t.booking.noServices}
-                </p>
-              ) : (
-                services.map((svc) => (
-                  <button
-                    key={svc.id}
-                    type="button"
-                    onClick={() => setSelectedService(svc)}
-                    className={cn(
-                      "w-full rounded-lg border p-3 text-left transition-colors",
-                      selectedService?.id === svc.id
-                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "hover:border-primary/40 hover:bg-primary/[0.02]"
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium">{svc.name}</p>
-                      <p className="shrink-0 text-xs font-semibold">
-                        {svc.price > 0 ? `${svc.price} \u20ac` : t.booking.priceOnRequest}
-                      </p>
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="size-3" />
-                      <span>{svc.duration_minutes} {t.professionalDetail.min}</span>
-                      <span>&middot;</span>
-                      <span>{svc.consultation_type === "online" ? t.professionalDetail.online : t.professionalDetail.inPerson}</span>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+          <ServiceSelector
+            services={services}
+            selectedServiceId={selectedService?.id ?? null}
+            onSelect={setSelectedService}
+            t={t}
+          />
 
-          {/* Step 2: Select date */}
           {selectedService && (
             <div className="space-y-2">
               <p className="text-sm font-medium">{t.booking.step2}</p>
@@ -192,39 +151,16 @@ export function BookingForm({
             </div>
           )}
 
-          {/* Step 3: Select time slot */}
           {selectedDate && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">{t.booking.step3}</p>
-              {loadingSlots ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="size-5 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-muted-foreground">{t.booking.loadingSlots}</span>
-                </div>
-              ) : slots.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.booking.noSlots}</p>
-              ) : (
-                <div className="grid grid-cols-3 gap-2">
-                  {slots.map((slot) => {
-                    const time = slot.slot_start.slice(0, 5)
-                    return (
-                      <Button
-                        key={slot.slot_start}
-                        type="button"
-                        variant={selectedSlot === time ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedSlot(time)}
-                      >
-                        {time}
-                      </Button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
+            <SlotPicker
+              slots={slots}
+              selectedSlot={selectedSlot}
+              onSelect={setSelectedSlot}
+              loading={loadingSlots}
+              t={t}
+            />
           )}
 
-          {/* Step 4: Notes */}
           {selectedSlot && (
             <div className="space-y-2">
               <p className="text-sm font-medium">{t.booking.step4}</p>
@@ -236,7 +172,6 @@ export function BookingForm({
             </div>
           )}
 
-          {/* Summary */}
           {canBook && (
             <div className="space-y-1.5 rounded-lg bg-muted/50 p-3 text-sm">
               <p className="font-medium">{t.booking.summary}</p>

@@ -18,11 +18,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { getSpecialtyOptions } from "@/locales/patient/specialties";
 import type { StepHandle } from "./Step1Profile";
 
-type InsuranceProvider = {
-  id: string;
-  name: string;
-  slug: string;
-};
+type InsuranceProvider = { id: string; name: string; slug: string };
 
 interface Step2Props {
   initialData: {
@@ -56,19 +52,11 @@ export const Step2Specialty = forwardRef<StepHandle, Step2Props>(
     const [subspecialties, setSubspecialties] = useState(
       initialData.subspecialties?.join(", ") ?? "",
     );
-    const [yearsExp, setYearsExp] = useState(
-      initialData.years_experience?.toString() ?? "",
-    );
-    const [practiceType, setPracticeType] = useState(
-      initialData.practice_type ?? "",
-    );
+    const [yearsExp, setYearsExp] = useState(initialData.years_experience?.toString() ?? "");
+    const [practiceType, setPracticeType] = useState(initialData.practice_type ?? "");
     const [consultTypes, setConsultTypes] = useState<string[]>(["in-person"]);
-    const [fee, setFee] = useState(
-      initialData.consultation_fee?.toString() ?? "",
-    );
-    const [thirdParty, setThirdParty] = useState(
-      initialData.third_party_payment ?? false,
-    );
+    const [fee, setFee] = useState(initialData.consultation_fee?.toString() ?? "");
+    const [thirdParty, setThirdParty] = useState(initialData.third_party_payment ?? false);
     const [selectedInsuranceIds, setSelectedInsuranceIds] = useState<string[]>(
       initialData.insurance_provider_ids ?? [],
     );
@@ -138,9 +126,7 @@ export const Step2Specialty = forwardRef<StepHandle, Step2Props>(
             </SelectTrigger>
             <SelectContent>
               {specialtyOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -156,9 +142,7 @@ export const Step2Specialty = forwardRef<StepHandle, Step2Props>(
             onChange={(e) => setSubspecialties(e.target.value)}
             placeholder={ob.step2.subspecialtiesPlaceholder}
           />
-          <p className="text-xs text-muted-foreground">
-            {ob.step2.subspecialtiesHint}
-          </p>
+          <p className="text-xs text-muted-foreground">{ob.step2.subspecialtiesHint}</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -181,9 +165,7 @@ export const Step2Specialty = forwardRef<StepHandle, Step2Props>(
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(practiceTypes).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
-                  </SelectItem>
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
