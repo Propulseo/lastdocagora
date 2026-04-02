@@ -1,0 +1,37 @@
+{
+  "role": {
+    "patient": "Paciente",
+    "professional": "Profissional",
+    "admin": "Administrador"
+  },
+  "userStatus": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "suspended": "Suspenso"
+  },
+  "verification": {
+    "pending": "Pendente",
+    "verified": "Verificado",
+    "rejected": "Rejeitado"
+  },
+  "appointment": {
+    "scheduled": "Agendada",
+    "confirmed": "Confirmada",
+    "completed": "Concluída",
+    "cancelled": "Cancelada",
+    "no_show": "Falta"
+  },
+  "ticket": {
+    "open": "Aberto",
+    "in_progress": "Em progresso",
+    "awaiting_confirmation": "Aguardando confirmação",
+    "resolved": "Resolvido",
+    "closed": "Fechado"
+  },
+  "priority": {
+    "low": "Baixa",
+    "medium": "Média",
+    "high": "Alta",
+    "urgent": "Urgente"
+  }
+}

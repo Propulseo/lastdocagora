@@ -54,6 +54,7 @@ export default async function DashboardPage() {
     { data: recentRaw },
     { count: unconfirmedCount },
     { data: monthAppts },
+    { data: nextSlotData },
   ] = await Promise.all([
     supabase
       .from("users")
@@ -146,6 +147,9 @@ export default async function DashboardPage() {
       .eq("professional_id", professionalId)
       .gte("appointment_date", monthStart)
       .lte("appointment_date", todayStr),
+    supabase.rpc("get_next_available_slot", {
+      p_professional_id: professionalId,
+    }),
   ]);
 
   // Distinct patient count
@@ -230,6 +234,7 @@ export default async function DashboardPage() {
       tomorrowCount={tomorrowCount ?? 0}
       unconfirmedNext24h={unconfirmedCount ?? 0}
       noShowRate={noShowRate}
+      nextAvailableSlot={typeof nextSlotData === "string" ? nextSlotData : null}
     />
   );
 }

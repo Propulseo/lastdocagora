@@ -1,0 +1,15 @@
+{
+  "dateLocale": "fr-FR",
+  "min": "min",
+  "cancel": "Annuler",
+  "saving": "Enregistrement...",
+  "today": "Aujourd'hui",
+  "status": {
+    "confirmed": "Confirmé",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "noShow": "Absent",
+    "rejected": "Refusé"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Notifications",
+  "markAllRead": "Mark all as read",
+  "empty": "No notifications",
+  "errorMarkAll": "Error marking notifications",
+  "unreadCount": "{count} unread",
+  "toastNewBooking": "New booking",
+  "toastCancellation": "Appointment cancelled",
+  "toastViewAgenda": "View in agenda →",
+  "toastViewAll": "View all"
+}

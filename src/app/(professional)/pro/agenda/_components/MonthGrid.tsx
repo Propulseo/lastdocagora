@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
+import { HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import { MonthDayCell } from "./MonthDayCell";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
@@ -70,6 +71,7 @@ export function MonthGrid({
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();
     for (const apt of appointments) {
+      if ((HIDDEN_APPOINTMENT_STATUSES as readonly string[]).includes(apt.status)) continue;
       const list = map.get(apt.appointment_date) ?? [];
       list.push(apt);
       map.set(apt.appointment_date, list);

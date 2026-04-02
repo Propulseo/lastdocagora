@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import {
   HOUR_HEIGHT,
@@ -14,11 +15,13 @@ import type { Appointment } from "../_types/agenda";
 interface AppointmentBlockProps {
   appointment: Appointment;
   onClick: (appointment: Appointment) => void;
+  isHighlighted?: boolean;
 }
 
 export function AppointmentBlock({
   appointment,
   onClick,
+  isHighlighted,
 }: AppointmentBlockProps) {
   const { t } = useProfessionalI18n();
 
@@ -49,6 +52,7 @@ export function AppointmentBlock({
   const [hours, minutes] = appointment.appointment_time.split(":").map(Number);
   const topOffset = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
   const height = (appointment.duration_minutes / 60) * HOUR_HEIGHT;
+  const isShort = height < 42;
 
   // Compute end time
   const totalEndMinutes = hours * 60 + minutes + appointment.duration_minutes;
@@ -76,14 +80,15 @@ export function AppointmentBlock({
   return (
     <button
       type="button"
-      className={`absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 ${
-        isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors
-      } ${
+      className={cn(
+        "absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95",
+        isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn
           ? "border-l-[3px] border-dashed"
-          : "border-l-[3px]"
-      }`}
-      style={{ top: `${topOffset}px`, height: `${Math.max(height, 30)}px` }}
+          : "border-l-[3px]",
+        isHighlighted && "ring-2 ring-primary ring-offset-2 shadow-md z-[15]",
+      )}
+      style={{ top: `${topOffset}px`, height: `${Math.max(height, 42)}px` }}
       onClick={() => onClick(appointment)}
       onMouseDown={(e) => e.stopPropagation()}
     >
@@ -93,14 +98,16 @@ export function AppointmentBlock({
       )}
       {/* Top row: name + status pill */}
       <div className="flex items-start justify-between gap-1">
-        <p className="truncate text-[13px] font-bold leading-tight">{displayName}</p>
-        <span className={`shrink-0 rounded-full border px-1.5 text-[10px] leading-4 ${pillColors}`}>
-          {statusLabel[appointment.status] ?? appointment.status}
-        </span>
+        <p className={cn("truncate font-bold leading-tight", isShort ? "text-[11px]" : "text-[13px]")}>{displayName}</p>
+        {!isShort && (
+          <span className={`shrink-0 rounded-full border px-1.5 text-[10px] leading-4 ${pillColors}`}>
+            {statusLabel[appointment.status] ?? appointment.status}
+          </span>
+        )}
       </div>
 
       {/* Time range */}
-      <p className="text-[11px] text-muted-foreground">
+      <p className={cn("text-muted-foreground", isShort ? "text-[10px]" : "text-[11px]")}>
         {startTime} → {endTime}
       </p>
 

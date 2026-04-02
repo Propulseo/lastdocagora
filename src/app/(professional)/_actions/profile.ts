@@ -19,13 +19,12 @@ const personalSchema = z.object({
 
 const professionalSchema = z.object({
   section: z.literal("professional"),
-  specialty: z.string().min(1).max(100),
-  registration_number: z.string().min(1).max(50),
-  practice_type: z.string().max(50).optional().or(z.literal("")),
   cabinet_name: z.string().max(100).optional().or(z.literal("")),
-  years_experience: z.coerce.number().int().min(0).max(80).optional(),
   subspecialties: z.string().max(500).optional().or(z.literal("")),
   bio: z.string().max(1000).optional().or(z.literal("")),
+  bio_pt: z.string().max(1000).optional().or(z.literal("")),
+  bio_fr: z.string().max(1000).optional().or(z.literal("")),
+  bio_en: z.string().max(1000).optional().or(z.literal("")),
 });
 
 const locationSchema = z.object({
@@ -99,15 +98,14 @@ export async function updateProfile(
     const { error } = await supabase
       .from("professionals")
       .update({
-        specialty: data.specialty,
-        registration_number: data.registration_number,
-        practice_type: data.practice_type || null,
         cabinet_name: data.cabinet_name || null,
-        years_experience: data.years_experience ?? null,
         subspecialties: data.subspecialties
           ? data.subspecialties.split(",").map((s) => s.trim()).filter(Boolean)
           : null,
         bio: data.bio || null,
+        bio_pt: data.bio_pt || null,
+        bio_fr: data.bio_fr || null,
+        bio_en: data.bio_en || null,
       })
       .eq("id", pro.id);
 

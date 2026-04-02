@@ -1,0 +1,147 @@
+{
+  "title": "Statistics",
+  "description": "Dashboard of your professional activity indicators",
+  "export": "Export CSV",
+  "range": {
+    "7d": "7 days",
+    "30d": "30 days",
+    "90d": "90 days",
+    "1y": "1 year",
+    "custom": "Custom"
+  },
+  "filters": {
+    "service": "Service",
+    "allServices": "All services",
+    "channel": "Channel",
+    "allChannels": "All",
+    "channelPatient": "Patient",
+    "channelManual": "Manual",
+    "channelWalkIn": "Walk-in",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "statusCompleted": "Completed",
+    "statusUpcoming": "Scheduled",
+    "statusCancelled": "Cancelled",
+    "statusNoShow": "No-show"
+  },
+  "kpi": {
+    "totalAppointments": "Total Appointments",
+    "attendanceRate": "Attendance Rate",
+    "noShowRate": "No-Show Rate",
+    "cancellationRate": "Cancellation Rate",
+    "lateness": "Lateness",
+    "avgMinutes": "{{value}} min on average",
+    "pctLate": "{{value}}% late",
+    "newPatients": "New Patients",
+    "newVsReturning": "{{new}} new · {{returning}} returning",
+    "sampleWarning": "Based on {{count}} appointments — limited data",
+    "noAttendanceData": "No attendance data",
+    "markAttendanceCta": "Mark attendance in the schedule to populate this statistic.",
+    "goToAgenda": "Go to schedule",
+    "avgGap": "Time between appointments",
+    "avgGapSub": "Average gap between appointments",
+    "billableHours": "Billable hours",
+    "billableHoursSub": "Completed appointments",
+    "occupancyRate": "Occupancy rate",
+    "walkInCount": "Walk-ins",
+    "walkInCountSub": "In selected period"
+  },
+  "trends": {
+    "title": "Trends",
+    "description": "Daily evolution of appointments, no-shows, and cancellations",
+    "appointments": "Appointments",
+    "noShow": "No-show",
+    "cancelled": "Cancelled"
+  },
+  "heatmap": {
+    "title": "Schedule load",
+    "description": "Distribution of appointments by day and time",
+    "appointments": "appointments"
+  },
+  "services": {
+    "title": "Performance by service",
+    "description": "Volume and no-shows by service",
+    "total": "Total",
+    "noShow": "No-show"
+  },
+  "channel": {
+    "title": "Booking channel",
+    "description": "Who creates the appointments",
+    "patientBooking": "Patient",
+    "manual": "Manual (pro)",
+    "walkIn": "Walk-in"
+  },
+  "punctuality": {
+    "title": "Punctuality",
+    "description": "Distribution of present / late / absent",
+    "onTime": "On time",
+    "late": "Late",
+    "absent": "Absent"
+  },
+  "retention": {
+    "title": "Patient retention",
+    "description": "Percentage of patients who returned",
+    "days30": "30 days",
+    "days60": "60 days",
+    "days90": "90 days",
+    "returned": "returned",
+    "noData": "Insufficient data to calculate retention."
+  },
+  "insights": {
+    "title": "Insights and recommendations",
+    "description": "Automatic suggestions based on your data",
+    "noShowSlot": "{{slot}}: {{rate}}% no-show",
+    "noShowSlotAction": "Enable double reminder for this slot",
+    "riskyPatient": "{{name}}: {{count}} absences/cancellations",
+    "riskyPatientAction": "Consider follow-up or advance payment",
+    "quietWeek": "Week {{week}}: only {{count}} appointments",
+    "quietWeekAction": "Open additional slots or promote your schedule",
+    "bestService": "\"{{name}}\": {{rate}}% attendance rate",
+    "bestServiceAction": "Service to promote — excellent adherence",
+    "worstService": "\"{{name}}\": {{rate}}% no-show",
+    "worstServiceAction": "Enable specific reminder for this service",
+    "noInsights": "No insights available for the current period."
+  },
+  "emptyState": {
+    "title": "No data",
+    "description": "No appointments found for the selected period.",
+    "tryLongerPeriod": "Try selecting a longer period.",
+    "noDataForYear": "No data for {year}"
+  },
+  "chart": {
+    "appointments": "Appointments",
+    "date": "Date",
+    "count": "Count"
+  },
+  "analyze": {
+    "label": "Analyze",
+    "tabAppointments": "Appointments",
+    "tabPerformance": "Performance",
+    "revenueTitle": "Revenue evolution",
+    "revenueDesc": "Daily revenue over the selected period",
+    "totalRevenue": "Total revenue",
+    "avgRevenue": "Avg. revenue / appt.",
+    "recurringPatients": "Recurring patients"
+  },
+  "compare": {
+    "label": "Compare",
+    "periodA": "Period A",
+    "periodB": "Period B",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "last3Months": "Last 3 months",
+    "thisYear": "This year",
+    "evolution": "Comparative evolution",
+    "insightsTitle": "AI Insights",
+    "insightsDesc": "Smart analysis of your data",
+    "refreshInsights": "Refresh",
+    "insightsLoading": "Analyzing…",
+    "insightsError": "Unable to generate insights.",
+    "current": "current",
+    "reference": "ref.",
+    "dayLabel": "Day",
+    "custom": "Custom period",
+    "startDate": "Start date",
+    "endDate": "End date"
+  }
+}

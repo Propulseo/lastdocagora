@@ -43,7 +43,7 @@ export default async function SearchPage({
       `id, specialty, subspecialties, city, neighborhood, address, postal_code,
        cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
        third_party_payment, years_experience, practice_type, rating, total_reviews,
-       bio, accessibility_options, latitude, longitude,
+       bio, bio_pt, bio_fr, bio_en, accessibility_options, latitude, longitude,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
     .order("rating", { ascending: false, nullsFirst: false })
@@ -100,6 +100,9 @@ export default async function SearchPage({
         rating: prof.rating as number | null,
         total_reviews: prof.total_reviews as number | null,
         bio: prof.bio as string | null,
+        bio_pt: (prof as Record<string, unknown>).bio_pt as string | null,
+        bio_fr: (prof as Record<string, unknown>).bio_fr as string | null,
+        bio_en: (prof as Record<string, unknown>).bio_en as string | null,
         accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
         latitude: prof.latitude as number | null,
         longitude: prof.longitude as number | null,

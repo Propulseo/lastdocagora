@@ -19,7 +19,7 @@ export type PracticeType =
   | "physiotherapist"
   | "other";
 
-export type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
+export type TicketStatus = "open" | "in_progress" | "awaiting_confirmation" | "resolved" | "closed";
 
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 

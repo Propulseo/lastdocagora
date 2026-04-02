@@ -1,0 +1,22 @@
+{
+  "title": "Users",
+  "description": "Manage platform users",
+  "statusUpdated": "User status updated",
+  "multiRoleAccount": "Multi-role account",
+  "tableRole": "Role",
+  "tableRegisteredAt": "Registered on",
+  "activate": "Activate",
+  "suspend": "Suspend",
+  "confirmTitle": "Confirm {action}",
+  "confirmDescription": "Are you sure you want to {action} this user?",
+  "delete": "Delete",
+  "userDeleted": "User permanently deleted",
+  "deleteConfirmTitle": "Permanently delete user?",
+  "deleteConfirmDescription": "This action is irreversible. All data (appointments, documents, settings) will be permanently deleted.",
+  "cannotDeleteSelf": "You cannot delete your own account",
+  "emptyTitle": "No users found",
+  "searchPlaceholder": "Search users...",
+  "totalCount": "{count} users",
+  "roleFilter": "Filter by role",
+  "allRoles": "All roles"
+}

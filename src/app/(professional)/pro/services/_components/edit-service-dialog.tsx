@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { updateService } from "@/app/(professional)/_actions/services";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
@@ -37,6 +38,9 @@ interface EditServiceDialogProps {
   service: {
     id: string;
     name: string;
+    name_pt?: string | null;
+    name_fr?: string | null;
+    name_en?: string | null;
     description: string | null;
     duration_minutes: number;
     is_active: boolean;
@@ -56,11 +60,13 @@ export function EditServiceDialog({
   const [price, setPrice] = useState<number | null>(
     service.price > 0 ? service.price : null
   );
+  const [nameFr, setNameFr] = useState(service.name_fr ?? "");
+  const [nameEn, setNameEn] = useState(service.name_en ?? "");
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
-      name: service.name,
+      name: service.name_pt ?? service.name,
       description: service.description ?? "",
       duration_minutes: service.duration_minutes,
       is_active: service.is_active,
@@ -71,6 +77,9 @@ export function EditServiceDialog({
     setIsSubmitting(true);
     const result = await updateService(service.id, {
       ...values,
+      name_pt: values.name,
+      name_fr: nameFr || null,
+      name_en: nameEn || null,
       price: showPrice && price ? price : null,
     });
     setIsSubmitting(false);
@@ -91,12 +100,37 @@ export function EditServiceDialog({
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit_name">{sv.name}</Label>
-            <Input
-              id="edit_name"
-              placeholder={sv.namePlaceholder}
-              {...form.register("name")}
-            />
+            <Label>{sv.name}</Label>
+            <Tabs defaultValue="pt" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="pt" className="flex-1">{sv.nameTabPt}</TabsTrigger>
+                <TabsTrigger value="fr" className="flex-1">{sv.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                <TabsTrigger value="en" className="flex-1">{sv.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+              </TabsList>
+              <TabsContent value="pt">
+                <Input
+                  id="edit_name"
+                  placeholder={sv.namePlaceholder}
+                  {...form.register("name")}
+                />
+              </TabsContent>
+              <TabsContent value="fr">
+                <Input
+                  id="edit_name_fr"
+                  placeholder={sv.namePlaceholder}
+                  value={nameFr}
+                  onChange={(e) => setNameFr(e.target.value)}
+                />
+              </TabsContent>
+              <TabsContent value="en">
+                <Input
+                  id="edit_name_en"
+                  placeholder={sv.namePlaceholder}
+                  value={nameEn}
+                  onChange={(e) => setNameEn(e.target.value)}
+                />
+              </TabsContent>
+            </Tabs>
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">
                 {form.formState.errors.name.message}

@@ -38,9 +38,13 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     .from("appointments")
     .select(
       `id, patient_id, appointment_date, appointment_time, status, duration_minutes,
+       created_via, created_at, consultation_type, location, price, notes,
+       cancellation_reason, rejection_reason, cancelled_at, decided_at,
        professionals!appointments_professional_id_fkey(
          users!professionals_user_id_fkey(first_name, last_name, avatar_url)
-       )`,
+       ),
+       services!appointments_service_id_fkey(name, price),
+       appointment_attendance!appointment_attendance_appointment_id_fkey(status, marked_at)`,
       { count: "exact" }
     )
     .order("appointment_date", { ascending: false })
@@ -64,6 +68,9 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     } | null;
     const proUser = proData?.users ?? null;
 
+    const serviceData = apt.services as unknown as { name: string; price: number } | null;
+    const attendanceData = apt.appointment_attendance as unknown as { status: string; marked_at: string | null } | null;
+
     // RGPD: anonymize patient — show only last 5 chars of ID
     const patientId = (apt as Record<string, unknown>).patient_id as string | null;
     const anonymizedPatient = patientId
@@ -82,6 +89,19 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
       time: apt.appointment_time.slice(0, 5),
       status: apt.status,
       duration_minutes: (apt as Record<string, unknown>).duration_minutes as number | null,
+      created_via: (apt as Record<string, unknown>).created_via as string | null,
+      created_at: (apt as Record<string, unknown>).created_at as string | null,
+      consultation_type: (apt as Record<string, unknown>).consultation_type as string | null,
+      location: (apt as Record<string, unknown>).location as string | null,
+      price: (apt as Record<string, unknown>).price as number | null,
+      notes: (apt as Record<string, unknown>).notes as string | null,
+      cancellation_reason: (apt as Record<string, unknown>).cancellation_reason as string | null,
+      rejection_reason: (apt as Record<string, unknown>).rejection_reason as string | null,
+      cancelled_at: (apt as Record<string, unknown>).cancelled_at as string | null,
+      decided_at: (apt as Record<string, unknown>).decided_at as string | null,
+      service_name: serviceData?.name ?? null,
+      service_price: serviceData?.price ?? null,
+      attendance_status: attendanceData?.status ?? null,
     };
   });
 

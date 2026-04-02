@@ -1,0 +1,14 @@
+{
+  "dateLocale": "pt-PT",
+  "name": "Nome",
+  "status": "Estado",
+  "actions": "Ações",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "filterByStatus": "Filtrar por estado",
+  "allStatuses": "Todos os estados",
+  "noResultsHint": "Nenhum resultado encontrado. Tente ajustar os filtros.",
+  "errorUpdating": "Erro ao atualizar",
+  "clearFilters": "Limpar filtros"
+}

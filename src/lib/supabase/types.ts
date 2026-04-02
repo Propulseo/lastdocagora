@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      anonymous_chat_sessions: {
+        Row: {
+          conversation: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          ip_hash: string | null
+          last_message_at: string | null
+          message_count: number | null
+          session_id: string
+        }
+        Insert: {
+          conversation?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          last_message_at?: string | null
+          message_count?: number | null
+          session_id: string
+        }
+        Update: {
+          conversation?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          last_message_at?: string | null
+          message_count?: number | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       appointment_attendance: {
         Row: {
           appointment_id: string
@@ -963,6 +996,7 @@ export type Database = {
           id: string
           is_read: boolean | null
           message: string
+          params: Json | null
           related_id: string | null
           title: string
           type: string
@@ -973,6 +1007,7 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message: string
+          params?: Json | null
           related_id?: string | null
           title: string
           type: string
@@ -983,6 +1018,7 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message?: string
+          params?: Json | null
           related_id?: string | null
           title?: string
           type?: string
@@ -1366,6 +1402,7 @@ export type Database = {
           notify_cancellations: boolean
           notify_new_appointments: boolean
           notify_reminders: boolean
+          notify_sound: boolean
           patient_reminders: boolean
           theme_preference: string
           updated_at: string
@@ -1381,6 +1418,7 @@ export type Database = {
           notify_cancellations?: boolean
           notify_new_appointments?: boolean
           notify_reminders?: boolean
+          notify_sound?: boolean
           patient_reminders?: boolean
           theme_preference?: string
           updated_at?: string
@@ -1396,6 +1434,7 @@ export type Database = {
           notify_cancellations?: boolean
           notify_new_appointments?: boolean
           notify_reminders?: boolean
+          notify_sound?: boolean
           patient_reminders?: boolean
           theme_preference?: string
           updated_at?: string
@@ -1408,6 +1447,9 @@ export type Database = {
           accessibility_options: Json | null
           address: string | null
           bio: string | null
+          bio_en: string | null
+          bio_fr: string | null
+          bio_pt: string | null
           cabinet_name: string | null
           city: string | null
           consultation_fee: number | null
@@ -1440,6 +1482,9 @@ export type Database = {
           accessibility_options?: Json | null
           address?: string | null
           bio?: string | null
+          bio_en?: string | null
+          bio_fr?: string | null
+          bio_pt?: string | null
           cabinet_name?: string | null
           city?: string | null
           consultation_fee?: number | null
@@ -1472,6 +1517,9 @@ export type Database = {
           accessibility_options?: Json | null
           address?: string | null
           bio?: string | null
+          bio_en?: string | null
+          bio_fr?: string | null
+          bio_pt?: string | null
           cabinet_name?: string | null
           city?: string | null
           consultation_fee?: number | null
@@ -1674,6 +1722,9 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          name_en: string | null
+          name_fr: string | null
+          name_pt: string | null
           price: number
           professional_id: string
           professional_user_id: string | null
@@ -1687,6 +1738,9 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          name_en?: string | null
+          name_fr?: string | null
+          name_pt?: string | null
           price: number
           professional_id: string
           professional_user_id?: string | null
@@ -1700,6 +1754,9 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          name_en?: string | null
+          name_fr?: string | null
+          name_pt?: string | null
           price?: number
           professional_id?: string
           professional_user_id?: string | null
@@ -1731,6 +1788,8 @@ export type Database = {
       }
       support_tickets: {
         Row: {
+          awaiting_confirmation_at: string | null
+          closed_at: string | null
           created_at: string | null
           description: string
           id: string
@@ -1742,6 +1801,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          awaiting_confirmation_at?: string | null
+          closed_at?: string | null
           created_at?: string | null
           description: string
           id?: string
@@ -1753,6 +1814,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          awaiting_confirmation_at?: string | null
+          closed_at?: string | null
           created_at?: string | null
           description?: string
           id?: string

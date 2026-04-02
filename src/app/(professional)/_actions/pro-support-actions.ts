@@ -96,3 +96,99 @@ export async function sendMessage(
   revalidatePath("/pro/support");
   return { success: true };
 }
+
+export async function confirmTicketResolved(
+  ticketId: string
+): Promise<ActionResult> {
+  const client = await getProClient();
+  if (!client) return { success: false, error: "Not authorized" };
+
+  const { supabase, userId } = client;
+
+  // Verify ownership and status
+  const { data: ticket } = await supabase
+    .from("support_tickets")
+    .select("id, status, user_id")
+    .eq("id", ticketId)
+    .eq("user_id", userId)
+    .single();
+
+  if (!ticket) return { success: false, error: "Ticket not found" };
+  if (ticket.status !== "awaiting_confirmation")
+    return { success: false, error: "Ticket is not awaiting confirmation" };
+
+  const { error } = await supabase
+    .from("support_tickets")
+    .update({
+      status: "closed",
+      closed_at: new Date().toISOString(),
+    })
+    .eq("id", ticketId);
+
+  if (error) return { success: false, error: error.message };
+
+  // Insert confirmation message
+  await supabase.from("ticket_messages").insert({
+    ticket_id: ticketId,
+    sender_id: userId,
+    content: "Problema confirmado como resolvido pelo utilizador.",
+  });
+
+  revalidatePath("/pro/support");
+  return { success: true };
+}
+
+export async function reopenTicket(
+  ticketId: string,
+  reason: string
+): Promise<ActionResult> {
+  const client = await getProClient();
+  if (!client) return { success: false, error: "Not authorized" };
+
+  const { supabase, userId } = client;
+
+  // Verify ownership
+  const { data: ticket } = await supabase
+    .from("support_tickets")
+    .select("id, status, user_id, subject")
+    .eq("id", ticketId)
+    .eq("user_id", userId)
+    .single();
+
+  if (!ticket) return { success: false, error: "Ticket not found" };
+
+  const { error } = await supabase
+    .from("support_tickets")
+    .update({ status: "open" })
+    .eq("id", ticketId);
+
+  if (error) return { success: false, error: error.message };
+
+  // Insert reopen message with reason
+  await supabase.from("ticket_messages").insert({
+    ticket_id: ticketId,
+    sender_id: userId,
+    content: reason.trim(),
+  });
+
+  // Notify all admins
+  const { data: admins } = await supabase
+    .from("users")
+    .select("id")
+    .eq("role", "admin");
+
+  if (admins && admins.length > 0) {
+    await supabase.from("notifications").insert(
+      admins.map((admin) => ({
+        user_id: admin.id,
+        title: "Ticket reaberto",
+        message: `O ticket "${ticket.subject}" foi reaberto pelo utilizador.`,
+        type: "system",
+      }))
+    );
+  }
+
+  revalidatePath("/pro/support");
+  revalidatePath("/admin/support");
+  return { success: true };
+}

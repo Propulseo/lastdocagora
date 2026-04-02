@@ -125,6 +125,7 @@ export type PatientDetailEnhanced = {
     attendanceStatus: string | null;
   }[];
   upcomingAppointments: {
+    id: string;
     date: string;
     time: string;
     status: string;
@@ -167,7 +168,7 @@ export async function getPatientDetailEnhanced(
       supabase
         .from("appointments")
         .select(
-          "appointment_date, appointment_time, status, services(name)",
+          "id, appointment_date, appointment_time, status, services(name)",
         )
         .eq("patient_id", patientId)
         .eq("professional_id", professionalId)
@@ -239,6 +240,7 @@ export async function getPatientDetailEnhanced(
   });
 
   const upcomingAppointments = upcoming.map((r) => ({
+    id: r.id,
     date: r.appointment_date,
     time: r.appointment_time,
     status: r.status,

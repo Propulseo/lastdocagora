@@ -9,6 +9,8 @@ const COLOR_MAP: Record<string, { bg: string; text: string }> = {
   pending: { bg: "#fef9c3", text: "#854d0e" },
   scheduled: { bg: "#fef9c3", text: "#854d0e" },
   in_progress: { bg: "#fef9c3", text: "#854d0e" },
+  // blue — awaiting_confirmation
+  awaiting_confirmation: { bg: "#dbeafe", text: "#1d4ed8" },
   // red — suspended, cancelled, rejected, closed
   suspended: { bg: "#fee2e2", text: "#dc2626" },
   cancelled: { bg: "#fee2e2", text: "#dc2626" },
@@ -62,6 +64,7 @@ const DEFAULT_LABELS: Record<string, Record<string, string>> = {
   ticket: {
     open: "Aberto",
     in_progress: "Em progresso",
+    awaiting_confirmation: "Aguardando confirmação",
     resolved: "Resolvido",
     closed: "Fechado",
   },

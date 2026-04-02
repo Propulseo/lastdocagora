@@ -47,6 +47,7 @@ export interface DashboardProps {
   tomorrowCount: number;
   unconfirmedNext24h: number;
   noShowRate: number;
+  nextAvailableSlot: string | null;
 }
 
 export function useDashboardData(props: DashboardProps) {

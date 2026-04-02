@@ -5,6 +5,7 @@ import { ArrowRight, Sparkles, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { DashboardData } from "../_hooks/useDashboardData";
+import { toLocalDateStr } from "@/app/(professional)/pro/agenda/_lib/date-utils";
 
 interface TodayScheduleProps {
   data: DashboardData;
@@ -150,10 +151,12 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
               const status = apt.status ?? "pending";
               const statusLabel =
                 t.common.status[status as keyof typeof t.common.status] ?? status;
+              const todayDate = toLocalDateStr(new Date());
 
               return (
-                <div
+                <Link
                   key={apt.id}
+                  href={`/pro/agenda?date=${todayDate}&appointmentId=${apt.id}&view=day`}
                   className={cn(
                     "group flex min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50",
                     apt.isPast && "opacity-50"
@@ -198,7 +201,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                       {statusLabel}
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
 

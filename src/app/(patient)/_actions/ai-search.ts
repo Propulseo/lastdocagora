@@ -299,7 +299,7 @@ function normalizeCity(city: string): string {
 const SELECT_COLUMNS = `id, specialty, subspecialties, city, neighborhood, address, postal_code,
        cabinet_name, consultation_fee, languages_spoken, insurances_accepted,
        third_party_payment, years_experience, practice_type, rating, total_reviews,
-       bio, accessibility_options, latitude, longitude,
+       bio, bio_pt, bio_fr, bio_en, accessibility_options, latitude, longitude,
        users ( first_name, last_name, avatar_url )`
 
 function baseQuery(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -329,6 +329,9 @@ function mapResults(data: any[]): ProfessionalResult[] {
     rating: prof.rating,
     total_reviews: prof.total_reviews,
     bio: prof.bio,
+    bio_pt: prof.bio_pt,
+    bio_fr: prof.bio_fr,
+    bio_en: prof.bio_en,
     accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
     latitude: prof.latitude as number | null,
     longitude: prof.longitude as number | null,

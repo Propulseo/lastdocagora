@@ -1,0 +1,14 @@
+{
+  "title": "Definições",
+  "description": "Configurações da plataforma",
+  "emptyTitle": "Sem definições",
+  "emptyDescription": "Nenhuma definição do sistema encontrada.",
+  "updated": "Definição atualizada com sucesso",
+  "groupPlatform": "Plataforma",
+  "groupNotification": "Notificações",
+  "groupAppointment": "Consultas",
+  "groupGoogle": "Google",
+  "valueLabel": "Valor",
+  "updateConfirmTitle": "Atualizar definição?",
+  "updateConfirmDesc": "Tem a certeza que pretende alterar a definição \"{key}\"?"
+}

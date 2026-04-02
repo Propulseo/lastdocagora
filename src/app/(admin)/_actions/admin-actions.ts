@@ -59,13 +59,28 @@ export async function updateVerificationStatus(
   return { success: true };
 }
 
-export async function updateTicketStatus(ticketId: string, status: string) {
+export async function updateTicketStatus(
+  ticketId: string,
+  status: string,
+  adminMessage?: string
+) {
   const supabase = await getAdminClient();
   if (!supabase) return { success: false, error: "Nao autorizado" };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Nao autorizado" };
 
   const updateData: Record<string, string> = { status };
   if (status === "resolved") {
     updateData.resolved_at = new Date().toISOString();
+  }
+  if (status === "awaiting_confirmation") {
+    updateData.awaiting_confirmation_at = new Date().toISOString();
+  }
+  if (status === "closed") {
+    updateData.closed_at = new Date().toISOString();
   }
 
   const { error } = await supabase
@@ -75,6 +90,15 @@ export async function updateTicketStatus(ticketId: string, status: string) {
 
   if (error) return { success: false, error: error.message };
 
+  // If admin sends a resolution message when setting awaiting_confirmation
+  if (status === "awaiting_confirmation" && adminMessage?.trim()) {
+    await supabase.from("ticket_messages").insert({
+      ticket_id: ticketId,
+      sender_id: user.id,
+      content: adminMessage.trim(),
+    });
+  }
+
   // Notify the ticket owner about the status change
   const { data: ticket } = await supabase
     .from("support_tickets")
@@ -83,11 +107,17 @@ export async function updateTicketStatus(ticketId: string, status: string) {
     .single();
 
   if (ticket) {
+    const notificationMessage =
+      status === "awaiting_confirmation"
+        ? `O seu ticket "${ticket.subject}" foi tratado. Por favor confirme se o problema foi resolvido.`
+        : `O seu ticket "${ticket.subject}" foi atualizado para: ${status}`;
+
     await supabase.from("notifications").insert({
       user_id: ticket.user_id,
       title: "Ticket atualizado",
-      message: `O seu ticket "${ticket.subject}" foi atualizado para: ${status}`,
-      type: "system",
+      message: notificationMessage,
+      type: status === "awaiting_confirmation" ? "ticket_resolved" : "ticket_updated",
+      params: { subject: ticket.subject, status },
     });
   }
 
@@ -131,7 +161,8 @@ export async function replyToTicket(ticketId: string, content: string) {
       user_id: ticket.user_id,
       title: "Nova resposta ao ticket",
       message: `O seu ticket "${ticket.subject}" recebeu uma resposta do suporte.`,
-      type: "system",
+      type: "ticket_reply",
+      params: { subject: ticket.subject },
     });
   }
 

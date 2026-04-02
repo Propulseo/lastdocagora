@@ -1,0 +1,15 @@
+{
+  "dateLocale": "pt-PT",
+  "min": "min",
+  "cancel": "Cancelar",
+  "saving": "A guardar...",
+  "today": "Hoje",
+  "status": {
+    "confirmed": "Confirmada",
+    "pending": "Pendente",
+    "completed": "Concluída",
+    "cancelled": "Cancelada",
+    "noShow": "Não compareceu",
+    "rejected": "Recusada"
+  }
+}

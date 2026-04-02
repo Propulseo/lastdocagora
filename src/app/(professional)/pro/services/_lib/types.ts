@@ -5,6 +5,9 @@
 export interface ServiceDashboardRow {
   id: string;
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
   description: string | null;
   duration_minutes: number;
   consultation_type: string;

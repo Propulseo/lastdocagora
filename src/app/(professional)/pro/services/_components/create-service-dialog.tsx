@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createService } from "@/app/(professional)/_actions/services";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
@@ -37,6 +38,8 @@ export function CreateServiceDialog() {
   const [open, setOpen] = useState(false);
   const [showPrice, setShowPrice] = useState(false);
   const [price, setPrice] = useState<number | null>(null);
+  const [nameFr, setNameFr] = useState("");
+  const [nameEn, setNameEn] = useState("");
   const { t } = useProfessionalI18n();
   const sv = t.services;
 
@@ -53,11 +56,16 @@ export function CreateServiceDialog() {
   const onSubmit = async (values: ServiceFormValues) => {
     const result = await createService({
       ...values,
+      name_pt: values.name,
+      name_fr: nameFr || null,
+      name_en: nameEn || null,
       price: showPrice && price ? price : null,
     });
     if (result.success) {
       toast.success(sv.serviceCreated);
       form.reset();
+      setNameFr("");
+      setNameEn("");
       setShowPrice(false);
       setPrice(null);
       setOpen(false);
@@ -81,12 +89,37 @@ export function CreateServiceDialog() {
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{sv.name}</Label>
-            <Input
-              id="name"
-              placeholder={sv.namePlaceholder}
-              {...form.register("name")}
-            />
+            <Label>{sv.name}</Label>
+            <Tabs defaultValue="pt" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="pt" className="flex-1">{sv.nameTabPt}</TabsTrigger>
+                <TabsTrigger value="fr" className="flex-1">{sv.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                <TabsTrigger value="en" className="flex-1">{sv.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+              </TabsList>
+              <TabsContent value="pt">
+                <Input
+                  id="name"
+                  placeholder={sv.namePlaceholder}
+                  {...form.register("name")}
+                />
+              </TabsContent>
+              <TabsContent value="fr">
+                <Input
+                  id="name_fr"
+                  placeholder={sv.namePlaceholder}
+                  value={nameFr}
+                  onChange={(e) => setNameFr(e.target.value)}
+                />
+              </TabsContent>
+              <TabsContent value="en">
+                <Input
+                  id="name_en"
+                  placeholder={sv.namePlaceholder}
+                  value={nameEn}
+                  onChange={(e) => setNameEn(e.target.value)}
+                />
+              </TabsContent>
+            </Tabs>
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">
                 {form.formState.errors.name.message}

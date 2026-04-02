@@ -4,6 +4,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pencil, Loader2 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
@@ -20,6 +21,9 @@ interface Step1Props {
     last_name: string | null;
     avatar_url: string | null;
     bio: string | null;
+    bio_pt: string | null;
+    bio_fr: string | null;
+    bio_en: string | null;
     registration_number: string | null;
     languages_spoken: string[] | null;
   };
@@ -27,6 +31,9 @@ interface Step1Props {
     first_name: string;
     last_name: string;
     bio: string;
+    bio_pt: string;
+    bio_fr: string;
+    bio_en: string;
     registration_number: string;
     languages_spoken: string;
   }) => void;
@@ -41,6 +48,9 @@ export const Step1Profile = forwardRef<StepHandle, Step1Props>(
     const [firstName, setFirstName] = useState(initialData.first_name ?? "");
     const [lastName, setLastName] = useState(initialData.last_name ?? "");
     const [bio, setBio] = useState(initialData.bio ?? "");
+    const [bioPt, setBioPt] = useState(initialData.bio_pt ?? initialData.bio ?? "");
+    const [bioFr, setBioFr] = useState(initialData.bio_fr ?? "");
+    const [bioEn, setBioEn] = useState(initialData.bio_en ?? "");
     const [regNumber, setRegNumber] = useState(initialData.registration_number ?? "");
     const [languages, setLanguages] = useState(
       initialData.languages_spoken?.join(", ") ?? "",
@@ -79,7 +89,10 @@ export const Step1Profile = forwardRef<StepHandle, Step1Props>(
         onSubmit({
           first_name: firstName.trim(),
           last_name: lastName.trim(),
-          bio: bio.trim(),
+          bio: bioPt.trim() || bio.trim(),
+          bio_pt: bioPt.trim(),
+          bio_fr: bioFr.trim(),
+          bio_en: bioEn.trim(),
           registration_number: regNumber.trim(),
           languages_spoken: languages,
         });
@@ -171,15 +184,46 @@ export const Step1Profile = forwardRef<StepHandle, Step1Props>(
 
         <div className="space-y-2">
           <Label>{ob.step1.bio}</Label>
-          <Textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 500))}
-            placeholder={ob.step1.bioPlaceholder}
-            rows={4}
-          />
-          <p className="text-xs text-muted-foreground">
-            {ob.step1.bioHint.replace("{count}", String(bio.length))}
-          </p>
+          <Tabs defaultValue="pt" className="w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="pt" className="flex-1">{t.profile.bioTabPt}</TabsTrigger>
+              <TabsTrigger value="fr" className="flex-1">{t.profile.bioTabFr} <span className="ml-1 text-xs text-muted-foreground">{t.profile.bioOptional}</span></TabsTrigger>
+              <TabsTrigger value="en" className="flex-1">{t.profile.bioTabEn} <span className="ml-1 text-xs text-muted-foreground">{t.profile.bioOptional}</span></TabsTrigger>
+            </TabsList>
+            <TabsContent value="pt">
+              <Textarea
+                value={bioPt}
+                onChange={(e) => { setBioPt(e.target.value.slice(0, 500)); setBio(e.target.value.slice(0, 500)); }}
+                placeholder={ob.step1.bioPlaceholder}
+                rows={4}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ob.step1.bioHint.replace("{count}", String(bioPt.length))}
+              </p>
+            </TabsContent>
+            <TabsContent value="fr">
+              <Textarea
+                value={bioFr}
+                onChange={(e) => setBioFr(e.target.value.slice(0, 500))}
+                placeholder={ob.step1.bioPlaceholder}
+                rows={4}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ob.step1.bioHint.replace("{count}", String(bioFr.length))}
+              </p>
+            </TabsContent>
+            <TabsContent value="en">
+              <Textarea
+                value={bioEn}
+                onChange={(e) => setBioEn(e.target.value.slice(0, 500))}
+                placeholder={ob.step1.bioPlaceholder}
+                rows={4}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ob.step1.bioHint.replace("{count}", String(bioEn.length))}
+              </p>
+            </TabsContent>
+          </Tabs>
         </div>
 
         <div className="space-y-2">

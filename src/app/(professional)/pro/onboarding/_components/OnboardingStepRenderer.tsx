@@ -33,6 +33,9 @@ interface OnboardingStepRendererProps {
     postal_code: string | null;
     languages_spoken: string[] | null;
     bio: string | null;
+    bio_pt: string | null;
+    bio_fr: string | null;
+    bio_en: string | null;
     consultation_fee: number | null;
     third_party_payment: boolean | null;
     insurances_accepted: string[] | null;
@@ -82,6 +85,9 @@ export function OnboardingStepRenderer({
             last_name: userProfile.last_name,
             avatar_url: userProfile.avatar_url,
             bio: professional.bio,
+            bio_pt: professional.bio_pt,
+            bio_fr: professional.bio_fr,
+            bio_en: professional.bio_en,
             registration_number: professional.registration_number,
             languages_spoken: professional.languages_spoken,
           }}

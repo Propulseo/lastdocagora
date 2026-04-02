@@ -1,0 +1,14 @@
+{
+  "title": "Settings",
+  "description": "Platform configuration",
+  "emptyTitle": "No settings",
+  "emptyDescription": "No system settings found.",
+  "updated": "Setting updated successfully",
+  "groupPlatform": "Platform",
+  "groupNotification": "Notifications",
+  "groupAppointment": "Appointments",
+  "groupGoogle": "Google",
+  "valueLabel": "Value",
+  "updateConfirmTitle": "Update setting?",
+  "updateConfirmDesc": "Are you sure you want to change the \"{key}\" setting?"
+}

@@ -1,0 +1,14 @@
+{
+  "dateLocale": "en-GB",
+  "name": "Name",
+  "status": "Status",
+  "actions": "Actions",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "filterByStatus": "Filter by status",
+  "allStatuses": "All statuses",
+  "noResultsHint": "No results found. Try adjusting your filters.",
+  "errorUpdating": "Error updating",
+  "clearFilters": "Clear filters"
+}

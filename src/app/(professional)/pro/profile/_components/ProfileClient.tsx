@@ -4,13 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { UserCircle, MapPin, Globe, Stethoscope, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { translateSpecialty, getSpecialtyOptions } from "@/locales/patient/specialties";
+import { translateSpecialty } from "@/locales/patient/specialties";
 import { ProfileAvatarHeader } from "./ProfileAvatarHeader";
 import { ProfileRatingsSection } from "./ProfileRatingsSection";
 import { useProfileEditing } from "./useProfileEditing";
-import { DisplayField, EditField, EditTextarea, SectionCardHeader, SectionCardFooter } from "./ProfileFieldHelpers";
+import { DisplayField, EditField, SectionCardHeader, SectionCardFooter } from "./ProfileFieldHelpers";
+import { LockedField } from "./LockedField";
+import { ApprovalField } from "./ApprovalField";
 import type { ProfileClientProps } from "./profile-types";
 
 export function ProfileClient({ userId, userProfile, professional, recentRatings, insuranceProviders, professionalInsuranceIds }: ProfileClientProps) {
@@ -67,7 +71,25 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
               <EditField label={t.profile.cabinetName} value={editing.formValues.cabinet_name ?? ""} onChange={(v) => editing.updateField("cabinet_name", v)} />
               <EditField label={t.profile.yearsExperience} value={editing.formValues.years_experience ?? ""} onChange={(v) => editing.updateField("years_experience", v)} />
               <EditField label={t.profile.subspecialties} value={editing.formValues.subspecialties ?? ""} onChange={(v) => editing.updateField("subspecialties", v)} placeholder={t.profile.subspecialtiesHint} />
-              <EditTextarea label={t.profile.bio} value={editing.formValues.bio ?? ""} onChange={(v) => editing.updateField("bio", v)} placeholder={t.profile.bioPlaceholder} />
+              <div className="space-y-2">
+                <Label>{t.profile.bio}</Label>
+                <Tabs defaultValue="pt" className="w-full">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="pt" className="flex-1">{t.profile.bioTabPt}</TabsTrigger>
+                    <TabsTrigger value="fr" className="flex-1">{t.profile.bioTabFr} <span className="ml-1 text-xs text-muted-foreground">{t.profile.bioOptional}</span></TabsTrigger>
+                    <TabsTrigger value="en" className="flex-1">{t.profile.bioTabEn} <span className="ml-1 text-xs text-muted-foreground">{t.profile.bioOptional}</span></TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="pt">
+                    <Textarea value={editing.formValues.bio_pt ?? ""} onChange={(e) => { editing.updateField("bio_pt", e.target.value); editing.updateField("bio", e.target.value); }} placeholder={t.profile.bioPlaceholder} rows={4} />
+                  </TabsContent>
+                  <TabsContent value="fr">
+                    <Textarea value={editing.formValues.bio_fr ?? ""} onChange={(e) => editing.updateField("bio_fr", e.target.value)} placeholder={t.profile.bioPlaceholder} rows={4} />
+                  </TabsContent>
+                  <TabsContent value="en">
+                    <Textarea value={editing.formValues.bio_en ?? ""} onChange={(e) => editing.updateField("bio_en", e.target.value)} placeholder={t.profile.bioPlaceholder} rows={4} />
+                  </TabsContent>
+                </Tabs>
+              </div>
               <SectionCardFooter {...footerProps} />
             </div>
           ) : (

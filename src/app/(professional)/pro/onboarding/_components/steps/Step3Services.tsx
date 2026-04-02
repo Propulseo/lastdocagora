@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trash2 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { StepHandle } from "./Step1Profile";
@@ -19,6 +20,8 @@ import type { StepHandle } from "./Step1Profile";
 interface ServiceDraft {
   id: string;
   name: string;
+  name_fr: string;
+  name_en: string;
   description: string;
   duration_minutes: number;
   price: number;
@@ -39,6 +42,8 @@ interface Step3Props {
   onSubmit: (data: {
     services: {
       name: string;
+      name_fr?: string;
+      name_en?: string;
       description: string;
       duration_minutes: number;
       price: number;
@@ -56,12 +61,16 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
     const { t } = useProfessionalI18n();
     const ob = t.onboarding;
 
+    const sv = t.services;
+
     const [drafts, setDrafts] = useState<ServiceDraft[]>(() => {
       if (existingServices.length > 0) return [];
       return [
         {
           id: genId(),
           name: "",
+          name_fr: "",
+          name_en: "",
           description: "",
           duration_minutes: 30,
           price: 0,
@@ -73,7 +82,7 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
     function addDraft() {
       setDrafts((prev) => [
         ...prev,
-        { id: genId(), name: "", description: "", duration_minutes: 30, price: 0 },
+        { id: genId(), name: "", name_fr: "", name_en: "", description: "", duration_minutes: 30, price: 0 },
       ]);
     }
 
@@ -81,7 +90,7 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
       setDrafts((prev) => prev.filter((d) => d.id !== id));
     }
 
-    function updateDraft(id: string, field: keyof ServiceDraft, value: string | number) {
+    function updateDraft(id: string, field: keyof Omit<ServiceDraft, "id">, value: string | number) {
       setDrafts((prev) =>
         prev.map((d) => (d.id === id ? { ...d, [field]: value } : d)),
       );
@@ -103,6 +112,8 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
           onSubmit({
             services: validDrafts.map((d) => ({
               name: d.name.trim(),
+              name_fr: d.name_fr.trim() || undefined,
+              name_en: d.name_en.trim() || undefined,
               description: d.description.trim(),
               duration_minutes: d.duration_minutes,
               price: d.price,
@@ -150,15 +161,38 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
           {drafts.map((draft) => (
             <Card key={draft.id}>
               <CardContent className="space-y-3 pt-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">{ob.step3.serviceName} *</Label>
+                  <Tabs defaultValue="pt" className="w-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="pt" className="flex-1">{sv.nameTabPt}</TabsTrigger>
+                      <TabsTrigger value="fr" className="flex-1">{sv.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                      <TabsTrigger value="en" className="flex-1">{sv.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="pt">
+                      <Input
+                        value={draft.name}
+                        onChange={(e) => updateDraft(draft.id, "name", e.target.value)}
+                        placeholder={ob.step3.serviceNamePlaceholder}
+                      />
+                    </TabsContent>
+                    <TabsContent value="fr">
+                      <Input
+                        value={draft.name_fr}
+                        onChange={(e) => updateDraft(draft.id, "name_fr", e.target.value)}
+                        placeholder={ob.step3.serviceNamePlaceholder}
+                      />
+                    </TabsContent>
+                    <TabsContent value="en">
+                      <Input
+                        value={draft.name_en}
+                        onChange={(e) => updateDraft(draft.id, "name_en", e.target.value)}
+                        placeholder={ob.step3.serviceNamePlaceholder}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">{ob.step3.serviceName} *</Label>
-                    <Input
-                      value={draft.name}
-                      onChange={(e) => updateDraft(draft.id, "name", e.target.value)}
-                      placeholder={ob.step3.serviceNamePlaceholder}
-                    />
-                  </div>
                   <div className="space-y-1">
                     <Label className="text-xs">{ob.step3.serviceDescription}</Label>
                     <Input

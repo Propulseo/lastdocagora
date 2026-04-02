@@ -220,6 +220,7 @@ export async function cancelAppointment(
         message: `${proName} cancelou a sua consulta.${reason ? ` Motivo: ${reason}` : ""}`,
         type: "cancellation",
         related_id: appointmentId,
+        params: { proName, reason: reason || undefined },
       });
     }
   }
@@ -303,6 +304,7 @@ export async function rejectAppointment(
         message: `${proName} recusou o seu pedido de consulta.${reason ? ` Motivo: ${reason}` : ""}`,
         type: "appointment_rejected",
         related_id: appointmentId,
+        params: { proName, reason: reason || undefined },
       });
     }
   }
@@ -387,6 +389,7 @@ export async function proposeAlternativeTime(
       message: msg,
       type: "alternative_proposed",
       related_id: appointmentId,
+      params: { proName, dateTime: `${proposedDate} às ${proposedTime}` },
     });
   }
 
@@ -479,6 +482,7 @@ export async function updateAppointmentStatus(
           : `${proName} cancelou a sua consulta.`,
         type: isConfirmed ? "appointment_confirmed" : "cancellation",
         related_id: appointmentId,
+        params: { proName },
       });
     }
   }

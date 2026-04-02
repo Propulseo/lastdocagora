@@ -1,0 +1,22 @@
+{
+  "title": "Content",
+  "description": "Manage pages and FAQs",
+  "published": "Published",
+  "unpublished": "Draft",
+  "unpublishLabel": "Unpublish",
+  "publishLabel": "Publish",
+  "tabPages": "Pages",
+  "tabFaqs": "FAQs",
+  "pagesSlug": "Slug",
+  "pagesTitlePt": "Title (PT)",
+  "pagesPublished": "Published",
+  "pagesUpdatedAt": "Updated on",
+  "pagesEmptyTitle": "No pages found",
+  "pagesEmptyDescription": "No content pages have been created yet.",
+  "faqsQuestionPt": "Question (PT)",
+  "faqsCategory": "Category",
+  "faqsOrder": "Order",
+  "faqsPublished": "Published",
+  "faqsEmptyTitle": "No FAQs found",
+  "faqsEmptyDescription": "No frequently asked questions have been created yet."
+}

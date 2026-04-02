@@ -1,0 +1,19 @@
+{
+  "title": "Consultas do Dia",
+  "noAppointments": "Sem consultas para hoje",
+  "currentAppointment": "Atual",
+  "viewDetails": "Ver detalhes",
+  "filters": {
+    "all": "Todos",
+    "pending": "Pendente",
+    "confirmed": "Confirmado",
+    "present": "Presente",
+    "absent": "Ausente"
+  },
+  "stats": {
+    "total": "consultas",
+    "confirmed": "confirmadas",
+    "present": "presentes",
+    "pending": "pendentes"
+  }
+}

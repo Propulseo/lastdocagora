@@ -1,0 +1,18 @@
+{
+  "groups": {
+    "general": "Geral",
+    "management": "Gestão",
+    "platform": "Plataforma"
+  },
+  "items": {
+    "dashboard": "Painel",
+    "users": "Utilizadores",
+    "professionals": "Profissionais",
+    "appointments": "Consultas",
+    "statistics": "Estatísticas",
+    "content": "Conteúdo",
+    "support": "Suporte",
+    "settings": "Definições"
+  },
+  "logout": "Terminar sessão"
+}

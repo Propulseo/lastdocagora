@@ -1,0 +1,23 @@
+{
+  "title": "Professionals",
+  "description": "Manage healthcare professionals",
+  "statusUpdated": "Professional status updated",
+  "tableSpecialty": "Specialty",
+  "tableCity": "City",
+  "tableRating": "Rating",
+  "verify": "Verify",
+  "reject": "Reject",
+  "confirmTitle": "Confirm {action}",
+  "confirmDescription": "Are you sure you want to {action} this professional?",
+  "delete": "Delete",
+  "professionalDeleted": "Professional permanently deleted",
+  "deleteConfirmTitle": "Permanently delete professional?",
+  "deleteConfirmDescription": "This action is irreversible. All data (services, schedule, reviews, settings) will be permanently deleted.",
+  "emptyTitle": "No professionals found",
+  "searchPlaceholder": "Search professionals...",
+  "totalCount": "{count} professionals",
+  "specialtyFilter": "Filter by specialty",
+  "allSpecialties": "All specialties",
+  "cityFilter": "Filter by city",
+  "allCities": "All cities"
+}

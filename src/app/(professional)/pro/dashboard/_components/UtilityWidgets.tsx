@@ -5,6 +5,7 @@ import { Bell, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { DashboardData } from "../_hooks/useDashboardData";
+import { NextSlotsWidget } from "./NextSlotsWidget";
 
 interface UtilityWidgetsProps {
   data: DashboardData;
@@ -97,6 +98,9 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Next available slot widget */}
+      <NextSlotsWidget data={data} />
+
       {/* Reminders widget */}
       <div className="rounded-xl border border-border/40 bg-card/50 p-4">
         <div className="flex items-center gap-2">

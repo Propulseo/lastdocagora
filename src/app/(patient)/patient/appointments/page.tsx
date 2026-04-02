@@ -9,10 +9,10 @@ type Appointment = {
   notes: string | null; cancellation_reason: string | null; rejection_reason: string | null
   professional_id: string; professional_user_id: string
   professionals: { specialty: string | null; users: { first_name: string | null; last_name: string | null } | null } | null
-  services: { name: string | null } | null
+  services: { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null
 }
 
-const selectFields = `id, appointment_date, appointment_time, status, consultation_type, duration_minutes, notes, cancellation_reason, rejection_reason, professional_id, professional_user_id, professionals!appointments_professional_id_fkey ( specialty, users!professionals_user_id_fkey ( first_name, last_name ) ), services ( name )`
+const selectFields = `id, appointment_date, appointment_time, status, consultation_type, duration_minutes, notes, cancellation_reason, rejection_reason, professional_id, professional_user_id, professionals!appointments_professional_id_fkey ( specialty, users!professionals_user_id_fkey ( first_name, last_name ) ), services ( name, name_pt, name_fr, name_en )`
 
 export default async function AppointmentsPage() {
   const user = await getCurrentUser()

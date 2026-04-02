@@ -5,6 +5,9 @@ import { createClient } from "@/lib/supabase/server"
 export type BookingService = {
   id: string
   name: string
+  name_pt?: string | null
+  name_fr?: string | null
+  name_en?: string | null
   description: string | null
   duration_minutes: number
   price: number
@@ -50,7 +53,7 @@ export async function getBookingData(
   const [servicesRes, availRes, patientRes, proRes] = await Promise.all([
     supabase
       .from("services")
-      .select("id, name, description, duration_minutes, price, consultation_type")
+      .select("id, name, name_pt, name_fr, name_en, description, duration_minutes, price, consultation_type")
       .eq("professional_id", professionalId)
       .eq("is_active", true),
     supabase
@@ -151,22 +154,54 @@ export async function createAppointment(input: {
     .single()
   if (!service) return { success: false, error: "invalid_service" }
 
-  // Insert appointment
-  const { error } = await supabase.from("appointments").insert({
-    patient_id: patient.id,
-    patient_user_id: user.id,
-    professional_id: input.professionalId,
-    professional_user_id: pro.user_id,
-    service_id: service.id,
-    appointment_date: input.appointmentDate,
-    appointment_time: input.appointmentTime,
-    duration_minutes: service.duration_minutes,
-    price: service.price,
-    consultation_type: service.consultation_type,
-    status: "pending",
-    notes: input.notes || null,
-  })
+  // Insert appointment (select id for notification)
+  const { data: appointment, error } = await supabase
+    .from("appointments")
+    .insert({
+      patient_id: patient.id,
+      patient_user_id: user.id,
+      professional_id: input.professionalId,
+      professional_user_id: pro.user_id,
+      service_id: service.id,
+      appointment_date: input.appointmentDate,
+      appointment_time: input.appointmentTime,
+      duration_minutes: service.duration_minutes,
+      price: service.price,
+      consultation_type: service.consultation_type,
+      status: "pending",
+      notes: input.notes || null,
+    })
+    .select("id")
+    .single()
 
   if (error) return { success: false, error: "insert_failed" }
+
+  // Insert notification for professional (persisted history)
+  const [{ data: patientUser }, { data: serviceData }] = await Promise.all([
+    supabase
+      .from("users")
+      .select("first_name, last_name")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("services")
+      .select("name")
+      .eq("id", input.serviceId)
+      .single(),
+  ])
+
+  const patientName = patientUser
+    ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim()
+    : "Novo paciente"
+  const serviceName = serviceData?.name ?? "Consulta"
+
+  await supabase.from("notifications").insert({
+    user_id: pro.user_id,
+    title: `Novo agendamento: ${patientName}`,
+    message: `${serviceName} - ${input.appointmentDate} às ${input.appointmentTime}`,
+    type: "new_booking",
+    related_id: appointment.id,
+  })
+
   return { success: true }
 }

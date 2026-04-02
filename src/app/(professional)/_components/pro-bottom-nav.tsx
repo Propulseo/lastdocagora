@@ -66,6 +66,34 @@ export function ProBottomNav() {
           {primaryTabs.map((tab) => {
             const active = isActive(tab.href);
             const Icon = tab.icon;
+            const isAgenda = tab.key === "agenda";
+
+            if (isAgenda && pendingCount > 0) {
+              return (
+                <div
+                  key={tab.href}
+                  className={cn(
+                    "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
+                    active ? "text-primary font-medium" : "text-muted-foreground"
+                  )}
+                >
+                  <Link href={tab.href} className="flex flex-col items-center">
+                    <Icon className="size-5" />
+                    <span className="text-[10px]">{t.mobileNav[tab.key]}</span>
+                  </Link>
+                  <Link
+                    href="/pro/agenda?status=pending&view=day"
+                    className={cn(
+                      "absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full text-[9px] font-bold text-white",
+                      pendingCount >= 4 ? "bg-red-500 active:bg-red-600" : "bg-amber-500 active:bg-amber-600"
+                    )}
+                  >
+                    {pendingCount > 9 ? "9+" : pendingCount}
+                  </Link>
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={tab.href}
@@ -76,11 +104,6 @@ export function ProBottomNav() {
                 )}
               >
                 <Icon className="size-5" />
-                {tab.key === "agenda" && pendingCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
-                    {pendingCount > 9 ? "9+" : pendingCount}
-                  </span>
-                )}
                 <span className="text-[10px]">{t.mobileNav[tab.key]}</span>
               </Link>
             );

@@ -6,6 +6,7 @@ import type { BookingService } from "@/app/(patient)/_actions/booking"
 interface BookingServiceStepProps {
   services: BookingService[]
   onSelect: (service: BookingService) => void
+  locale?: string
   t: {
     step1: string
     noServices: string
@@ -16,9 +17,19 @@ interface BookingServiceStepProps {
   }
 }
 
+function resolveServiceName(svc: BookingService, locale?: string): string {
+  if (locale) {
+    const key = `name_${locale}` as keyof BookingService
+    const val = svc[key]
+    if (typeof val === "string" && val) return val
+  }
+  return svc.name_pt ?? svc.name
+}
+
 export function BookingServiceStep({
   services,
   onSelect,
+  locale,
   t,
 }: BookingServiceStepProps) {
   return (
@@ -37,7 +48,7 @@ export function BookingServiceStep({
             className="w-full rounded-xl border p-4 text-left transition-all hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm"
           >
             <div className="flex items-start justify-between gap-2">
-              <p className="font-medium">{svc.name}</p>
+              <p className="font-medium">{resolveServiceName(svc, locale)}</p>
               <p className="shrink-0 text-sm font-semibold">
                 {svc.price > 0 ? `${svc.price} \u20ac` : t.priceOnRequest}
               </p>

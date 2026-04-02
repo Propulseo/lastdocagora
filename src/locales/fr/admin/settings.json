@@ -1,0 +1,14 @@
+{
+  "title": "Paramètres",
+  "description": "Configuration de la plateforme",
+  "emptyTitle": "Aucun paramètre",
+  "emptyDescription": "Aucun paramètre système trouvé.",
+  "updated": "Paramètre mis à jour avec succès",
+  "groupPlatform": "Plateforme",
+  "groupNotification": "Notifications",
+  "groupAppointment": "Rendez-vous",
+  "groupGoogle": "Google",
+  "valueLabel": "Valeur",
+  "updateConfirmTitle": "Mettre à jour le paramètre ?",
+  "updateConfirmDesc": "Êtes-vous sûr de vouloir modifier le paramètre \"{key}\" ?"
+}

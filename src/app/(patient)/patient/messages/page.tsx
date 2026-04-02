@@ -11,7 +11,7 @@ export default async function MessagesPage() {
 
   const { data: notifications } = await supabase
     .from("notifications")
-    .select("id, title, message, type, is_read, created_at, related_id")
+    .select("id, title, message, type, is_read, created_at, related_id, params")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50)
@@ -20,7 +20,7 @@ export default async function MessagesPage() {
 
   return (
     <MessagesClient
-      notifications={notifications}
+      notifications={notifications as Parameters<typeof MessagesClient>[0]["notifications"]}
       unreadCount={unreadCount}
       userId={user.id}
     />

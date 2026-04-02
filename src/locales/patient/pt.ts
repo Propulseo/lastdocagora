@@ -117,6 +117,7 @@ export type PatientTranslations = {
     inPerson: string
     online: string
     fallbackReviewer: string
+    location: string
   }
   booking: {
     title: string
@@ -291,6 +292,21 @@ export type PatientTranslations = {
     titleCancellation: string
     titleReminder: string
     titleSupportReply: string
+    notifConfirmedTitle: string
+    notifConfirmedMessage: string
+    notifCancelledTitle: string
+    notifCancelledMessage: string
+    notifCancelledWithReason: string
+    notifRejectedTitle: string
+    notifRejectedMessage: string
+    notifRejectedWithReason: string
+    notifAlternativeTitle: string
+    notifAlternativeMessage: string
+    notifTicketUpdatedTitle: string
+    notifTicketUpdatedMessage: string
+    notifTicketResolvedMessage: string
+    notifTicketReplyTitle: string
+    notifTicketReplyMessage: string
   }
   auth: {
     rolePatient: string
@@ -466,6 +482,7 @@ export const ptPatient: PatientTranslations = {
     inPerson: "Presencial",
     online: "Teleconsulta",
     fallbackReviewer: "Paciente",
+    location: "Localização",
   },
   booking: {
     title: "Agendar Consulta",
@@ -640,6 +657,21 @@ export const ptPatient: PatientTranslations = {
     titleCancellation: "Agendamento cancelado",
     titleReminder: "Lembrete",
     titleSupportReply: "Resposta ao seu ticket",
+    notifConfirmedTitle: "Consulta confirmada",
+    notifConfirmedMessage: "{proName} confirmou a sua consulta.",
+    notifCancelledTitle: "Consulta cancelada",
+    notifCancelledMessage: "{proName} cancelou a sua consulta.",
+    notifCancelledWithReason: "{proName} cancelou a sua consulta. Motivo: {reason}",
+    notifRejectedTitle: "Consulta recusada",
+    notifRejectedMessage: "{proName} recusou o seu pedido de consulta.",
+    notifRejectedWithReason: "{proName} recusou o seu pedido de consulta. Motivo: {reason}",
+    notifAlternativeTitle: "Novo hor\u00e1rio proposto",
+    notifAlternativeMessage: "{proName} prop\u00f4s um novo hor\u00e1rio: {dateTime}.",
+    notifTicketUpdatedTitle: "Ticket atualizado",
+    notifTicketUpdatedMessage: "O seu ticket \"{subject}\" foi atualizado.",
+    notifTicketResolvedMessage: "O seu ticket \"{subject}\" foi tratado. Por favor confirme se o problema foi resolvido.",
+    notifTicketReplyTitle: "Nova resposta ao ticket",
+    notifTicketReplyMessage: "O seu ticket \"{subject}\" recebeu uma resposta do suporte.",
   },
   auth: {
     rolePatient: "Paciente",

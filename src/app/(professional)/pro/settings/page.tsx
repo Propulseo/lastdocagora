@@ -22,6 +22,7 @@ export default async function SettingsPage() {
     notify_new_appointments: settings?.notify_new_appointments ?? true,
     notify_cancellations: settings?.notify_cancellations ?? true,
     notify_reminders: settings?.notify_reminders ?? true,
+    notify_sound: settings?.notify_sound ?? false,
     patient_reminders: settings?.patient_reminders ?? true,
     channel_email: settings?.channel_email ?? true,
     channel_sms: settings?.channel_sms ?? false,

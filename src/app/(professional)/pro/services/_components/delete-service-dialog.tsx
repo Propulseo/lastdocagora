@@ -12,7 +12,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { deleteService } from "@/app/(professional)/_actions/services";
+import {
+  deleteService,
+  deactivateService,
+} from "@/app/(professional)/_actions/services";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 interface DeleteServiceDialogProps {
@@ -41,9 +44,21 @@ export function DeleteServiceDialog({
       onOpenChange(false);
     } else if (result.error?.startsWith("APPOINTMENTS_LINKED:")) {
       const count = result.error.split(":")[1];
-      toast.error(
-        `Impossible de supprimer : ${count} consultation(s) utilisent ce service. Désactivez-le à la place.`,
-      );
+      toast.error(sv.cannotDeleteLinked.replace("{count}", count), {
+        duration: 6000,
+        action: {
+          label: sv.deactivateInstead,
+          onClick: async () => {
+            const res = await deactivateService(serviceId);
+            if (res.success) {
+              toast.success(sv.serviceDeactivated);
+            } else {
+              toast.error(sv.errorDeleting);
+            }
+          },
+        },
+      });
+      onOpenChange(false);
     } else {
       toast.error(sv.errorDeleting);
     }

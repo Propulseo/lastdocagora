@@ -21,6 +21,14 @@ import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  open: ["in_progress"],
+  in_progress: ["awaiting_confirmation", "open"],
+  awaiting_confirmation: ["in_progress"],
+  resolved: [],
+  closed: [],
+};
+
 interface TicketMessage {
   id: string;
   content: string;
@@ -50,8 +58,12 @@ export function TicketRow({ ticket }: TicketRowProps) {
   const [, startTransition] = useTransition();
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [resolutionMessage, setResolutionMessage] = useState("");
 
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
+  const allowedNext = ALLOWED_TRANSITIONS[ticket.status] ?? [];
+  const supportT = t.support as Record<string, unknown>;
 
   async function toggleExpand() {
     if (!expanded && messages.length === 0) {
@@ -69,10 +81,31 @@ export function TicketRow({ ticket }: TicketRowProps) {
   }
 
   function handleStatusChange(newStatus: string) {
+    if (newStatus === "awaiting_confirmation") {
+      setPendingStatus(newStatus);
+      return;
+    }
     startTransition(async () => {
       const result = await updateTicketStatus(ticket.id, newStatus);
       if (result.success) {
         toast.success(t.support.statusUpdated);
+      } else {
+        toast.error(result.error ?? t.common.errorUpdating);
+      }
+    });
+  }
+
+  function handleConfirmAwaitingConfirmation() {
+    startTransition(async () => {
+      const result = await updateTicketStatus(
+        ticket.id,
+        "awaiting_confirmation",
+        resolutionMessage || undefined
+      );
+      if (result.success) {
+        toast.success(t.support.statusUpdated);
+        setPendingStatus(null);
+        setResolutionMessage("");
       } else {
         toast.error(result.error ?? t.common.errorUpdating);
       }
@@ -148,37 +181,62 @@ export function TicketRow({ ticket }: TicketRowProps) {
       {expanded && (
         <TableRow>
           <TableCell colSpan={6} className="bg-muted/30 p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {t.support.changeStatus}
-              </span>
-              <Select
-                defaultValue={ticket.status}
-                onValueChange={handleStatusChange}
-              >
-                <SelectTrigger
-                  className="w-[160px]"
-                  aria-label={t.support.changeStatusLabel}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">
-                    {t.statuses.ticket.open}
-                  </SelectItem>
-                  <SelectItem value="in_progress">
-                    {t.statuses.ticket.in_progress}
-                  </SelectItem>
-                  <SelectItem value="resolved">
-                    {t.statuses.ticket.resolved}
-                  </SelectItem>
-                  <SelectItem value="closed">
-                    {t.statuses.ticket.closed}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {allowedNext.length > 0 && (
+              <div className="mb-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {t.support.changeStatus}
+                  </span>
+                  <Select
+                    value=""
+                    onValueChange={handleStatusChange}
+                  >
+                    <SelectTrigger
+                      className="w-[200px]"
+                      aria-label={t.support.changeStatusLabel}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <SelectValue placeholder={t.support.changeStatus} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allowedNext.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {(t.statuses.ticket as Record<string, string>)[s] ?? s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {pendingStatus === "awaiting_confirmation" && (
+                  <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30" onClick={(e) => e.stopPropagation()}>
+                    <Textarea
+                      placeholder={(supportT.resolutionPlaceholder as string) ?? "Summary of what was done..."}
+                      value={resolutionMessage}
+                      onChange={(e) => setResolutionMessage(e.target.value)}
+                      className="mb-2 min-h-[60px] resize-none"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleConfirmAwaitingConfirmation}
+                      >
+                        {(supportT.sendToConfirmation as string) ?? "Send for confirmation"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setPendingStatus(null);
+                          setResolutionMessage("");
+                        }}
+                      >
+                        {t.common.cancel}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 2 }).map((_, i) => (

@@ -18,13 +18,14 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { AppearanceCard } from "./AppearanceCard";
 
-type NotificationKey = "notify_new_appointments" | "notify_cancellations" | "notify_reminders";
+type NotificationKey = "notify_new_appointments" | "notify_cancellations" | "notify_reminders" | "notify_sound";
 
 interface SettingsData {
   auto_confirm: boolean;
   notify_new_appointments: boolean;
   notify_cancellations: boolean;
   notify_reminders: boolean;
+  notify_sound: boolean;
   patient_reminders: boolean;
   channel_email: boolean;
   channel_sms: boolean;
@@ -49,6 +50,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
     notify_new_appointments: settings.notify_new_appointments,
     notify_cancellations: settings.notify_cancellations,
     notify_reminders: settings.notify_reminders,
+    notify_sound: settings.notify_sound,
   });
 
   async function handleToggle(key: NotificationKey, value: boolean) {
@@ -105,6 +107,12 @@ export function SettingsClient({ settings }: SettingsClientProps) {
       description: t.settings.remindersDesc,
       value: notifSettings.notify_reminders,
       settingKey: "notify_reminders",
+    },
+    {
+      label: t.settings.notificationSound,
+      description: t.settings.notificationSoundDesc,
+      value: notifSettings.notify_sound,
+      settingKey: "notify_sound",
     },
   ];
 

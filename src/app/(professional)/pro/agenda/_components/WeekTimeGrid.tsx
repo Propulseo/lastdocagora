@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR, END_HOUR } from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
@@ -58,6 +58,7 @@ export function WeekTimeGrid({
     const map = new Map<string, Appointment[]>();
     for (const date of weekDates) map.set(date, []);
     for (const apt of appointments) {
+      if ((HIDDEN_APPOINTMENT_STATUSES as readonly string[]).includes(apt.status)) continue;
       const list = map.get(apt.appointment_date);
       if (list) list.push(apt);
     }

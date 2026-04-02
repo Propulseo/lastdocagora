@@ -35,6 +35,9 @@ export type ProfessionalResult = {
   rating: number | null
   total_reviews: number | null
   bio: string | null
+  bio_pt: string | null
+  bio_fr: string | null
+  bio_en: string | null
   accessibility_options: Record<string, unknown> | null
   latitude: number | null
   longitude: number | null
@@ -217,11 +220,15 @@ export function ProfessionalCard({
                 </span>
               </div>
             ) : null}
-            {prof.bio && (
-              <p className="line-clamp-2 text-sm text-muted-foreground">
-                {prof.bio}
-              </p>
-            )}
+            {(() => {
+              const bioKey = `bio_${locale}` as keyof typeof prof;
+              const bio = (prof[bioKey] as string | null) ?? prof.bio_pt ?? prof.bio;
+              return bio ? (
+                <p className="line-clamp-2 text-sm text-muted-foreground">
+                  {bio}
+                </p>
+              ) : null;
+            })()}
           </div>
           <div className="flex gap-2 pt-2">
             <Button variant="outline" size="sm" className="min-h-[44px] flex-1" asChild>

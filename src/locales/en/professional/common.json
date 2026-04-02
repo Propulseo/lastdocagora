@@ -1,0 +1,15 @@
+{
+  "dateLocale": "en-GB",
+  "min": "min",
+  "cancel": "Cancel",
+  "saving": "Saving...",
+  "today": "Today",
+  "status": {
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "noShow": "No-show",
+    "rejected": "Rejected"
+  }
+}

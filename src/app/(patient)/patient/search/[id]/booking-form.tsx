@@ -35,7 +35,7 @@ export function BookingForm({
 }: BookingFormProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { t, dateLocale } = usePatientTranslations()
+  const { t, locale, dateLocale } = usePatientTranslations()
 
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
@@ -134,6 +134,7 @@ export function BookingForm({
             services={services}
             selectedServiceId={selectedService?.id ?? null}
             onSelect={setSelectedService}
+            locale={locale}
             t={t}
           />
 
@@ -175,7 +176,7 @@ export function BookingForm({
           {canBook && (
             <div className="space-y-1.5 rounded-lg bg-muted/50 p-3 text-sm">
               <p className="font-medium">{t.booking.summary}</p>
-              <p className="text-muted-foreground"><strong className="text-foreground">{t.booking.summaryService}</strong> {selectedService.name}</p>
+              <p className="text-muted-foreground"><strong className="text-foreground">{t.booking.summaryService}</strong> {(selectedService as Record<string, unknown>)[`name_${locale}`] as string ?? selectedService.name_pt ?? selectedService.name}</p>
               <p className="text-muted-foreground"><strong className="text-foreground">{t.booking.summaryDate}</strong> {format(selectedDate, t.booking.dateFormat, { locale: dateLocale })}</p>
               <p className="text-muted-foreground"><strong className="text-foreground">{t.booking.summaryTime}</strong> {selectedSlot}</p>
             </div>

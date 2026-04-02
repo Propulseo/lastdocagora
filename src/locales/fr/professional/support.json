@@ -1,0 +1,75 @@
+{
+  "title": "Support",
+  "description": "Contactez l'équipe DocAgora pour toute question ou problème.",
+  "newTicket": "Nouveau ticket",
+  "categories": {
+    "technical": "Problème technique",
+    "profile": "Question sur mon profil",
+    "payment": "Problème de paiement",
+    "bug": "Signaler un bug",
+    "other": "Autre"
+  },
+  "categoryIcons": {
+    "technical": "Wrench",
+    "profile": "User",
+    "payment": "CreditCard",
+    "bug": "Bug",
+    "other": "HelpCircle"
+  },
+  "categoryLabel": "Sujet",
+  "categoryPlaceholder": "Sélectionnez une catégorie",
+  "messageLabel": "Message",
+  "messagePlaceholder": "Décrivez votre problème ou question...",
+  "messageMinLength": "Minimum 20 caractères",
+  "send": "Envoyer",
+  "sending": "Envoi en cours...",
+  "ticketCreated": "Ticket créé avec succès",
+  "messageSent": "Message envoyé",
+  "errorCreating": "Erreur lors de la création du ticket",
+  "errorSending": "Erreur lors de l'envoi du message",
+  "emptyTitle": "Aucun ticket",
+  "emptyDescription": "Besoin d'aide ? Notre équipe est là pour vous.",
+  "emptyHint": "Temps de réponse moyen : moins de 24h",
+  "resolved": "Ce ticket est résolu",
+  "closed": "Ce ticket est fermé",
+  "noMessages": "Aucun message dans ce ticket.",
+  "selectTicket": "Sélectionnez une conversation",
+  "selectTicketHint": "Choisissez un ticket à gauche ou créez-en un nouveau",
+  "replyPlaceholder": "Écrivez votre réponse...",
+  "adminLabel": "Support DocAgora",
+  "you": "Vous",
+  "statuses": {
+    "open": "Ouvert",
+    "in_progress": "En cours",
+    "awaiting_confirmation": "En attente de confirmation",
+    "resolved": "Résolu",
+    "closed": "Fermé"
+  },
+  "awaitingConfirmation": {
+    "title": "Votre problème a été traité",
+    "description": "L'équipe DocAgora a répondu à votre ticket. Le problème est-il résolu ?",
+    "confirm": "Oui, problème résolu",
+    "reopen": "Non, réouvrir",
+    "reopenTitle": "Réouvrir le ticket",
+    "reopenDescription": "Décrivez brièvement pourquoi le problème n'est pas résolu.",
+    "reopenPlaceholder": "Ex : Le problème persiste car...",
+    "reopenButton": "Réouvrir le ticket",
+    "reopenMinLength": "Minimum 10 caractères"
+  },
+  "priority": {
+    "low": "Basse",
+    "medium": "Moyenne",
+    "high": "Haute",
+    "urgent": "Urgente"
+  },
+  "kpi": {
+    "total": "Total tickets",
+    "open": "Ouverts",
+    "resolved": "Résolus",
+    "avgResponse": "Réponse moy."
+  },
+  "characters": "caractères",
+  "today": "Aujourd'hui",
+  "yesterday": "Hier",
+  "updatedAt": "Mis à jour"
+}

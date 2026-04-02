@@ -1,0 +1,22 @@
+{
+  "title": "Conteúdo",
+  "description": "Gerir páginas e perguntas frequentes",
+  "published": "Publicado",
+  "unpublished": "Rascunho",
+  "unpublishLabel": "Despublicar",
+  "publishLabel": "Publicar",
+  "tabPages": "Páginas",
+  "tabFaqs": "Perguntas Frequentes",
+  "pagesSlug": "Slug",
+  "pagesTitlePt": "Título (PT)",
+  "pagesPublished": "Publicado",
+  "pagesUpdatedAt": "Atualizado em",
+  "pagesEmptyTitle": "Nenhuma página encontrada",
+  "pagesEmptyDescription": "Ainda não foram criadas páginas de conteúdo.",
+  "faqsQuestionPt": "Pergunta (PT)",
+  "faqsCategory": "Categoria",
+  "faqsOrder": "Ordem",
+  "faqsPublished": "Publicado",
+  "faqsEmptyTitle": "Nenhuma FAQ encontrada",
+  "faqsEmptyDescription": "Ainda não foram criadas perguntas frequentes."
+}

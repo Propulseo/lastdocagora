@@ -31,11 +31,19 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { professionalNav, navGroups } from "@/config/professional-nav";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
+import { ProNotificationBell } from "./_components/ProNotificationBell";
+import type { ProNotification } from "./_actions/notification-actions";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   LayoutDashboard,
@@ -58,9 +66,12 @@ interface ProSidebarProps {
     avatarUrl: string | null;
   };
   openTicketCount?: number;
+  userId: string;
+  initialNotifications: ProNotification[];
+  initialUnreadNotifCount: number;
 }
 
-export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
+export function ProSidebar({ user, openTicketCount, userId, initialNotifications, initialUnreadNotifCount }: ProSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useProfessionalI18n();
@@ -79,9 +90,16 @@ export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-5">
-        <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-          DOCAGORA
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
+            DOCAGORA
+          </span>
+          <ProNotificationBell
+            userId={userId}
+            initialNotifications={initialNotifications}
+            initialUnreadCount={initialUnreadNotifCount}
+          />
+        </div>
       </SidebarHeader>
 
       <SidebarSeparator />
@@ -117,7 +135,27 @@ export function ProSidebar({ user, openTicketCount }: ProSidebarProps) {
                         </SidebarMenuButton>
                         {item.icon === "Calendar" &&
                           pendingCount > 0 && (
-                            <SidebarMenuBadge>{pendingCount}</SidebarMenuBadge>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href="/pro/agenda?status=pending&view=day"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className={cn(
+                                    "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-bold tabular-nums transition-colors",
+                                    "peer-data-[size=default]/menu-button:top-1.5",
+                                    "group-data-[collapsible=icon]:hidden",
+                                    pendingCount >= 4
+                                      ? "bg-red-500 text-white hover:bg-red-600"
+                                      : "bg-amber-400 text-amber-950 hover:bg-amber-500"
+                                  )}
+                                >
+                                  {pendingCount}
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent side="right">
+                                {(t.sidebar.pendingBadgeTooltip as string).replace("{count}", String(pendingCount))}
+                              </TooltipContent>
+                            </Tooltip>
                           )}
                         {item.icon === "LifeBuoy" &&
                           openTicketCount != null &&

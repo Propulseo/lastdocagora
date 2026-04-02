@@ -1,0 +1,192 @@
+{
+  "title": "Rappels",
+  "subtitle": "Gérez les rappels automatiques pour vos patients",
+  "tabs": {
+    "reminders": "Rappels",
+    "templates": "Modèles",
+    "history": "Historique",
+    "settings": "Paramètres"
+  },
+  "auto": {
+    "title": "Rappels automatiques",
+    "subtitle": "Configurez des rappels pour réduire les absences et améliorer la communication avec vos patients.",
+    "ctaNew": "Nouveau rappel"
+  },
+  "kpi": {
+    "sentThisMonth": "Envoyés ce mois",
+    "deliverability": "Taux de délivrabilité",
+    "noShowReduction": "Réduction no-show",
+    "activeRules": "Règles actives",
+    "activeTemplates": "Modèles actifs",
+    "avgDeliveryTime": "Temps moyen",
+    "noData": "Aucune donnée sur la période",
+    "comingSoon": "Indicateur bientôt disponible",
+    "rulesDesc": "{count} sur {total}",
+    "templatesDesc": "{count} personnalisés"
+  },
+  "charts": {
+    "trendsTitle": "Volume d'envois",
+    "trendsDesc": "Notifications envoyées par jour sur les 30 derniers jours",
+    "sent": "Envoyées",
+    "delivered": "Délivrées",
+    "failed": "Échouées",
+    "channelTitle": "Répartition par canal",
+    "channelDesc": "Distribution des notifications par canal d'envoi",
+    "statusTitle": "Statut de livraison",
+    "statusDesc": "Répartition des notifications par statut final",
+    "notifications": "notifications",
+    "noData": "Aucune donnée à afficher"
+  },
+  "section": {
+    "appointments": "Rendez-vous"
+  },
+  "rule": {
+    "immediate": "Immédiat",
+    "beforeHours": "{{hours}}h avant",
+    "beforeDays": "{{days}}j avant",
+    "appointmentConfirmation": "Confirmation de RDV",
+    "appointmentReminder": "Rappel de RDV",
+    "custom": "Personnalisé"
+  },
+  "channel": {
+    "email": "Email",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp"
+  },
+  "dialog": {
+    "newTitle": "Nouveau rappel",
+    "editTitle": "Modifier le rappel",
+    "type": "Type",
+    "typePlaceholder": "Sélectionnez le type",
+    "channel": "Canal",
+    "channelPlaceholder": "Sélectionnez le canal",
+    "trigger": "Moment",
+    "triggerImmediate": "Immédiat (à la confirmation)",
+    "triggerBefore": "Avant le rendez-vous",
+    "delay": "Délai",
+    "delayPlaceholder": "Valeur",
+    "delayUnit": "Unité",
+    "hours": "Heures",
+    "days": "Jours",
+    "template": "Modèle de message",
+    "templatePlaceholder": "Sélectionnez un modèle",
+    "noTemplates": "Aucun modèle disponible",
+    "onlyIfNotConfirmed": "Uniquement si non confirmé",
+    "excludeWeekends": "Exclure les week-ends",
+    "save": "Enregistrer",
+    "create": "Créer",
+    "delete": "Supprimer",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce rappel ?",
+    "deleteDescription": "Cette action est irréversible."
+  },
+  "empty": {
+    "title": "Aucun rappel",
+    "description": "Configurez votre premier rappel automatique pour réduire les absences.",
+    "cta": "Créer un rappel"
+  },
+  "templates": {
+    "title": "Modèles de rappels",
+    "subtitle": "Gérez vos modèles de messages (SMS, Email, WhatsApp).",
+    "newTemplate": "Nouveau modèle",
+    "name": "Nom",
+    "type": "Type",
+    "channel": "Canal",
+    "content": "Contenu",
+    "subject": "Objet",
+    "body": "Message",
+    "status": "Statut",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "default": "Par défaut",
+    "global": "Global",
+    "mine": "Mon modèle",
+    "timing": "Moment d'envoi",
+    "search": "Rechercher des modèles...",
+    "filterChannel": "Canal",
+    "filterTiming": "Moment",
+    "allChannels": "Tous les canaux",
+    "allTimings": "Tous les moments",
+    "activeOnly": "Actifs uniquement",
+    "preview": "Aperçu",
+    "variables": "Variables disponibles",
+    "variableHint": "Cliquez pour insérer",
+    "smsCounter": "{{count}} / 160 caractères",
+    "smsWarning": "Le SMS dépasse 160 caractères et pourra être scindé.",
+    "duplicate": "Dupliquer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
+    "deleteDescription": "Cette action est irréversible.",
+    "duplicateSuccess": "Modèle dupliqué. Vous pouvez maintenant le modifier.",
+    "toggledActive": "Modèle activé",
+    "toggledInactive": "Modèle désactivé",
+    "empty": {
+      "title": "Aucun modèle",
+      "description": "Créez votre premier modèle de message ou dupliquez un modèle global."
+    },
+    "dialog": {
+      "newTitle": "Nouveau modèle",
+      "editTitle": "Modifier le modèle",
+      "save": "Enregistrer",
+      "create": "Créer le modèle",
+      "namePlaceholder": "Ex: Rappel SMS 24h",
+      "subjectPlaceholder": "Objet de l'email",
+      "bodyPlaceholder": "Rédigez votre message ici. Utilisez les variables disponibles à droite.",
+      "channelSms": "SMS",
+      "channelEmail": "Email",
+      "channelWhatsapp": "WhatsApp"
+    },
+    "timingLabels": {
+      "j-2": "J-2 (2 jours avant)",
+      "j-1": "J-1 (1 jour avant)",
+      "h-24": "H-24 (24 heures avant)",
+      "h-2": "H-2 (2 heures avant)",
+      "h-1": "H-1 (1 heure avant)",
+      "apres": "Après rendez-vous"
+    }
+  },
+  "export": "Exporter CSV",
+  "history": {
+    "title": "Historique des envois",
+    "subtitle": "Consultez toutes les notifications envoyées aux patients.",
+    "date": "Date",
+    "patient": "Patient",
+    "type": "Type",
+    "channel": "Canal",
+    "status": "Statut",
+    "searchPlaceholder": "Rechercher un patient...",
+    "allChannels": "Tous les canaux",
+    "allStatuses": "Tous les statuts",
+    "statusLabels": {
+      "pending": "En attente",
+      "sent": "Envoyé",
+      "delivered": "Délivré",
+      "failed": "Échoué",
+      "bounced": "Rejeté"
+    },
+    "empty": {
+      "title": "Aucun historique",
+      "description": "Aucune notification envoyée pour le moment."
+    }
+  },
+  "settings": {
+    "title": "Paramètres des rappels",
+    "subtitle": "Configurez les préférences globales de notification.",
+    "patientReminders": "Rappels pour les patients",
+    "patientRemindersDesc": "Activer l'envoi automatique de rappels",
+    "channelEmail": "Canal Email",
+    "channelEmailDesc": "Autoriser l'envoi par email",
+    "channelSms": "Canal SMS",
+    "channelSmsDesc": "Autoriser l'envoi par SMS",
+    "saved": "Paramètres enregistrés"
+  },
+  "toast": {
+    "ruleCreated": "Rappel créé avec succès",
+    "ruleUpdated": "Rappel mis à jour avec succès",
+    "ruleDeleted": "Rappel supprimé avec succès",
+    "ruleToggled": "État du rappel mis à jour",
+    "templateCreated": "Modèle créé avec succès",
+    "templateUpdated": "Modèle mis à jour avec succès",
+    "error": "Une erreur est survenue. Veuillez réessayer."
+  }
+}

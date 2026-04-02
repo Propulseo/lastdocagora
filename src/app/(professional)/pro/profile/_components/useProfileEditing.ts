@@ -40,6 +40,9 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
       values.years_experience = professional.years_experience?.toString() ?? "";
       values.subspecialties = professional.subspecialties?.join(", ") ?? "";
       values.bio = professional.bio ?? "";
+      values.bio_pt = professional.bio_pt ?? "";
+      values.bio_fr = professional.bio_fr ?? "";
+      values.bio_en = professional.bio_en ?? "";
     } else if (section === "location") {
       values.address = professional.address ?? "";
       values.city = professional.city ?? "";
@@ -84,7 +87,7 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
     if (editingSection === "personal") {
       input = { section: "personal", first_name: formValues.first_name ?? "", last_name: formValues.last_name ?? "", phone: formValues.phone ?? "" };
     } else if (editingSection === "professional") {
-      input = { section: "professional", specialty: formValues.specialty ?? "", registration_number: formValues.registration_number ?? "", practice_type: formValues.practice_type ?? "", cabinet_name: formValues.cabinet_name ?? "", years_experience: formValues.years_experience ? Number(formValues.years_experience) : undefined, subspecialties: formValues.subspecialties ?? "", bio: formValues.bio ?? "" };
+      input = { section: "professional", specialty: formValues.specialty ?? "", registration_number: formValues.registration_number ?? "", practice_type: formValues.practice_type ?? "", cabinet_name: formValues.cabinet_name ?? "", years_experience: formValues.years_experience ? Number(formValues.years_experience) : undefined, subspecialties: formValues.subspecialties ?? "", bio: formValues.bio ?? "", bio_pt: formValues.bio_pt ?? "", bio_fr: formValues.bio_fr ?? "", bio_en: formValues.bio_en ?? "" };
     } else if (editingSection === "location") {
       input = { section: "location", address: formValues.address ?? "", city: formValues.city ?? "", postal_code: formValues.postal_code ?? "" };
     } else {

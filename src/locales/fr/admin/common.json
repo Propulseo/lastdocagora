@@ -1,0 +1,14 @@
+{
+  "dateLocale": "fr-FR",
+  "name": "Nom",
+  "status": "Statut",
+  "actions": "Actions",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "filterByStatus": "Filtrer par statut",
+  "allStatuses": "Tous les statuts",
+  "noResultsHint": "Aucun résultat trouvé. Essayez d'ajuster les filtres.",
+  "errorUpdating": "Erreur lors de la mise à jour",
+  "clearFilters": "Effacer les filtres"
+}

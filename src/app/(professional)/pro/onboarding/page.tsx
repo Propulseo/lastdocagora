@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
     supabase
       .from("professionals")
       .select(
-        "id, specialty, registration_number, practice_type, cabinet_name, years_experience, subspecialties, address, city, postal_code, latitude, longitude, languages_spoken, bio, consultation_fee, third_party_payment, insurances_accepted, onboarding_completed, onboarding_step",
+        "id, specialty, registration_number, practice_type, cabinet_name, years_experience, subspecialties, address, city, postal_code, latitude, longitude, languages_spoken, bio, bio_pt, bio_fr, bio_en, consultation_fee, third_party_payment, insurances_accepted, onboarding_completed, onboarding_step",
       )
       .eq("user_id", user.id)
       .single(),
@@ -76,6 +76,9 @@ export default async function OnboardingPage() {
         postal_code: professional.postal_code,
         languages_spoken: professional.languages_spoken,
         bio: professional.bio,
+        bio_pt: professional.bio_pt,
+        bio_fr: professional.bio_fr,
+        bio_en: professional.bio_en,
         consultation_fee: professional.consultation_fee,
         third_party_payment: professional.third_party_payment,
         insurances_accepted: professional.insurances_accepted,

@@ -46,7 +46,7 @@ export function WeekAppointmentBlock({
       )}
       style={{
         top: `${topOffset}px`,
-        height: `${Math.max(height, 24)}px`,
+        height: `${Math.max(height, 28)}px`,
         zIndex: 10,
       }}
       onClick={() => onClick(apt)}

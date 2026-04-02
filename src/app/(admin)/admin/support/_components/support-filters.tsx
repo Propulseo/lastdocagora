@@ -55,6 +55,9 @@ export function SupportFilters() {
         <SelectItem value="in_progress">
           {t.statuses.ticket.in_progress}
         </SelectItem>
+        <SelectItem value="awaiting_confirmation">
+          {(t.statuses.ticket as Record<string, string>).awaiting_confirmation ?? "Awaiting confirmation"}
+        </SelectItem>
         <SelectItem value="resolved">
           {t.statuses.ticket.resolved}
         </SelectItem>

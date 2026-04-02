@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END } from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock } from "./AppointmentBlock";
 import { AvailabilityBlock } from "./AvailabilityBlock";
@@ -30,7 +30,7 @@ function snapPixel(y: number): number {
   return (snapped / 60) * HOUR_HEIGHT;
 }
 
-interface PendingDrag { startTime: string; endTime: string; mouseX: number; mouseY: number }
+interface PendingDrag { startTime: string; endTime: string }
 
 interface DayTimeGridProps {
   appointments: Appointment[];
@@ -41,6 +41,7 @@ interface DayTimeGridProps {
   onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
   onCreateAppointment: (startTime: string, endTime: string) => void;
   onCreateAvailability: (startTime: string, endTime: string) => void;
+  highlightedAppointmentId?: string | null;
 }
 
 export function DayTimeGrid({
@@ -52,14 +53,19 @@ export function DayTimeGrid({
   onAttendanceChange,
   onCreateAppointment,
   onCreateAvailability,
+  highlightedAppointmentId,
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
   const attendance = useAttendanceAction(onAttendanceChange);
+  const visible = appointments.filter(
+    (a) => !(HIDDEN_APPOINTMENT_STATUSES as readonly string[]).includes(a.status),
+  );
   const gridRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
   const [pendingDrag, setPendingDrag] = useState<PendingDrag | null>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
   const todayStr = toLocalDateStr(new Date());
   const isToday = selectedDate === todayStr;
   const [, setTick] = useState(0);
@@ -71,12 +77,25 @@ export function DayTimeGrid({
   }, [isToday]);
 
   useEffect(() => {
+    if (highlightedAppointmentId) return; // Skip auto-scroll when navigating to a specific appointment
     if (!gridRef.current?.parentElement) return;
     const now = new Date();
     const currentHour = now.getHours();
     const scrollTo = Math.max(0, (currentHour - START_HOUR - 1) * HOUR_HEIGHT);
     gridRef.current.parentElement.scrollTop = scrollTo;
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll to highlighted appointment
+  useEffect(() => {
+    if (!highlightedAppointmentId || !highlightRef.current) return;
+    const timer = setTimeout(() => {
+      highlightRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [highlightedAppointmentId, appointments]);
 
   const getGridY = useCallback((clientY: number): number => {
     if (!gridRef.current) return 0;
@@ -105,7 +124,7 @@ export function DayTimeGrid({
   );
 
   const handleMouseUp = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    () => {
       if (!isDragging || dragStartY == null || dragCurrentY == null) {
         setIsDragging(false);
         return;
@@ -125,12 +144,7 @@ export function DayTimeGrid({
       setDragCurrentY(null);
 
       if (startTime < endTime) {
-        setPendingDrag({
-          startTime,
-          endTime,
-          mouseX: e.clientX,
-          mouseY: e.clientY,
-        });
+        setPendingDrag({ startTime, endTime });
       }
     },
     [isDragging, dragStartY, dragCurrentY],
@@ -173,7 +187,7 @@ export function DayTimeGrid({
             style={{ height: `${totalHeight}px`, cursor: isDragging ? "ns-resize" : "crosshair" }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
-            onMouseUp={(e) => handleMouseUp(e)}
+            onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
             {OFF_HOURS_START > START_HOUR && (
@@ -224,12 +238,17 @@ export function DayTimeGrid({
               />
             ))}
 
-            {appointments.map((apt) => (
-              <AppointmentBlock
+            {visible.map((apt) => (
+              <div
                 key={apt.id}
-                appointment={apt}
-                onClick={attendance.setSelected}
-              />
+                ref={apt.id === highlightedAppointmentId ? highlightRef : null}
+              >
+                <AppointmentBlock
+                  appointment={apt}
+                  onClick={attendance.setSelected}
+                  isHighlighted={apt.id === highlightedAppointmentId}
+                />
+              </div>
             ))}
 
             <ExternalEventOverlay
@@ -263,7 +282,7 @@ export function DayTimeGrid({
               </div>
             )}
 
-            {appointments.length === 0 && !isDragging && (
+            {visible.length === 0 && !isDragging && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <p className="text-sm text-muted-foreground">
                   {t.agenda.noAppointments}
@@ -276,7 +295,6 @@ export function DayTimeGrid({
 
       <DragActionSelector
         open={pendingDrag !== null}
-        position={{ x: pendingDrag?.mouseX ?? 0, y: pendingDrag?.mouseY ?? 0 }}
         startTime={pendingDrag?.startTime ?? ""}
         endTime={pendingDrag?.endTime ?? ""}
         onCreateAppointment={() => {

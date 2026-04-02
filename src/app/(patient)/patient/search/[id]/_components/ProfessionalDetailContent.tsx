@@ -6,10 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Building2, Globe, Shield } from "lucide-react"
 import { translateSpecialty } from "@/locales/patient/specialties"
+import { ProLocationMapWrapper } from "./ProLocationMapWrapper"
 
 interface ProfessionalUser { first_name: string; last_name: string; avatar_url: string | null }
 
-interface Service { id: string; name: string; description: string | null; duration_minutes: number; price: number; consultation_type: string }
+interface Service { id: string; name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null; description: string | null; duration_minutes: number; price: number; consultation_type: string }
 
 interface ReviewData {
   id: string
@@ -28,9 +29,15 @@ interface ProfessionalDetailContentProps {
     rating: number | null
     total_reviews: number | null
     bio: string | null
+    bio_pt: string | null
+    bio_fr: string | null
+    bio_en: string | null
     cabinet_name: string | null
     years_experience: number | null
     languages_spoken: string[] | null
+    latitude: number | null
+    longitude: number | null
+    address: string | null
     users: ProfessionalUser
   }
   services: Service[]
@@ -48,11 +55,17 @@ interface ProfessionalDetailContentProps {
       inPerson: string
       reviewsTitle: string
       fallbackReviewer: string
+      location: string
     }
     booking: { priceOnRequest: string }
   }
   locale: string
   dateLocale: Locale
+}
+
+function resolveServiceName(svc: Service, locale: string): string {
+  const key = `name_${locale}` as keyof Service;
+  return (svc[key] as string | null | undefined) ?? svc.name_pt ?? svc.name;
 }
 
 export function ProfessionalDetailContent({
@@ -152,14 +165,18 @@ export function ProfessionalDetailContent({
       </Card>
 
       {/* Bio */}
-      {prof.bio && (
-        <Card>
-          <CardHeader><CardTitle>{t.professionalDetail.about}</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-sm leading-relaxed text-muted-foreground">{prof.bio}</p>
-          </CardContent>
-        </Card>
-      )}
+      {(() => {
+        const bioKey = `bio_${locale}` as keyof typeof prof;
+        const bio = (prof[bioKey] as string | null) ?? prof.bio_pt ?? prof.bio;
+        return bio ? (
+          <Card>
+            <CardHeader><CardTitle>{t.professionalDetail.about}</CardTitle></CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">{bio}</p>
+            </CardContent>
+          </Card>
+        ) : null;
+      })()}
 
       {/* Services */}
       {services && services.length > 0 && (
@@ -170,7 +187,7 @@ export function ProfessionalDetailContent({
               {services.map((svc) => (
                 <div key={svc.id} className="flex items-start justify-between rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.02]">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">{svc.name}</p>
+                    <p className="font-medium">{resolveServiceName(svc, locale)}</p>
                     {svc.description && <p className="mt-1 text-sm text-muted-foreground">{svc.description}</p>}
                     <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1"><Clock className="size-3.5" />{svc.duration_minutes} {t.professionalDetail.min}</span>
@@ -185,6 +202,24 @@ export function ProfessionalDetailContent({
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Location */}
+      {prof.latitude && prof.longitude && (
+        <Card>
+          <CardHeader><CardTitle>{t.professionalDetail.location}</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <div className="h-[200px] overflow-hidden rounded-xl border">
+              <ProLocationMapWrapper latitude={prof.latitude} longitude={prof.longitude} />
+            </div>
+            {prof.address && (
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="size-4 shrink-0 text-primary/60" />
+                {prof.address}
+              </p>
+            )}
           </CardContent>
         </Card>
       )}

@@ -39,6 +39,9 @@ const step1Schema = z.object({
   first_name: z.string().min(1).max(100),
   last_name: z.string().min(1).max(100),
   bio: z.string().max(500).optional().or(z.literal("")),
+  bio_pt: z.string().max(500).optional().or(z.literal("")),
+  bio_fr: z.string().max(500).optional().or(z.literal("")),
+  bio_en: z.string().max(500).optional().or(z.literal("")),
   registration_number: z.string().min(1).max(50),
   languages_spoken: z.string().max(500).optional().or(z.literal("")),
 });
@@ -56,6 +59,8 @@ const step2Schema = z.object({
 
 const step3ServiceSchema = z.object({
   name: z.string().min(1).max(200),
+  name_fr: z.string().max(200).optional().or(z.literal("")),
+  name_en: z.string().max(200).optional().or(z.literal("")),
   description: z.string().max(500).optional().or(z.literal("")),
   duration_minutes: z.coerce.number().int().min(5).max(480),
   price: z.coerce.number().min(0),
@@ -115,6 +120,9 @@ export async function saveOnboardingStep(
         .from("professionals")
         .update({
           bio: d.bio || null,
+          bio_pt: d.bio_pt || null,
+          bio_fr: d.bio_fr || null,
+          bio_en: d.bio_en || null,
           registration_number: d.registration_number,
           languages_spoken: d.languages_spoken
             ? d.languages_spoken.split(",").map((s) => s.trim()).filter(Boolean)
@@ -182,6 +190,9 @@ export async function saveOnboardingStep(
 
       const servicesToInsert = d.services.map((s) => ({
         name: s.name.trim(),
+        name_pt: s.name.trim(),
+        name_fr: s.name_fr?.trim() || null,
+        name_en: s.name_en?.trim() || null,
         description: s.description?.trim() || null,
         duration_minutes: s.duration_minutes,
         price: s.price,

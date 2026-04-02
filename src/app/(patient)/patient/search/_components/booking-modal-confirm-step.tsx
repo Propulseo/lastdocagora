@@ -7,11 +7,21 @@ import { Textarea } from "@/components/ui/textarea"
 import { Loader2, CheckCircle2 } from "lucide-react"
 import type { BookingService } from "@/app/(patient)/_actions/booking"
 
+function resolveServiceName(svc: BookingService, locale?: string): string {
+  if (locale) {
+    const key = `name_${locale}` as keyof BookingService
+    const val = svc[key]
+    if (typeof val === "string" && val) return val
+  }
+  return svc.name_pt ?? svc.name
+}
+
 interface BookingConfirmStepProps {
   selectedService: BookingService
   selectedDate: Date
   selectedSlot: string
   dateLocale: Locale
+  locale?: string
   notes: string
   onNotesChange: (notes: string) => void
   submitting: boolean
@@ -37,6 +47,7 @@ export function BookingConfirmStep({
   selectedDate,
   selectedSlot,
   dateLocale,
+  locale,
   notes,
   onNotesChange,
   submitting,
@@ -50,7 +61,7 @@ export function BookingConfirmStep({
         <p className="text-sm font-semibold">{t.summary}</p>
         <div className="grid grid-cols-2 gap-y-2 text-sm">
           <span className="text-muted-foreground">{t.summaryService}</span>
-          <span className="font-medium text-right">{selectedService.name}</span>
+          <span className="font-medium text-right">{resolveServiceName(selectedService, locale)}</span>
           <span className="text-muted-foreground">{t.summaryDate}</span>
           <span className="font-medium text-right">
             {format(selectedDate, t.dateFormat, { locale: dateLocale })}

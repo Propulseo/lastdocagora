@@ -36,7 +36,7 @@ export function BookingModal({
 }: BookingModalProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { t, dateLocale } = usePatientTranslations()
+  const { t, locale, dateLocale } = usePatientTranslations()
 
   const [step, setStep] = useState<BookingStep>("loading")
   const [services, setServices] = useState<BookingService[]>([])
@@ -183,6 +183,7 @@ export function BookingModal({
               <BookingServiceStep
                 services={services}
                 onSelect={handleServiceSelect}
+                locale={locale}
                 t={{
                   step1: t.booking.step1,
                   noServices: t.booking.noServices,
@@ -220,6 +221,7 @@ export function BookingModal({
                 selectedDate={selectedDate}
                 selectedSlot={selectedSlot}
                 dateLocale={dateLocale}
+                locale={locale}
                 notes={notes}
                 onNotesChange={setNotes}
                 submitting={submitting}

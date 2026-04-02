@@ -1,0 +1,147 @@
+{
+  "title": "Statistiques",
+  "description": "Tableau de bord de votre activité professionnelle",
+  "export": "Exporter CSV",
+  "range": {
+    "7d": "7 jours",
+    "30d": "30 jours",
+    "90d": "90 jours",
+    "1y": "1 an",
+    "custom": "Personnalisé"
+  },
+  "filters": {
+    "service": "Service",
+    "allServices": "Tous les services",
+    "channel": "Canal",
+    "allChannels": "Tous",
+    "channelPatient": "Patient",
+    "channelManual": "Manuel",
+    "channelWalkIn": "Walk-in",
+    "status": "Statut",
+    "allStatuses": "Tous les statuts",
+    "statusCompleted": "Terminé",
+    "statusUpcoming": "À venir",
+    "statusCancelled": "Annulé",
+    "statusNoShow": "Absent"
+  },
+  "kpi": {
+    "totalAppointments": "Total Consultations",
+    "attendanceRate": "Taux de Présence",
+    "noShowRate": "Taux d'Absence",
+    "cancellationRate": "Taux d'Annulation",
+    "lateness": "Retard",
+    "avgMinutes": "{{value}} min en moyenne",
+    "pctLate": "{{value}}% en retard",
+    "newPatients": "Nouveaux Patients",
+    "newVsReturning": "{{new}} nouveaux · {{returning}} fidèles",
+    "sampleWarning": "Basé sur {{count}} consultations — données limitées",
+    "noAttendanceData": "Pas de données de présence",
+    "markAttendanceCta": "Marquez la présence depuis l'agenda pour alimenter cette statistique.",
+    "goToAgenda": "Aller à l'agenda",
+    "avgGap": "Temps entre consultations",
+    "avgGapSub": "Intervalle moyen entre consultations",
+    "billableHours": "Heures facturables",
+    "billableHoursSub": "Consultations réalisées",
+    "occupancyRate": "Taux d'occupation",
+    "walkInCount": "Walk-ins",
+    "walkInCountSub": "Sur la période sélectionnée"
+  },
+  "trends": {
+    "title": "Tendances",
+    "description": "Évolution quotidienne des consultations, absences et annulations",
+    "appointments": "Consultations",
+    "noShow": "Absent",
+    "cancelled": "Annulées"
+  },
+  "heatmap": {
+    "title": "Charge de l'agenda",
+    "description": "Distribution des consultations par jour et heure",
+    "appointments": "consultations"
+  },
+  "services": {
+    "title": "Performance par service",
+    "description": "Volume et absences par service",
+    "total": "Total",
+    "noShow": "Absent"
+  },
+  "channel": {
+    "title": "Canal de réservation",
+    "description": "Qui crée les rendez-vous",
+    "patientBooking": "Patient",
+    "manual": "Manuel (pro)",
+    "walkIn": "Walk-in"
+  },
+  "punctuality": {
+    "title": "Ponctualité",
+    "description": "Distribution présent / en retard / absent",
+    "onTime": "À l'heure",
+    "late": "En retard",
+    "absent": "Absent"
+  },
+  "retention": {
+    "title": "Rétention patients",
+    "description": "Pourcentage de patients revenus",
+    "days30": "30 jours",
+    "days60": "60 jours",
+    "days90": "90 jours",
+    "returned": "revenus",
+    "noData": "Données insuffisantes pour calculer la rétention."
+  },
+  "insights": {
+    "title": "Insights et recommandations",
+    "description": "Suggestions automatiques basées sur vos données",
+    "noShowSlot": "{{slot}} : {{rate}}% absent",
+    "noShowSlotAction": "Activer rappel double pour ce créneau",
+    "riskyPatient": "{{name}} : {{count}} absences/annulations",
+    "riskyPatientAction": "Envisager acompte ou rappel personnalisé",
+    "quietWeek": "Semaine {{week}} : seulement {{count}} consultations",
+    "quietWeekAction": "Ouvrir créneaux supplémentaires ou promouvoir agenda",
+    "bestService": "\"{{name}}\" : {{rate}}% taux présence",
+    "bestServiceAction": "Service à promouvoir — excellente adhésion",
+    "worstService": "\"{{name}}\" : {{rate}}% absent",
+    "worstServiceAction": "Activer rappel spécifique pour ce service",
+    "noInsights": "Aucun insight disponible pour la période actuelle."
+  },
+  "emptyState": {
+    "title": "Aucune donnée",
+    "description": "Aucun rendez-vous trouvé pour la période sélectionnée.",
+    "tryLongerPeriod": "Essayez de sélectionner une période plus longue.",
+    "noDataForYear": "Aucune donnée pour {year}"
+  },
+  "chart": {
+    "appointments": "Consultations",
+    "date": "Date",
+    "count": "Quantité"
+  },
+  "analyze": {
+    "label": "Analyser",
+    "tabAppointments": "Rendez-vous",
+    "tabPerformance": "Performance",
+    "revenueTitle": "Évolution des revenus",
+    "revenueDesc": "Revenus quotidiens sur la période sélectionnée",
+    "totalRevenue": "Revenus totaux",
+    "avgRevenue": "Revenu moyen / RDV",
+    "recurringPatients": "Patients récurrents"
+  },
+  "compare": {
+    "label": "Comparer",
+    "periodA": "Période A",
+    "periodB": "Période B",
+    "thisMonth": "Ce mois",
+    "lastMonth": "Mois dernier",
+    "last3Months": "3 derniers mois",
+    "thisYear": "Cette année",
+    "evolution": "Évolution comparative",
+    "insightsTitle": "Insights IA",
+    "insightsDesc": "Analyse intelligente de vos données",
+    "refreshInsights": "Actualiser",
+    "insightsLoading": "Analyse en cours…",
+    "insightsError": "Impossible de générer les insights.",
+    "current": "actuel",
+    "reference": "réf.",
+    "dayLabel": "Jour",
+    "custom": "Période personnalisée",
+    "startDate": "Date début",
+    "endDate": "Date fin"
+  }
+}

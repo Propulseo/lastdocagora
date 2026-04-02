@@ -1,0 +1,22 @@
+{
+  "title": "Contenu",
+  "description": "Gérer les pages et questions fréquentes",
+  "published": "Publié",
+  "unpublished": "Brouillon",
+  "unpublishLabel": "Dépublier",
+  "publishLabel": "Publier",
+  "tabPages": "Pages",
+  "tabFaqs": "Questions Fréquentes",
+  "pagesSlug": "Slug",
+  "pagesTitlePt": "Titre (PT)",
+  "pagesPublished": "Publié",
+  "pagesUpdatedAt": "Mis à jour le",
+  "pagesEmptyTitle": "Aucune page trouvée",
+  "pagesEmptyDescription": "Aucune page de contenu n'a encore été créée.",
+  "faqsQuestionPt": "Question (PT)",
+  "faqsCategory": "Catégorie",
+  "faqsOrder": "Ordre",
+  "faqsPublished": "Publié",
+  "faqsEmptyTitle": "Aucune FAQ trouvée",
+  "faqsEmptyDescription": "Aucune question fréquente n'a encore été créée."
+}

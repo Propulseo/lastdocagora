@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/client";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
+import { useProfessionalI18n } from "@/lib/i18n/pro";
 
 interface ProRealtimeNotifierProps {
   professionalUserId: string;
+}
+
+function formatAppointmentDate(dateStr: string, timeStr: string): string {
+  const scheduledDate = new Date(`${dateStr}T${timeStr}`);
+  if (!isNaN(scheduledDate.getTime())) {
+    return format(scheduledDate, "EEE, d MMM 'às' HH:mm", { locale: pt });
+  }
+  return `${dateStr} às ${timeStr}`;
 }
 
 export function ProRealtimeNotifier({
@@ -14,10 +26,18 @@ export function ProRealtimeNotifier({
 }: ProRealtimeNotifierProps) {
   const { setPendingCount, incrementPendingCount } =
     useProNotificationsStore();
+  const router = useRouter();
+  const { t } = useProfessionalI18n();
+
+  const routerRef = useRef(router);
+  routerRef.current = router;
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     const supabase = createClient();
     let notifyNewAppointments = true;
+    let notifySound = false;
 
     // Fetch initial pending count + notification settings
     async function init() {
@@ -29,7 +49,7 @@ export function ProRealtimeNotifier({
           .eq("status", "pending"),
         supabase
           .from("professional_settings")
-          .select("notify_new_appointments")
+          .select("notify_new_appointments, notify_sound")
           .eq("user_id", professionalUserId)
           .single(),
       ]);
@@ -37,6 +57,7 @@ export function ProRealtimeNotifier({
       setPendingCount(count ?? 0);
       if (settings) {
         notifyNewAppointments = settings.notify_new_appointments;
+        notifySound = settings.notify_sound;
       }
     }
 
@@ -56,17 +77,45 @@ export function ProRealtimeNotifier({
         (payload) => {
           incrementPendingCount();
 
+          if (notifySound) {
+            new Audio("/sounds/notification.wav").play().catch(() => {});
+          }
+
           if (notifyNewAppointments) {
             const row = payload.new as {
+              id?: string;
               appointment_date?: string;
               appointment_time?: string;
               patient_user_id?: string | null;
             };
-            const date = row.appointment_date ?? "";
-            const time = row.appointment_time ?? "";
-            toast.info("Novo agendamento", {
-              description: `Consulta marcada para ${date} às ${time}`,
-            });
+            const dateStr = row.appointment_date ?? "";
+            const timeStr = row.appointment_time ?? "";
+            const formattedDate = formatAppointmentDate(dateStr, timeStr);
+
+            toast.info(
+              tRef.current.notificationBell.toastNewBooking ?? "Novo agendamento",
+              {
+                description: formattedDate,
+                duration: 6000,
+                action: {
+                  label:
+                    tRef.current.notificationBell.toastViewAgenda ??
+                    "Ver na agenda →",
+                  onClick: () => {
+                    routerRef.current.push(
+                      `/pro/agenda?date=${dateStr}&appointmentId=${row.id ?? ""}&view=day`
+                    );
+                  },
+                },
+                cancel: {
+                  label:
+                    tRef.current.notificationBell.toastViewAll ?? "Ver todas",
+                  onClick: () => {
+                    window.dispatchEvent(new CustomEvent("open-notifications"));
+                  },
+                },
+              }
+            );
           }
         }
       )
@@ -78,7 +127,7 @@ export function ProRealtimeNotifier({
           table: "appointments",
           filter: `professional_user_id=eq.${professionalUserId}`,
         },
-        async () => {
+        async (payload) => {
           // Refetch total pending count on any update
           const { count } = await supabase
             .from("appointments")
@@ -86,6 +135,43 @@ export function ProRealtimeNotifier({
             .eq("professional_user_id", professionalUserId)
             .eq("status", "pending");
           setPendingCount(count ?? 0);
+
+          // Toast for cancellation
+          if (notifySound) {
+            new Audio("/sounds/notification.wav").play().catch(() => {});
+          }
+          if (notifyNewAppointments) {
+            const row = payload.new as {
+              id?: string;
+              status?: string;
+              appointment_date?: string;
+              appointment_time?: string;
+            };
+            if (row.status === "cancelled") {
+              const dateStr = row.appointment_date ?? "";
+              const timeStr = row.appointment_time ?? "";
+              const formattedDate = formatAppointmentDate(dateStr, timeStr);
+
+              toast.warning(
+                tRef.current.notificationBell.toastCancellation ??
+                  "Consulta cancelada",
+                {
+                  description: formattedDate,
+                  duration: 6000,
+                  action: {
+                    label:
+                      tRef.current.notificationBell.toastViewAgenda ??
+                      "Ver na agenda →",
+                    onClick: () => {
+                      routerRef.current.push(
+                        `/pro/agenda?date=${dateStr}&view=day`
+                      );
+                    },
+                  },
+                }
+              );
+            }
+          }
         }
       )
       .subscribe();

@@ -27,6 +27,9 @@ export interface Professional {
   longitude: number | null;
   languages_spoken: string[] | null;
   bio: string | null;
+  bio_pt: string | null;
+  bio_fr: string | null;
+  bio_en: string | null;
   rating: number | null;
   total_reviews: number | null;
   verification_status: string | null;

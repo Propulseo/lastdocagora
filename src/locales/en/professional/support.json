@@ -1,0 +1,75 @@
+{
+  "title": "Support",
+  "description": "Contact the DocAgora team for any question or issue.",
+  "newTicket": "New ticket",
+  "categories": {
+    "technical": "Technical issue",
+    "profile": "Question about my profile",
+    "payment": "Payment issue",
+    "bug": "Report a bug",
+    "other": "Other"
+  },
+  "categoryIcons": {
+    "technical": "Wrench",
+    "profile": "User",
+    "payment": "CreditCard",
+    "bug": "Bug",
+    "other": "HelpCircle"
+  },
+  "categoryLabel": "Subject",
+  "categoryPlaceholder": "Select a category",
+  "messageLabel": "Message",
+  "messagePlaceholder": "Describe your issue or question...",
+  "messageMinLength": "Minimum 20 characters",
+  "send": "Send",
+  "sending": "Sending...",
+  "ticketCreated": "Ticket created successfully",
+  "messageSent": "Message sent",
+  "errorCreating": "Error creating ticket",
+  "errorSending": "Error sending message",
+  "emptyTitle": "No tickets",
+  "emptyDescription": "Need help? Our team is here for you.",
+  "emptyHint": "Average response time: under 24h",
+  "resolved": "This ticket has been resolved",
+  "closed": "This ticket is closed",
+  "noMessages": "No messages in this ticket.",
+  "selectTicket": "Select a conversation",
+  "selectTicketHint": "Pick a ticket on the left or create a new one",
+  "replyPlaceholder": "Write your reply...",
+  "adminLabel": "DocAgora Support",
+  "you": "You",
+  "statuses": {
+    "open": "Open",
+    "in_progress": "In progress",
+    "awaiting_confirmation": "Awaiting confirmation",
+    "resolved": "Resolved",
+    "closed": "Closed"
+  },
+  "awaitingConfirmation": {
+    "title": "Your issue has been addressed",
+    "description": "The DocAgora team responded to your ticket. Was the issue resolved?",
+    "confirm": "Yes, issue resolved",
+    "reopen": "No, reopen",
+    "reopenTitle": "Reopen ticket",
+    "reopenDescription": "Briefly describe why the issue is not resolved.",
+    "reopenPlaceholder": "E.g.: The issue persists because...",
+    "reopenButton": "Reopen ticket",
+    "reopenMinLength": "Minimum 10 characters"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "kpi": {
+    "total": "Total tickets",
+    "open": "Open",
+    "resolved": "Resolved",
+    "avgResponse": "Avg. response"
+  },
+  "characters": "characters",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "updatedAt": "Updated"
+}

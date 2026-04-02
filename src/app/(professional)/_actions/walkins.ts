@@ -3,6 +3,77 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { markAttendance } from "./attendance";
+import { toLocalDateStr } from "../pro/agenda/_lib/date-utils";
+import { format, addDays } from "date-fns";
+
+export type SlotInfo = { slot_start: string; slot_end: string };
+type DaySlots = { date: string; slots: SlotInfo[] };
+type WalkInSlotsResult =
+  | {
+      success: true;
+      today: SlotInfo[];
+      nextDays: DaySlots[];
+      currentSlot: string | null;
+    }
+  | { success: false; error: string };
+
+export async function getWalkInSlots(
+  professionalId: string
+): Promise<WalkInSlotsResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const now = new Date();
+  const todayStr = toLocalDateStr(now);
+  const nowTime = format(now, "HH:mm");
+
+  // Fetch today's slots
+  const { data: todayRaw, error: todayErr } = await supabase.rpc(
+    "get_available_slots",
+    { p_date: todayStr, p_professional_id: professionalId }
+  );
+
+  if (todayErr) return { success: false, error: todayErr.message };
+
+  const allTodaySlots = (todayRaw as SlotInfo[]) ?? [];
+
+  // Filter out past slots, keep current + future
+  const todaySlots = allTodaySlots.filter(
+    (s) => s.slot_end.slice(0, 5) > nowTime
+  );
+
+  // Identify "now" slot — slot whose interval contains current time
+  let currentSlot: string | null = null;
+  for (const s of todaySlots) {
+    if (s.slot_start.slice(0, 5) <= nowTime && s.slot_end.slice(0, 5) > nowTime) {
+      currentSlot = s.slot_start;
+      break;
+    }
+  }
+
+  // If no slots today, look ahead up to 7 days (max 3 days with availability)
+  const nextDays: DaySlots[] = [];
+  if (todaySlots.length === 0) {
+    for (let i = 1; i <= 7 && nextDays.length < 3; i++) {
+      const d = addDays(now, i);
+      const dateStr = toLocalDateStr(d);
+      const { data } = await supabase.rpc("get_available_slots", {
+        p_date: dateStr,
+        p_professional_id: professionalId,
+      });
+      const slots = (data as SlotInfo[]) ?? [];
+      if (slots.length > 0) {
+        nextDays.push({ date: dateStr, slots });
+      }
+    }
+  }
+
+  return { success: true, today: todaySlots, nextDays, currentSlot };
+}
 
 type WalkInResult =
   | { success: true; appointmentId: string }
@@ -12,6 +83,7 @@ export async function createWalkIn(formData: {
   patientName: string;
   serviceId: string;
   scheduledTime: string;
+  scheduledDate?: string;
   phone?: string;
   email?: string;
   notes?: string;
@@ -61,7 +133,7 @@ export async function createWalkIn(formData: {
     }
   }
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = formData.scheduledDate ?? toLocalDateStr(new Date());
   const now = new Date().toISOString();
 
   // Insert appointment

@@ -1,0 +1,147 @@
+{
+  "title": "Estatísticas",
+  "description": "Painel de indicadores da sua atividade profissional",
+  "export": "Exportar CSV",
+  "range": {
+    "7d": "7 dias",
+    "30d": "30 dias",
+    "90d": "90 dias",
+    "1y": "1 ano",
+    "custom": "Personalizado"
+  },
+  "filters": {
+    "service": "Serviço",
+    "allServices": "Todos os serviços",
+    "channel": "Canal",
+    "allChannels": "Todos",
+    "channelPatient": "Paciente",
+    "channelManual": "Manual",
+    "channelWalkIn": "Walk-in",
+    "status": "Estado",
+    "allStatuses": "Todos os estados",
+    "statusCompleted": "Concluído",
+    "statusUpcoming": "Agendado",
+    "statusCancelled": "Cancelado",
+    "statusNoShow": "Não compareceu"
+  },
+  "kpi": {
+    "totalAppointments": "Total Consultas",
+    "attendanceRate": "Taxa de Presença",
+    "noShowRate": "Taxa Não Compareceu",
+    "cancellationRate": "Taxa de Cancelamento",
+    "lateness": "Atraso",
+    "avgMinutes": "{{value}} min em média",
+    "pctLate": "{{value}}% atrasados",
+    "newPatients": "Novos Pacientes",
+    "newVsReturning": "{{new}} novos · {{returning}} recorrentes",
+    "sampleWarning": "Baseado em {{count}} consultas — dados limitados",
+    "noAttendanceData": "Sem dados de presença",
+    "markAttendanceCta": "Marque a presença na agenda para alimentar esta estatística.",
+    "goToAgenda": "Ir para agenda",
+    "avgGap": "Tempo entre consultas",
+    "avgGapSub": "Intervalo médio entre consultas",
+    "billableHours": "Horas faturáveis",
+    "billableHoursSub": "Consultas realizadas",
+    "occupancyRate": "Taxa de ocupação",
+    "walkInCount": "Walk-ins",
+    "walkInCountSub": "No período selecionado"
+  },
+  "trends": {
+    "title": "Tendências",
+    "description": "Evolução diária das consultas, não comparecimentos e cancelamentos",
+    "appointments": "Consultas",
+    "noShow": "Não compareceu",
+    "cancelled": "Canceladas"
+  },
+  "heatmap": {
+    "title": "Carga da agenda",
+    "description": "Distribuição das consultas por dia e hora",
+    "appointments": "consultas"
+  },
+  "services": {
+    "title": "Desempenho por serviço",
+    "description": "Volume e não comparecimentos por serviço",
+    "total": "Total",
+    "noShow": "Não compareceu"
+  },
+  "channel": {
+    "title": "Canal de marcação",
+    "description": "Quem cria as consultas",
+    "patientBooking": "Paciente",
+    "manual": "Manual (pro)",
+    "walkIn": "Walk-in"
+  },
+  "punctuality": {
+    "title": "Pontualidade",
+    "description": "Distribuição presença / atraso / ausência",
+    "onTime": "Pontual",
+    "late": "Atrasado",
+    "absent": "Ausente"
+  },
+  "retention": {
+    "title": "Retenção de pacientes",
+    "description": "Percentagem de pacientes que regressaram",
+    "days30": "30 dias",
+    "days60": "60 dias",
+    "days90": "90 dias",
+    "returned": "regressaram",
+    "noData": "Dados insuficientes para calcular a retenção."
+  },
+  "insights": {
+    "title": "Insights e recomendações",
+    "description": "Sugestões automáticas baseadas nos seus dados",
+    "noShowSlot": "{{slot}} : {{rate}}% não compareceu",
+    "noShowSlotAction": "Ativar lembrete duplo para este horário",
+    "riskyPatient": "{{name}} : {{count}} ausências/cancelamentos",
+    "riskyPatientAction": "Considerar acompanhamento ou pagamento antecipado",
+    "quietWeek": "Semana {{week}} : apenas {{count}} consultas",
+    "quietWeekAction": "Abrir horários adicionais ou promover agenda",
+    "bestService": "\"{{name}}\" : {{rate}}% taxa presença",
+    "bestServiceAction": "Serviço a promover — excelente adesão",
+    "worstService": "\"{{name}}\" : {{rate}}% não compareceu",
+    "worstServiceAction": "Ativar lembrete específico para este serviço",
+    "noInsights": "Sem insights disponíveis para o período atual."
+  },
+  "emptyState": {
+    "title": "Sem dados",
+    "description": "Nenhuma consulta encontrada para o período selecionado.",
+    "tryLongerPeriod": "Experimente selecionar um período mais longo.",
+    "noDataForYear": "Sem dados para {year}"
+  },
+  "chart": {
+    "appointments": "Consultas",
+    "date": "Data",
+    "count": "Quantidade"
+  },
+  "analyze": {
+    "label": "Analisar",
+    "tabAppointments": "Consultas",
+    "tabPerformance": "Desempenho",
+    "revenueTitle": "Evolução das receitas",
+    "revenueDesc": "Receitas diárias no período selecionado",
+    "totalRevenue": "Receita total",
+    "avgRevenue": "Receita média / consulta",
+    "recurringPatients": "Pacientes recorrentes"
+  },
+  "compare": {
+    "label": "Comparar",
+    "periodA": "Período A",
+    "periodB": "Período B",
+    "thisMonth": "Este mês",
+    "lastMonth": "Mês passado",
+    "last3Months": "Últimos 3 meses",
+    "thisYear": "Este ano",
+    "evolution": "Evolução comparativa",
+    "insightsTitle": "Insights IA",
+    "insightsDesc": "Análise inteligente dos seus dados",
+    "refreshInsights": "Atualizar",
+    "insightsLoading": "A analisar…",
+    "insightsError": "Não foi possível gerar os insights.",
+    "current": "atual",
+    "reference": "ref.",
+    "dayLabel": "Dia",
+    "custom": "Período personalizado",
+    "startDate": "Data início",
+    "endDate": "Data fim"
+  }
+}

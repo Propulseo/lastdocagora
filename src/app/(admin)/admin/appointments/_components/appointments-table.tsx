@@ -17,6 +17,7 @@ import { cancelAppointment } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { AppointmentMobileList } from "./appointment-mobile-list";
+import { AppointmentDetailModal } from "./appointment-detail-modal";
 
 export interface AppointmentRow {
   id: string;
@@ -28,6 +29,19 @@ export interface AppointmentRow {
   time: string;
   status: string;
   duration_minutes?: number | null;
+  created_via: string | null;
+  created_at: string | null;
+  consultation_type: string | null;
+  location: string | null;
+  price: number | null;
+  notes: string | null;
+  cancellation_reason: string | null;
+  rejection_reason: string | null;
+  cancelled_at: string | null;
+  decided_at: string | null;
+  service_name: string | null;
+  service_price: number | null;
+  attendance_status: string | null;
 }
 
 interface StatusCounts {
@@ -53,12 +67,12 @@ function hashStr(s: string): number {
   return Math.abs(hash);
 }
 
-function KpiStrip({ counts, t }: { counts: StatusCounts; t: Record<string, string> }) {
+function KpiStrip({ counts, t }: { counts: StatusCounts; t: Record<string, unknown> }) {
   const items = [
-    { label: t.kpiTotal, value: counts.total, color: "#374151" },
-    { label: t.kpiConfirmed, value: counts.confirmed, color: "#15803d" },
-    { label: t.kpiCancelled, value: counts.cancelled, color: "#dc2626" },
-    { label: t.kpiPending, value: counts.pending, color: "#854d0e" },
+    { label: t.kpiTotal as string, value: counts.total, color: "#374151" },
+    { label: t.kpiConfirmed as string, value: counts.confirmed, color: "#15803d" },
+    { label: t.kpiCancelled as string, value: counts.cancelled, color: "#dc2626" },
+    { label: t.kpiPending as string, value: counts.pending, color: "#854d0e" },
   ];
   return (
     <div className="flex items-center h-12 gap-6 px-4 rounded-lg border bg-[#f9fafb] overflow-x-auto">
@@ -83,6 +97,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionSheet, setActionSheet] = useState<AppointmentRow | null>(null);
+  const [detailRow, setDetailRow] = useState<AppointmentRow | null>(null);
 
   function handleCancel(id: string) {
     setActionSheet(null);
@@ -162,7 +177,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => toast.info(t.appointments.viewDetails)}>
+              <DropdownMenuItem onClick={() => setDetailRow(row)}>
                 <Eye className="size-4 mr-2" />
                 {t.appointments.viewDetails}
               </DropdownMenuItem>
@@ -189,6 +204,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
         onOpenActionSheet={setActionSheet}
         onCloseActionSheet={() => setActionSheet(null)}
         onCancel={handleCancel}
+        onViewDetails={(row) => { setActionSheet(null); setDetailRow(row); }}
       />
 
       <div className="hidden sm:block">
@@ -211,6 +227,11 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
         variant="destructive"
         loading={isPending}
         onConfirm={executeCancel}
+      />
+
+      <AppointmentDetailModal
+        appointment={detailRow}
+        onClose={() => setDetailRow(null)}
       />
     </div>
   );

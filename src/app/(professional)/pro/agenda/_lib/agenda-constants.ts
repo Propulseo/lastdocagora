@@ -1,3 +1,6 @@
+// ─── Hidden statuses (CLAUDE.md §17) ───
+export const HIDDEN_APPOINTMENT_STATUSES = ["cancelled", "rejected"] as const;
+
 // ─── Grid Geometry ───
 export const HOUR_HEIGHT = 56;
 export const START_HOUR = 7;

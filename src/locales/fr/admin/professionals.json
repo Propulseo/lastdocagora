@@ -1,0 +1,23 @@
+{
+  "title": "Professionnels",
+  "description": "Gérer les professionnels de santé",
+  "statusUpdated": "Statut du professionnel mis à jour",
+  "tableSpecialty": "Spécialité",
+  "tableCity": "Ville",
+  "tableRating": "Note",
+  "verify": "Vérifier",
+  "reject": "Rejeter",
+  "confirmTitle": "Confirmer {action}",
+  "confirmDescription": "Êtes-vous sûr de vouloir {action} ce professionnel ?",
+  "delete": "Supprimer",
+  "professionalDeleted": "Professionnel supprimé définitivement",
+  "deleteConfirmTitle": "Supprimer le professionnel définitivement ?",
+  "deleteConfirmDescription": "Cette action est irréversible. Toutes les données (services, agenda, avis, paramètres) seront supprimées définitivement.",
+  "emptyTitle": "Aucun professionnel trouvé",
+  "searchPlaceholder": "Rechercher des professionnels...",
+  "totalCount": "{count} professionnels",
+  "specialtyFilter": "Filtrer par spécialité",
+  "allSpecialties": "Toutes les spécialités",
+  "cityFilter": "Filtrer par ville",
+  "allCities": "Toutes les villes"
+}

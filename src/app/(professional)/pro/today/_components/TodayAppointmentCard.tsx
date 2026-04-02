@@ -59,11 +59,29 @@ export function TodayAppointmentCard({
   const patientName = [apt.patient_first_name, apt.patient_last_name].filter(Boolean).join(" ") || apt.title || "\u2014";
   const initials = `${apt.patient_first_name?.[0] ?? ""}${apt.patient_last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
+  const isClickable = !!apt.patient_id;
+
+  function handleCardClick() {
+    if (isClickable) onViewPatient(apt.patient_id!, patientName);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if ((e.key === "Enter" || e.key === " ") && isClickable) {
+      e.preventDefault();
+      handleCardClick();
+    }
+  }
+
   return (
     <div
       ref={currentRef}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       className={cn(
-        "rounded-xl border-2 p-4 transition-all",
+        "group rounded-xl border-2 p-4 transition-all",
+        isClickable && "cursor-pointer hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm",
         isCurrent && "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20",
         past && !isCurrent && "opacity-60"
       )}
@@ -121,7 +139,7 @@ export function TodayAppointmentCard({
           size="sm"
           variant="outline"
           className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 h-8 text-xs"
-          onClick={() => onMarkAttendance(apt.id, "present")}
+          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "present"); }}
           disabled={apt.attendance_status === "present"}
         >
           <CheckCircle className="size-3.5 mr-1" />
@@ -131,7 +149,7 @@ export function TodayAppointmentCard({
           size="sm"
           variant="outline"
           className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950 h-8 text-xs"
-          onClick={() => onMarkAttendance(apt.id, "absent")}
+          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "absent"); }}
           disabled={apt.attendance_status === "absent"}
         >
           <XCircle className="size-3.5 mr-1" />
@@ -141,22 +159,17 @@ export function TodayAppointmentCard({
           size="sm"
           variant="outline"
           className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950 h-8 text-xs"
-          onClick={() => onMarkAttendance(apt.id, "late")}
+          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "late"); }}
           disabled={apt.attendance_status === "late"}
         >
           <Clock className="size-3.5 mr-1" />
           {tr.attendance.statusLate}
         </Button>
         {apt.patient_id && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="ml-auto h-8 text-xs"
-            onClick={() => onViewPatient(apt.patient_id!, patientName)}
-          >
+          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
             {tr.viewDetails}
-            <ChevronRight className="size-3.5 ml-1" />
-          </Button>
+            <ChevronRight className="size-3.5" />
+          </span>
         )}
       </div>
     </div>

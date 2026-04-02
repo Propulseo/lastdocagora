@@ -74,7 +74,7 @@ export function ProfileAvatarHeader({ userId, userProfile, professional }: Profi
       <div className="space-y-1">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight">{userProfile.first_name} {userProfile.last_name}</h1>
-          <StatusBadge type="verification" value={professional.verification_status ?? "pending"} />
+          <StatusBadge type="verification" value={professional.verification_status ?? "pending"} labels={{ verified: t.profile.verified, pending: t.profile.pendingVerification, rejected: t.profile.rejected }} />
         </div>
         <p className="text-sm text-muted-foreground">
           {translateSpecialty(professional.specialty, locale)}

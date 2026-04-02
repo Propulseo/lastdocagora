@@ -33,6 +33,9 @@ interface OnboardingShellProps {
     postal_code: string | null;
     languages_spoken: string[] | null;
     bio: string | null;
+    bio_pt: string | null;
+    bio_fr: string | null;
+    bio_en: string | null;
     consultation_fee: number | null;
     third_party_payment: boolean | null;
     insurances_accepted: string[] | null;

@@ -1,0 +1,22 @@
+{
+  "title": "Utilizadores",
+  "description": "Gerir utilizadores da plataforma",
+  "statusUpdated": "Estado do utilizador atualizado",
+  "multiRoleAccount": "Conta multi-perfil",
+  "tableRole": "Perfil",
+  "tableRegisteredAt": "Registado em",
+  "activate": "Ativar",
+  "suspend": "Suspender",
+  "confirmTitle": "Confirmar {action}",
+  "confirmDescription": "Tem a certeza que pretende {action} este utilizador?",
+  "delete": "Eliminar",
+  "userDeleted": "Utilizador eliminado permanentemente",
+  "deleteConfirmTitle": "Eliminar utilizador permanentemente?",
+  "deleteConfirmDescription": "Esta ação é irreversível. Todos os dados (consultas, documentos, configurações) serão eliminados permanentemente.",
+  "cannotDeleteSelf": "Não pode eliminar a sua própria conta",
+  "emptyTitle": "Nenhum utilizador encontrado",
+  "searchPlaceholder": "Pesquisar utilizadores...",
+  "totalCount": "{count} utilizadores",
+  "roleFilter": "Filtrar por perfil",
+  "allRoles": "Todos os perfis"
+}

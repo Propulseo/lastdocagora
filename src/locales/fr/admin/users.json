@@ -1,0 +1,22 @@
+{
+  "title": "Utilisateurs",
+  "description": "Gérer les utilisateurs de la plateforme",
+  "statusUpdated": "Statut de l'utilisateur mis à jour",
+  "multiRoleAccount": "Compte multi-profil",
+  "tableRole": "Rôle",
+  "tableRegisteredAt": "Inscrit le",
+  "activate": "Activer",
+  "suspend": "Suspendre",
+  "confirmTitle": "Confirmer {action}",
+  "confirmDescription": "Êtes-vous sûr de vouloir {action} cet utilisateur ?",
+  "delete": "Supprimer",
+  "userDeleted": "Utilisateur supprimé définitivement",
+  "deleteConfirmTitle": "Supprimer l'utilisateur définitivement ?",
+  "deleteConfirmDescription": "Cette action est irréversible. Toutes les données (rendez-vous, documents, paramètres) seront supprimées définitivement.",
+  "cannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte",
+  "emptyTitle": "Aucun utilisateur trouvé",
+  "searchPlaceholder": "Rechercher des utilisateurs...",
+  "totalCount": "{count} utilisateurs",
+  "roleFilter": "Filtrer par rôle",
+  "allRoles": "Tous les rôles"
+}

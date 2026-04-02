@@ -84,7 +84,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
             {agenda.t.agenda.financialSummary ?? "Resumo financeiro"}
           </span>
           <span>
-            {agenda.financialStats.totalAppointments} {agenda.financialStats.totalAppointments === 1 ? "consulta" : "consultas"}
+            {agenda.financialStats.totalAppointments} {agenda.financialStats.totalAppointments === 1 ? agenda.t.agenda.appointmentSingular : agenda.t.agenda.appointmentPlural}
           </span>
           <span className="text-green-600 dark:text-green-400">
             {agenda.financialStats.confirmedRevenue}€ {agenda.t.agenda.confirmedRevenue ?? "confirmados"}
@@ -105,6 +105,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           onAttendanceChange={agenda.handleAttendanceChange}
           onCreateAppointment={agenda.openCreateDialog}
           onCreateAvailability={agenda.openAvailabilityModal}
+          highlightedAppointmentId={agenda.highlightedAppointmentId}
         />
       )}
 

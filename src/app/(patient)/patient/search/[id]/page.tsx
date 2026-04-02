@@ -25,16 +25,16 @@ export default async function ProfessionalDetailPage({
     supabase
       .from("professionals")
       .select(
-        `id, user_id, specialty, city, rating, total_reviews, consultation_fee, bio,
+        `id, user_id, specialty, city, rating, total_reviews, consultation_fee, bio, bio_pt, bio_fr, bio_en,
          cabinet_name, years_experience, languages_spoken, insurances_accepted, address,
-         verification_status,
+         latitude, longitude, verification_status,
          users!professionals_user_id_fkey ( first_name, last_name, avatar_url, email, phone )`
       )
       .eq("id", id)
       .single(),
     supabase
       .from("services")
-      .select("id, name, description, duration_minutes, price, consultation_type")
+      .select("id, name, name_pt, name_fr, name_en, description, duration_minutes, price, consultation_type")
       .eq("professional_id", id)
       .eq("is_active", true),
     supabase

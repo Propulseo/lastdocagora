@@ -1,0 +1,18 @@
+{
+  "groups": {
+    "general": "General",
+    "management": "Management",
+    "platform": "Platform"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "professionals": "Professionals",
+    "appointments": "Appointments",
+    "statistics": "Statistics",
+    "content": "Content",
+    "support": "Support",
+    "settings": "Settings"
+  },
+  "logout": "Log out"
+}

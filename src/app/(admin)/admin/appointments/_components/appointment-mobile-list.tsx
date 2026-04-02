@@ -9,7 +9,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Eye, MoreHorizontal, X as XIcon } from "lucide-react";
-import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import type { AppointmentRow } from "./appointments-table";
 
@@ -19,6 +18,7 @@ interface AppointmentMobileListProps {
   onOpenActionSheet: (row: AppointmentRow) => void;
   onCloseActionSheet: () => void;
   onCancel: (id: string) => void;
+  onViewDetails: (row: AppointmentRow) => void;
 }
 
 export function AppointmentMobileList({
@@ -27,6 +27,7 @@ export function AppointmentMobileList({
   onOpenActionSheet,
   onCloseActionSheet,
   onCancel,
+  onViewDetails,
 }: AppointmentMobileListProps) {
   const { t } = useAdminI18n();
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
@@ -85,10 +86,7 @@ export function AppointmentMobileList({
           </SheetHeader>
           <div className="mt-2 space-y-1">
             <button
-              onClick={() => {
-                onCloseActionSheet();
-                toast.info(t.appointments.viewDetails);
-              }}
+              onClick={() => onViewDetails(actionSheet!)}
               className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
             >
               <Eye className="size-4" />

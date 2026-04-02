@@ -2,17 +2,14 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CalendarPlus, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppointmentNotes } from "@/app/(professional)/_actions/attendance";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
-import { STATUS_VARIANT } from "./patient-drawer-helpers";
 import { AppointmentTimelineItem } from "./appointment-timeline-item";
-
-type UpcomingItem = PatientDetailEnhanced["upcomingAppointments"][number];
+import { UpcomingAppointmentCard } from "./upcoming-appointment-card";
 
 interface DrawerAppointmentsTranslations {
   upcomingAppointments: string;
@@ -25,6 +22,13 @@ interface DrawerAppointmentsTranslations {
   saveNotes?: string;
   status: Record<string, string>;
   attendance?: Record<string, string>;
+  actions?: {
+    confirm: string;
+    cancel: string;
+    confirmed: string;
+    cancelled: string;
+    error: string;
+  };
 }
 
 interface PatientDrawerAppointmentsProps {
@@ -41,39 +45,13 @@ interface PatientDrawerAppointmentsProps {
   setData: Dispatch<SetStateAction<PatientDetailEnhanced | null>>;
 }
 
-function UpcomingAppointmentCard({
-  apt,
-  dateLocale,
-  statusLabels,
-}: {
-  apt: UpcomingItem;
-  dateLocale: "pt-PT" | "fr-FR" | "en-GB";
-  statusLabels: Record<string, string>;
-}) {
-  return (
-    <div className="flex items-start justify-between rounded-lg border border-blue-200 bg-blue-50/50 p-3">
-      <div className="min-w-0">
-        <p className="text-sm font-medium">
-          {new Date(apt.date).toLocaleDateString(dateLocale)}{" "}
-          <span className="font-normal text-muted-foreground">
-            {apt.time.slice(0, 5)}
-          </span>
-        </p>
-        {apt.serviceName && (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {apt.serviceName}
-          </p>
-        )}
-      </div>
-      <Badge
-        variant={STATUS_VARIANT[apt.status] ?? "outline"}
-        className="ml-2 shrink-0 text-xs"
-      >
-        {statusLabels[apt.status] ?? apt.status}
-      </Badge>
-    </div>
-  );
-}
+const DEFAULT_ACTION_LABELS = {
+  confirm: "Confirmar consulta",
+  cancel: "Cancelar consulta",
+  confirmed: "Consulta confirmada",
+  cancelled: "Consulta cancelada",
+  error: "Erro ao atualizar consulta",
+};
 
 export function PatientDrawerAppointments({
   data,
@@ -90,6 +68,30 @@ export function PatientDrawerAppointments({
 }: PatientDrawerAppointmentsProps) {
   const statusLabels = dt.status;
   const attendanceLabels = dt.attendance ?? {};
+  const actionLabels = dt.actions ?? DEFAULT_ACTION_LABELS;
+
+  function handleUpcomingStatusChange(
+    aptId: string,
+    newStatus: "confirmed" | "cancelled",
+  ) {
+    setData((prev) => {
+      if (!prev) return prev;
+      if (newStatus === "cancelled") {
+        return {
+          ...prev,
+          upcomingAppointments: prev.upcomingAppointments.filter(
+            (a) => a.id !== aptId,
+          ),
+        };
+      }
+      return {
+        ...prev,
+        upcomingAppointments: prev.upcomingAppointments.map((a) =>
+          a.id === aptId ? { ...a, status: newStatus } : a,
+        ),
+      };
+    });
+  }
 
   async function handleSaveNotes(aptId: string) {
     setSavingNotes(true);
@@ -121,12 +123,14 @@ export function PatientDrawerAppointments({
               {dt.upcomingAppointments}
             </h4>
             <div className="space-y-2">
-              {data.upcomingAppointments.map((apt, i) => (
+              {data.upcomingAppointments.map((apt) => (
                 <UpcomingAppointmentCard
-                  key={i}
+                  key={apt.id}
                   apt={apt}
                   dateLocale={dateLocale}
                   statusLabels={statusLabels}
+                  actionLabels={actionLabels}
+                  onStatusChange={handleUpcomingStatusChange}
                 />
               ))}
             </div>

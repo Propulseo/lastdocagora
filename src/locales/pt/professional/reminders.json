@@ -1,0 +1,192 @@
+{
+  "title": "Lembretes",
+  "subtitle": "Gira os lembretes automáticos para os seus pacientes",
+  "tabs": {
+    "reminders": "Lembretes",
+    "templates": "Modelos",
+    "history": "Histórico",
+    "settings": "Definições"
+  },
+  "auto": {
+    "title": "Lembretes automáticos",
+    "subtitle": "Configure lembretes para reduzir faltas e melhorar a comunicação com os pacientes.",
+    "ctaNew": "Novo lembrete"
+  },
+  "kpi": {
+    "sentThisMonth": "Enviados este mês",
+    "deliverability": "Taxa de entrega",
+    "noShowReduction": "Redução de faltas",
+    "activeRules": "Regras ativas",
+    "activeTemplates": "Modelos ativos",
+    "avgDeliveryTime": "Tempo médio",
+    "noData": "Nenhum dado no período",
+    "comingSoon": "Indicador disponível em breve",
+    "rulesDesc": "{count} de {total}",
+    "templatesDesc": "{count} personalizados"
+  },
+  "charts": {
+    "trendsTitle": "Volume de envios",
+    "trendsDesc": "Notificações enviadas por dia nos últimos 30 dias",
+    "sent": "Enviadas",
+    "delivered": "Entregues",
+    "failed": "Falharam",
+    "channelTitle": "Distribuição por canal",
+    "channelDesc": "Distribuição das notificações por canal de envio",
+    "statusTitle": "Estado de entrega",
+    "statusDesc": "Distribuição das notificações por estado final",
+    "notifications": "notificações",
+    "noData": "Sem dados para exibir"
+  },
+  "section": {
+    "appointments": "Consultas"
+  },
+  "rule": {
+    "immediate": "Imediato",
+    "beforeHours": "{{hours}}h antes",
+    "beforeDays": "{{days}}d antes",
+    "appointmentConfirmation": "Confirmação de consulta",
+    "appointmentReminder": "Lembrete de consulta",
+    "custom": "Personalizado"
+  },
+  "channel": {
+    "email": "Email",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp"
+  },
+  "dialog": {
+    "newTitle": "Novo lembrete",
+    "editTitle": "Editar lembrete",
+    "type": "Tipo",
+    "typePlaceholder": "Selecione o tipo",
+    "channel": "Canal",
+    "channelPlaceholder": "Selecione o canal",
+    "trigger": "Momento",
+    "triggerImmediate": "Imediato (na confirmação)",
+    "triggerBefore": "Antes da consulta",
+    "delay": "Antecedência",
+    "delayPlaceholder": "Valor",
+    "delayUnit": "Unidade",
+    "hours": "Horas",
+    "days": "Dias",
+    "template": "Modelo de mensagem",
+    "templatePlaceholder": "Selecione um modelo",
+    "noTemplates": "Nenhum modelo disponível",
+    "onlyIfNotConfirmed": "Apenas se não confirmada",
+    "excludeWeekends": "Excluir fins de semana",
+    "save": "Guardar",
+    "create": "Criar",
+    "delete": "Eliminar",
+    "deleteConfirm": "Tem a certeza que deseja eliminar este lembrete?",
+    "deleteDescription": "Esta ação é irreversível."
+  },
+  "empty": {
+    "title": "Sem lembretes",
+    "description": "Configure o seu primeiro lembrete automático para reduzir faltas.",
+    "cta": "Criar lembrete"
+  },
+  "templates": {
+    "title": "Modelos de lembretes",
+    "subtitle": "Gira os seus modelos de mensagem (SMS, Email, WhatsApp).",
+    "newTemplate": "Novo modelo",
+    "name": "Nome",
+    "type": "Tipo",
+    "channel": "Canal",
+    "content": "Conteúdo",
+    "subject": "Assunto",
+    "body": "Mensagem",
+    "status": "Estado",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "default": "Padrão",
+    "global": "Global",
+    "mine": "Meu",
+    "timing": "Momento de envio",
+    "search": "Pesquisar modelos...",
+    "filterChannel": "Canal",
+    "filterTiming": "Momento",
+    "allChannels": "Todos os canais",
+    "allTimings": "Todos os momentos",
+    "activeOnly": "Apenas ativos",
+    "preview": "Pré-visualização",
+    "variables": "Variáveis disponíveis",
+    "variableHint": "Clique para inserir",
+    "smsCounter": "{{count}} / 160 caracteres",
+    "smsWarning": "O SMS excede 160 caracteres e poderá ser dividido.",
+    "duplicate": "Duplicar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteConfirm": "Tem a certeza que deseja eliminar este modelo?",
+    "deleteDescription": "Esta ação é irreversível.",
+    "duplicateSuccess": "Modelo duplicado. Pode agora editá-lo.",
+    "toggledActive": "Modelo ativado",
+    "toggledInactive": "Modelo desativado",
+    "empty": {
+      "title": "Sem modelos",
+      "description": "Crie o seu primeiro modelo de mensagem ou duplique um dos modelos globais."
+    },
+    "dialog": {
+      "newTitle": "Novo modelo",
+      "editTitle": "Editar modelo",
+      "save": "Guardar",
+      "create": "Criar modelo",
+      "namePlaceholder": "Ex: Lembrete SMS 24h",
+      "subjectPlaceholder": "Assunto do email",
+      "bodyPlaceholder": "Escreva a sua mensagem aqui. Use as variáveis disponíveis à direita.",
+      "channelSms": "SMS",
+      "channelEmail": "Email",
+      "channelWhatsapp": "WhatsApp"
+    },
+    "timingLabels": {
+      "j-2": "J-2 (2 dias antes)",
+      "j-1": "J-1 (1 dia antes)",
+      "h-24": "H-24 (24 horas antes)",
+      "h-2": "H-2 (2 horas antes)",
+      "h-1": "H-1 (1 hora antes)",
+      "apres": "Após consulta"
+    }
+  },
+  "export": "Exportar CSV",
+  "history": {
+    "title": "Histórico de envios",
+    "subtitle": "Visualize todas as notificações enviadas aos pacientes.",
+    "date": "Data",
+    "patient": "Paciente",
+    "type": "Tipo",
+    "channel": "Canal",
+    "status": "Estado",
+    "searchPlaceholder": "Pesquisar paciente...",
+    "allChannels": "Todos os canais",
+    "allStatuses": "Todos os estados",
+    "statusLabels": {
+      "pending": "Pendente",
+      "sent": "Enviado",
+      "delivered": "Entregue",
+      "failed": "Falhou",
+      "bounced": "Devolvido"
+    },
+    "empty": {
+      "title": "Sem histórico",
+      "description": "Nenhuma notificação enviada ainda."
+    }
+  },
+  "settings": {
+    "title": "Definições de lembretes",
+    "subtitle": "Configure as preferências globais de notificação.",
+    "patientReminders": "Lembretes para pacientes",
+    "patientRemindersDesc": "Ativar envio automático de lembretes",
+    "channelEmail": "Canal Email",
+    "channelEmailDesc": "Permitir envio por email",
+    "channelSms": "Canal SMS",
+    "channelSmsDesc": "Permitir envio por SMS",
+    "saved": "Definições guardadas"
+  },
+  "toast": {
+    "ruleCreated": "Lembrete criado com sucesso",
+    "ruleUpdated": "Lembrete atualizado com sucesso",
+    "ruleDeleted": "Lembrete eliminado com sucesso",
+    "ruleToggled": "Estado do lembrete atualizado",
+    "templateCreated": "Modelo criado com sucesso",
+    "templateUpdated": "Modelo atualizado com sucesso",
+    "error": "Ocorreu um erro. Tente novamente."
+  }
+}

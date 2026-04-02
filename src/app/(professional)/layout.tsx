@@ -36,7 +36,10 @@ export default async function ProfessionalLayout({
 
   const supabase = await createClient();
 
-  const [{ data: userProfile }, { data: ticketsWithMessages }, { data: proRecord }] =
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const [{ data: userProfile }, { data: ticketsWithMessages }, { data: proRecord }, { data: initialNotifications }] =
     await Promise.all([
       supabase
         .from("users")
@@ -58,6 +61,13 @@ export default async function ProfessionalLayout({
         .select("onboarding_completed")
         .eq("user_id", user.id)
         .single(),
+      supabase
+        .from("notifications")
+        .select("id, user_id, title, message, type, is_read, related_id, created_at")
+        .eq("user_id", user.id)
+        .gte("created_at", thirtyDaysAgo.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
 
   if (!userProfile) {
@@ -80,6 +90,9 @@ export default async function ProfessionalLayout({
   }
 
   const onboardingCompleted = proRecord?.onboarding_completed === true;
+
+  const notifs = (initialNotifications ?? []) as { id: string; user_id: string; title: string; message: string; type: string; is_read: boolean | null; related_id: string | null; created_at: string | null }[];
+  const unreadNotifCount = notifs.filter((n) => !n.is_read).length;
 
   const sidebarUser = {
     email: userProfile.email,
@@ -108,10 +121,10 @@ export default async function ProfessionalLayout({
       <ProfessionalI18nProvider translations={t} locale={locale}>
         <SidebarProvider>
           <div className="hidden lg:contents">
-            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} />
+            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
           </div>
           <SidebarInset>
-            <ProMobileHeader user={sidebarUser} />
+            <ProMobileHeader user={sidebarUser} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
             <header className="hidden lg:flex h-14 items-center border-b border-border/60 px-6">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />

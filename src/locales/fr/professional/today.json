@@ -1,0 +1,19 @@
+{
+  "title": "Consultations du Jour",
+  "noAppointments": "Aucune consultation pour aujourd'hui",
+  "currentAppointment": "En cours",
+  "viewDetails": "Voir détails",
+  "filters": {
+    "all": "Tous",
+    "pending": "En attente",
+    "confirmed": "Confirmé",
+    "present": "Présent",
+    "absent": "Absent"
+  },
+  "stats": {
+    "total": "consultations",
+    "confirmed": "confirmées",
+    "present": "présents",
+    "pending": "en attente"
+  }
+}

@@ -18,15 +18,50 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [selectedDate, setSelectedDate] = useState(() => toLocalDateStr(new Date()));
-  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("day");
-  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const dateParam = searchParams.get("date");
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      const parsed = parseLocalDate(dateParam);
+      if (!isNaN(parsed.getTime())) return dateParam;
+    }
+    return toLocalDateStr(new Date());
+  });
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>(() => {
+    const viewParam = searchParams.get("view");
+    if (viewParam === "day" || viewParam === "week" || viewParam === "month") {
+      return viewParam;
+    }
+    return "day";
+  });
+  const [highlightedAppointmentId] = useState(() => searchParams.get("appointmentId"));
+  const [statusFilters, setStatusFilters] = useState<string[]>(() => {
+    const statusParam = searchParams.get("status");
+    if (statusParam) {
+      const validStatuses = ["pending", "confirmed", "completed", "no-show"];
+      const parsed = statusParam.split(",").filter((s) => validStatuses.includes(s));
+      if (parsed.length > 0) return parsed;
+    }
+    return [];
+  });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(
     () => searchParams.get("create") === "true"
   );
+
+  // Handle URL params: clean navigation params (date, view, appointmentId)
+  useEffect(() => {
+    const hasNavParams = searchParams.get("date") || searchParams.get("view") || searchParams.get("appointmentId") || searchParams.get("status");
+    if (!hasNavParams) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("date");
+    url.searchParams.delete("view");
+    url.searchParams.delete("appointmentId");
+    url.searchParams.delete("status");
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle URL params: Google Calendar feedback
   useEffect(() => {
@@ -37,18 +72,18 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     if (!calendarError && !calendarConnected && !shouldCreate) return;
 
     if (calendarConnected === "google") {
-      toast.success("Google Calendar conectado com sucesso!");
+      toast.success(t.agenda.calendarConnected);
     } else if (calendarError) {
       const messages: Record<string, string> = {
-        consent_denied: "Autorização Google Calendar recusada.",
-        not_configured: "Google Calendar não configurado. Contacte o administrador.",
-        not_professional: "Apenas profissionais podem conectar calendários.",
-        not_authenticated: "Sessão expirada. Faça login novamente.",
-        token_exchange: "Erro ao conectar Google Calendar. Tente novamente.",
-        encryption: "Erro ao conectar Google Calendar. Tente novamente.",
-        db_error: "Erro ao conectar Google Calendar. Tente novamente.",
+        consent_denied: t.agenda.calendarConsentDenied,
+        not_configured: t.agenda.calendarNotConfigured,
+        not_professional: t.agenda.calendarNotProfessional,
+        not_authenticated: t.agenda.calendarSessionExpired,
+        token_exchange: t.agenda.calendarGenericError,
+        encryption: t.agenda.calendarGenericError,
+        db_error: t.agenda.calendarGenericError,
       };
-      toast.error(messages[calendarError] ?? "Erro ao conectar Google Calendar. Tente novamente.");
+      toast.error(messages[calendarError] ?? t.agenda.calendarGenericError);
     }
 
     // Clean URL params
@@ -57,7 +92,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     url.searchParams.delete("calendar_connected");
     url.searchParams.delete("create");
     router.replace(url.pathname + url.search, { scroll: false });
-  }, [searchParams, router]);
+  }, [searchParams, router, t]);
   const [createStartTime, setCreateStartTime] = useState("");
   const [createEndTime, setCreateEndTime] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -126,11 +161,12 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
           .lte("appointment_date", toLocalDateStr(monthEnd));
       }
 
+      // Always hide cancelled/rejected (CLAUDE.md §17)
+      query = query.not("status", "in", '("cancelled","rejected")');
+
+      // Additionally filter by user-selected statuses (if any)
       if (statusFilters.length > 0) {
         query = query.in("status", statusFilters);
-      } else {
-        // By default, hide cancelled and rejected appointments
-        query = query.not("status", "in", '("cancelled","rejected")');
       }
 
       const { data } = await query;
@@ -333,6 +369,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     setSelectedDate,
     periodFilter,
     setPeriodFilter,
+    highlightedAppointmentId,
     statusFilters,
     setStatusFilters,
     appointments,

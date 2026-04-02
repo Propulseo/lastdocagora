@@ -28,7 +28,7 @@ export type Appointment = {
     specialty: string | null
     users: { first_name: string | null; last_name: string | null } | null
   } | null
-  services: { name: string | null } | null
+  services: { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null
 }
 
 const borderColors: Record<string, string> = {
@@ -96,7 +96,7 @@ export function AppointmentCard({
             </div>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {translateSpecialty(appt.professionals?.specialty, locale)}
-              {appt.services?.name && ` · ${appt.services.name}`}
+              {appt.services?.name && ` · ${(appt.services as Record<string, unknown>)[`name_${locale}`] as string ?? appt.services.name_pt ?? appt.services.name}`}
             </p>
           </div>
         </div>

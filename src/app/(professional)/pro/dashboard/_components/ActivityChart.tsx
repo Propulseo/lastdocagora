@@ -156,7 +156,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
               return (
                 <Link
                   key={apt.id}
-                  href="/pro/agenda"
+                  href={`/pro/agenda?date=${apt.appointment_date}&appointmentId=${apt.id}&view=day`}
                   className="group flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-accent/50"
                 >
                   <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold uppercase text-primary">

@@ -41,6 +41,7 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 const statusDot: Record<string, string> = {
   open: "bg-amber-500",
   in_progress: "bg-blue-500",
+  awaiting_confirmation: "bg-blue-500",
   resolved: "bg-emerald-500",
   closed: "bg-muted-foreground/40",
 };

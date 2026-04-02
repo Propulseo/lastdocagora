@@ -1,0 +1,11 @@
+{
+  "title": "Notificações",
+  "markAllRead": "Marcar todas como lidas",
+  "empty": "Nenhuma notificação",
+  "errorMarkAll": "Erro ao marcar notificações",
+  "unreadCount": "{count} não lida(s)",
+  "toastNewBooking": "Novo agendamento",
+  "toastCancellation": "Consulta cancelada",
+  "toastViewAgenda": "Ver na agenda →",
+  "toastViewAll": "Ver todas"
+}
