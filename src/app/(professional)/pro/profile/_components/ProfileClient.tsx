@@ -7,8 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { translateSpecialty } from "@/locales/patient/specialties";
+import { getSpecialtyOptions, translateSpecialty } from "@/locales/patient/specialties";
 import { ProfileAvatarHeader } from "./ProfileAvatarHeader";
 import { ProfileRatingsSection } from "./ProfileRatingsSection";
 import { useProfileEditing } from "./useProfileEditing";

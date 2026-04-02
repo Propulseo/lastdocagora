@@ -19,8 +19,12 @@ const personalSchema = z.object({
 
 const professionalSchema = z.object({
   section: z.literal("professional"),
+  specialty: z.string().max(100).optional().or(z.literal("")),
+  registration_number: z.string().max(100).optional().or(z.literal("")),
+  practice_type: z.string().max(50).optional().or(z.literal("")),
   cabinet_name: z.string().max(100).optional().or(z.literal("")),
   subspecialties: z.string().max(500).optional().or(z.literal("")),
+  years_experience: z.number().int().nonnegative().optional(),
   bio: z.string().max(1000).optional().or(z.literal("")),
   bio_pt: z.string().max(1000).optional().or(z.literal("")),
   bio_fr: z.string().max(1000).optional().or(z.literal("")),
@@ -98,10 +102,16 @@ export async function updateProfile(
     const { error } = await supabase
       .from("professionals")
       .update({
+        // `specialty` est traité comme champ requis côté types Supabase.
+        // Si l'utilisateur laisse vide, on n'envoie pas la valeur (undefined) pour éviter `null`.
+        specialty: data.specialty || undefined,
+        registration_number: data.registration_number || undefined,
+        practice_type: data.practice_type || null,
         cabinet_name: data.cabinet_name || null,
         subspecialties: data.subspecialties
           ? data.subspecialties.split(",").map((s) => s.trim()).filter(Boolean)
           : null,
+        years_experience: data.years_experience ?? null,
         bio: data.bio || null,
         bio_pt: data.bio_pt || null,
         bio_fr: data.bio_fr || null,
