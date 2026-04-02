@@ -114,12 +114,13 @@ export function ProfessionalCard({
       <Card className="flex flex-col transition-shadow hover:shadow-md">
         <CardContent className="flex flex-1 flex-col gap-4 pt-6">
           <div className="flex items-start gap-3">
-            <Avatar className="size-16 md:size-20 border-2 border-background shadow-sm">
+            <Avatar className="size-20 md:size-24 border-2 border-background shadow-sm">
               <AvatarImage
                 src={prof.users?.avatar_url ?? undefined}
                 alt={profName}
+                className="object-cover"
               />
-              <AvatarFallback className="bg-primary/10 text-primary text-lg md:text-xl">
+              <AvatarFallback className="bg-primary/10 text-primary text-xl md:text-2xl">
                 {getProfessionalInitials(profData, fullT.professional)}
               </AvatarFallback>
             </Avatar>

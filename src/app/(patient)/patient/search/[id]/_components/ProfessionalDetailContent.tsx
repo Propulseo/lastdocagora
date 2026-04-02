@@ -92,13 +92,13 @@ export function ProfessionalDetailContent({
       <Card>
         <CardContent className="pt-6">
           <div className="flex gap-4">
-            <Avatar className="size-24 md:size-32 border-2 border-background shadow-sm">
+            <Avatar className="size-28 md:size-36 border-2 border-background shadow-sm">
               <AvatarImage
                 src={u.avatar_url ?? undefined}
                 alt={fullName}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-primary/10 text-2xl md:text-3xl font-semibold text-primary">
+              <AvatarFallback className="bg-primary/10 text-3xl md:text-4xl font-semibold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>

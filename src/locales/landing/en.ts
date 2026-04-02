@@ -126,5 +126,7 @@ export const enLanding: LandingTranslations = {
     suggestion2: "Family doctor in Porto",
     suggestion3: "Dermatologist who speaks English",
     suggestion4: "Affordable psychologist",
+    signupCtaText: "To book an appointment, create a free account",
+    signupCtaButton: "Create your account →",
   },
 }

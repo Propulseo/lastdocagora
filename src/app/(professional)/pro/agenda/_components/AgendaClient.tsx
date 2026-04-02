@@ -16,6 +16,7 @@ import { NewAvailabilityModal } from "./NewAvailabilityModal";
 import { CreateManualAppointmentDialog } from "./CreateManualAppointmentDialog";
 import { CalendarIntegrationDialog } from "./CalendarIntegrationDialog";
 import { WalkInDialog } from "./WalkInDialog";
+import { PendingBanner } from "./PendingBanner";
 
 // Re-export types for backward compat (consumed by page.tsx)
 export type { Appointment, ExternalEvent } from "../_types/agenda";
@@ -73,6 +74,12 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         onStatusChange={agenda.setStatusFilters}
         selectedDate={agenda.selectedDate}
         onDateChange={agenda.setSelectedDate}
+      />
+
+      <PendingBanner
+        professionalId={professionalId}
+        onStatusChanged={agenda.refresh}
+        onAppointmentUpdate={agenda.handleAttendanceChange}
       />
 
       <AttendanceStats stats={agenda.stats} />

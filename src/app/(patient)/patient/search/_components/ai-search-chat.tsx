@@ -84,6 +84,7 @@ export function AISearchChat({
       const result = await aiSearch({
         message: trimmed,
         history,
+        locale,
       })
 
       if (!result.success) {

@@ -7,7 +7,7 @@ import { z } from "zod/v4"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { Loader2, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { Loader2, Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { cn } from "@/lib/utils"
@@ -36,6 +36,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
   const [loading, setLoading] = useState(false)
   const [role, setRole] = useState<"patient" | "professional">("patient")
   const [shaking, setShaking] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   const {
     register,
@@ -53,6 +54,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
   }
 
   async function onSubmit(data: LoginValues) {
+    setAuthError(null)
     setLoading(true)
 
     try {
@@ -63,7 +65,9 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
       })
 
       if (error) {
-        toast.error(getErrorMessage(error.message))
+        const msg = getErrorMessage(error.message)
+        setAuthError(msg)
+        toast.error(msg)
         setShaking(true)
         setTimeout(() => setShaking(false), 500)
         setLoading(false)
@@ -93,6 +97,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
 
       router.refresh()
     } catch {
+      setAuthError(t.auth.errorConnection)
       toast.error(t.auth.errorConnection)
       setShaking(true)
       setTimeout(() => setShaking(false), 500)
@@ -153,7 +158,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
               autoComplete="email"
               disabled={loading}
               className={cn(inputClasses, "pl-10", errors.email && "border-red-400")}
-              {...register("email")}
+              {...register("email", { onChange: () => setAuthError(null) })}
             />
           </div>
         </div>
@@ -188,7 +193,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
                 "pl-10 pr-10",
                 errors.password && "border-red-400"
               )}
-              {...register("password")}
+              {...register("password", { onChange: () => setAuthError(null) })}
             />
             <button
               type="button"
@@ -201,6 +206,14 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
             </button>
           </div>
         </div>
+
+        {/* Auth error */}
+        {authError && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>{authError}</span>
+          </div>
+        )}
 
         {/* Submit */}
         <div className="pt-1">

@@ -91,6 +91,25 @@ export function SupportFilters() {
     </Select>
   );
 
+  const typeSelect = (
+    <Select
+      defaultValue={searchParams.get("type") ?? "all"}
+      onValueChange={(value) => updateParam("type", value)}
+    >
+      <SelectTrigger
+        className="w-full sm:w-[200px]"
+        aria-label={t.support.typeFilter}
+      >
+        <SelectValue placeholder={t.support.typeFilter} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t.support.allTypes}</SelectItem>
+        <SelectItem value="profile_change_request">{t.support.typeChangeRequest}</SelectItem>
+        <SelectItem value="general">{t.support.typeGeneral}</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+
   return (
     <div className="rounded-xl border bg-card p-3 shadow-[var(--shadow-card)]">
       {/* Desktop filters */}
@@ -98,6 +117,7 @@ export function SupportFilters() {
         <SearchInput placeholder={t.support.searchPlaceholder} />
         {statusSelect}
         {prioritySelect}
+        {typeSelect}
       </div>
 
       {/* Mobile filters */}
@@ -128,6 +148,7 @@ export function SupportFilters() {
           <div className="mt-4 space-y-4">
             {statusSelect}
             {prioritySelect}
+            {typeSelect}
           </div>
         </SheetContent>
       </Sheet>

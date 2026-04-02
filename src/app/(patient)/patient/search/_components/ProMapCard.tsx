@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Star } from "lucide-react"
@@ -24,7 +24,7 @@ interface ProMapCardProps {
 export function ProMapCard({ prof, locale, t, labels, onViewProfile, onBook }: ProMapCardProps) {
   const profData = prof as {
     specialty?: string | null
-    users?: { first_name?: string | null; last_name?: string | null } | null
+    users?: { first_name?: string | null; last_name?: string | null; avatar_url?: string | null } | null
   }
 
   const profName = getProfessionalName(profData, labels)
@@ -33,7 +33,11 @@ export function ProMapCard({ prof, locale, t, labels, onViewProfile, onBook }: P
   return (
     <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md">
       <div className="flex items-start gap-3">
-        <Avatar size="lg">
+        <Avatar size="lg" className="size-12">
+          <AvatarImage
+            src={prof.users?.avatar_url ?? undefined}
+            alt={profName}
+/>
           <AvatarFallback className="bg-primary/10 text-primary">
             {initials}
           </AvatarFallback>

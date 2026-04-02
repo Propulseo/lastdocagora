@@ -24,7 +24,7 @@ export default async function DashboardPage() {
           `id, appointment_date, appointment_time, status, consultation_type,
            professionals!appointments_professional_id_fkey (
              specialty,
-             users!professionals_user_id_fkey ( first_name, last_name )
+             users!professionals_user_id_fkey ( first_name, last_name, avatar_url )
            )`
         )
         .eq("patient_user_id", user.id)
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           `id, appointment_date, appointment_time, status, consultation_type,
            professionals!appointments_professional_id_fkey (
              specialty,
-             users!professionals_user_id_fkey ( first_name, last_name )
+             users!professionals_user_id_fkey ( first_name, last_name, avatar_url )
            )`
         )
         .eq("patient_user_id", user.id)

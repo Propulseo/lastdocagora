@@ -115,10 +115,10 @@ export default async function ProfessionalLayout({
 
   return (
     <>
-      <ProRealtimeNotifier professionalUserId={user.id} />
       <RoleBodyClass role="role-professional" />
       <ThemeSync userId={user.id} target="professional_settings" />
       <ProfessionalI18nProvider translations={t} locale={locale}>
+        <ProRealtimeNotifier professionalUserId={user.id} />
         <SidebarProvider>
           <div className="hidden lg:contents">
             <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />

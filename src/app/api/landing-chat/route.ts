@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { createHash } from "crypto"
 import { getOpenAIClient } from "@/lib/ai/openai-client"
-import { buildSystemPrompt, LANG_DETECT_PROMPT } from "@/lib/ai/system-prompt"
+import { buildSystemPrompt } from "@/lib/ai/system-prompt"
 import {
   aiSearchFiltersSchema,
   aiOutputSchema,
@@ -195,11 +195,13 @@ async function queryProfessionals(filters: AISearchFilters) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, history, session_id } = body as {
+    const { message, history, session_id, locale: rawLocale } = body as {
       message?: string
       history?: { role: "user" | "assistant"; content: string }[]
       session_id?: string
+      locale?: string
     }
+    const locale = rawLocale === "fr" || rawLocale === "en" ? rawLocale : "pt"
 
     if (!message || typeof message !== "string" || message.length > 500) {
       return NextResponse.json(
@@ -273,36 +275,15 @@ export async function POST(request: NextRequest) {
 
     // Run AI search
     const openai = getOpenAIClient()
-    const [context, detectedLang] = await Promise.all([
-      getCachedContext(),
-      (async () => {
-        try {
-          const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-              { role: "system", content: LANG_DETECT_PROMPT },
-              { role: "user", content: message },
-            ],
-            temperature: 0,
-            max_tokens: 5,
-          })
-          const raw = (completion.choices[0]?.message?.content ?? "")
-            .trim()
-            .toUpperCase()
-          if (raw === "FR" || raw === "EN" || raw === "PT") return raw
-          return "PT"
-        } catch {
-          return "PT"
-        }
-      })(),
-    ])
+    const context = await getCachedContext()
 
     const todayISO = new Date().toISOString().slice(0, 10)
     const systemPrompt = buildSystemPrompt(
       context.specialties,
       context.cities,
       context.neighborhoods,
-      todayISO
+      todayISO,
+      locale
     )
 
     const chatMessages: {
@@ -406,7 +387,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: responseMessage,
       professionals,
-      lang: detectedLang,
+      lang: ({ pt: "PT", fr: "FR", en: "EN" } as Record<string, string>)[locale] ?? "PT",
       message_count: newCount,
       messages_remaining: Math.max(0, MAX_FREE_MESSAGES - newCount),
       show_wall: showWall,

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { Bot, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { Bot, Sparkles, UserPlus } from "lucide-react"
 import { useLandingTranslations } from "@/locales/landing-locale-context"
 import { LandingChatWall } from "./landing-chat-wall"
 import { LandingChatMessage } from "./landing-chat-message"
@@ -24,7 +25,7 @@ type ChatEntry = {
 }
 
 export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
-  const { t } = useLandingTranslations()
+  const { t, locale } = useLandingTranslations()
   const ct = t.chat
 
   const [messages, setMessages] = useState<ChatEntry[]>([
@@ -33,6 +34,7 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showWall, setShowWall] = useState(false)
+  const [showSignupCta, setShowSignupCta] = useState(false)
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [lastQuery, setLastQuery] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -40,6 +42,18 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
   useEffect(() => {
     setMessagesUsed(getLocalMessageCount())
   }, [])
+
+  // Re-sync welcome message when locale changes
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length === 1 && prev[0].role === "assistant") {
+        return [{ role: "assistant", content: ct.welcome }]
+      }
+      return prev.map((m, i) =>
+        i === 0 && m.role === "assistant" ? { ...m, content: ct.welcome } : m
+      )
+    })
+  }, [ct.welcome])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -78,6 +92,7 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
           message: trimmed,
           history,
           session_id: sessionId,
+          locale,
         }),
       })
 
@@ -108,6 +123,8 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
           professionals: data.professionals?.length > 0 ? data.professionals : undefined,
         },
       ])
+
+      if (!showSignupCta) setShowSignupCta(true)
 
       const allMessages: ChatMessage[] = [
         ...buildHistory(),
@@ -195,6 +212,25 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
                 {s}
               </button>
             ))}
+          </div>
+        )}
+
+        {showSignupCta && !showWall && (
+          <div className="mx-0 my-2 p-3 rounded-xl bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center flex-shrink-0">
+                <UserPlus className="w-3.5 h-3.5 text-teal-600" />
+              </div>
+              <p className="text-xs text-teal-800 dark:text-teal-300 leading-snug">
+                {ct.signupCtaText}
+              </p>
+            </div>
+            <Link
+              href={`/login?redirect=${encodeURIComponent("/patient/search?chat=1")}#register`}
+              className="flex-shrink-0 text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+            >
+              {ct.signupCtaButton}
+            </Link>
           </div>
         )}
 

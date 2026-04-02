@@ -49,6 +49,18 @@ function AuthPageInner() {
     [isAnimating, mode]
   )
 
+  // Force register mode when hash=#register (covers client-side navigation)
+  useEffect(() => {
+    function handleHash() {
+      if (window.location.hash === "#register") {
+        switchTo("register")
+      }
+    }
+    handleHash()
+    window.addEventListener("hashchange", handleHash)
+    return () => window.removeEventListener("hashchange", handleHash)
+  }, [switchTo])
+
   // Focus first input after animation
   useEffect(() => {
     if (mounted.current && !isAnimating) {

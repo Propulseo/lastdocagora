@@ -126,5 +126,7 @@ export const frLanding: LandingTranslations = {
     suggestion2: "Médecin généraliste à Porto",
     suggestion3: "Dermatologue qui parle français",
     suggestion4: "Psychologue pas cher",
+    signupCtaText: "Pour prendre rendez-vous, créez un compte gratuit",
+    signupCtaButton: "Créez votre compte →",
   },
 }

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { getOpenAIClient } from "@/lib/ai/openai-client"
-import { buildSystemPrompt, LANG_DETECT_PROMPT } from "@/lib/ai/system-prompt"
+import { buildSystemPrompt } from "@/lib/ai/system-prompt"
 import {
   aiSearchInputSchema,
   aiSearchFiltersSchema,
@@ -56,28 +56,10 @@ async function getCachedContext(supabase: Awaited<ReturnType<typeof createClient
   return contextCache
 }
 
-async function detectLanguage(openai: ReturnType<typeof getOpenAIClient>, message: string): Promise<DetectedLang> {
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: LANG_DETECT_PROMPT },
-        { role: "user", content: message },
-      ],
-      temperature: 0,
-      max_tokens: 5,
-    })
-    const raw = (completion.choices[0]?.message?.content ?? "").trim().toUpperCase()
-    if (raw === "FR" || raw === "EN" || raw === "PT") return raw
-    return "FR" // fallback
-  } catch {
-    return "FR" // fallback on error
-  }
-}
-
 export async function aiSearch(input: {
   message: string
   history: { role: "user" | "assistant"; content: string }[]
+  locale?: string
 }): Promise<AISearchResponse> {
   // 1. Auth check
   const supabase = await createClient()
@@ -95,16 +77,15 @@ export async function aiSearch(input: {
   }
   const { message, history } = parsed.data
 
-  // 3. Fetch context (cached) + detect language in parallel
+  // 3. Fetch context (cached) + derive language from locale
   const openai = getOpenAIClient()
-  const [{ specialties, cities, neighborhoods }, detectedLang] = await Promise.all([
-    getCachedContext(supabase),
-    detectLanguage(openai, message),
-  ])
+  const locale = parsed.data.locale ?? "pt"
+  const lang: DetectedLang = ({ pt: "PT", fr: "FR", en: "EN" } as Record<string, DetectedLang>)[locale] ?? "PT"
+  const { specialties, cities, neighborhoods } = await getCachedContext(supabase)
 
   // 4. Call OpenAI for filter extraction
   const todayISO = new Date().toISOString().slice(0, 10)
-  const systemPrompt = buildSystemPrompt(specialties, cities, neighborhoods, todayISO)
+  const systemPrompt = buildSystemPrompt(specialties, cities, neighborhoods, todayISO, locale)
 
   const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
     { role: "system", content: systemPrompt },
@@ -171,7 +152,7 @@ export async function aiSearch(input: {
         type: "clarification",
         message: aiOutput.message,
         suggested_options: aiOutput.suggested_options ?? undefined,
-        lang: detectedLang,
+        lang,
       },
     }
   }
@@ -197,7 +178,7 @@ export async function aiSearch(input: {
       type: "search",
       message: aiOutput.message,
       professionals: filteredProfessionals,
-      lang: detectedLang,
+      lang,
       debug: queryError ?? undefined,
       requested_date: requestedDate,
       fallback_level: level,

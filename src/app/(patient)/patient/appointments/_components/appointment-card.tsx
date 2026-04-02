@@ -3,6 +3,7 @@
 import { Star } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   getProfessionalName,
   getProfessionalInitials,
@@ -26,7 +27,7 @@ export type Appointment = {
   professional_user_id: string
   professionals: {
     specialty: string | null
-    users: { first_name: string | null; last_name: string | null } | null
+    users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
   } | null
   services: { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null
 }
@@ -81,14 +82,15 @@ export function AppointmentCard({
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div
-            className={cn(
-              "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-              avatarColors[type]
-            )}
-          >
-            {profInitials}
-          </div>
+          <Avatar className="size-10 shrink-0">
+            <AvatarImage
+              src={appt.professionals?.users?.avatar_url ?? undefined}
+              alt={profName}
+/>
+            <AvatarFallback className={cn("text-sm font-semibold", avatarColors[type])}>
+              {profInitials}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="truncate text-sm font-semibold">{profName}</h3>

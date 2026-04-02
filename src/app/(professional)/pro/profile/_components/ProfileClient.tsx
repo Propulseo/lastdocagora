@@ -7,15 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { getSpecialtyOptions, translateSpecialty } from "@/locales/patient/specialties";
+import { translateSpecialty } from "@/locales/patient/specialties";
 import { ProfileAvatarHeader } from "./ProfileAvatarHeader";
 import { ProfileRatingsSection } from "./ProfileRatingsSection";
 import { useProfileEditing } from "./useProfileEditing";
@@ -66,17 +59,15 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
         <CardContent>
           {editing.editingSection === "professional" ? (
             <div className="space-y-3">
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
-                <label className="shrink-0 text-sm text-muted-foreground sm:w-40">{t.profile.specialty}</label>
-                <Select value={editing.formValues.specialty ?? ""} onValueChange={(v) => editing.updateField("specialty", v)}>
-                  <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>{getSpecialtyOptions(locale).map((opt) => (<SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>))}</SelectContent>
-                </Select>
-              </div>
-              <EditField label={t.profile.registrationNumber} value={editing.formValues.registration_number ?? ""} onChange={(v) => editing.updateField("registration_number", v)} />
-              <EditField label={t.profile.practiceType} value={editing.formValues.practice_type ?? ""} onChange={(v) => editing.updateField("practice_type", v)} />
+              <LockedField label={t.profile.specialty} value={translateSpecialty(professional.specialty, locale)} fallbackLabel={t.profile.notDefined} />
+              <Separator />
+              <LockedField label={t.profile.registrationNumber} value={professional.registration_number} fallbackLabel={t.profile.notDefined} />
+              <Separator />
+              <ApprovalField label={t.profile.practiceType} value={professional.practice_type} fallbackLabel={t.profile.notDefined} fieldName="practice_type" professionalId={professional.id} />
+              <Separator />
+              <ApprovalField label={t.profile.yearsExperience} value={professional.years_experience?.toString()} fallbackLabel={t.profile.notDefined} fieldName="years_experience" professionalId={professional.id} />
+              <Separator />
               <EditField label={t.profile.cabinetName} value={editing.formValues.cabinet_name ?? ""} onChange={(v) => editing.updateField("cabinet_name", v)} />
-              <EditField label={t.profile.yearsExperience} value={editing.formValues.years_experience ?? ""} onChange={(v) => editing.updateField("years_experience", v)} />
               <EditField label={t.profile.subspecialties} value={editing.formValues.subspecialties ?? ""} onChange={(v) => editing.updateField("subspecialties", v)} placeholder={t.profile.subspecialtiesHint} />
               <div className="space-y-2">
                 <Label>{t.profile.bio}</Label>
@@ -101,12 +92,17 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
             </div>
           ) : (
             <div className="space-y-3">
-              <DisplayField label={t.profile.specialty} value={translateSpecialty(professional.specialty, locale)} fallback={t.profile.notDefined} />
-              <Separator /><DisplayField label={t.profile.registrationNumber} value={professional.registration_number} fallback={t.profile.notDefined} />
-              <Separator /><DisplayField label={t.profile.practiceType} value={professional.practice_type} fallback={t.profile.notDefined} />
-              <Separator /><DisplayField label={t.profile.cabinetName} value={professional.cabinet_name} fallback={t.profile.notDefined} />
-              <Separator /><DisplayField label={t.profile.yearsExperience} value={professional.years_experience?.toString()} fallback={t.profile.notDefined} />
-              <Separator /><DisplayField label={t.profile.subspecialties} value={professional.subspecialties?.join(", ")} fallback={t.profile.none} />
+              <LockedField label={t.profile.specialty} value={translateSpecialty(professional.specialty, locale)} fallbackLabel={t.profile.notDefined} />
+              <Separator />
+              <LockedField label={t.profile.registrationNumber} value={professional.registration_number} fallbackLabel={t.profile.notDefined} />
+              <Separator />
+              <ApprovalField label={t.profile.practiceType} value={professional.practice_type} fallbackLabel={t.profile.notDefined} fieldName="practice_type" professionalId={professional.id} />
+              <Separator />
+              <ApprovalField label={t.profile.yearsExperience} value={professional.years_experience?.toString()} fallbackLabel={t.profile.notDefined} fieldName="years_experience" professionalId={professional.id} />
+              <Separator />
+              <DisplayField label={t.profile.cabinetName} value={professional.cabinet_name} fallback={t.profile.notDefined} />
+              <Separator />
+              <DisplayField label={t.profile.subspecialties} value={professional.subspecialties?.join(", ")} fallback={t.profile.none} />
             </div>
           )}
         </CardContent>

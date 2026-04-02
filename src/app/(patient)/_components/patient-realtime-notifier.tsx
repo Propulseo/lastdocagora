@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { usePatientTranslations } from "@/locales/locale-context";
@@ -77,10 +78,20 @@ function resolveNotification(
   return { title, message };
 }
 
+const APPOINTMENT_NOTIFICATION_TYPES = new Set([
+  "appointment_confirmed",
+  "cancellation",
+  "appointment_rejected",
+  "alternative_proposed",
+]);
+
 export function PatientRealtimeNotifier({
   userId,
 }: PatientRealtimeNotifierProps) {
   const { t } = usePatientTranslations();
+  const router = useRouter();
+  const routerRef = useRef(router);
+  routerRef.current = router;
 
   useEffect(() => {
     const supabase = createClient();
@@ -100,6 +111,11 @@ export function PatientRealtimeNotifier({
           const { title, message } = resolveNotification(row, t);
           const viewLabel = t.nav.appointments;
 
+          // Refresh server data so the current page reflects the change
+          if (APPOINTMENT_NOTIFICATION_TYPES.has(row.type ?? "")) {
+            routerRef.current.refresh();
+          }
+
           switch (row.type) {
             case "appointment_confirmed":
               toast.success(title, {
@@ -108,7 +124,7 @@ export function PatientRealtimeNotifier({
                 action: {
                   label: `${viewLabel} \u2192`,
                   onClick: () => {
-                    window.location.href = "/patient/appointments";
+                    routerRef.current.push("/patient/appointments");
                   },
                 },
               });
@@ -122,7 +138,7 @@ export function PatientRealtimeNotifier({
                 action: {
                   label: `${viewLabel} \u2192`,
                   onClick: () => {
-                    window.location.href = "/patient/appointments";
+                    routerRef.current.push("/patient/appointments");
                   },
                 },
               });
@@ -135,7 +151,7 @@ export function PatientRealtimeNotifier({
                 action: {
                   label: `${viewLabel} \u2192`,
                   onClick: () => {
-                    window.location.href = "/patient/appointments";
+                    routerRef.current.push("/patient/appointments");
                   },
                 },
               });

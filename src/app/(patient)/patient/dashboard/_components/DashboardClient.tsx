@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Search, ArrowRight } from "lucide-react"
 import { format } from "date-fns"
@@ -23,7 +23,7 @@ type DashboardAppointment = {
   consultation_type: string
   professionals: {
     specialty: string | null
-    users: { first_name: string | null; last_name: string | null } | null
+    users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
   } | null
 }
 
@@ -92,6 +92,10 @@ export function DashboardClient({
                 {/* Professional info */}
                 <div className="flex flex-1 items-center gap-4">
                   <Avatar size="lg" className="size-14">
+                    <AvatarImage
+                      src={nextAppointment.professionals?.users?.avatar_url ?? undefined}
+                      alt={getProfessionalName(nextAppointment.professionals, t.professional)}
+                    />
                     <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
                       {getProfessionalInitials(nextAppointment.professionals, t.professional)}
                     </AvatarFallback>
@@ -160,6 +164,10 @@ export function DashboardClient({
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <Avatar>
+                        <AvatarImage
+                          src={appt.professionals?.users?.avatar_url ?? undefined}
+                          alt={getProfessionalName(appt.professionals, t.professional)}
+                        />
                         <AvatarFallback className="bg-primary/10 text-xs text-primary">
                           {getProfessionalInitials(appt.professionals, t.professional)}
                         </AvatarFallback>

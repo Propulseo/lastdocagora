@@ -113,6 +113,8 @@ export type LandingTranslations = {
     suggestion2: string
     suggestion3: string
     suggestion4: string
+    signupCtaText: string
+    signupCtaButton: string
   }
 }
 
@@ -242,5 +244,7 @@ export const ptLanding: LandingTranslations = {
     suggestion2: "Médico de família no Porto",
     suggestion3: "Dermatologista que fale inglês",
     suggestion4: "Psicólogo barato",
+    signupCtaText: "Para marcar uma consulta, crie uma conta gratuita",
+    signupCtaButton: "Crie a sua conta →",
   },
 }

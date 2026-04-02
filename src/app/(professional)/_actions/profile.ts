@@ -99,19 +99,16 @@ export async function updateProfile(
   }
 
   if (data.section === "professional") {
+    // Protected fields: specialty, registration_number → admin only
+    // Protected fields: practice_type, years_experience → approval required
+    // These are intentionally excluded from the update payload.
     const { error } = await supabase
       .from("professionals")
       .update({
-        // `specialty` est traité comme champ requis côté types Supabase.
-        // Si l'utilisateur laisse vide, on n'envoie pas la valeur (undefined) pour éviter `null`.
-        specialty: data.specialty || undefined,
-        registration_number: data.registration_number || undefined,
-        practice_type: data.practice_type || null,
         cabinet_name: data.cabinet_name || null,
         subspecialties: data.subspecialties
           ? data.subspecialties.split(",").map((s) => s.trim()).filter(Boolean)
           : null,
-        years_experience: data.years_experience ?? null,
         bio: data.bio || null,
         bio_pt: data.bio_pt || null,
         bio_fr: data.bio_fr || null,

@@ -202,6 +202,12 @@
     "cancelled": "Appointment cancelled",
     "error": "Error cancelling appointment"
   },
+  "pendingBanner": {
+    "confirmAll": "Accept all",
+    "confirmAllSuccess": "{{count}} appointments accepted",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
   "walkIn": {
     "button": "Walk-in",
     "dialogTitle": "Register walk-in",

@@ -42,11 +42,11 @@ export function ProfileAvatarHeader({ userId, userProfile, professional }: Profi
       <div className="flex flex-col items-center gap-1.5">
         <button
           type="button"
-          className="group relative size-24 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="group relative size-32 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => !uploading && fileInputRef.current?.click()}
           disabled={uploading}
         >
-          <Avatar className="size-24">
+          <Avatar className="size-32">
             <AvatarImage src={userProfile.avatar_url ?? undefined} alt={userProfile.first_name ?? undefined} />
             <AvatarFallback className="bg-primary/10 text-2xl font-semibold text-primary">{initials || "?"}</AvatarFallback>
           </Avatar>

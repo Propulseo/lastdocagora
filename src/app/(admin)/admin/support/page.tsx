@@ -7,6 +7,7 @@ interface PageProps {
   searchParams: Promise<{
     status?: string;
     priority?: string;
+    type?: string;
     search?: string;
     page?: string;
   }>;
@@ -34,6 +35,13 @@ export default async function SupportPage({ searchParams }: PageProps) {
   }
   if (params.priority && params.priority !== "all") {
     query = query.eq("priority", params.priority);
+  }
+  if (params.type && params.type !== "all") {
+    if (params.type === "general") {
+      query = query.or("ticket_type.is.null,ticket_type.neq.profile_change_request");
+    } else {
+      query = query.eq("ticket_type", params.type);
+    }
   }
   if (params.search) {
     query = query.ilike("subject", `%${params.search}%`);

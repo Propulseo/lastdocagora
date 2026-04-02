@@ -202,6 +202,12 @@
     "cancelled": "Consulta cancelada",
     "error": "Erro ao cancelar consulta"
   },
+  "pendingBanner": {
+    "confirmAll": "Aceitar tudo",
+    "confirmAllSuccess": "{{count}} consultas aceites",
+    "accept": "Aceitar",
+    "reject": "Recusar"
+  },
   "walkIn": {
     "button": "Walk-in",
     "dialogTitle": "Registar walk-in",
