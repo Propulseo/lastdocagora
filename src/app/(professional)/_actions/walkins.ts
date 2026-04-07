@@ -4,15 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { markAttendance } from "./attendance";
 import { toLocalDateStr } from "../pro/agenda/_lib/date-utils";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 
 export type SlotInfo = { slot_start: string; slot_end: string };
-type DaySlots = { date: string; slots: SlotInfo[] };
 type WalkInSlotsResult =
   | {
       success: true;
       today: SlotInfo[];
-      nextDays: DaySlots[];
       currentSlot: string | null;
     }
   | { success: false; error: string };
@@ -55,24 +53,7 @@ export async function getWalkInSlots(
     }
   }
 
-  // If no slots today, look ahead up to 7 days (max 3 days with availability)
-  const nextDays: DaySlots[] = [];
-  if (todaySlots.length === 0) {
-    for (let i = 1; i <= 7 && nextDays.length < 3; i++) {
-      const d = addDays(now, i);
-      const dateStr = toLocalDateStr(d);
-      const { data } = await supabase.rpc("get_available_slots", {
-        p_date: dateStr,
-        p_professional_id: professionalId,
-      });
-      const slots = (data as SlotInfo[]) ?? [];
-      if (slots.length > 0) {
-        nextDays.push({ date: dateStr, slots });
-      }
-    }
-  }
-
-  return { success: true, today: todaySlots, nextDays, currentSlot };
+  return { success: true, today: todaySlots, currentSlot };
 }
 
 type WalkInResult =

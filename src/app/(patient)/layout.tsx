@@ -18,6 +18,8 @@ import { PatientLayoutHeader } from "./_components/patient-layout-header"
 import { PatientBottomNav } from "./_components/patient-bottom-nav"
 import { PatientRealtimeNotifier } from "./_components/patient-realtime-notifier"
 import { PublicSearchHeader } from "./_components/public-search-header"
+import { PatientNotificationBell } from "./_components/PatientNotificationBell"
+import type { PatientNotification } from "./_components/PatientNotificationBell"
 
 export default async function PatientLayout({
   children,
@@ -54,7 +56,10 @@ export default async function PatientLayout({
   // Authenticated patient layout
   const supabase = await createClient()
 
-  const [{ data: profile }, { count: unreadCount }, locale] = await Promise.all(
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  const [{ data: profile }, { data: initialNotifications }, locale] = await Promise.all(
     [
       supabase
         .from("users")
@@ -63,9 +68,11 @@ export default async function PatientLayout({
         .single(),
       supabase
         .from("notifications")
-        .select("id", { count: "exact", head: true })
+        .select("id, user_id, title, message, type, is_read, related_id, created_at, params")
         .eq("user_id", user!.id)
-        .eq("is_read", false),
+        .gte("created_at", thirtyDaysAgo.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(50),
       getLocale(),
     ]
   )
@@ -83,7 +90,8 @@ export default async function PatientLayout({
       : "P",
   }
 
-  const notificationCount = unreadCount ?? 0
+  const patientNotifs = (initialNotifications ?? []) as PatientNotification[]
+  const notificationCount = patientNotifs.filter((n) => !n.is_read).length
 
   return (
     <>
@@ -102,7 +110,12 @@ export default async function PatientLayout({
                 <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
               </div>
               <PatientLayoutHeader />
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                <PatientNotificationBell
+                  userId={user!.id}
+                  initialNotifications={patientNotifs}
+                  initialUnreadCount={notificationCount}
+                />
                 <ThemeToggle size="sm" />
               </div>
             </header>

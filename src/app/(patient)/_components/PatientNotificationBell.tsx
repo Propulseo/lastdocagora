@@ -23,18 +23,24 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/client";
-import { useProfessionalI18n } from "@/lib/i18n/pro";
-import type { ProNotification } from "../_actions/notification-actions";
-import {
-  markNotificationRead,
-  markAllProNotificationsRead,
-} from "../_actions/notification-actions";
+import { usePatientTranslations } from "@/locales/locale-context";
+import type { PatientTranslations } from "@/locales/patient/pt";
 
 const dateFnsLocales: Record<string, Locale> = { pt, fr, en: enGB };
 
-// Module-level flag prevents duplicate catch-up toasts
-// (component is mounted in mobile header + desktop header)
 let catchupToastFired = false;
+
+export type PatientNotification = {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean | null;
+  related_id: string | null;
+  created_at: string | null;
+  params: Record<string, string> | null;
+};
 
 function interpolate(template: string, params: Record<string, string>): string {
   let result = template;
@@ -44,35 +50,60 @@ function interpolate(template: string, params: Record<string, string>): string {
   return result;
 }
 
-type NotifTranslations = Record<string, string>;
-
-const NOTIF_TYPE_MAP: Record<string, { titleKey: string; messageKey: string }> = {
-  new_booking: { titleKey: "notifNewBookingTitle", messageKey: "notifNewBookingMessage" },
-  newbooking: { titleKey: "notifNewBookingTitle", messageKey: "notifNewBookingMessage" },
-  ticket_reply: { titleKey: "notifTicketReplyTitle", messageKey: "notifTicketReplyMessage" },
-  support_reply: { titleKey: "notifTicketReplyTitle", messageKey: "notifTicketReplyMessage" },
-  ticket_resolved: { titleKey: "notifTicketResolvedTitle", messageKey: "notifTicketResolvedMessage" },
-  ticket_updated: { titleKey: "notifTicketUpdatedTitle", messageKey: "notifTicketUpdatedMessage" },
-  system: { titleKey: "notifSystemTitle", messageKey: "" },
+const NOTIF_TYPE_MAP: Record<
+  string,
+  { titleKey: keyof PatientTranslations["messages"]; messageKey: (hasReason: boolean) => keyof PatientTranslations["messages"] }
+> = {
+  appointment_confirmed: {
+    titleKey: "notifConfirmedTitle",
+    messageKey: () => "notifConfirmedMessage",
+  },
+  cancellation: {
+    titleKey: "notifCancelledTitle",
+    messageKey: (hasReason) => hasReason ? "notifCancelledWithReason" : "notifCancelledMessage",
+  },
+  appointment_rejected: {
+    titleKey: "notifRejectedTitle",
+    messageKey: (hasReason) => hasReason ? "notifRejectedWithReason" : "notifRejectedMessage",
+  },
+  alternative_proposed: {
+    titleKey: "notifAlternativeTitle",
+    messageKey: () => "notifAlternativeMessage",
+  },
+  ticket_updated: {
+    titleKey: "notifTicketUpdatedTitle",
+    messageKey: () => "notifTicketUpdatedMessage",
+  },
+  ticket_resolved: {
+    titleKey: "notifTicketUpdatedTitle",
+    messageKey: () => "notifTicketResolvedMessage",
+  },
+  ticket_reply: {
+    titleKey: "notifTicketReplyTitle",
+    messageKey: () => "notifTicketReplyMessage",
+  },
+  support_reply: {
+    titleKey: "notifTicketReplyTitle",
+    messageKey: () => "notifTicketReplyMessage",
+  },
 };
 
 // Generic translated titles for known types — used when params are missing (legacy data)
-const GENERIC_TITLE_MAP: Record<string, string> = {
-  new_booking: "toastNewBooking",
-  newbooking: "toastNewBooking",
-  cancellation: "toastCancellation",
+const GENERIC_TITLE_MAP: Record<string, keyof PatientTranslations["messages"]> = {
+  appointment_confirmed: "notifConfirmedTitle",
+  cancellation: "notifCancelledTitle",
+  appointment_rejected: "notifRejectedTitle",
+  alternative_proposed: "notifAlternativeTitle",
+  ticket_updated: "notifTicketUpdatedTitle",
+  ticket_resolved: "notifTicketUpdatedTitle",
   ticket_reply: "notifTicketReplyTitle",
   support_reply: "notifTicketReplyTitle",
-  ticket_resolved: "notifTicketResolvedTitle",
-  ticket_updated: "notifTicketUpdatedTitle",
-  support_ticket: "notifTicketUpdatedTitle",
-  system: "notifSystemTitle",
-  reminder: "title",
+  appointment_reminder: "titleAppointmentReminder",
 };
 
-function resolveProNotification(
-  notif: ProNotification,
-  translations: NotifTranslations
+function resolvePatientNotification(
+  notif: PatientNotification,
+  messages: PatientTranslations["messages"]
 ): { title: string; message: string } {
   const params = notif.params ?? {};
   const hasParams = Object.keys(params).length > 0;
@@ -80,8 +111,8 @@ function resolveProNotification(
 
   // Full resolution with interpolated params
   if (entry && hasParams) {
-    const titleTemplate = translations[entry.titleKey];
-    const messageTemplate = translations[entry.messageKey];
+    const titleTemplate = messages[entry.titleKey];
+    const messageTemplate = messages[entry.messageKey(!!params.reason)];
     return {
       title: titleTemplate ? interpolate(titleTemplate, params) : notif.title,
       message: messageTemplate ? interpolate(messageTemplate, params) : notif.message,
@@ -90,8 +121,8 @@ function resolveProNotification(
 
   // No params: use generic translated title for known types
   const genericKey = GENERIC_TITLE_MAP[notif.type];
-  if (genericKey && translations[genericKey]) {
-    return { title: translations[genericKey], message: notif.message };
+  if (genericKey && messages[genericKey]) {
+    return { title: messages[genericKey], message: notif.message };
   }
 
   return { title: notif.title, message: notif.message };
@@ -99,17 +130,16 @@ function resolveProNotification(
 
 function getNotificationIcon(type: string) {
   switch (type) {
-    case "appointment":
-    case "newbooking":
-    case "new_booking":
+    case "appointment_confirmed":
       return Calendar;
     case "cancellation":
+    case "appointment_rejected":
       return XCircle;
-    case "reminder":
+    case "alternative_proposed":
       return Clock;
-    case "supportreply":
-    case "support_reply":
     case "ticket_reply":
+    case "ticket_resolved":
+    case "ticket_updated":
       return MessageSquare;
     case "alert":
       return AlertTriangle;
@@ -118,44 +148,47 @@ function getNotificationIcon(type: string) {
   }
 }
 
-function isAppointmentType(type: string) {
-  return ["appointment", "newbooking", "new_booking"].includes(type);
-}
+const APPOINTMENT_TYPES = new Set([
+  "appointment_confirmed",
+  "cancellation",
+  "appointment_rejected",
+  "alternative_proposed",
+]);
 
 function getNavigationHref(type: string): string | null {
-  if (isAppointmentType(type)) return "/pro/agenda";
-  if (["supportreply", "support_reply", "ticket_reply", "ticket_resolved", "ticket_updated"].includes(type)) return "/pro/support";
+  if (APPOINTMENT_TYPES.has(type)) return "/patient/appointments";
+  if (["ticket_reply", "ticket_resolved", "ticket_updated"].includes(type)) return "/patient/notifications";
   return null;
 }
 
-interface ProNotificationBellProps {
+interface PatientNotificationBellProps {
   userId: string;
-  initialNotifications: ProNotification[];
+  initialNotifications: PatientNotification[];
   initialUnreadCount: number;
 }
 
-export function ProNotificationBell({
+export function PatientNotificationBell({
   userId,
   initialNotifications,
   initialUnreadCount,
-}: ProNotificationBellProps) {
+}: PatientNotificationBellProps) {
   const router = useRouter();
-  const { t, locale } = useProfessionalI18n();
+  const { t, locale } = usePatientTranslations();
   const [notifications, setNotifications] =
-    useState<ProNotification[]>(initialNotifications);
+    useState<PatientNotification[]>(initialNotifications);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const dateLocale = dateFnsLocales[locale] ?? pt;
-  const nb = t.notificationBell as NotifTranslations;
+  const msg = t.messages;
 
   // Realtime subscription for new notifications
   useEffect(() => {
     const supabase = createClient();
 
     const channel = supabase
-      .channel(`pro-notif-bell-${userId}`)
+      .channel(`patient-notif-bell-${userId}`)
       .on(
         "postgres_changes",
         {
@@ -165,31 +198,12 @@ export function ProNotificationBell({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          const newNotif = payload.new as ProNotification;
+          const newNotif = payload.new as PatientNotification;
           setNotifications((prev) => [newNotif, ...prev].slice(0, 50));
           if (!newNotif.is_read) {
             setUnreadCount((c) => c + 1);
           }
-
-          // Toast only for non-appointment types (appointment toasts handled by ProRealtimeNotifier)
-          if (!isAppointmentType(newNotif.type)) {
-            const { title, message } = resolveProNotification(newNotif, nb);
-            const href = getNavigationHref(newNotif.type);
-            toast.info(title, {
-              description: message,
-              duration: 6000,
-              ...(href && {
-                action: {
-                  label: nb.toastViewAgenda ?? "Ver →",
-                  onClick: () => router.push(href),
-                },
-              }),
-              cancel: {
-                label: nb.toastViewAll ?? "Ver todas",
-                onClick: () => setOpen(true),
-              },
-            });
-          }
+          // Toasts are handled by PatientRealtimeNotifier — no duplicate here
         }
       )
       .subscribe();
@@ -197,51 +211,45 @@ export function ProNotificationBell({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, nb, router]);
+  }, [userId]);
 
-  // Catch-up toast: show brief notification when pro returns and has unread items
+  // Catch-up toast on mount
   useEffect(() => {
     if (catchupToastFired || initialUnreadCount === 0) return;
     catchupToastFired = true;
 
-    const unreadBookings = initialNotifications.filter(
-      (n) => !n.is_read && isAppointmentType(n.type)
+    const unreadConfirmed = initialNotifications.filter(
+      (n) => !n.is_read && n.type === "appointment_confirmed"
     );
 
-    if (unreadBookings.length === 1) {
-      const { title, message } = resolveProNotification(unreadBookings[0], nb);
-      toast.info(title, {
+    if (unreadConfirmed.length === 1) {
+      const { title, message } = resolvePatientNotification(unreadConfirmed[0], msg);
+      toast.success(title, {
         description: message,
         duration: 2000,
         action: {
-          label: nb.toastViewAgenda ?? "Ver na agenda →",
-          onClick: () => setOpen(true),
+          label: msg.bellViewAppointments,
+          onClick: () => router.push("/patient/appointments"),
         },
       });
-    } else if (unreadBookings.length > 1) {
-      toast.info(
-        (nb.catchupBookings ?? "{count} novos agendamentos").replace(
-          "{count}",
-          String(unreadBookings.length)
-        ),
+    } else if (unreadConfirmed.length > 1) {
+      toast.success(
+        msg.bellCatchupConfirmed.replace("{count}", String(unreadConfirmed.length)),
         {
           duration: 2000,
           action: {
-            label: nb.toastViewAll ?? "Ver todas",
-            onClick: () => setOpen(true),
+            label: msg.bellViewAppointments,
+            onClick: () => router.push("/patient/appointments"),
           },
         }
       );
     } else if (initialUnreadCount > 0) {
       toast.info(
-        (nb.catchupUnread ?? "{count} notificações não lidas").replace(
-          "{count}",
-          String(initialUnreadCount)
-        ),
+        msg.bellCatchupUnread.replace("{count}", String(initialUnreadCount)),
         {
           duration: 2000,
           action: {
-            label: nb.toastViewAll ?? "Ver todas",
+            label: msg.bellViewAll,
             onClick: () => setOpen(true),
           },
         }
@@ -250,18 +258,10 @@ export function ProNotificationBell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Listen for "open-notifications" CustomEvent (dispatched from toast actions)
-  useEffect(() => {
-    const handler = () => setOpen(true);
-    window.addEventListener("open-notifications", handler);
-    return () => window.removeEventListener("open-notifications", handler);
-  }, []);
-
   const handleMarkRead = useCallback(
-    (notif: ProNotification) => {
+    (notif: PatientNotification) => {
       const href = getNavigationHref(notif.type);
 
-      // Optimistic update
       if (!notif.is_read) {
         setNotifications((prev) =>
           prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n))
@@ -269,10 +269,13 @@ export function ProNotificationBell({
         setUnreadCount((c) => Math.max(0, c - 1));
 
         startTransition(async () => {
-          try {
-            await markNotificationRead(notif.id);
-          } catch {
-            // Revert on error
+          const supabase = createClient();
+          const { error } = await supabase
+            .from("notifications")
+            .update({ is_read: true })
+            .eq("id", notif.id)
+            .eq("user_id", userId);
+          if (error) {
             setNotifications((prev) =>
               prev.map((n) =>
                 n.id === notif.id ? { ...n, is_read: false } : n
@@ -288,30 +291,32 @@ export function ProNotificationBell({
         router.push(href);
       }
     },
-    [router]
+    [router, userId]
   );
 
   const handleMarkAllRead = useCallback(() => {
     const previousNotifs = notifications;
     const previousCount = unreadCount;
 
-    // Optimistic update
     setNotifications((prev) =>
       prev.map((n) => ({ ...n, is_read: true }))
     );
     setUnreadCount(0);
 
     startTransition(async () => {
-      try {
-        await markAllProNotificationsRead(userId);
-      } catch {
-        // Revert on error
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", userId)
+        .eq("is_read", false);
+      if (error) {
         setNotifications(previousNotifs);
         setUnreadCount(previousCount);
-        toast.error(nb.errorMarkAll);
+        toast.error(msg.errorMarkAll);
       }
     });
-  }, [userId, notifications, unreadCount, nb.errorMarkAll]);
+  }, [userId, notifications, unreadCount, msg.errorMarkAll]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -336,7 +341,7 @@ export function ProNotificationBell({
       >
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h4 className="text-sm font-semibold">
-            {nb.title}
+            {msg.title}
           </h4>
           {unreadCount > 0 && (
             <Button
@@ -347,7 +352,7 @@ export function ProNotificationBell({
               disabled={isPending}
             >
               <CheckCheck className="size-3.5" />
-              {nb.markAllRead}
+              {msg.markAllRead}
             </Button>
           )}
         </div>
@@ -356,23 +361,21 @@ export function ProNotificationBell({
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center text-sm text-muted-foreground">
               <Bell className="mb-2 size-8 opacity-30" />
-              {nb.empty}
+              {msg.emptyTitle}
             </div>
           ) : (
             <div className="divide-y">
               {notifications.map((notif) => {
                 const Icon = getNotificationIcon(notif.type);
                 const href = getNavigationHref(notif.type);
-                const { title, message } = resolveProNotification(notif, nb);
+                const { title, message } = resolvePatientNotification(notif, msg);
 
                 return (
                   <button
                     key={notif.id}
                     type="button"
                     className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/50 ${
-                      !notif.is_read
-                        ? "bg-primary/5"
-                        : ""
+                      !notif.is_read ? "bg-primary/5" : ""
                     } ${href ? "cursor-pointer" : ""}`}
                     onClick={() => handleMarkRead(notif)}
                   >

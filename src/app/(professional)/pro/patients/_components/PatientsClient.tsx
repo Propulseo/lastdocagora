@@ -28,6 +28,9 @@ export function PatientsClient({ data }: PatientsClientProps) {
     window.open(`/pro/patients/export?${params.toString()}`, "_blank");
   };
 
+  const searchQuery = searchParams.get("search") ?? "";
+  const isSearching = searchQuery.trim().length >= 3;
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -51,6 +54,14 @@ export function PatientsClient({ data }: PatientsClientProps) {
         />
       </Suspense>
 
+      {/* When searching: results immediately below search */}
+      {isSearching && (
+        <PatientsTable
+          patients={data.patients}
+          totalUnfiltered={data.totalUnfiltered}
+        />
+      )}
+
       {/* KPI Cards */}
       <PatientsKpiCards kpi={data.kpi} />
 
@@ -63,11 +74,13 @@ export function PatientsClient({ data }: PatientsClientProps) {
       {/* Full-width frequency chart */}
       <AppointmentFrequencyChart data={data.frequencyDistribution} />
 
-      {/* Patients Table with Pagination */}
-      <PatientsTable
-        patients={data.patients}
-        totalUnfiltered={data.totalUnfiltered}
-      />
+      {/* Default: patients list after charts */}
+      {!isSearching && (
+        <PatientsTable
+          patients={data.patients}
+          totalUnfiltered={data.totalUnfiltered}
+        />
+      )}
     </div>
   );
 }

@@ -57,6 +57,7 @@ export type PatientTranslations = {
     description: string
     namePlaceholder: string
     specialtyPlaceholder: string
+    specialtyAll: string
     cityPlaceholder: string
     searchButton: string
     resultCount: string
@@ -102,6 +103,10 @@ export type PatientTranslations = {
     mapViewProfile: string
     mapFilterMap: string
     mapLoading: string
+    mapAreaCount: string
+    mapAreaEmpty: string
+    mapAreaZoomHint: string
+    mapAreaTotal: string
     insuranceFilter: string
     insuranceAll: string
     insuranceBadgeMore: string
@@ -307,6 +312,10 @@ export type PatientTranslations = {
     notifTicketResolvedMessage: string
     notifTicketReplyTitle: string
     notifTicketReplyMessage: string
+    bellCatchupConfirmed: string
+    bellCatchupUnread: string
+    bellViewAppointments: string
+    bellViewAll: string
   }
   auth: {
     rolePatient: string
@@ -422,6 +431,7 @@ export const ptPatient: PatientTranslations = {
     description: "Encontre o profissional de sa\u00fade ideal para si.",
     namePlaceholder: "Nome ou especialidade...",
     specialtyPlaceholder: "Especialidade",
+    specialtyAll: "Todas as especialidades",
     cityPlaceholder: "Cidade",
     searchButton: "Pesquisar",
     resultCount: "{count} profissional(is) encontrado(s)",
@@ -467,6 +477,10 @@ export const ptPatient: PatientTranslations = {
     mapViewProfile: "Ver perfil completo",
     mapFilterMap: "Filtrar mapa",
     mapLoading: "A carregar mapa...",
+    mapAreaCount: "{count} profissional(is) nesta \u00e1rea",
+    mapAreaEmpty: "Nenhum profissional nesta \u00e1rea",
+    mapAreaZoomHint: "Afaste o zoom para ver mais resultados",
+    mapAreaTotal: "{count} no total",
     insuranceFilter: "Seguro",
     insuranceAll: "Todos os seguros",
     insuranceBadgeMore: "+{count}",
@@ -504,7 +518,7 @@ export const ptPatient: PatientTranslations = {
     confirm: "Confirmar Agendamento",
     errorLoadSlots: "Erro ao carregar hor\u00e1rios dispon\u00edveis.",
     errorRequired: "Por favor, preencha todos os campos obrigat\u00f3rios.",
-    successBooked: "Consulta agendada com sucesso!",
+    successBooked: "Pedido de consulta enviado!",
     errorBooking: "Erro ao agendar consulta. Tente novamente.",
     selfBookingError: "Não é possível agendar uma consulta consigo mesmo.",
     dateFormat: "d 'de' MMMM 'de' yyyy",
@@ -672,6 +686,10 @@ export const ptPatient: PatientTranslations = {
     notifTicketResolvedMessage: "O seu ticket \"{subject}\" foi tratado. Por favor confirme se o problema foi resolvido.",
     notifTicketReplyTitle: "Nova resposta ao ticket",
     notifTicketReplyMessage: "O seu ticket \"{subject}\" recebeu uma resposta do suporte.",
+    bellCatchupConfirmed: "{count} consultas confirmadas",
+    bellCatchupUnread: "{count} notificações não lidas",
+    bellViewAppointments: "Ver consultas →",
+    bellViewAll: "Ver todas",
   },
   auth: {
     rolePatient: "Paciente",

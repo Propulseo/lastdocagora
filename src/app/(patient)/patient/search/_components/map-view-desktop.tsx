@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search, Crosshair, Loader2 } from "lucide-react"
+import { Search, Crosshair, Loader2, MapPin } from "lucide-react"
 import { BookingModal } from "./booking-modal"
 import { ProMapCard } from "./ProMapCard"
 import type { ProfessionalResult } from "./professional-card"
@@ -23,6 +23,7 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
 interface MapViewDesktopProps {
   filteredProfessionals: ProfessionalResult[]
   geoProfs: ProfessionalResult[]
+  visiblePros: ProfessionalResult[]
   locale: string
   t: PatientTranslations["search"]
   labels: PatientTranslations["professional"]
@@ -41,11 +42,13 @@ interface MapViewDesktopProps {
   onBook: (prof: ProfessionalResult) => void
   profName: string
   cardRefs: RefObject<Map<string, HTMLDivElement>>
+  onVisibleChange: (visible: ProfessionalResult[]) => void
 }
 
 export function MapViewDesktop({
   filteredProfessionals,
   geoProfs,
+  visiblePros,
   locale,
   t,
   labels,
@@ -64,6 +67,7 @@ export function MapViewDesktop({
   onBook,
   profName,
   cardRefs,
+  onVisibleChange,
 }: MapViewDesktopProps) {
   return (
     <>
@@ -79,9 +83,16 @@ export function MapViewDesktop({
             />
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {geoProfs.length} {t.mapNearbyPros.toLowerCase()}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-foreground">
+                {t.mapAreaCount.replace("{count}", String(visiblePros.length))}
+              </p>
+              {visiblePros.length < geoProfs.length && (
+                <p className="text-xs text-muted-foreground">
+                  {t.mapAreaTotal.replace("{count}", String(geoProfs.length))}
+                </p>
+              )}
+            </div>
             <Button
               size="sm"
               variant="ghost"
@@ -99,35 +110,40 @@ export function MapViewDesktop({
           </div>
           <ScrollArea className="flex-1 -mr-2 pr-2">
             <div className="space-y-3">
-              {geoProfs.map((prof) => (
-                <div
-                  key={prof.id}
-                  ref={(el) => {
-                    if (el) cardRefs.current.set(prof.id, el)
-                  }}
-                  className={`cursor-pointer transition-all ${
-                    selectedProf?.id === prof.id
-                      ? "ring-2 ring-primary rounded-xl"
-                      : ""
-                  }`}
-                  onClick={() => onSelectProfessional(prof)}
-                  onMouseEnter={() => setHighlightedId(prof.id)}
-                  onMouseLeave={() => setHighlightedId(null)}
-                >
-                  <ProMapCard
-                    prof={prof}
-                    locale={locale}
-                    t={t}
-                    labels={labels}
-                    onViewProfile={() => onViewProfile(prof.id)}
-                    onBook={() => onBook(prof)}
-                  />
+              {visiblePros.length > 0 ? (
+                visiblePros.map((prof) => (
+                  <div
+                    key={prof.id}
+                    ref={(el) => {
+                      if (el) cardRefs.current.set(prof.id, el)
+                    }}
+                    className={`cursor-pointer transition-all ${
+                      selectedProf?.id === prof.id
+                        ? "ring-2 ring-primary rounded-xl"
+                        : highlightedId === prof.id
+                          ? "ring-2 ring-primary/50 rounded-xl shadow-sm"
+                          : ""
+                    }`}
+                    onClick={() => onSelectProfessional(prof)}
+                    onMouseEnter={() => setHighlightedId(prof.id)}
+                    onMouseLeave={() => setHighlightedId(null)}
+                  >
+                    <ProMapCard
+                      prof={prof}
+                      locale={locale}
+                      t={t}
+                      labels={labels}
+                      onViewProfile={() => onViewProfile(prof.id)}
+                      onBook={() => onBook(prof)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                  <MapPin className="size-8 mb-2 opacity-30" />
+                  <p className="text-sm font-medium">{t.mapAreaEmpty}</p>
+                  <p className="text-xs mt-1">{t.mapAreaZoomHint}</p>
                 </div>
-              ))}
-              {geoProfs.length === 0 && (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  {t.mapNoCoordinates}
-                </p>
               )}
             </div>
           </ScrollArea>
@@ -145,6 +161,7 @@ export function MapViewDesktop({
             isMobile={false}
             highlightedId={highlightedId}
             searchFilter={filterText}
+            onVisibleChange={onVisibleChange}
           />
         </div>
       </div>

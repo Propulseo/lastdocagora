@@ -42,8 +42,6 @@ import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
-import { ProNotificationBell } from "./_components/ProNotificationBell";
-import type { ProNotification } from "./_actions/notification-actions";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   LayoutDashboard,
@@ -67,11 +65,9 @@ interface ProSidebarProps {
   };
   openTicketCount?: number;
   userId: string;
-  initialNotifications: ProNotification[];
-  initialUnreadNotifCount: number;
 }
 
-export function ProSidebar({ user, openTicketCount, userId, initialNotifications, initialUnreadNotifCount }: ProSidebarProps) {
+export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useProfessionalI18n();
@@ -90,16 +86,9 @@ export function ProSidebar({ user, openTicketCount, userId, initialNotifications
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-5">
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-            DOCAGORA
-          </span>
-          <ProNotificationBell
-            userId={userId}
-            initialNotifications={initialNotifications}
-            initialUnreadCount={initialUnreadNotifCount}
-          />
-        </div>
+        <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
+          DOCAGORA
+        </span>
       </SidebarHeader>
 
       <SidebarSeparator />

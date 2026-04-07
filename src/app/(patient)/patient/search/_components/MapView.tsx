@@ -32,6 +32,7 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
   const [geoLoading, setGeoLoading] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [visiblePros, setVisiblePros] = useState<ProfessionalResult[]>([])
 
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
@@ -82,6 +83,10 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
     setBookingOpen(true)
   }, [])
 
+  const handleVisibleChange = useCallback((visible: ProfessionalResult[]) => {
+    setVisiblePros(visible)
+  }, [])
+
   const profName = selectedProf
     ? getProfessionalName(
         selectedProf as { specialty?: string | null; users?: { first_name?: string | null; last_name?: string | null } | null },
@@ -112,6 +117,7 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
     onViewProfile: handleViewProfile,
     onBook: handleBook,
     profName,
+    onVisibleChange: handleVisibleChange,
   }
 
   if (isMobile) {
@@ -122,6 +128,7 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
     <MapViewDesktop
       {...sharedProps}
       geoProfs={geoProfs}
+      visiblePros={visiblePros}
       setHighlightedId={setHighlightedId}
       cardRefs={cardRefs}
     />

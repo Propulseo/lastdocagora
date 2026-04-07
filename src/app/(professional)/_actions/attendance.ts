@@ -214,7 +214,7 @@ export async function cancelAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
 
     if (patientUserId) {
-      await supabase.from("notifications").insert({
+      const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
         title: "Consulta cancelada",
         message: `${proName} cancelou a sua consulta.${reason ? ` Motivo: ${reason}` : ""}`,
@@ -222,6 +222,32 @@ export async function cancelAppointment(
         related_id: appointmentId,
         params: { proName, reason: reason || undefined },
       });
+      if (notifError) {
+        console.error("[cancelAppointment] Failed to insert notification:", notifError.message);
+      }
+
+      // Send email notification to patient
+      try {
+        const { data: patientUser } = await supabase
+          .from("users")
+          .select("email")
+          .eq("id", patientUserId)
+          .single();
+        const { data: patientSettings } = await supabase
+          .from("patient_settings")
+          .select("email_notifications")
+          .eq("user_id", patientUserId)
+          .single();
+
+        if (patientUser?.email && patientSettings?.email_notifications !== false) {
+          const { sendNotificationEmail } = await import("@/lib/email/resend");
+          const { appointmentCancelledEmail } = await import("@/lib/email/templates");
+          const template = appointmentCancelledEmail(proName, reason);
+          await sendNotificationEmail({ to: patientUser.email, ...template });
+        }
+      } catch (emailError) {
+        console.error("[cancelAppointment] Failed to send email:", emailError);
+      }
     }
   }
 
@@ -298,7 +324,7 @@ export async function rejectAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
 
     if (patientUserId) {
-      await supabase.from("notifications").insert({
+      const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
         title: "Consulta recusada",
         message: `${proName} recusou o seu pedido de consulta.${reason ? ` Motivo: ${reason}` : ""}`,
@@ -306,6 +332,32 @@ export async function rejectAppointment(
         related_id: appointmentId,
         params: { proName, reason: reason || undefined },
       });
+      if (notifError) {
+        console.error("[rejectAppointment] Failed to insert notification:", notifError.message);
+      }
+
+      // Send email notification to patient
+      try {
+        const { data: patientUser } = await supabase
+          .from("users")
+          .select("email")
+          .eq("id", patientUserId)
+          .single();
+        const { data: patientSettings } = await supabase
+          .from("patient_settings")
+          .select("email_notifications")
+          .eq("user_id", patientUserId)
+          .single();
+
+        if (patientUser?.email && patientSettings?.email_notifications !== false) {
+          const { sendNotificationEmail } = await import("@/lib/email/resend");
+          const { appointmentRejectedEmail } = await import("@/lib/email/templates");
+          const template = appointmentRejectedEmail(proName, reason);
+          await sendNotificationEmail({ to: patientUser.email, ...template });
+        }
+      } catch (emailError) {
+        console.error("[rejectAppointment] Failed to send email:", emailError);
+      }
     }
   }
 
@@ -383,7 +435,7 @@ export async function proposeAlternativeTime(
       ? `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}. ${message.trim()}`
       : `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}.`;
 
-    await supabase.from("notifications").insert({
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: patientUserId,
       title: "Novo horário proposto",
       message: msg,
@@ -391,6 +443,9 @@ export async function proposeAlternativeTime(
       related_id: appointmentId,
       params: { proName, dateTime: `${proposedDate} às ${proposedTime}` },
     });
+    if (notifError) {
+      console.error("[proposeAlternativeTime] Failed to insert notification:", notifError.message);
+    }
   }
 
   return { success: true, status: "rejected" };
@@ -474,7 +529,7 @@ export async function updateAppointmentStatus(
 
     if (patientUserId) {
       const isConfirmed = newStatus === "confirmed";
-      await supabase.from("notifications").insert({
+      const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
         title: isConfirmed ? "Consulta confirmada" : "Consulta cancelada",
         message: isConfirmed
@@ -484,6 +539,38 @@ export async function updateAppointmentStatus(
         related_id: appointmentId,
         params: { proName },
       });
+      if (notifError) {
+        console.error("[updateAppointmentStatus] Failed to insert notification:", notifError.message);
+      }
+
+      // Send email notification to patient
+      try {
+        const { data: patientUser } = await supabase
+          .from("users")
+          .select("email")
+          .eq("id", patientUserId)
+          .single();
+        const { data: patientSettings } = await supabase
+          .from("patient_settings")
+          .select("email_notifications")
+          .eq("user_id", patientUserId)
+          .single();
+
+        if (patientUser?.email && patientSettings?.email_notifications !== false) {
+          const { sendNotificationEmail } = await import("@/lib/email/resend");
+          if (isConfirmed) {
+            const { appointmentConfirmedEmail } = await import("@/lib/email/templates");
+            const template = appointmentConfirmedEmail(proName);
+            await sendNotificationEmail({ to: patientUser.email, ...template });
+          } else {
+            const { appointmentCancelledEmail } = await import("@/lib/email/templates");
+            const template = appointmentCancelledEmail(proName);
+            await sendNotificationEmail({ to: patientUser.email, ...template });
+          }
+        }
+      } catch (emailError) {
+        console.error("[updateAppointmentStatus] Failed to send email:", emailError);
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { csvResponse } from "@/lib/export-csv";
 
 function getDateRange(
   range: string,
@@ -40,13 +41,6 @@ function getDateRange(
   if (from < yearStart) from = yearStart;
 
   return { from: from.toISOString().split("T")[0], to };
-}
-
-function escapeCsv(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
 }
 
 export async function GET(request: NextRequest) {
@@ -100,25 +94,23 @@ export async function GET(request: NextRequest) {
   if (channelFilter) query = query.eq("created_via", channelFilter);
 
   const { data: appointments } = await query;
-  const rows = appointments ?? [];
+  const rawRows = appointments ?? [];
 
   const headers = [
-    "Date",
-    "Time",
-    "Status",
-    "Price",
-    "Service",
-    "Duration (min)",
-    "Created Via",
-    "Attendance",
-    "Late (min)",
+    "Data",
+    "Hora",
+    "Estado",
+    "Preço (€)",
+    "Serviço",
+    "Duração (min)",
+    "Origem",
+    "Presença",
+    "Atraso (min)",
   ];
 
-  const csvLines = [headers.join(",")];
-
-  for (const r of rows) {
+  const rows = rawRows.map((r) => {
     const serviceName =
-      r.services && !Array.isArray(r.services) ? r.services.name : "-";
+      r.services && !Array.isArray(r.services) ? r.services.name : "";
     const att =
       r.appointment_attendance &&
       Array.isArray(r.appointment_attendance) &&
@@ -126,29 +118,36 @@ export async function GET(request: NextRequest) {
         ? r.appointment_attendance[0]
         : null;
 
-    csvLines.push(
-      [
-        escapeCsv(r.appointment_date),
-        escapeCsv(r.appointment_time),
-        escapeCsv(r.status),
-        String(r.price ?? 0),
-        escapeCsv(serviceName),
-        String(r.duration_minutes),
-        escapeCsv(r.created_via ?? "-"),
-        escapeCsv(att?.status ?? "-"),
-        String(att?.late_minutes ?? ""),
-      ].join(","),
-    );
-  }
+    const channelLabel =
+      r.created_via === "walk_in"
+        ? "Walk-in"
+        : r.created_via === "manual"
+          ? "Manual"
+          : "Online";
 
-  const csv = csvLines.join("\n");
-  const today = new Date().toISOString().split("T")[0];
-  const filename = `docagora-stats-${range}-${today}.csv`;
+    const attendanceLabel =
+      att?.status === "present"
+        ? "Presente"
+        : att?.status === "absent"
+          ? "Ausente"
+          : att?.status === "late"
+            ? "Atrasado"
+            : att?.status === "waiting"
+              ? "Em espera"
+              : "";
 
-  return new NextResponse(csv, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-    },
+    return [
+      r.appointment_date,
+      r.appointment_time,
+      r.status,
+      String(r.price ?? 0),
+      serviceName,
+      String(r.duration_minutes),
+      channelLabel,
+      attendanceLabel,
+      att?.late_minutes != null ? String(att.late_minutes) : "",
+    ];
   });
+
+  return csvResponse(headers, rows, `docagora-estatisticas-${range}`);
 }

@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Clock, Download } from "lucide-react";
 import type { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { NotificationLog } from "../_types/reminders";
+import { downloadCsv } from "@/lib/export-csv";
 import { HistoryFilters } from "./HistoryFilters";
 import { HistoryTable } from "./HistoryTable";
 
@@ -62,34 +63,25 @@ export function HistoryTab({ notifications, t }: HistoryTabProps) {
   );
 
   const handleExport = () => {
-    const headers = ["Date", "Patient", "Type", "Channel", "Status"];
-    const csvLines = [headers.join(",")];
+    const headers = ["Data", "Paciente", "Tipo", "Canal", "Estado"];
 
-    for (const n of filtered) {
+    const rows = filtered.map((n) => {
       const patientName = n.appointments?.patients
         ? [n.appointments.patients.first_name, n.appointments.patients.last_name]
             .filter(Boolean)
-            .join(" ") || "-"
-        : "-";
+            .join(" ") || ""
+        : "";
 
-      csvLines.push(
-        [
-          format(new Date(n.created_at), "yyyy-MM-dd HH:mm"),
-          `"${patientName.replace(/"/g, '""')}"`,
-          n.type,
-          n.channel,
-          n.status,
-        ].join(","),
-      );
-    }
+      return [
+        format(new Date(n.created_at), "yyyy-MM-dd HH:mm"),
+        patientName,
+        n.type,
+        n.channel,
+        n.status,
+      ];
+    });
 
-    const blob = new Blob([csvLines.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `docagora-reminders-history-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(headers, rows, "docagora-lembretes-historico");
   };
 
   return (

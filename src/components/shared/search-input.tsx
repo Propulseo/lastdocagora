@@ -9,12 +9,15 @@ interface SearchInputProps {
   placeholder?: string;
   paramKey?: string;
   className?: string;
+  /** Minimum characters before triggering URL search (default: 1) */
+  minLength?: number;
 }
 
 export function SearchInput({
   placeholder = "Pesquisar...",
   paramKey = "search",
   className,
+  minLength = 1,
 }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -33,8 +36,9 @@ export function SearchInput({
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (newValue.trim()) {
-        params.set(paramKey, newValue.trim());
+      const trimmed = newValue.trim();
+      if (trimmed && trimmed.length >= minLength) {
+        params.set(paramKey, trimmed);
       } else {
         params.delete(paramKey);
       }

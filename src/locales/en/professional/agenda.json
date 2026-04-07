@@ -129,9 +129,6 @@
   "paymentUnpaid": "Unpaid",
   "paymentReminder": "Reminder sent",
   "paymentPending": "Pending",
-  "financialSummary": "Financial summary",
-  "confirmedRevenue": "confirmed",
-  "pendingRevenue": "pending",
   "appointmentSingular": "appointment",
   "appointmentPlural": "appointments",
   "calendarConnected": "Google Calendar connected successfully!",
@@ -147,6 +144,15 @@
   "availabilityCreated": "Availability slot created",
   "availabilityCreateError": "Error creating availability slot",
   "createAppointmentHere": "Create appointment here",
+  "deleteSlotTitle": "Delete this slot?",
+  "deleteSlotDescription": "The {{time}} slot will be permanently deleted. Patients will no longer be able to book this time.",
+  "deleteSlotSuccess": "Slot deleted",
+  "deleteSlotError": "Error deleting slot",
+  "clearDayTitle": "Delete all availability?",
+  "clearDayDescription": "All available slots on {{date}} will be deleted. Patients will no longer be able to book this day. This action is irreversible.",
+  "clearDayButton": "Clear day availability",
+  "clearDayConfirm": "Delete all",
+  "clearDaySuccess": "Availability cleared for this day",
   "otherSingular": "other",
   "otherPlural": "others",
   "acceptAppointment": "Accept appointment",
@@ -203,10 +209,14 @@
     "error": "Error cancelling appointment"
   },
   "pendingBanner": {
-    "confirmAll": "Accept all",
+    "confirmAll": "Accept all ({{count}})",
     "confirmAllSuccess": "{{count}} appointments accepted",
     "accept": "Accept",
-    "reject": "Reject"
+    "reject": "Reject",
+    "groupToday": "Today",
+    "groupTomorrow": "Tomorrow",
+    "groupLater": "Later",
+    "durationSuffix": "min"
   },
   "walkIn": {
     "button": "Walk-in",
@@ -239,6 +249,10 @@
     "errorLoadSlots": "Error loading slots",
     "immediate": "Immediate",
     "slotDuration": "{min}min",
-    "selectedSlot": "Selected slot"
+    "selectedSlot": "Selected slot",
+    "customTime": "Custom time",
+    "backToSlots": "Back to available slots",
+    "manualDate": "Date",
+    "manualTime": "Time"
   }
 }

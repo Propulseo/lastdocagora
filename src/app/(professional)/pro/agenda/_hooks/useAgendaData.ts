@@ -313,37 +313,9 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     return { total, present, late, absent, waiting };
   }, [todayAppointments]);
 
-  const financialStats = useMemo(() => {
-    const dayAppts = periodFilter === "day"
-      ? appointments.filter((a) => a.appointment_date === selectedDate)
-      : [];
-
-    let confirmedRevenue = 0;
-    let pendingRevenue = 0;
-
-    for (const apt of dayAppts) {
-      const price = apt.price ?? 0;
-      if (price === 0) continue;
-      const isConfirmed = apt.status === "confirmed" || apt.status === "completed";
-      const att = apt.appointment_attendance;
-      const isPresent = att?.status === "present" || att?.status === "late";
-
-      if (isPresent || (isConfirmed && apt.payment_status === "paid")) {
-        confirmedRevenue += price;
-      } else if (apt.status !== "cancelled" && apt.status !== "rejected" && apt.status !== "no-show" && apt.status !== "no_show") {
-        pendingRevenue += price;
-      }
-    }
-
-    return {
-      totalAppointments: dayAppts.length,
-      confirmedRevenue,
-      pendingRevenue,
-    };
-  }, [appointments, periodFilter, selectedDate]);
-
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
   const refreshExternalEvents = useCallback(() => setExternalEventsKey((k) => k + 1), []);
+  const refreshAvailability = useCallback(() => setAvailabilityKey((k) => k + 1), []);
 
   const openCreateDialog = useCallback((startTime: string, endTime: string) => {
     setCreateStartTime(startTime);
@@ -389,7 +361,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     refreshExternalEvents,
     openCreateDialog,
     availabilitySlots,
-    financialStats,
+    refreshAvailability,
     openAvailabilityModal,
     modalStartTime,
     modalEndTime,

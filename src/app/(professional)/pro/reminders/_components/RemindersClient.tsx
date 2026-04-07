@@ -64,11 +64,11 @@ export function RemindersClient({
   return (
     <TooltipProvider>
       <Tabs defaultValue="reminders" className="space-y-5">
-        <TabsList className="overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <TabsTrigger value="reminders" className="min-h-[44px]">{t.reminders.tabs.reminders}</TabsTrigger>
-          <TabsTrigger value="templates" className="min-h-[44px]">{t.reminders.tabs.templates}</TabsTrigger>
-          <TabsTrigger value="history" className="min-h-[44px]">{t.reminders.tabs.history}</TabsTrigger>
-          <TabsTrigger value="settings" className="min-h-[44px]">{t.reminders.tabs.settings}</TabsTrigger>
+        <TabsList className="h-auto w-full flex-wrap gap-1 sm:w-fit sm:flex-nowrap">
+          <TabsTrigger value="reminders" className="min-h-[44px] flex-1 sm:flex-initial sm:px-4">{t.reminders.tabs.reminders}</TabsTrigger>
+          <TabsTrigger value="templates" className="min-h-[44px] flex-1 sm:flex-initial sm:px-4">{t.reminders.tabs.templates}</TabsTrigger>
+          <TabsTrigger value="history" className="min-h-[44px] flex-1 sm:flex-initial sm:px-4">{t.reminders.tabs.history}</TabsTrigger>
+          <TabsTrigger value="settings" className="min-h-[44px] flex-1 sm:flex-initial sm:px-4">{t.reminders.tabs.settings}</TabsTrigger>
         </TabsList>
 
         {/* Reminders tab */}

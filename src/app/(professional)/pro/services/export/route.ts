@@ -2,13 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildServiceRows, applyServiceFilters } from "../_lib/aggregation";
 import type { RawServiceAppointment } from "../_lib/types";
-
-function escapeCsv(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
+import { csvResponse } from "@/lib/export-csv";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -54,41 +48,26 @@ export async function GET(request: NextRequest) {
   const filtered = applyServiceFilters(allRows, { search, status, sort });
 
   const headers = [
-    "Name",
-    "Description",
-    "Duration (min)",
-    "Price",
-    "Status",
-    "Consultation Type",
-    "Total Appointments",
-    "Total Revenue",
+    "Nome",
+    "Descrição",
+    "Duração (min)",
+    "Preço (€)",
+    "Estado",
+    "Tipo consulta",
+    "Total consultas",
+    "Receita total (€)",
   ];
 
-  const csvLines = [headers.join(",")];
+  const rows = filtered.map((s) => [
+    s.name,
+    s.description ?? "",
+    String(s.duration_minutes),
+    String(s.price),
+    s.is_active ? "Ativo" : "Inativo",
+    s.consultation_type,
+    String(s.total_appointments),
+    String(s.total_revenue),
+  ]);
 
-  for (const s of filtered) {
-    csvLines.push(
-      [
-        escapeCsv(s.name),
-        escapeCsv(s.description ?? ""),
-        String(s.duration_minutes),
-        String(s.price),
-        s.is_active ? "Active" : "Inactive",
-        escapeCsv(s.consultation_type),
-        String(s.total_appointments),
-        String(s.total_revenue),
-      ].join(","),
-    );
-  }
-
-  const csv = csvLines.join("\n");
-  const today = new Date().toISOString().split("T")[0];
-  const filename = `docagora-services-${today}.csv`;
-
-  return new NextResponse(csv, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-    },
-  });
+  return csvResponse(headers, rows, "docagora-servicos");
 }

@@ -37,6 +37,7 @@ interface MapViewMobileProps {
   onViewProfile: (profId: string) => void
   onBook: (prof: ProfessionalResult) => void
   profName: string
+  onVisibleChange: (visible: ProfessionalResult[]) => void
 }
 
 export function MapViewMobile({
@@ -57,6 +58,7 @@ export function MapViewMobile({
   onViewProfile,
   onBook,
   profName,
+  onVisibleChange,
 }: MapViewMobileProps) {
   return (
     <>
@@ -98,6 +100,7 @@ export function MapViewMobile({
             isMobile
             highlightedId={highlightedId}
             searchFilter={filterText}
+            onVisibleChange={onVisibleChange}
           />
         </div>
       </div>

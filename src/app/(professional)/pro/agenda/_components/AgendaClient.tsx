@@ -85,23 +85,6 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
       <AttendanceStats stats={agenda.stats} />
       <AttendanceRate stats={agenda.stats} />
 
-      {agenda.periodFilter === "day" && (agenda.financialStats.confirmedRevenue > 0 || agenda.financialStats.pendingRevenue > 0) && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {agenda.t.agenda.financialSummary ?? "Resumo financeiro"}
-          </span>
-          <span>
-            {agenda.financialStats.totalAppointments} {agenda.financialStats.totalAppointments === 1 ? agenda.t.agenda.appointmentSingular : agenda.t.agenda.appointmentPlural}
-          </span>
-          <span className="text-green-600 dark:text-green-400">
-            {agenda.financialStats.confirmedRevenue}€ {agenda.t.agenda.confirmedRevenue ?? "confirmados"}
-          </span>
-          <span className="text-orange-600 dark:text-orange-400">
-            {agenda.financialStats.pendingRevenue}€ {agenda.t.agenda.pendingRevenue ?? "pendentes"}
-          </span>
-        </div>
-      )}
-
       {agenda.periodFilter === "day" && (
         <DayTimeGrid
           appointments={agenda.appointments}
@@ -109,9 +92,11 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           availabilitySlots={agenda.availabilitySlots}
           loading={agenda.loading}
           selectedDate={agenda.selectedDate}
+          professionalId={professionalId}
           onAttendanceChange={agenda.handleAttendanceChange}
           onCreateAppointment={agenda.openCreateDialog}
           onCreateAvailability={agenda.openAvailabilityModal}
+          onAvailabilityDeleted={agenda.refreshAvailability}
           highlightedAppointmentId={agenda.highlightedAppointmentId}
         />
       )}

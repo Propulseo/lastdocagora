@@ -17,6 +17,7 @@ import { ThemeSync } from "@/components/theme-sync";
 import { ProBottomNav } from "./_components/pro-bottom-nav";
 import { ProMobileHeader } from "./_components/pro-mobile-header";
 import { ProRealtimeNotifier } from "./_components/pro-realtime-notifier";
+import { ProNotificationBell } from "./_components/ProNotificationBell";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -63,7 +64,7 @@ export default async function ProfessionalLayout({
         .single(),
       supabase
         .from("notifications")
-        .select("id, user_id, title, message, type, is_read, related_id, created_at")
+        .select("id, user_id, title, message, type, is_read, related_id, created_at, params")
         .eq("user_id", user.id)
         .gte("created_at", thirtyDaysAgo.toISOString())
         .order("created_at", { ascending: false })
@@ -91,7 +92,7 @@ export default async function ProfessionalLayout({
 
   const onboardingCompleted = proRecord?.onboarding_completed === true;
 
-  const notifs = (initialNotifications ?? []) as { id: string; user_id: string; title: string; message: string; type: string; is_read: boolean | null; related_id: string | null; created_at: string | null }[];
+  const notifs = (initialNotifications ?? []) as { id: string; user_id: string; title: string; message: string; type: string; is_read: boolean | null; related_id: string | null; created_at: string | null; params: Record<string, string> | null }[];
   const unreadNotifCount = notifs.filter((n) => !n.is_read).length;
 
   const sidebarUser = {
@@ -121,7 +122,7 @@ export default async function ProfessionalLayout({
         <ProRealtimeNotifier professionalUserId={user.id} />
         <SidebarProvider>
           <div className="hidden lg:contents">
-            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
+            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} />
           </div>
           <SidebarInset>
             <ProMobileHeader user={sidebarUser} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
@@ -129,7 +130,12 @@ export default async function ProfessionalLayout({
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                <ProNotificationBell
+                  userId={user.id}
+                  initialNotifications={notifs}
+                  initialUnreadCount={unreadNotifCount}
+                />
                 <ThemeToggle />
               </div>
             </header>

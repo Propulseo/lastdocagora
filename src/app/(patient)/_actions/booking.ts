@@ -195,13 +195,40 @@ export async function createAppointment(input: {
     : "Novo paciente"
   const serviceName = serviceData?.name ?? "Consulta"
 
-  await supabase.from("notifications").insert({
+  const { error: notifError } = await supabase.from("notifications").insert({
     user_id: pro.user_id,
     title: `Novo agendamento: ${patientName}`,
     message: `${serviceName} - ${input.appointmentDate} às ${input.appointmentTime}`,
     type: "new_booking",
     related_id: appointment.id,
+    params: { patientName, serviceName, date: input.appointmentDate, time: input.appointmentTime },
   })
+  if (notifError) {
+    console.error("[booking] Failed to insert pro notification:", notifError.message)
+  }
+
+  // Send email notification to professional
+  try {
+    const { data: proUser } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", pro.user_id)
+      .single()
+    const { data: proSettings } = await supabase
+      .from("professional_settings")
+      .select("channel_email")
+      .eq("user_id", pro.user_id)
+      .single()
+
+    if (proUser?.email && proSettings?.channel_email !== false) {
+      const { sendNotificationEmail } = await import("@/lib/email/resend")
+      const { newBookingEmail } = await import("@/lib/email/templates")
+      const template = newBookingEmail(patientName, serviceName, input.appointmentDate, input.appointmentTime)
+      await sendNotificationEmail({ to: proUser.email, ...template })
+    }
+  } catch (emailError) {
+    console.error("[booking] Failed to send email:", emailError)
+  }
 
   return { success: true }
 }

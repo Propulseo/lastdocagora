@@ -20,7 +20,7 @@ export default async function SearchPage({
 
   // If insurance filter, get matching professional IDs from junction table
   let insuranceProIds: string[] | null = null
-  if (insuranceFilter) {
+  if (insuranceFilter && insuranceFilter !== "all") {
     const { data: providerRow } = await supabase
       .from("insurance_providers")
       .select("id")

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus, Loader2, Zap, Clock, CalendarDays } from "lucide-react";
+import { UserPlus, Loader2, Zap, Clock, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
@@ -29,7 +29,7 @@ import {
   type SlotInfo,
 } from "@/app/(professional)/_actions/walkins";
 import { cn } from "@/lib/utils";
-import { format, isToday, isTomorrow } from "date-fns";
+import { format } from "date-fns";
 import type { Locale } from "date-fns";
 import { pt, enGB, fr } from "date-fns/locale";
 
@@ -37,8 +37,6 @@ interface ServiceOption {
   id: string;
   name: string;
 }
-
-type DaySlots = { date: string; slots: SlotInfo[] };
 
 interface WalkInDialogProps {
   open: boolean;
@@ -63,7 +61,6 @@ export function WalkInDialog({
 }: WalkInDialogProps) {
   const { t } = useProfessionalI18n();
   const walkInT = t.agenda.walkIn as Record<string, string>;
-  const supabase = useMemo(() => createClient(), []);
 
   const dateLocale =
     dateLocaleMap[t.common.dateLocale as string] ?? pt;
@@ -81,7 +78,6 @@ export function WalkInDialog({
         {open && (
           <WalkInForm
             walkInT={walkInT}
-            supabase={supabase}
             professionalId={professionalId}
             preselectedTime={preselectedTime}
             dateLocale={dateLocale}
@@ -94,11 +90,10 @@ export function WalkInDialog({
   );
 }
 
-/* ─── Inner form — remounted via key each time dialog opens ─── */
+/* ─── Inner form — remounted each time dialog opens ─── */
 
 interface WalkInFormProps {
   walkInT: Record<string, string>;
-  supabase: ReturnType<typeof createClient>;
   professionalId: string;
   preselectedTime?: string;
   dateLocale: Locale;
@@ -108,13 +103,14 @@ interface WalkInFormProps {
 
 function WalkInForm({
   walkInT,
-  supabase,
   professionalId,
   preselectedTime,
   dateLocale,
   onOpenChange,
   onCreated,
 }: WalkInFormProps) {
+  const supabase = useMemo(() => createClient(), []);
+
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [patientName, setPatientName] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -125,11 +121,17 @@ function WalkInForm({
 
   // Slot picker state
   const [todaySlots, setTodaySlots] = useState<SlotInfo[]>([]);
-  const [nextDaySlots, setNextDaySlots] = useState<DaySlots[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState(preselectedTime ?? "");
   const [currentSlot, setCurrentSlot] = useState<string | null>(null);
+
+  // Manual mode state
+  const [manualMode, setManualMode] = useState(false);
+  const [manualDate, setManualDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [manualTime, setManualTime] = useState(format(new Date(), "HH:mm"));
+
+  const todayStr = format(new Date(), "yyyy-MM-dd");
 
   useEffect(() => {
     let cancelled = false;
@@ -154,10 +156,7 @@ function WalkInForm({
         return;
       }
 
-      const todayStr = format(new Date(), "yyyy-MM-dd");
-
       setTodaySlots(result.today);
-      setNextDaySlots(result.nextDays);
       setCurrentSlot(result.currentSlot);
 
       // Auto-select
@@ -170,10 +169,6 @@ function WalkInForm({
       } else if (result.today.length > 0) {
         setSelectedTime(result.today[0].slot_start);
         setSelectedDate(todayStr);
-      } else if (result.nextDays.length > 0) {
-        const first = result.nextDays[0];
-        setSelectedDate(first.date);
-        setSelectedTime(first.slots[0].slot_start);
       }
     }
 
@@ -183,23 +178,60 @@ function WalkInForm({
     return () => {
       cancelled = true;
     };
-  }, [supabase, professionalId, preselectedTime, walkInT.errorLoadSlots]);
+  }, [supabase, professionalId, preselectedTime, walkInT.errorLoadSlots, todayStr]);
 
-  function selectSlot(date: string, time: string) {
-    setSelectedDate(date);
+  function selectSlot(time: string) {
+    setManualMode(false);
+    setSelectedDate(todayStr);
     setSelectedTime(time);
   }
 
+  function toggleManualMode() {
+    setManualMode((prev) => {
+      const next = !prev;
+      if (next) {
+        // Switching to manual — clear slot selection
+        setSelectedDate(manualDate);
+        setSelectedTime(manualTime + ":00");
+      } else {
+        // Switching back to slots — re-select current or first slot
+        setSelectedDate(todayStr);
+        if (currentSlot) {
+          setSelectedTime(currentSlot);
+        } else if (todaySlots.length > 0) {
+          setSelectedTime(todaySlots[0].slot_start);
+        } else {
+          setSelectedTime("");
+        }
+      }
+      return next;
+    });
+  }
+
+  function handleManualDateChange(value: string) {
+    setManualDate(value);
+    setSelectedDate(value);
+  }
+
+  function handleManualTimeChange(value: string) {
+    setManualTime(value);
+    setSelectedTime(value + ":00");
+  }
+
+  // Derive the final time/date for submission
+  const finalDate = manualMode ? manualDate : selectedDate;
+  const finalTime = manualMode ? manualTime + ":00" : selectedTime;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!patientName.trim() || !serviceId || !selectedTime) return;
+    if (!patientName.trim() || !serviceId || !finalTime) return;
 
     setSaving(true);
     const result = await createWalkIn({
       patientName: patientName.trim(),
       serviceId,
-      scheduledTime: selectedTime,
-      scheduledDate: selectedDate || undefined,
+      scheduledTime: finalTime,
+      scheduledDate: finalDate || undefined,
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
       notes: notes.trim() || undefined,
@@ -216,19 +248,17 @@ function WalkInForm({
   }
 
   const canSubmit =
-    patientName.trim() && serviceId && selectedTime && !saving;
+    patientName.trim() && serviceId && finalTime && !saving;
 
-  const todayStr = format(new Date(), "yyyy-MM-dd");
-
-  function formatDateLabel(dateStr: string): string {
-    const d = new Date(dateStr + "T00:00:00");
-    if (isToday(d)) return walkInT.today;
-    if (isTomorrow(d)) return walkInT.tomorrow;
-    return format(d, "EEEE d MMMM", { locale: dateLocale });
+  // Format recap label
+  function recapLabel(): string {
+    const time = finalTime.slice(0, 5);
+    if (manualMode) {
+      if (finalDate === todayStr) return `${walkInT.today}, ${time}`;
+      return `${finalDate}, ${time}`;
+    }
+    return time;
   }
-
-  const hasAnySlots =
-    todaySlots.length > 0 || nextDaySlots.length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -239,24 +269,23 @@ function WalkInForm({
           {walkInT.selectSlot}
         </Label>
 
-        {loadingSlots ? (
-          <div className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-muted/30 py-6">
-            <Loader2 className="size-4 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {walkInT.loadingSlots}
-            </span>
-          </div>
-        ) : !hasAnySlots ? (
-          <div className="flex items-center justify-center rounded-lg border border-border/40 bg-muted/30 py-6">
-            <span className="text-sm text-muted-foreground">
-              {walkInT.noSlotsAtAll}
-            </span>
-          </div>
-        ) : (
-          <div className="space-y-3 max-h-[200px] overflow-y-auto rounded-lg border border-border/40 p-3">
-            {/* Today slots */}
-            {todaySlots.length > 0 && (
-              <div>
+        {!manualMode && (
+          <>
+            {loadingSlots ? (
+              <div className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-muted/30 py-6">
+                <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {walkInT.loadingSlots}
+                </span>
+              </div>
+            ) : todaySlots.length === 0 ? (
+              <div className="flex items-center justify-center rounded-lg border border-border/40 bg-muted/30 py-6">
+                <span className="text-sm text-muted-foreground">
+                  {walkInT.noSlotsToday}
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[200px] overflow-y-auto rounded-lg border border-border/40 p-3">
                 <p className="mb-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   {walkInT.today}
                 </p>
@@ -272,9 +301,7 @@ function WalkInForm({
                       <button
                         key={slot.slot_start}
                         type="button"
-                        onClick={() =>
-                          selectSlot(todayStr, slot.slot_start)
-                        }
+                        onClick={() => selectSlot(slot.slot_start)}
                         className={cn(
                           "relative flex items-center justify-center gap-1 rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors min-h-[44px]",
                           isSelected
@@ -299,50 +326,46 @@ function WalkInForm({
                 </div>
               </div>
             )}
+          </>
+        )}
 
-            {/* Today empty + next days */}
-            {todaySlots.length === 0 && nextDaySlots.length > 0 && (
-              <p className="text-xs text-muted-foreground italic mb-1">
-                {walkInT.noSlotsToday}
-              </p>
-            )}
-
-            {nextDaySlots.map((day) => (
-              <div key={day.date}>
-                <p className="mb-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-                  <CalendarDays className="size-3" />
-                  {formatDateLabel(day.date)}
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {day.slots.map((slot) => {
-                    const time = slot.slot_start.slice(0, 5);
-                    const isSelected =
-                      selectedTime === slot.slot_start &&
-                      selectedDate === day.date;
-
-                    return (
-                      <button
-                        key={`${day.date}-${slot.slot_start}`}
-                        type="button"
-                        onClick={() =>
-                          selectSlot(day.date, slot.slot_start)
-                        }
-                        className={cn(
-                          "flex items-center justify-center rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors min-h-[44px]",
-                          isSelected
-                            ? "bg-amber-500 text-white border-amber-500"
-                            : "border-border bg-background hover:bg-accent/50"
-                        )}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+        {/* Manual mode fields */}
+        {manualMode && (
+          <div className="grid grid-cols-2 gap-3 rounded-lg border border-border/40 p-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">
+                {walkInT.manualDate}
+              </Label>
+              <Input
+                type="date"
+                value={manualDate}
+                onChange={(e) => handleManualDateChange(e.target.value)}
+                className="min-h-[44px]"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">
+                {walkInT.manualTime}
+              </Label>
+              <Input
+                type="time"
+                value={manualTime}
+                onChange={(e) => handleManualTimeChange(e.target.value)}
+                className="min-h-[44px]"
+              />
+            </div>
           </div>
         )}
+
+        {/* Toggle manual mode */}
+        <button
+          type="button"
+          onClick={toggleManualMode}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Pencil className="size-3" />
+          {manualMode ? walkInT.backToSlots : walkInT.customTime}
+        </button>
       </div>
 
       {/* Patient name */}
@@ -406,16 +429,12 @@ function WalkInForm({
       </div>
 
       {/* Selected slot recap */}
-      {selectedTime && (
+      {finalTime && (
         <div className="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2">
           <Clock className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-            {walkInT.selectedSlot}:{" "}
-            {selectedDate && selectedDate !== todayStr
-              ? `${formatDateLabel(selectedDate)}, `
-              : ""}
-            {selectedTime.slice(0, 5)}
-            {selectedTime === currentSlot && (
+            {walkInT.selectedSlot}: {recapLabel()}
+            {!manualMode && finalTime === currentSlot && (
               <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs">
                 <Zap className="size-3" />
                 {walkInT.now}

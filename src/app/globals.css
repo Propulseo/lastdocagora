@@ -411,12 +411,9 @@ html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
 /* ─── Leaflet container ─── */
 .leaflet-container { width: 100%; height: 100%; z-index: 0; }
 
-/* Google Maps tiles: grayscale B&W */
-.leaflet-tile-pane {
-  filter: grayscale(1);
-}
+/* Google Maps tiles */
 .dark .leaflet-tile-pane {
-  filter: grayscale(1) invert(1) brightness(0.75) contrast(1.1);
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(1.1);
 }
 /* Keep markers/popups unfiltered */
 .leaflet-marker-pane, .leaflet-popup-pane, .leaflet-shadow-pane {

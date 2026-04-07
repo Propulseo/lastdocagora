@@ -338,14 +338,16 @@ export function applyFilters(
 ): PatientRow[] {
   let filtered = [...patients];
 
-  // Search filter
-  if (params.search?.trim()) {
-    const q = params.search.toLowerCase().trim();
+  // Search filter (minimum 3 characters)
+  const searchTrimmed = params.search?.trim();
+  if (searchTrimmed && searchTrimmed.length >= 3) {
+    const q = searchTrimmed.toLowerCase();
     filtered = filtered.filter((p) => {
       const fullName =
         `${p.first_name ?? ""} ${p.last_name ?? ""}`.toLowerCase();
       const email = (p.email ?? "").toLowerCase();
-      return fullName.includes(q) || email.includes(q);
+      const phone = (p.phone ?? "").toLowerCase();
+      return fullName.includes(q) || email.includes(q) || phone.includes(q);
     });
   }
 

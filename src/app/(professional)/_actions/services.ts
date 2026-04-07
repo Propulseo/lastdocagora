@@ -97,44 +97,48 @@ export async function updateService(
 }
 
 export async function deleteService(serviceId: string): Promise<ActionResult> {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { success: false, error: "Not authenticated" };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not authenticated" };
 
-    // Check if service has ANY linked appointments (FK constraint blocks deletion regardless of status)
-    const { count, error: countError } = await supabase
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .eq("service_id", serviceId);
+  // 1. Verify the service exists and belongs to this pro
+  const { data: service } = await supabase
+    .from("services")
+    .select("id, professional_id")
+    .eq("id", serviceId)
+    .eq("professional_user_id", user.id)
+    .single();
 
-    if (countError) return { success: false, error: countError.message };
+  if (!service) return { success: false, error: "Service not found" };
 
-    if (count && count > 0) {
-      return {
-        success: false,
-        error: `APPOINTMENTS_LINKED:${count}`,
-      };
-    }
+  // 2. Check if service has linked appointments (FK constraint blocks deletion)
+  const { count, error: countError } = await supabase
+    .from("appointments")
+    .select("*", { count: "exact", head: true })
+    .eq("service_id", serviceId);
 
-    const { error } = await supabase
-      .from("services")
-      .delete()
-      .eq("id", serviceId)
-      .eq("professional_user_id", user.id);
+  if (countError) return { success: false, error: countError.message };
 
-    if (error) return { success: false, error: error.message };
-
-    revalidatePath("/pro/services");
-    return { success: true };
-  } catch (err) {
+  if (count && count > 0) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: `APPOINTMENTS_LINKED:${count}`,
     };
   }
+
+  // 3. Delete
+  const { error } = await supabase
+    .from("services")
+    .delete()
+    .eq("id", serviceId)
+    .eq("professional_user_id", user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/pro/services");
+  return { success: true };
 }
 
 export async function deactivateService(

@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchStatisticsData, type PeriodRange, PERIOD_OPTIONS } from "../_lib/queries";
+import { escapeCell } from "@/lib/export-csv";
+
+const SEP = ";";
+const BOM = "\uFEFF";
+
+function line(cells: string[]): string {
+  return cells.map(escapeCell).join(SEP);
+}
 
 export async function GET(request: NextRequest) {
   const range = request.nextUrl.searchParams.get("range") as PeriodRange;
@@ -9,47 +17,63 @@ export async function GET(request: NextRequest) {
 
   const data = await fetchStatisticsData(range);
 
-  const rows: string[][] = [
-    ["Metric", "Value"],
-    ["Total Users", String(data.kpis.totalUsers)],
-    ["Total Patients", String(data.kpis.totalPatients)],
-    ["New Patients (period)", String(data.kpis.newPatients)],
-    ["Total Professionals", String(data.kpis.totalProfessionals)],
-    ["Verified Professionals", String(data.kpis.verifiedPros)],
-    ["Pending Professionals", String(data.kpis.pendingPros)],
-    ["Total Appointments", String(data.kpis.totalAppointments)],
-    ["Period Appointments", String(data.kpis.periodAppointments)],
-    ["Activity Rate", `${data.kpis.activityRate}%`],
-    ["Completion Rate", `${data.kpis.completionRate}%`],
-    ["Attendance Rate", `${data.rates.attendance}%`],
-    ["Cancellation Rate", `${data.rates.cancellation}%`],
-    ["No-Show Rate", `${data.rates.noShow}%`],
-    [],
-    ["--- Growth Data ---"],
-    ["Date", "Patients", "Professionals"],
-    ...data.growth.map(g => [g.date, String(g.patients), String(g.professionals)]),
-    [],
-    ["--- Activity Data ---"],
-    ["Date", "Confirmed", "Cancelled", "No-Show"],
-    ...data.activity.map(a => [a.date, String(a.confirmed), String(a.cancelled), String(a.noShow)]),
-    [],
-    ["--- Top Specialties ---"],
-    ["Specialty", "Count"],
-    ...data.topSpecialties.map(s => [s.specialty, String(s.count)]),
-    [],
-    ["--- Top Professionals ---"],
-    ["Name", "Specialty", "City", "Appointments", "Rating"],
-    ...data.topProfessionals.map(p => [
-      p.name, p.specialty, p.city, String(p.appointmentCount), p.rating.toFixed(1),
-    ]),
+  const lines: string[] = [
+    // KPIs
+    line(["Indicador", "Valor"]),
+    line(["Total utilizadores", String(data.kpis.totalUsers)]),
+    line(["Total pacientes", String(data.kpis.totalPatients)]),
+    line(["Novos pacientes (período)", String(data.kpis.newPatients)]),
+    line(["Total profissionais", String(data.kpis.totalProfessionals)]),
+    line(["Profissionais verificados", String(data.kpis.verifiedPros)]),
+    line(["Profissionais pendentes", String(data.kpis.pendingPros)]),
+    line(["Total consultas", String(data.kpis.totalAppointments)]),
+    line(["Consultas (período)", String(data.kpis.periodAppointments)]),
+    line(["Taxa de atividade", `${data.kpis.activityRate}%`]),
+    line(["Taxa de conclusão", `${data.kpis.completionRate}%`]),
+    line(["Taxa de presença", `${data.rates.attendance}%`]),
+    line(["Taxa de cancelamento", `${data.rates.cancellation}%`]),
+    line(["Taxa de no-show", `${data.rates.noShow}%`]),
+    "",
+    // Growth
+    line(["--- Crescimento ---"]),
+    line(["Data", "Pacientes", "Profissionais"]),
+    ...data.growth.map((g) =>
+      line([g.date, String(g.patients), String(g.professionals)]),
+    ),
+    "",
+    // Activity
+    line(["--- Atividade ---"]),
+    line(["Data", "Confirmadas", "Canceladas", "No-show"]),
+    ...data.activity.map((a) =>
+      line([a.date, String(a.confirmed), String(a.cancelled), String(a.noShow)]),
+    ),
+    "",
+    // Top specialties
+    line(["--- Especialidades ---"]),
+    line(["Especialidade", "Quantidade"]),
+    ...data.topSpecialties.map((s) => line([s.specialty, String(s.count)])),
+    "",
+    // Top professionals
+    line(["--- Top Profissionais ---"]),
+    line(["Nome", "Especialidade", "Cidade", "Consultas", "Avaliação"]),
+    ...data.topProfessionals.map((p) =>
+      line([
+        p.name,
+        p.specialty,
+        p.city,
+        String(p.appointmentCount),
+        p.rating.toFixed(1),
+      ]),
+    ),
   ];
 
-  const csv = rows.map(r => r.join(",")).join("\n");
+  const csv = BOM + lines.join("\r\n");
+  const today = new Date().toISOString().split("T")[0];
 
-  return new NextResponse(csv, {
+  return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="docagora-statistics-${range}.csv"`,
+      "Content-Disposition": `attachment; filename="docagora-estatisticas-admin-${range}_${today}.csv"`,
     },
   });
 }

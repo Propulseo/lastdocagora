@@ -178,7 +178,7 @@ export async function reopenTicket(
     .eq("role", "admin");
 
   if (admins && admins.length > 0) {
-    await supabase.from("notifications").insert(
+    const { error: notifError } = await supabase.from("notifications").insert(
       admins.map((admin) => ({
         user_id: admin.id,
         title: "Ticket reaberto",
@@ -186,6 +186,9 @@ export async function reopenTicket(
         type: "system",
       }))
     );
+    if (notifError) {
+      console.error("[reopenTicket] Failed to insert admin notifications:", notifError.message);
+    }
   }
 
   revalidatePath("/pro/support");

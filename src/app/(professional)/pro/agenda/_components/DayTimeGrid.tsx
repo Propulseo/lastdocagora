@@ -1,8 +1,22 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
@@ -12,7 +26,8 @@ import { DragActionSelector } from "./DragActionSelector";
 import { ExternalEventOverlay } from "./ExternalEventOverlay";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
-import { toLocalDateStr } from "../_lib/date-utils";
+import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+import { deleteAllDayAvailability } from "@/app/(professional)/_actions/availability";
 
 const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
 
@@ -38,9 +53,11 @@ interface DayTimeGridProps {
   availabilitySlots: AvailabilitySlot[];
   loading: boolean;
   selectedDate: string;
+  professionalId: string;
   onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
   onCreateAppointment: (startTime: string, endTime: string) => void;
   onCreateAvailability: (startTime: string, endTime: string) => void;
+  onAvailabilityDeleted: () => void;
   highlightedAppointmentId?: string | null;
 }
 
@@ -50,9 +67,11 @@ export function DayTimeGrid({
   availabilitySlots,
   loading,
   selectedDate,
+  professionalId,
   onAttendanceChange,
   onCreateAppointment,
   onCreateAvailability,
+  onAvailabilityDeleted,
   highlightedAppointmentId,
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
@@ -69,6 +88,7 @@ export function DayTimeGrid({
   const todayStr = toLocalDateStr(new Date());
   const isToday = selectedDate === todayStr;
   const [, setTick] = useState(0);
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
 
   useEffect(() => {
     if (!isToday) return;
@@ -177,9 +197,78 @@ export function DayTimeGrid({
   const now = new Date();
   const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
 
+  const handleBatchDelete = async () => {
+    setIsBatchDeleting(true);
+    const d = parseLocalDate(selectedDate);
+    const result = await deleteAllDayAvailability(
+      professionalId,
+      d.getDay(),
+      selectedDate,
+    );
+    if (result.success) {
+      toast.success(t.agenda.clearDaySuccess);
+      onAvailabilityDeleted();
+    } else {
+      toast.error(result.error ?? t.agenda.deleteSlotError);
+    }
+    setIsBatchDeleting(false);
+  };
+
+  const dateForDisplay = (() => {
+    const d = parseLocalDate(selectedDate);
+    const dayName = t.agenda.daysFull[d.getDay()];
+    const day = d.getDate();
+    const month = t.agenda.months[d.getMonth()];
+    return `${dayName}, ${day} ${month}`;
+  })();
+
   return (
     <>
       <Card>
+        {/* Batch delete bar — only when availability slots exist */}
+        {availabilitySlots.length > 0 && (
+          <div className="flex items-center justify-end px-4 pt-3 pb-0">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {t.agenda.clearDayButton}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t.agenda.clearDayTitle}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {(t.agenda.clearDayDescription as string).replace(
+                      "{{date}}",
+                      dateForDisplay,
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isBatchDeleting}>
+                    {t.common.cancel}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleBatchDelete}
+                    disabled={isBatchDeleting}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  >
+                    {isBatchDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      t.agenda.clearDayConfirm
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
         <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
           <div
             ref={gridRef}
@@ -235,6 +324,7 @@ export function DayTimeGrid({
                 key={slot.id}
                 slot={slot}
                 onCreateAppointment={onCreateAppointment}
+                onDeleted={onAvailabilityDeleted}
               />
             ))}
 

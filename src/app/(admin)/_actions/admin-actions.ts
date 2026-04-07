@@ -112,13 +112,16 @@ export async function updateTicketStatus(
         ? `O seu ticket "${ticket.subject}" foi tratado. Por favor confirme se o problema foi resolvido.`
         : `O seu ticket "${ticket.subject}" foi atualizado para: ${status}`;
 
-    await supabase.from("notifications").insert({
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: ticket.user_id,
       title: "Ticket atualizado",
       message: notificationMessage,
       type: status === "awaiting_confirmation" ? "ticket_resolved" : "ticket_updated",
       params: { subject: ticket.subject, status },
     });
+    if (notifError) {
+      console.error("[updateTicketStatus] Failed to insert notification:", notifError.message);
+    }
   }
 
   revalidatePath("/admin/support");
@@ -157,13 +160,16 @@ export async function replyToTicket(ticketId: string, content: string) {
     .single();
 
   if (ticket) {
-    await supabase.from("notifications").insert({
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: ticket.user_id,
       title: "Nova resposta ao ticket",
       message: `O seu ticket "${ticket.subject}" recebeu uma resposta do suporte.`,
       type: "ticket_reply",
       params: { subject: ticket.subject },
     });
+    if (notifError) {
+      console.error("[replyToTicket] Failed to insert notification:", notifError.message);
+    }
   }
 
   revalidatePath("/admin/support");

@@ -12,6 +12,7 @@ export type ProNotification = {
   is_read: boolean | null;
   related_id: string | null;
   created_at: string | null;
+  params: Record<string, string> | null;
 };
 
 export async function getProNotifications(
@@ -27,7 +28,7 @@ export async function getProNotifications(
 
   const { data } = await supabase
     .from("notifications")
-    .select("id, user_id, title, message, type, is_read, related_id, created_at")
+    .select("id, user_id, title, message, type, is_read, related_id, created_at, params")
     .eq("user_id", userId)
     .gte("created_at", thirtyDaysAgo.toISOString())
     .order("created_at", { ascending: false })

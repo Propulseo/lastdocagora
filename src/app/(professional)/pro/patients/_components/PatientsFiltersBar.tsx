@@ -51,6 +51,7 @@ export function PatientsFiltersBar({
         <SearchInput
           placeholder={t.patients.searchPlaceholder}
           paramKey="search"
+          minLength={3}
         />
       </Suspense>
 

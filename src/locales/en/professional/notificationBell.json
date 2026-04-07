@@ -7,5 +7,18 @@
   "toastNewBooking": "New booking",
   "toastCancellation": "Appointment cancelled",
   "toastViewAgenda": "View in agenda →",
-  "toastViewAll": "View all"
+  "toastViewAll": "View all",
+  "catchupBookings": "{count} new bookings",
+  "catchupUnread": "{count} unread notifications",
+  "notifNewBookingTitle": "New booking: {patientName}",
+  "notifNewBookingMessage": "{serviceName} — {date} at {time}",
+  "notifTicketReplyTitle": "New ticket reply",
+  "notifTicketReplyMessage": "Your ticket \"{subject}\" received a reply from support.",
+  "notifTicketResolvedTitle": "Ticket resolved",
+  "notifTicketResolvedMessage": "Your ticket \"{subject}\" has been resolved. Please confirm.",
+  "notifTicketUpdatedTitle": "Ticket updated",
+  "notifTicketUpdatedMessage": "Your ticket \"{subject}\" has been updated to: {status}",
+  "notifReopenedTitle": "Ticket reopened",
+  "notifReopenedMessage": "Ticket \"{subject}\" has been reopened.",
+  "notifSystemTitle": "System notification"
 }

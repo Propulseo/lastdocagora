@@ -65,17 +65,34 @@ function resolveNotification(
     },
   };
 
+  const GENERIC_TITLE_MAP: Record<string, keyof PatientTranslations["messages"]> = {
+    appointment_confirmed: "notifConfirmedTitle",
+    cancellation: "notifCancelledTitle",
+    appointment_rejected: "notifRejectedTitle",
+    alternative_proposed: "notifAlternativeTitle",
+    ticket_updated: "notifTicketUpdatedTitle",
+    ticket_resolved: "notifTicketUpdatedTitle",
+    ticket_reply: "notifTicketReplyTitle",
+    support_reply: "notifTicketReplyTitle",
+    appointment_reminder: "titleAppointmentReminder",
+  };
+
   const entry = MAP[row.type ?? ""];
-  if (!entry || !hasParams) {
-    return {
-      title: row.title ?? t.messages.typeSystem,
-      message: row.message ?? "",
-    };
+
+  // Full resolution with interpolated params
+  if (entry && hasParams) {
+    const title = interpolate(t.messages[entry.titleKey], params);
+    const message = interpolate(t.messages[entry.messageKey], params);
+    return { title, message };
   }
 
-  const title = interpolate(t.messages[entry.titleKey], params);
-  const message = interpolate(t.messages[entry.messageKey], params);
-  return { title, message };
+  // No params: use generic translated title for known types
+  const genericKey = GENERIC_TITLE_MAP[row.type ?? ""];
+  if (genericKey && t.messages[genericKey]) {
+    return { title: t.messages[genericKey], message: row.message ?? "" };
+  }
+
+  return { title: row.title ?? t.messages.typeSystem, message: row.message ?? "" };
 }
 
 const APPOINTMENT_NOTIFICATION_TYPES = new Set([

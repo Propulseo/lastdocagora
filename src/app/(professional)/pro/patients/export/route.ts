@@ -6,13 +6,7 @@ import {
   applyFilters,
 } from "../_lib/aggregation";
 import type { RawAppointmentRow, RawPatientRow } from "../_lib/types";
-
-function escapeCsv(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
+import { csvResponse } from "@/lib/export-csv";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -40,7 +34,6 @@ export async function GET(request: NextRequest) {
   const insurance = searchParams.get("insurance") || "";
   const sort = searchParams.get("sort") || "last";
 
-  // Fetch data
   const [{ data: ownedPatients }, { data: appointments }] = await Promise.all([
     supabase
       .from("patients")
@@ -68,41 +61,26 @@ export async function GET(request: NextRequest) {
   const filtered = applyFilters(allPatients, { search, status, insurance, sort });
 
   const headers = [
-    "Name",
+    "Nome",
     "Email",
-    "Phone",
-    "Insurance",
-    "Status",
-    "Last Appointment",
-    "Total Appointments",
-    "Attendance Rate",
+    "Telefone",
+    "Seguro",
+    "Estado",
+    "Última consulta",
+    "Total consultas",
+    "Taxa presença (%)",
   ];
 
-  const csvLines = [headers.join(",")];
+  const rows = filtered.map((p) => [
+    `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+    p.email ?? "",
+    p.phone ?? "",
+    p.insurance_provider ?? "",
+    p.status,
+    p.last_appointment ?? "",
+    String(p.total_appointments),
+    p.attendance_rate !== null ? `${p.attendance_rate}%` : "",
+  ]);
 
-  for (const p of filtered) {
-    csvLines.push(
-      [
-        escapeCsv(`${p.first_name ?? ""} ${p.last_name ?? ""}`.trim()),
-        escapeCsv(p.email ?? ""),
-        escapeCsv(p.phone ?? ""),
-        escapeCsv(p.insurance_provider ?? "none"),
-        escapeCsv(p.status),
-        escapeCsv(p.last_appointment ?? ""),
-        String(p.total_appointments),
-        p.attendance_rate !== null ? `${p.attendance_rate}%` : "",
-      ].join(","),
-    );
-  }
-
-  const csv = csvLines.join("\n");
-  const today = new Date().toISOString().split("T")[0];
-  const filename = `docagora-patients-${today}.csv`;
-
-  return new NextResponse(csv, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-    },
-  });
+  return csvResponse(headers, rows, "docagora-pacientes");
 }

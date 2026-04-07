@@ -65,7 +65,10 @@ export async function requestFieldChange(
       read: false,
     }));
 
-    await supabase.from("notifications").insert(notifications);
+    const { error: notifError } = await supabase.from("notifications").insert(notifications);
+    if (notifError) {
+      console.error("[requestFieldChange] Failed to insert admin notifications:", notifError.message);
+    }
   }
 
   revalidatePath("/pro/support");
