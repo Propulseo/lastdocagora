@@ -106,7 +106,8 @@
     "title": "No data",
     "description": "No appointments found for the selected period.",
     "tryLongerPeriod": "Try selecting a longer period.",
-    "noDataForYear": "No data for {year}"
+    "noDataForYear": "No data for {year}",
+    "deletedService": "Deleted service"
   },
   "chart": {
     "appointments": "Appointments",

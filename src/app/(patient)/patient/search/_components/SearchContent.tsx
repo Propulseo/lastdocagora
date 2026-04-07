@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useTransition } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -15,6 +14,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { getSpecialtyOptions } from "@/locales/patient/specialties"
+import { searchProfessionals } from "../_actions/search-professionals"
 import { SearchTabs } from "./search-tabs"
 import { ProfessionalCard, type ProfessionalResult } from "./professional-card"
 import { MapView } from "./MapView"
@@ -41,7 +41,7 @@ interface SearchContentProps {
 }
 
 export function SearchContent({
-  professionals,
+  professionals: initialProfessionals,
   query,
   specialtyFilter,
   cityFilter,
@@ -49,25 +49,44 @@ export function SearchContent({
   insuranceProviders,
 }: SearchContentProps) {
   const { t, locale } = usePatientTranslations()
-  const router = useRouter()
   const labels = t.professional
 
-  // Controlled search state
+  // Search state
+  const [professionals, setProfessionals] = useState<ProfessionalResult[]>(initialProfessionals)
   const [searchQuery, setSearchQuery] = useState(query)
   const [searchSpecialty, setSearchSpecialty] = useState(specialtyFilter || "all")
   const [searchCity, setSearchCity] = useState(cityFilter)
   const [searchInsurance, setSearchInsurance] = useState(insuranceFilter || "all")
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  const executeSearch = useCallback(
+    (q: string, spec: string, city: string, ins: string) => {
+      startTransition(async () => {
+        const results = await searchProfessionals({
+          query: q.trim() || undefined,
+          specialty: spec !== "all" ? spec : undefined,
+          city: city.trim() || undefined,
+          insurance: ins !== "all" ? ins : undefined,
+        })
+        setProfessionals(results as ProfessionalResult[])
+
+        // Sync URL for shareability (no navigation, just replace)
+        const params = new URLSearchParams()
+        if (q.trim()) params.set("q", q.trim())
+        if (spec && spec !== "all") params.set("specialty", spec)
+        if (city.trim()) params.set("city", city.trim())
+        if (ins && ins !== "all") params.set("insurance", ins)
+        const qs = params.toString()
+        window.history.replaceState(null, "", `/patient/search${qs ? `?${qs}` : ""}`)
+      })
+    },
+    []
+  )
 
   const handleSearch = useCallback(() => {
-    const params = new URLSearchParams()
-    if (searchQuery.trim()) params.set("q", searchQuery.trim())
-    if (searchSpecialty && searchSpecialty !== "all") params.set("specialty", searchSpecialty)
-    if (searchCity.trim()) params.set("city", searchCity.trim())
-    if (searchInsurance && searchInsurance !== "all") params.set("insurance", searchInsurance)
-    const qs = params.toString()
-    router.push(`/patient/search${qs ? `?${qs}` : ""}`)
-  }, [searchQuery, searchSpecialty, searchCity, searchInsurance, router])
+    executeSearch(searchQuery, searchSpecialty, searchCity, searchInsurance)
+  }, [executeSearch, searchQuery, searchSpecialty, searchCity, searchInsurance])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -75,6 +94,14 @@ export function SearchContent({
       handleSearch()
     }
   }, [handleSearch])
+
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery("")
+    setSearchSpecialty("all")
+    setSearchCity("")
+    setSearchInsurance("all")
+    executeSearch("", "all", "", "all")
+  }, [executeSearch])
 
   // Professionals with coordinates for the map below results
   const geoProfs = useMemo(
@@ -147,10 +174,14 @@ export function SearchContent({
             </div>
           )}
           <Button
-            className="min-h-[48px] rounded-xl lg:min-h-0"
+            className="min-h-[48px] gap-2 rounded-xl lg:min-h-0"
             onClick={handleSearch}
+            disabled={isPending}
           >
-            <SearchIcon className="size-4" />
+            {isPending
+              ? <Loader2 className="size-4 animate-spin" />
+              : <SearchIcon className="size-4" />
+            }
             {t.search.searchButton}
           </Button>
         </div>
@@ -192,8 +223,8 @@ export function SearchContent({
             title={t.search.noResults}
             description={t.search.noResultsDescription}
             action={
-              <Button asChild>
-                <Link href="/patient/search">{t.search.clearFilters}</Link>
+              <Button onClick={handleClearFilters}>
+                {t.search.clearFilters}
               </Button>
             }
           />

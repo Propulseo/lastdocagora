@@ -15,6 +15,9 @@ export type TodayAppointment = {
   patient_first_name: string | null;
   patient_last_name: string | null;
   service_name: string | null;
+  service_name_pt: string | null;
+  service_name_fr: string | null;
+  service_name_en: string | null;
   attendance_status: string | null;
   attendance_marked_at: string | null;
 };
@@ -42,7 +45,7 @@ export function useTodayData({ professionalId }: UseTodayDataParams) {
       const { data, error } = await supabase
         .from("appointments")
         .select(
-          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, patient_id, patients(first_name, last_name), services(name), appointment_attendance(id, status, marked_at)"
+          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, patient_id, patients(first_name, last_name), services(name, name_pt, name_fr, name_en), appointment_attendance(id, status, marked_at)"
         )
         .eq("professional_id", professionalId)
         .eq("appointment_date", todayStr)
@@ -57,7 +60,7 @@ export function useTodayData({ professionalId }: UseTodayDataParams) {
       } else {
         const mapped: TodayAppointment[] = (data ?? []).map((row) => {
           const patient = row.patients as { first_name: string | null; last_name: string | null } | null;
-          const service = row.services as { name: string | null } | null;
+          const service = row.services as { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null;
           const attendance = row.appointment_attendance as { id: string; status: string; marked_at: string | null }[] | null;
           const att = attendance && attendance.length > 0 ? attendance[0] : null;
 
@@ -75,6 +78,9 @@ export function useTodayData({ professionalId }: UseTodayDataParams) {
             patient_first_name: patient?.first_name ?? null,
             patient_last_name: patient?.last_name ?? null,
             service_name: service?.name ?? null,
+            service_name_pt: service?.name_pt ?? null,
+            service_name_fr: service?.name_fr ?? null,
+            service_name_en: service?.name_en ?? null,
             attendance_status: att?.status ?? null,
             attendance_marked_at: att?.marked_at ?? null,
           };

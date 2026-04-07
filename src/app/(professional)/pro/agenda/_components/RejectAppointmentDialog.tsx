@@ -67,8 +67,8 @@ export function RejectAppointmentDialog({
     if (!reasonKey) return;
     const reason =
       reasonKey === "other"
-        ? otherText.trim() || reasons.other
-        : reasons[reasonKey];
+        ? otherText.trim() || reasonKey
+        : reasonKey;
     onConfirm(reason, notifyPatient);
   }
 

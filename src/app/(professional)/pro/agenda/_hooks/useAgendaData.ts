@@ -134,7 +134,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
       let query = supabase
         .from("appointments")
         .select(
-          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, payment_status, price, patients(first_name, last_name), services(name), appointment_attendance(id, status, marked_at)",
+          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, payment_status, price, patients(first_name, last_name), services(name, name_pt, name_fr, name_en), appointment_attendance(id, status, marked_at)",
         )
         .eq("professional_id", professionalId)
         .order("appointment_time", { ascending: true });

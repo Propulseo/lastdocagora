@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { getServiceName } from "@/lib/get-service-name";
 import {
   HOUR_HEIGHT,
   START_HOUR,
@@ -23,7 +24,7 @@ export function AppointmentBlock({
   onClick,
   isHighlighted,
 }: AppointmentBlockProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
 
   const statusLabel: Record<string, string> = {
     confirmed: t.common.status.confirmed,
@@ -114,7 +115,7 @@ export function AppointmentBlock({
       {/* Consultation type (if tall enough) */}
       {height >= 50 && service?.name && (
         <p className="truncate text-[11px] italic opacity-75">
-          {service.name}
+          {getServiceName(service, locale)}
         </p>
       )}
 

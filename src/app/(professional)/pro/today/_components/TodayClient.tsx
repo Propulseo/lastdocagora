@@ -19,7 +19,7 @@ interface TodayClientProps {
 }
 
 export function TodayClient({ professionalId, userId }: TodayClientProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const todayT = t.today as Record<string, unknown>;
   const filtersT = todayT.filters as Record<string, string>;
   const statsT = todayT.stats as Record<string, string>;
@@ -87,6 +87,7 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
     attendance: attendanceT as TodayCardAttendanceT,
     commonStatus: t.common.status as unknown as Record<string, string>,
     commonMin: t.common.min,
+    locale,
   };
 
   return (

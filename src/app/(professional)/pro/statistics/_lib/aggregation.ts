@@ -19,7 +19,7 @@ export interface AppointmentRow {
   patient_id: string | null;
   price?: number | null;
   duration_minutes: number;
-  services: { name: string } | null;
+  services: { name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null;
   appointment_attendance: { status: string; late_minutes: number | null }[];
 }
 
@@ -153,11 +153,13 @@ export function buildHeatmap(rows: AppointmentRow[]): HeatmapCell[] {
   return cells;
 }
 
-export function buildServiceBreakdown(rows: AppointmentRow[]): ServiceStat[] {
+export function buildServiceBreakdown(rows: AppointmentRow[], locale = "pt", deletedLabel = "—"): ServiceStat[] {
   const map = new Map<string, { total: number; noShow: number }>();
 
   for (const r of rows) {
-    const name = r.services?.name ?? "—";
+    const svc = r.services;
+    const locKey = `name_${locale}` as "name_pt" | "name_fr" | "name_en";
+    const name = (svc && svc[locKey]) || svc?.name_pt || svc?.name || deletedLabel;
     const entry = map.get(name) ?? { total: 0, noShow: 0 };
     if (r.status !== "cancelled" && r.status !== "rejected") entry.total++;
     if (r.status === "no-show") entry.noShow++;
@@ -169,22 +171,23 @@ export function buildServiceBreakdown(rows: AppointmentRow[]): ServiceStat[] {
     .sort((a, b) => b.total - a.total);
 }
 
-export function buildChannels(rows: AppointmentRow[]): ChannelStat[] {
+export function buildChannels(rows: AppointmentRow[], channelLabels?: Record<string, string>): ChannelStat[] {
   const map = new Map<string, number>();
   for (const r of rows) {
     const ch = r.created_via ?? "patient_booking";
     map.set(ch, (map.get(ch) ?? 0) + 1);
   }
 
-  const channelLabels: Record<string, string> = {
-    patient_booking: "Paciente",
+  const fallback: Record<string, string> = {
+    patient_booking: "Patient",
     manual: "Manual (pro)",
     walk_in: "Walk-in",
   };
+  const labels = channelLabels ?? fallback;
 
   return Array.from(map.entries()).map(([channel, count]) => ({
     channel,
-    label: channelLabels[channel] ?? channel,
+    label: labels[channel] ?? channel,
     count,
   }));
 }

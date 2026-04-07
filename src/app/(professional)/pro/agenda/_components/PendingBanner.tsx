@@ -30,7 +30,7 @@ interface PendingAppointment {
   appointment_time: string;
   duration_minutes: number;
   patients: { first_name: string | null; last_name: string | null } | null;
-  services: { name: string } | null;
+  services: { name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null;
   title: string | null;
   created_via: string | null;
 }
@@ -126,7 +126,7 @@ export function PendingBanner({
     const { data } = await supabase
       .from("appointments")
       .select(
-        "id, appointment_date, appointment_time, duration_minutes, title, created_via, patients(first_name, last_name), services(name)",
+        "id, appointment_date, appointment_time, duration_minutes, title, created_via, patients(first_name, last_name), services(name, name_pt, name_fr, name_en)",
       )
       .eq("professional_id", professionalId)
       .eq("status", "pending")

@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
+import { getServerLocale } from "@/lib/i18n/server";
+import { getProfessionalTranslations } from "@/lib/i18n/pro/translations";
 import {
   StatisticsClient,
   type DashboardData,
@@ -81,7 +83,7 @@ export default async function StatisticsPage({
             `
             id, appointment_date, appointment_time, status, created_via,
             service_id, patient_id, price, duration_minutes,
-            services(name),
+            services(name, name_pt, name_fr, name_en),
             appointment_attendance(status, late_minutes)
           `,
           )
@@ -113,7 +115,7 @@ export default async function StatisticsPage({
       // 4) Services list for filter dropdown
       supabase
         .from("services")
-        .select("id, name")
+        .select("id, name, name_pt, name_fr, name_en")
         .eq("professional_id", professionalId)
         .eq("is_active", true)
         .order("name"),
@@ -154,10 +156,19 @@ export default async function StatisticsPage({
   const historyRows = (insightsResult.data ?? []) as unknown as HistoryRow[];
   const allDates = generateDateSeries(from, to);
 
+  const locale = await getServerLocale();
+  const proI18n = getProfessionalTranslations(locale);
+  const channelLabels: Record<string, string> = {
+    patient_booking: proI18n.statistics.channel.patientBooking,
+    manual: proI18n.statistics.channel.manual,
+    walk_in: proI18n.statistics.channel.walkIn,
+  };
+  const deletedServiceLabel = (proI18n.statistics.emptyState as Record<string, string>).deletedService ?? "\u2014";
+
   const trends = buildTrends(chartRows, allDates);
   const heatmap = buildHeatmap(chartRows);
-  const serviceBreakdown = buildServiceBreakdown(chartRows);
-  const channels = buildChannels(chartRows);
+  const serviceBreakdown = buildServiceBreakdown(chartRows, locale, deletedServiceLabel);
+  const channels = buildChannels(chartRows, channelLabels);
   const punctuality = buildPunctuality(chartRows);
   const insights = buildInsights(serviceBreakdown, heatmap, historyRows);
   const { trends: revenueTrends, total: totalRevenue } = buildRevenueTrends(chartRows, allDates);
@@ -169,10 +180,14 @@ export default async function StatisticsPage({
   kpiData.occupancyRate = computeOccupancyRate(chartRows, availabilityRows, from, to);
   kpiData.walkInCount = chartRows.filter((r) => r.created_via === "walk_in").length;
 
-  const servicesList = (servicesResult.data ?? []).map((s) => ({
-    id: s.id,
-    name: s.name,
-  }));
+  const servicesList = (servicesResult.data ?? []).map((s) => {
+    const svc = s as { id: string; name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null };
+    const locKey = `name_${locale}` as "name_pt" | "name_fr" | "name_en";
+    return {
+      id: svc.id,
+      name: svc[locKey] || svc.name_pt || svc.name,
+    };
+  });
 
   const dashboardData: DashboardData = {
     kpi: kpiData,

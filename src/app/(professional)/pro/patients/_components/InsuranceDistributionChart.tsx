@@ -42,6 +42,13 @@ export function InsuranceDistributionChart({
   const colors = useChartColors();
   const { t } = useProfessionalI18n();
   const ct = t.patients.charts as Record<string, string>;
+  const insuranceLabels = t.patients.insuranceLabels as Record<string, string>;
+
+  // Re-map labels using i18n (overrides server-baked Portuguese labels)
+  const localizedData = data.map((d) => ({
+    ...d,
+    label: insuranceLabels[d.provider] ?? d.label,
+  }));
 
   return (
     <Card>
@@ -60,7 +67,7 @@ export function InsuranceDistributionChart({
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data}
+                data={localizedData}
                 dataKey="count"
                 nameKey="label"
                 cx="50%"

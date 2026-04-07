@@ -168,6 +168,7 @@ export type PatientTranslations = {
     emptyCancelled: string
     emptyCancelledDescription: string
     reason: string
+    reasonLabels: Record<string, string>
     rate: string
     dateFormat: string
   }
@@ -309,6 +310,7 @@ export type PatientTranslations = {
     notifRejectedWithReason: string
     notifAlternativeTitle: string
     notifAlternativeMessage: string
+    notifReminderMessage: string
     notifTicketUpdatedTitle: string
     notifTicketUpdatedMessage: string
     notifTicketResolvedMessage: string
@@ -544,6 +546,31 @@ export const ptPatient: PatientTranslations = {
     emptyCancelled: "Nenhuma consulta cancelada",
     emptyCancelledDescription: "N\u00e3o tem consultas canceladas.",
     reason: "Motivo: {reason}",
+    reasonLabels: {
+      professional_unavailable: "Indisponibilidade do profissional",
+      patient_request: "Pedido do paciente",
+      duplicate: "Duplicado",
+      schedule_conflict: "Conflito de horário",
+      outside_scope: "Fora do âmbito",
+      patient_unknown: "Paciente desconhecido",
+      other: "Outro motivo",
+      // Legacy FR values
+      "Indisponibilité du professionnel": "Indisponibilidade do profissional",
+      "Demande du patient": "Pedido do paciente",
+      "Doublon / erreur de planification": "Duplicado",
+      "Conflit d'horaire": "Conflito de horário",
+      "Hors champ de compétence": "Fora do âmbito",
+      "Patient inconnu": "Paciente desconhecido",
+      Autre: "Outro motivo",
+      // Legacy EN values
+      "Professional unavailable": "Indisponibilidade do profissional",
+      "Patient request": "Pedido do paciente",
+      "Duplicate / scheduling error": "Duplicado",
+      "Schedule conflict": "Conflito de horário",
+      "Outside scope": "Fora do âmbito",
+      "Unknown patient": "Paciente desconhecido",
+      Other: "Outro motivo",
+    },
     rate: "Avaliar",
     dateFormat: "d 'de' MMMM 'de' yyyy",
   },
@@ -685,6 +712,7 @@ export const ptPatient: PatientTranslations = {
     notifRejectedWithReason: "{proName} recusou o seu pedido de consulta. Motivo: {reason}",
     notifAlternativeTitle: "Novo hor\u00e1rio proposto",
     notifAlternativeMessage: "{proName} prop\u00f4s um novo hor\u00e1rio: {dateTime}.",
+    notifReminderMessage: "Tem uma consulta agendada em breve.",
     notifTicketUpdatedTitle: "Ticket atualizado",
     notifTicketUpdatedMessage: "O seu ticket \"{subject}\" foi atualizado.",
     notifTicketResolvedMessage: "O seu ticket \"{subject}\" foi tratado. Por favor confirme se o problema foi resolvido.",

@@ -62,6 +62,14 @@ function resolveNotification(
       titleKey: "notifAlternativeTitle",
       messageKey: "notifAlternativeMessage",
     },
+    appointment_reminder: {
+      titleKey: "titleAppointmentReminder",
+      messageKey: "notifReminderMessage",
+    },
+    reminder: {
+      titleKey: "titleReminder",
+      messageKey: "notifReminderMessage",
+    },
     ticket_updated: {
       titleKey: "notifTicketUpdatedTitle",
       messageKey: "notifTicketUpdatedMessage",
@@ -77,7 +85,7 @@ function resolveNotification(
   }
 
   const entry = MAP[notification.type]
-  if (!entry || !hasParams) {
+  if (!entry) {
     // Fallback: use existing i18n title lookup or raw DB values
     const fallbackTitle = getStaticTitle(notification.type, t)
     return {
@@ -86,8 +94,11 @@ function resolveNotification(
     }
   }
 
-  const title = interpolate(t.messages[entry.titleKey], params)
-  const message = interpolate(t.messages[entry.messageKey], params)
+  // Always use i18n templates for mapped types, interpolate params if present
+  const titleTemplate = t.messages[entry.titleKey]
+  const messageTemplate = t.messages[entry.messageKey]
+  const title = hasParams ? interpolate(titleTemplate, params) : titleTemplate
+  const message = hasParams ? interpolate(messageTemplate, params) : messageTemplate
   return { title, message }
 }
 

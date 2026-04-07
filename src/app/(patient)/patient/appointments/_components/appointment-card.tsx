@@ -137,13 +137,13 @@ export function AppointmentCard({
 
       {appt.cancellation_reason && (
         <p className="mt-2 pl-[52px] text-xs italic text-muted-foreground">
-          {t.appointments.reason.replace("{reason}", appt.cancellation_reason)}
+          {t.appointments.reason.replace("{reason}", t.appointments.reasonLabels[appt.cancellation_reason] ?? appt.cancellation_reason)}
         </p>
       )}
 
       {appt.rejection_reason && (
         <p className="mt-2 pl-[52px] text-xs italic text-muted-foreground">
-          {t.appointments.reason.replace("{reason}", appt.rejection_reason)}
+          {t.appointments.reason.replace("{reason}", t.appointments.reasonLabels[appt.rejection_reason] ?? appt.rejection_reason)}
         </p>
       )}
     </div>

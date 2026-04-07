@@ -30,6 +30,7 @@ import { Pagination } from "@/components/shared/pagination";
 import { EditServiceDialog } from "./edit-service-dialog";
 import { DeleteServiceDialog } from "./delete-service-dialog";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
+import { getServiceName } from "@/lib/get-service-name";
 import type { ServiceDashboardRow } from "../_lib/types";
 
 // Re-export the old type for backwards compat with create/edit dialogs
@@ -41,7 +42,7 @@ interface ServicesTableProps {
 }
 
 export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const sv = t.services;
 
   const [editService, setEditService] = useState<ServiceDashboardRow | null>(null);
@@ -108,7 +109,7 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                     {services.map((service) => (
                       <TableRow key={service.id}>
                         <TableCell className="font-medium">
-                          {service.name}
+                          {getServiceName(service, locale)}
                         </TableCell>
                         <TableCell className="hidden max-w-[250px] truncate text-muted-foreground md:table-cell">
                           {service.description ?? "-"}

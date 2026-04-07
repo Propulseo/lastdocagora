@@ -11,7 +11,7 @@ export type Appointment = {
   payment_status: string | null;
   price: number | null;
   patients: { first_name: string | null; last_name: string | null } | null;
-  services: { name: string } | null;
+  services: { name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null;
   appointment_attendance: {
     id: string;
     status: string;

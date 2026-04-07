@@ -106,7 +106,8 @@
     "title": "Sem dados",
     "description": "Nenhuma consulta encontrada para o período selecionado.",
     "tryLongerPeriod": "Experimente selecionar um período mais longo.",
-    "noDataForYear": "Sem dados para {year}"
+    "noDataForYear": "Sem dados para {year}",
+    "deletedService": "Serviço eliminado"
   },
   "chart": {
     "appointments": "Consultas",

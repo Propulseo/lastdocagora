@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { getServiceName } from "@/lib/get-service-name";
 import {
   ATTENDANCE_BADGE_COLORS,
   STATUS_PILL_COLORS,
@@ -27,6 +28,7 @@ interface TodayAppointmentCardTranslations {
   };
   commonStatus: Record<string, string>;
   commonMin: string;
+  locale: string;
 }
 
 export interface TodayAppointmentCardProps {
@@ -110,7 +112,7 @@ export function TodayAppointmentCard({
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-lg">{patientName}</p>
               <p className="text-sm text-muted-foreground truncate">
-                {apt.service_name ?? apt.consultation_type ?? ""}{" "}
+                {getServiceName({ name: apt.service_name, name_pt: apt.service_name_pt, name_fr: apt.service_name_fr, name_en: apt.service_name_en }, tr.locale) || apt.consultation_type || ""}{" "}
                 {apt.duration_minutes ? `\u2022 ${apt.duration_minutes} ${tr.commonMin}` : ""}
               </p>
             </div>

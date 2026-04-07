@@ -106,7 +106,8 @@
     "title": "Aucune donnée",
     "description": "Aucun rendez-vous trouvé pour la période sélectionnée.",
     "tryLongerPeriod": "Essayez de sélectionner une période plus longue.",
-    "noDataForYear": "Aucune donnée pour {year}"
+    "noDataForYear": "Aucune donnée pour {year}",
+    "deletedService": "Service supprimé"
   },
   "chart": {
     "appointments": "Consultations",

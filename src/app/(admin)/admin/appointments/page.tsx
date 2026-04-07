@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getServerLocale } from "@/lib/i18n/server";
+import { getServiceName } from "@/lib/get-service-name";
 import { Pagination } from "@/components/shared/pagination";
 import { AppointmentsFilters } from "./_components/appointments-filters";
 import { AppointmentsTable } from "./_components/appointments-table";
@@ -30,6 +32,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
   }
 
   const supabase = await createClient();
+  const locale = await getServerLocale();
 
   // RGPD Art. 9 — Données de santé :
   // L'admin plateforme n'a pas accès aux données médicales des patients.
@@ -43,7 +46,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
        professionals!appointments_professional_id_fkey(
          users!professionals_user_id_fkey(first_name, last_name, avatar_url)
        ),
-       services!appointments_service_id_fkey(name, price),
+       services!appointments_service_id_fkey(name, name_pt, name_fr, name_en, price),
        appointment_attendance!appointment_attendance_appointment_id_fkey(status, marked_at)`,
       { count: "exact" }
     )
@@ -68,7 +71,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     } | null;
     const proUser = proData?.users ?? null;
 
-    const serviceData = apt.services as unknown as { name: string; price: number } | null;
+    const serviceData = apt.services as unknown as { name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null; price: number } | null;
     const attendanceData = apt.appointment_attendance as unknown as { status: string; marked_at: string | null } | null;
 
     // RGPD: anonymize patient — show only last 5 chars of ID
@@ -99,7 +102,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
       rejection_reason: (apt as Record<string, unknown>).rejection_reason as string | null,
       cancelled_at: (apt as Record<string, unknown>).cancelled_at as string | null,
       decided_at: (apt as Record<string, unknown>).decided_at as string | null,
-      service_name: serviceData?.name ?? null,
+      service_name: getServiceName(serviceData, locale) || null,
       service_price: serviceData?.price ?? null,
       attendance_status: attendanceData?.status ?? null,
     };

@@ -28,8 +28,20 @@ export interface ChannelStat {
 export function ChannelChart({ data }: { data: ChannelStat[] }) {
   const { t } = useProfessionalI18n();
   const colors = useChartColors();
+  const channelI18n = t.statistics.channel as Record<string, string>;
 
-  const total = data.reduce((sum, d) => sum + d.count, 0);
+  // Re-map channel labels using client-side i18n (for reactive language switching)
+  const channelLabelMap: Record<string, string> = {
+    patient_booking: channelI18n.patientBooking ?? "Patient",
+    manual: channelI18n.manual ?? "Manual (pro)",
+    walk_in: channelI18n.walkIn ?? "Walk-in",
+  };
+  const localizedData = data.map((d) => ({
+    ...d,
+    label: channelLabelMap[d.channel] ?? d.label,
+  }));
+
+  const total = localizedData.reduce((sum, d) => sum + d.count, 0);
   const hasData = total > 0;
 
   const pieColors = [colors.chart2, colors.chart4, "#f59e0b"];
@@ -53,7 +65,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={data}
+                    data={localizedData}
                     dataKey="count"
                     nameKey="label"
                     cx="50%"
@@ -94,7 +106,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
               </ResponsiveContainer>
             </div>
             <div className="flex flex-col gap-3">
-              {data.map((item, index) => {
+              {localizedData.map((item, index) => {
                 const pct =
                   total > 0
                     ? Math.round((item.count / total) * 100)
