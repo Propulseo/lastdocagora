@@ -9,7 +9,6 @@ import { KPICard } from "@/components/shared/kpi-card";
 import {
   Send,
   CheckCircle2,
-  TrendingDown,
   Bell,
   FileText,
 } from "lucide-react";
@@ -41,7 +40,7 @@ export function RemindersKpiStrip({
   );
 
   return (
-    <div className="flex gap-4 overflow-x-auto flex-nowrap pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="flex gap-4 overflow-x-auto flex-nowrap pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <KPICard
         icon={Send}
         label={kpiLabels.sentThisMonth}
@@ -73,32 +72,6 @@ export function RemindersKpiStrip({
           iconVariant="green"
           className={cardClass}
         />
-      )}
-
-      {kpiData.noShowReduction !== null ? (
-        <KPICard
-          icon={TrendingDown}
-          label={kpiLabels.noShowReduction}
-          value={`${kpiData.noShowReduction}%`}
-          iconVariant="amber"
-          trend={kpiData.noShowReduction > 0 ? "up" : "neutral"}
-          className={cardClass}
-        />
-      ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="h-full">
-              <KPICard
-                icon={TrendingDown}
-                label={kpiLabels.noShowReduction}
-                value={"\u2014"}
-                iconVariant="amber"
-                className={`${cardClass} h-full`}
-              />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>{kpiLabels.comingSoon}</TooltipContent>
-        </Tooltip>
       )}
 
       <KPICard
