@@ -1,18 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Star, Clock, Loader2, Euro, Globe, Shield, Briefcase, CalendarCheck } from "lucide-react"
+import { MapPin, Star, Euro, Globe, Shield, Briefcase, CalendarCheck } from "lucide-react"
 import {
   getProfessionalName,
   getProfessionalInitials,
 } from "@/app/(patient)/_components/professional-name"
-import { fetchNextSlot } from "@/app/(patient)/_actions/ai-search"
 import { BookingModal } from "./booking-modal"
+import { AvailabilityGrid } from "./AvailabilityGrid"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { translateSpecialty } from "@/locales/patient/specialties"
 import type { PatientTranslations } from "@/locales/patient"
@@ -56,21 +56,6 @@ const LANG_CODE_TO_LABEL: Record<string, string> = {
   it: "Italiano",
 }
 
-function formatSlotDate(slot: string, locale: string): string {
-  try {
-    const date = new Date(slot)
-    const localeMap: Record<string, string> = { fr: "fr-FR", pt: "pt-PT", en: "en-US" }
-    return date.toLocaleDateString(localeMap[locale] ?? "en-US", {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch {
-    return slot
-  }
-}
-
 export function ProfessionalCard({
   prof,
   locale,
@@ -81,25 +66,10 @@ export function ProfessionalCard({
   t: PatientTranslations["search"]
 }) {
   const hasAvailableSlots = prof.available_slots && prof.available_slots.length > 0
-  const [nextSlot, setNextSlot] = useState<string | null>(prof.nextSlot)
-  const [loadingSlot, setLoadingSlot] = useState(!prof.nextSlot && !hasAvailableSlots)
-
-  // Skip lazy-load when available_slots is already present (date-filtered search)
-  useEffect(() => {
-    if (prof.nextSlot || hasAvailableSlots) return
-    let cancelled = false
-    fetchNextSlot(prof.id).then((slot) => {
-      if (!cancelled) {
-        setNextSlot(slot)
-        setLoadingSlot(false)
-      }
-    }).catch(() => {
-      if (!cancelled) setLoadingSlot(false)
-    })
-    return () => { cancelled = true }
-  }, [prof.id, prof.nextSlot, hasAvailableSlots])
 
   const [bookingOpen, setBookingOpen] = useState(false)
+  const [preselectedDate, setPreselectedDate] = useState<string | undefined>()
+  const [preselectedTime, setPreselectedTime] = useState<string | undefined>()
   const { t: fullT } = usePatientTranslations()
 
   const profData = prof as {
@@ -205,22 +175,6 @@ export function ProfessionalCard({
                 </div>
               </div>
             )}
-            {!hasAvailableSlots && loadingSlot ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 shrink-0 animate-spin" />
-                <span>{t.nextSlot.replace("{slot}", "...")}</span>
-              </div>
-            ) : !hasAvailableSlots && nextSlot ? (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <Clock className="size-4 shrink-0" />
-                <span>
-                  {t.nextSlot.replace(
-                    "{slot}",
-                    formatSlotDate(nextSlot, locale)
-                  )}
-                </span>
-              </div>
-            ) : null}
             {(() => {
               const bioKey = `bio_${locale}` as keyof typeof prof;
               const bio = (prof[bioKey] as string | null) ?? prof.bio_pt ?? prof.bio;
@@ -231,6 +185,22 @@ export function ProfessionalCard({
               ) : null;
             })()}
           </div>
+          {/* Doctolib-style availability grid */}
+          {!hasAvailableSlots && (
+            <AvailabilityGrid
+              professionalId={prof.id}
+              locale={locale}
+              noSlotsLabel={t.noSlotsAvailable}
+              moreSlotsLabel={t.moreSlotsLink}
+              onSlotSelect={(date, time) => {
+                setPreselectedDate(date)
+                setPreselectedTime(time)
+                setBookingOpen(true)
+              }}
+              onMoreSlots={() => setBookingOpen(true)}
+            />
+          )}
+
           <div className="flex gap-2 pt-2">
             <Button variant="outline" size="sm" className="min-h-[44px] flex-1" asChild>
               <Link href={`/patient/search/${prof.id}`}>{t.viewProfile}</Link>
@@ -238,7 +208,11 @@ export function ProfessionalCard({
             <Button
               size="sm"
               className="min-h-[44px] flex-1"
-              onClick={() => setBookingOpen(true)}
+              onClick={() => {
+                setPreselectedDate(undefined)
+                setPreselectedTime(undefined)
+                setBookingOpen(true)
+              }}
             >
               {t.book}
             </Button>
@@ -252,6 +226,8 @@ export function ProfessionalCard({
         professionalId={prof.id}
         professionalName={profName}
         professionalSpecialty={prof.specialty}
+        preselectedDate={preselectedDate}
+        preselectedTime={preselectedTime}
       />
     </>
   )

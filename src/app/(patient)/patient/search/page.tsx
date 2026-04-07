@@ -77,40 +77,33 @@ export default async function SearchPage({
     })
   }
 
-  const profWithSlots = await Promise.all(
-    filteredProfessionals.map(async (prof) => {
-      const { data: nextSlot } = await supabase.rpc("get_next_available_slot", {
-        p_professional_id: prof.id,
-      })
-      return {
-        id: prof.id,
-        specialty: prof.specialty as string | null,
-        subspecialties: prof.subspecialties as string[] | null,
-        city: prof.city as string | null,
-        neighborhood: prof.neighborhood as string | null,
-        address: prof.address as string | null,
-        postal_code: prof.postal_code as string | null,
-        cabinet_name: prof.cabinet_name as string | null,
-        consultation_fee: prof.consultation_fee as number | null,
-        languages_spoken: prof.languages_spoken as string[] | null,
-        insurances_accepted: prof.insurances_accepted as string[] | null,
-        third_party_payment: prof.third_party_payment as boolean | null,
-        years_experience: prof.years_experience as number | null,
-        practice_type: prof.practice_type as string | null,
-        rating: prof.rating as number | null,
-        total_reviews: prof.total_reviews as number | null,
-        bio: prof.bio as string | null,
-        bio_pt: (prof as Record<string, unknown>).bio_pt as string | null,
-        bio_fr: (prof as Record<string, unknown>).bio_fr as string | null,
-        bio_en: (prof as Record<string, unknown>).bio_en as string | null,
-        accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
-        latitude: prof.latitude as number | null,
-        longitude: prof.longitude as number | null,
-        nextSlot: nextSlot as string | null,
-        users: prof.users as { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null,
-      }
-    })
-  )
+  const profWithSlots = filteredProfessionals.map((prof) => ({
+    id: prof.id,
+    specialty: prof.specialty as string | null,
+    subspecialties: prof.subspecialties as string[] | null,
+    city: prof.city as string | null,
+    neighborhood: prof.neighborhood as string | null,
+    address: prof.address as string | null,
+    postal_code: prof.postal_code as string | null,
+    cabinet_name: prof.cabinet_name as string | null,
+    consultation_fee: prof.consultation_fee as number | null,
+    languages_spoken: prof.languages_spoken as string[] | null,
+    insurances_accepted: prof.insurances_accepted as string[] | null,
+    third_party_payment: prof.third_party_payment as boolean | null,
+    years_experience: prof.years_experience as number | null,
+    practice_type: prof.practice_type as string | null,
+    rating: prof.rating as number | null,
+    total_reviews: prof.total_reviews as number | null,
+    bio: prof.bio as string | null,
+    bio_pt: (prof as Record<string, unknown>).bio_pt as string | null,
+    bio_fr: (prof as Record<string, unknown>).bio_fr as string | null,
+    bio_en: (prof as Record<string, unknown>).bio_en as string | null,
+    accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
+    latitude: prof.latitude as number | null,
+    longitude: prof.longitude as number | null,
+    nextSlot: null as string | null,
+    users: prof.users as { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null,
+  }))
 
   return (
     <SearchContent

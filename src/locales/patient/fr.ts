@@ -109,6 +109,8 @@ export const frPatient: PatientTranslations = {
     mapAreaEmpty: "Aucun professionnel dans cette zone",
     mapAreaZoomHint: "D\u00e9zoomez pour voir plus de r\u00e9sultats",
     mapAreaTotal: "{count} au total",
+    noSlotsAvailable: "Aucun créneau disponible dans les prochains jours",
+    moreSlotsLink: "Voir plus de créneaux",
     insuranceFilter: "Assurance",
     insuranceAll: "Toutes les assurances",
     insuranceBadgeMore: "+{count}",

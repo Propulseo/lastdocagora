@@ -25,6 +25,8 @@ interface BookingModalProps {
   professionalId: string
   professionalName: string
   professionalSpecialty: string | null
+  preselectedDate?: string // "2026-04-07"
+  preselectedTime?: string // "11:00"
 }
 
 export function BookingModal({
@@ -33,6 +35,8 @@ export function BookingModal({
   professionalId,
   professionalName,
   professionalSpecialty,
+  preselectedDate,
+  preselectedTime,
 }: BookingModalProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -64,7 +68,7 @@ export function BookingModal({
     setSlots([])
     setNotes("")
 
-    getBookingData(professionalId).then((result) => {
+    getBookingData(professionalId).then(async (result) => {
       if (!result.success) {
         setLoadError(result.error === "self_booking_not_allowed" ? t.booking.selfBookingError : result.error)
         return
@@ -73,14 +77,50 @@ export function BookingModal({
       setServices(data.services)
       setAvailability(data.availability)
       setPatientInsurance(data.patientInsurance ?? null)
-      if (data.services.length === 1) {
-        setSelectedService(data.services[0])
+
+      // Auto-select service if only one
+      const autoService = data.services.length === 1 ? data.services[0] : null
+      if (autoService) {
+        setSelectedService(autoService)
+      }
+
+      // If preselected date+time from slot grid, jump to datetime and load slots
+      if (preselectedDate && autoService) {
+        setStep("datetime")
+        const preDate = new Date(preselectedDate + "T00:00:00")
+        setSelectedDate(preDate)
+        setLoadingSlots(true)
+        try {
+          const { data: slotData, error } = await supabase.rpc("get_available_slots", {
+            p_date: preselectedDate,
+            p_professional_id: professionalId,
+          })
+          if (!error) {
+            const fetchedSlots = (slotData as Slot[]) ?? []
+            setSlots(fetchedSlots)
+            // Auto-select the matching time slot
+            if (preselectedTime) {
+              const matchingSlot = fetchedSlots.find(
+                (s) => s.slot_start.slice(0, 5) === preselectedTime
+              )
+              if (matchingSlot) {
+                setSelectedSlot(matchingSlot.slot_start.slice(0, 5))
+                setStep("confirm")
+              }
+            }
+          }
+        } catch {
+          // Fall through to manual selection
+        } finally {
+          setLoadingSlots(false)
+        }
+      } else if (autoService) {
         setStep("datetime")
       } else {
         setStep("service")
       }
     })
-  }, [open, professionalId, t.booking.selfBookingError])
+  }, [open, professionalId, t.booking.selfBookingError, preselectedDate, preselectedTime, supabase])
 
   const availableDays = new Set(availability.map((a) => a.day_of_week))
 

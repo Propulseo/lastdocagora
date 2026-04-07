@@ -109,6 +109,8 @@ export const enPatient: PatientTranslations = {
     mapAreaEmpty: "No professionals in this area",
     mapAreaZoomHint: "Zoom out to see more results",
     mapAreaTotal: "{count} total",
+    noSlotsAvailable: "No slots available in the coming days",
+    moreSlotsLink: "See more slots",
     insuranceFilter: "Insurance",
     insuranceAll: "All insurances",
     insuranceBadgeMore: "+{count}",

@@ -107,6 +107,8 @@ export type PatientTranslations = {
     mapAreaEmpty: string
     mapAreaZoomHint: string
     mapAreaTotal: string
+    noSlotsAvailable: string
+    moreSlotsLink: string
     insuranceFilter: string
     insuranceAll: string
     insuranceBadgeMore: string
@@ -481,6 +483,8 @@ export const ptPatient: PatientTranslations = {
     mapAreaEmpty: "Nenhum profissional nesta \u00e1rea",
     mapAreaZoomHint: "Afaste o zoom para ver mais resultados",
     mapAreaTotal: "{count} no total",
+    noSlotsAvailable: "Nenhum horário disponível nos próximos dias",
+    moreSlotsLink: "Ver mais horários",
     insuranceFilter: "Seguro",
     insuranceAll: "Todos os seguros",
     insuranceBadgeMore: "+{count}",
