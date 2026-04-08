@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { resolveSpecialtyKeys } from "@/locales/patient/specialties"
 
 export type SearchProfessionalsParams = {
   query?: string
@@ -73,14 +74,20 @@ export async function searchProfessionals(
     .order("rating", { ascending: false, nullsFirst: false })
     .limit(20)
 
-  // Text search at DB level (name or specialty)
+  // Text search at DB level (name or specialty, with translated-name resolution)
   if (params.query?.trim()) {
     const term = params.query.trim()
-    q = q.or(
-      `specialty.ilike.%${term}%,` +
-      `users.first_name.ilike.%${term}%,` +
-      `users.last_name.ilike.%${term}%`
-    )
+    const matchedKeys = resolveSpecialtyKeys(term)
+
+    const orClauses: string[] = [
+      `users.first_name.ilike.%${term}%`,
+      `users.last_name.ilike.%${term}%`,
+      `specialty.ilike.%${term}%`,
+    ]
+    if (matchedKeys.length > 0) {
+      orClauses.push(`specialty.in.(${matchedKeys.join(",")})`)
+    }
+    q = q.or(orClauses.join(","))
   }
 
   // Specialty filter

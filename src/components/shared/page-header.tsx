@@ -1,3 +1,5 @@
+import { TYPE } from "@/lib/design-tokens";
+
 interface PageHeaderProps {
   title: string;
   description?: string;
@@ -6,16 +8,16 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, action }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+        <h1 className={TYPE.page_title}>{title}</h1>
         {description && (
-          <p className="mt-1 text-[13px] leading-relaxed text-[#6b7280]">
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         )}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="shrink-0 w-full sm:w-auto">{action}</div>}
     </div>
   );
 }

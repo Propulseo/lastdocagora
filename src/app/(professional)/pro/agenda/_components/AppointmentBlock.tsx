@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { getServiceName } from "@/lib/get-service-name";
 import {
@@ -82,7 +83,7 @@ export function AppointmentBlock({
     <button
       type="button"
       className={cn(
-        "absolute left-16 right-2 z-[10] overflow-hidden rounded-md px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95",
+        "absolute left-16 right-2 z-[10] overflow-hidden px-3 py-1 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95", RADIUS.sm,
         isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn
           ? "border-l-[3px] border-dashed"
@@ -122,9 +123,9 @@ export function AppointmentBlock({
       {/* Attendance badge */}
       {canShowAttendance && height >= 50 && (
         <span
-          className={`mt-0.5 inline-block rounded-sm border px-1.5 py-0 text-[10px] font-medium leading-4 ${
+          className={cn("mt-0.5 inline-block border px-1.5 py-0 text-[10px] font-medium leading-4", RADIUS.badge,
             ATTENDANCE_BADGE_COLORS[currentAttendance] ?? ATTENDANCE_BADGE_COLORS.waiting
-          }`}
+          )}
         >
           {attendanceLabel[currentAttendance] ?? currentAttendance}
         </span>
@@ -133,9 +134,9 @@ export function AppointmentBlock({
       {/* Payment badge */}
       {height >= 50 && (
         <span
-          className={`mt-0.5 inline-block rounded-sm border px-1.5 py-0 text-[10px] font-medium leading-4 ${
+          className={cn("mt-0.5 inline-block border px-1.5 py-0 text-[10px] font-medium leading-4", RADIUS.badge,
             PAYMENT_BADGE_COLORS[appointment.payment_status ?? ""] ?? "border-muted text-muted-foreground bg-muted/30"
-          }`}
+          )}
         >
           {paymentLabel[appointment.payment_status ?? ""] ?? (t.agenda.paymentPending ?? "Pendente")}
         </span>

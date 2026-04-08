@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment } from "../_types/agenda";
 
@@ -46,7 +47,7 @@ export function MonthDayDetailDialog({
 
   return (
     <Dialog open={!!selected} onOpenChange={() => onClose()}>
-      <DialogContent>
+      <DialogContent className={RADIUS.card}>
         <DialogHeader>
           <DialogTitle>{t.agenda.appointmentDetails}</DialogTitle>
         </DialogHeader>

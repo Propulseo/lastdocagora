@@ -127,7 +127,7 @@ export function ProfessionalCard({
                 <Euro className="size-4 shrink-0 text-primary/60" />
                 <span>{prof.consultation_fee}€</span>
                 {prof.third_party_payment && (
-                  <Badge variant="outline" className="ml-1 text-xs">Tiers payant</Badge>
+                  <Badge variant="outline" className="ml-1 text-xs">{t.thirdPartyPayment}</Badge>
                 )}
               </div>
             )}

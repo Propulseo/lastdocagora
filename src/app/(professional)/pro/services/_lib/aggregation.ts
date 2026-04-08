@@ -13,7 +13,13 @@ import type {
 interface RawServiceRow {
   id: string;
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
   description: string | null;
+  description_pt?: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
   duration_minutes: number;
   consultation_type: string;
   is_active: boolean | null;
@@ -43,7 +49,13 @@ export function buildServiceRows(
     return {
       id: s.id,
       name: s.name,
+      name_pt: s.name_pt,
+      name_fr: s.name_fr,
+      name_en: s.name_en,
       description: s.description,
+      description_pt: s.description_pt,
+      description_fr: s.description_fr,
+      description_en: s.description_en,
       duration_minutes: s.duration_minutes,
       consultation_type: s.consultation_type,
       is_active: s.is_active ?? true,
@@ -75,12 +87,17 @@ export function buildServicesKpi(rows: ServiceDashboardRow[]): ServicesKpi {
   const totalRevenue = rows.reduce((sum, s) => sum + s.total_revenue, 0);
 
   // Most popular service by appointment count
-  let mostPopularService: string | null = null;
+  let mostPopularService: ServicesKpi["mostPopularService"] = null;
   let maxAppointments = 0;
   for (const s of rows) {
     if (s.total_appointments > maxAppointments) {
       maxAppointments = s.total_appointments;
-      mostPopularService = s.name;
+      mostPopularService = {
+        name: s.name,
+        name_pt: s.name_pt,
+        name_fr: s.name_fr,
+        name_en: s.name_en,
+      };
     }
   }
 
@@ -110,7 +127,13 @@ export function buildRevenuePerService(
 ): RevenuePerServiceSlice[] {
   return rows
     .filter((s) => s.total_revenue > 0)
-    .map((s) => ({ name: s.name, revenue: s.total_revenue }))
+    .map((s) => ({
+      name: s.name,
+      name_pt: s.name_pt,
+      name_fr: s.name_fr,
+      name_en: s.name_en,
+      revenue: s.total_revenue,
+    }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 10);
 }
@@ -124,7 +147,13 @@ export function buildAppointmentVolume(
 ): AppointmentVolumeSlice[] {
   return rows
     .filter((s) => s.total_appointments > 0)
-    .map((s) => ({ name: s.name, appointments: s.total_appointments }))
+    .map((s) => ({
+      name: s.name,
+      name_pt: s.name_pt,
+      name_fr: s.name_fr,
+      name_en: s.name_en,
+      appointments: s.total_appointments,
+    }))
     .sort((a, b) => b.appointments - a.appointments)
     .slice(0, 10);
 }

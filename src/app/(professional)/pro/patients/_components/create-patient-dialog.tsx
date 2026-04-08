@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createPatient } from "@/app/(professional)/_actions/patients";
+import { RADIUS, SPACING } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 const patientSchema = z.object({
@@ -63,7 +64,7 @@ export function CreatePatientDialog() {
           {pt.addPatient}
         </Button>
       </ResponsiveDialogTrigger>
-      <ResponsiveDialogContent className="p-6">
+      <ResponsiveDialogContent className={`${SPACING.card} ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>{pt.addPatient}</ResponsiveDialogTitle>
           <ResponsiveDialogDescription>{pt.description}</ResponsiveDialogDescription>

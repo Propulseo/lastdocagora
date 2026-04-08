@@ -21,6 +21,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyKpiState } from "./EmptyKpiState";
 import { TrendingUp } from "lucide-react";
 import { useChartColors } from "./useChartColors";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface TrendPoint {
   date: string;
@@ -44,7 +45,7 @@ export function TrendsChart({ data }: { data: TrendPoint[] }) {
   };
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{t.statistics.trends.title}</CardTitle>
         <CardDescription>{t.statistics.trends.description}</CardDescription>
@@ -57,7 +58,7 @@ export function TrendsChart({ data }: { data: TrendPoint[] }) {
             description={t.statistics.emptyState.description}
           />
         ) : (
-          <div className="h-[300px] w-full">
+          <div className="h-[220px] sm:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
@@ -87,7 +88,7 @@ export function TrendsChart({ data }: { data: TrendPoint[] }) {
                   content={({ active, payload, label }) => {
                     if (!active || !payload?.length) return null;
                     return (
-                      <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
+                      <div className={`${RADIUS.sm} border bg-background px-3 py-2 shadow-md`}>
                         <p className="text-xs font-medium text-muted-foreground">
                           {formatDate(String(label ?? ""))}
                         </p>

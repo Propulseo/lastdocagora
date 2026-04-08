@@ -1718,6 +1718,9 @@ export type Database = {
           consultation_type: string
           created_at: string | null
           description: string | null
+          description_en: string | null
+          description_fr: string | null
+          description_pt: string | null
           duration_minutes: number
           id: string
           is_active: boolean | null
@@ -1734,6 +1737,9 @@ export type Database = {
           consultation_type: string
           created_at?: string | null
           description?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          description_pt?: string | null
           duration_minutes: number
           id?: string
           is_active?: boolean | null
@@ -1750,6 +1756,9 @@ export type Database = {
           consultation_type?: string
           created_at?: string | null
           description?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          description_pt?: string | null
           duration_minutes?: number
           id?: string
           is_active?: boolean | null
@@ -1793,10 +1802,12 @@ export type Database = {
           created_at: string | null
           description: string
           id: string
+          metadata: Json | null
           priority: string | null
           resolved_at: string | null
           status: string
           subject: string
+          ticket_type: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1806,10 +1817,12 @@ export type Database = {
           created_at?: string | null
           description: string
           id?: string
+          metadata?: Json | null
           priority?: string | null
           resolved_at?: string | null
           status?: string
           subject: string
+          ticket_type?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1819,10 +1832,12 @@ export type Database = {
           created_at?: string | null
           description?: string
           id?: string
+          metadata?: Json | null
           priority?: string | null
           resolved_at?: string | null
           status?: string
           subject?: string
+          ticket_type?: string | null
           updated_at?: string | null
           user_id?: string
         }

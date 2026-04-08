@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface CompareKpiProps {
   label: string;
@@ -20,7 +21,7 @@ export function CompareKpiCard({ label, valueA, valueB, delta, icon: Icon, color
   const isNeutral = delta === 0;
 
   return (
-    <Card className="overflow-hidden">
+    <Card className={`overflow-hidden ${RADIUS.card} ${SHADOW.card}`}>
       <CardContent className="p-0">
         <div className="flex items-center gap-2 border-b px-4 py-3">
           <Icon className="size-4 text-muted-foreground" />

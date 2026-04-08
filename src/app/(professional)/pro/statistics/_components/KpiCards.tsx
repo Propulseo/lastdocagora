@@ -12,9 +12,10 @@ import {
   Hourglass,
   Percent,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { SmallSampleWarning } from "./SmallSampleWarning";
+import { SHADOW, RADIUS, TYPE, SPACING } from "@/lib/design-tokens";
 
 export interface KpiData {
   totalAppointments: number;
@@ -49,6 +50,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: CalendarCheck,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
+      border: "border-l-blue-500",
     },
     {
       label: t.statistics.kpi.attendanceRate,
@@ -59,6 +61,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: UserCheck,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
+      border: "border-l-emerald-500",
       needsAttendance: !hasAttendance,
       sampleCount: data.totalWithAttendance,
     },
@@ -69,6 +72,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: UserX,
       color: "text-orange-500",
       bg: "bg-orange-500/10",
+      border: "border-l-orange-500",
     },
     {
       label: t.statistics.kpi.cancellationRate,
@@ -77,6 +81,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: XCircle,
       color: "text-red-500",
       bg: "bg-red-500/10",
+      border: "border-l-red-500",
     },
     {
       label: t.statistics.kpi.lateness,
@@ -90,6 +95,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: Clock,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
+      border: "border-l-amber-500",
       needsAttendance: !hasAttendance,
       sampleCount: data.totalWithAttendance,
     },
@@ -102,6 +108,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: UserPlus,
       color: "text-violet-500",
       bg: "bg-violet-500/10",
+      border: "border-l-violet-500",
     },
     {
       label: t.statistics.kpi.avgGap ?? "Tempo entre consultas",
@@ -110,6 +117,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: Timer,
       color: "text-teal-500",
       bg: "bg-teal-500/10",
+      border: "border-l-teal-500",
     },
     {
       label: t.statistics.kpi.billableHours ?? "Horas faturáveis",
@@ -118,6 +126,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: Hourglass,
       color: "text-indigo-500",
       bg: "bg-indigo-500/10",
+      border: "border-l-indigo-500",
     },
     {
       label: t.statistics.kpi.occupancyRate ?? "Taxa de ocupação",
@@ -125,6 +134,7 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: Percent,
       color: "text-cyan-500",
       bg: "bg-cyan-500/10",
+      border: "border-l-cyan-500",
     },
     {
       label: (t.statistics.kpi as Record<string, string>).walkInCount ?? "Walk-ins",
@@ -133,43 +143,51 @@ export function KpiCards({ data }: { data: KpiData }) {
       icon: UserPlus,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
+      border: "border-l-amber-500",
     },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((card) => (
-        <Card key={card.label}>
-          <CardContent className="flex flex-col gap-2 p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
-                {card.label}
-              </span>
-              <div className={`rounded-lg p-1.5 ${card.bg}`}>
-                <card.icon className={`size-4 ${card.color}`} />
-              </div>
+        <div
+          key={card.label}
+          className={cn(
+            "bg-card text-card-foreground border-l-[3px] transition-shadow",
+            RADIUS.card,
+            SHADOW.card,
+            SPACING.card_sm,
+            card.border,
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <span className={cn(TYPE.label, "text-xs uppercase tracking-wide")}>
+              {card.label}
+            </span>
+            <div className={cn(RADIUS.element, "p-1.5", card.bg)}>
+              <card.icon className={cn("size-4", card.color)} />
             </div>
-            <div>
-              <span className="text-2xl font-bold tracking-tight">
-                {card.value}
+          </div>
+          <div className="mt-2">
+            <span className={TYPE.kpi_number}>
+              {card.value}
+            </span>
+            {card.sub && (
+              <span className="ml-1.5 text-xs text-muted-foreground">
+                {card.sub}
               </span>
-              {card.sub && (
-                <span className="ml-1.5 text-xs text-muted-foreground">
-                  {card.sub}
-                </span>
-              )}
+            )}
+          </div>
+          {card.needsAttendance && (
+            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+              <CalendarDays className="size-3" />
+              <span>{t.statistics.kpi.noAttendanceData}</span>
             </div>
-            {card.needsAttendance && (
-              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarDays className="size-3" />
-                <span>{t.statistics.kpi.noAttendanceData}</span>
-              </div>
-            )}
-            {!card.needsAttendance && card.sampleCount !== undefined && (
-              <SmallSampleWarning count={card.sampleCount} />
-            )}
-          </CardContent>
-        </Card>
+          )}
+          {!card.needsAttendance && card.sampleCount !== undefined && (
+            <SmallSampleWarning count={card.sampleCount} />
+          )}
+        </div>
       ))}
     </div>
   );

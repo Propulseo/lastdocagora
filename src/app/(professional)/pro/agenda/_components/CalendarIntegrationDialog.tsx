@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { useCalendarIntegration } from "../_hooks/useCalendarIntegration";
 
@@ -46,7 +47,7 @@ export function CalendarIntegrationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent className={`sm:max-w-lg max-h-[80vh] overflow-y-auto ${RADIUS.card}`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -118,10 +119,10 @@ export function CalendarIntegrationDialog({
               {activeConnections.map((conn) => (
                 <div
                   key={conn.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className={`flex items-center justify-between ${RADIUS.element} border p-3`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                    <div className={`flex h-8 w-8 items-center justify-center ${RADIUS.badge} bg-muted`}>
                       <ExternalLink className="h-4 w-4" />
                     </div>
                     <div>
@@ -161,7 +162,7 @@ export function CalendarIntegrationDialog({
                 {calendars.map((cal) => (
                   <div
                     key={cal.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
+                    className={`flex items-center justify-between ${RADIUS.element} border p-3`}
                   >
                     <div className="flex items-center gap-3">
                       <div

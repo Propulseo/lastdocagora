@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
 import { SearchContent } from "./_components/SearchContent"
+import { resolveSpecialtyKeys, type SpecialtyKey } from "@/locales/patient/specialties"
 
 export default async function SearchPage({
   searchParams,
@@ -70,10 +71,14 @@ export default async function SearchPage({
   let filteredProfessionals = professionals ?? []
   if (query) {
     const lowerQuery = query.toLowerCase()
+    const matchedKeys = resolveSpecialtyKeys(query)
     filteredProfessionals = filteredProfessionals.filter((prof) => {
       const u = prof.users as { first_name?: string; last_name?: string } | null
       const fullName = `${u?.first_name ?? ""} ${u?.last_name ?? ""}`.toLowerCase()
-      return fullName.includes(lowerQuery) || (prof.specialty ?? "").toLowerCase().includes(lowerQuery)
+      if (fullName.includes(lowerQuery)) return true
+      if ((prof.specialty ?? "").toLowerCase().includes(lowerQuery)) return true
+      if (matchedKeys.length > 0 && matchedKeys.includes(prof.specialty as SpecialtyKey)) return true
+      return false
     })
   }
 

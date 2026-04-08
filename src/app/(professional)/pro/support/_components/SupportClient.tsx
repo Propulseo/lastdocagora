@@ -14,6 +14,7 @@ import {
 import { TicketList } from "./TicketList";
 import { TicketConversation } from "./TicketConversation";
 import { NewTicketDialog } from "./NewTicketDialog";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export type TicketData = {
   id: string;
@@ -51,7 +52,7 @@ export function SupportClient({
       {/* Header — compact, matches dashboard style */}
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+          <div className={`flex size-9 items-center justify-center ${RADIUS.element} bg-primary/10`}>
             <LifeBuoy className="size-4 text-primary" />
           </div>
           <div>
@@ -70,7 +71,7 @@ export function SupportClient({
       </div>
 
       {/* KPI Strip — same style as dashboard */}
-      <div className="flex h-16 items-stretch overflow-x-auto rounded-xl border border-border/40 bg-card/50">
+      <div className={`flex h-16 items-stretch overflow-x-auto ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50`}>
         <KpiMetric
           icon={<Ticket className="size-4" />}
           label={kpiT.total}
@@ -109,7 +110,7 @@ export function SupportClient({
             ticketSubject={selectedTicket.subject}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-border/40 bg-card/50 p-8 text-center">
+          <div className={`flex flex-col items-center justify-center ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50 p-8 text-center`}>
             <div className="flex size-14 items-center justify-center rounded-full bg-muted/30">
               <MessageSquare className="size-6 text-muted-foreground/50" />
             </div>

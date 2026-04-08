@@ -20,6 +20,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PieChartIcon } from "lucide-react";
 import type { ChannelSlice } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface ChannelDistributionChartProps {
   data: ChannelSlice[];
@@ -33,7 +34,7 @@ export function ChannelDistributionChart({ data }: ChannelDistributionChartProps
   const ct = t.reminders.charts as Record<string, string>;
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{ct.channelTitle}</CardTitle>
         <CardDescription>{ct.channelDesc}</CardDescription>

@@ -3,6 +3,7 @@
 import { ListChecks, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import type { TodayFilter } from "../_hooks/useTodayData";
 
 interface TodayStats {
@@ -39,7 +40,7 @@ export function TodayStickyHeader({
 }: TodayStickyHeaderProps) {
   return (
     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-      <div className="px-4 py-4 sm:px-6">
+      <div className="py-4">
         <div className="flex items-center gap-3 mb-3">
           <ListChecks className="size-6 text-primary" />
           <div>
@@ -60,19 +61,23 @@ export function TodayStickyHeader({
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-3 text-sm">
-          <span className="font-semibold tabular-nums">
-            {stats.total} <span className="font-normal text-muted-foreground">{statsLabels.total}</span>
-          </span>
-          <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">
-            {stats.confirmed} <span className="font-normal">{statsLabels.confirmed}</span>
-          </span>
-          <span className="text-blue-600 dark:text-blue-400 tabular-nums">
-            {stats.present} <span className="font-normal">{statsLabels.present}</span>
-          </span>
-          <span className="text-orange-600 dark:text-orange-400 tabular-nums">
-            {stats.pending} <span className="font-normal">{statsLabels.pending}</span>
-          </span>
+        <div className={cn("flex gap-1 mb-3 overflow-x-auto", RADIUS.card)}>
+          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg">
+            <span className="text-sm font-bold tabular-nums">{stats.total}</span>
+            <span className="text-xs text-muted-foreground">{statsLabels.total}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-lg">
+            <span className="text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{stats.confirmed}</span>
+            <span className="text-xs text-emerald-600/70 dark:text-emerald-400/70">{statsLabels.confirmed}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-blue-500/10 px-3 py-1.5 rounded-lg">
+            <span className="text-sm font-bold tabular-nums text-blue-600 dark:text-blue-400">{stats.present}</span>
+            <span className="text-xs text-blue-600/70 dark:text-blue-400/70">{statsLabels.present}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 rounded-lg">
+            <span className="text-sm font-bold tabular-nums text-orange-600 dark:text-orange-400">{stats.pending}</span>
+            <span className="text-xs text-orange-600/70 dark:text-orange-400/70">{statsLabels.pending}</span>
+          </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">

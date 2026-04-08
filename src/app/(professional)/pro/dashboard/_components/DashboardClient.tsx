@@ -23,7 +23,7 @@ export function DashboardClient(props: DashboardProps) {
       <KPIStrip data={data} />
 
       {/* C — Main 3-column grid */}
-      <div className="grid min-h-[420px] items-stretch gap-4 grid-cols-1 lg:grid-cols-[35%_40%_25%]">
+      <div className="grid min-h-[440px] items-stretch gap-5 grid-cols-1 lg:grid-cols-[35%_40%_25%]">
         <TodaySchedule data={data} />
         <ActivityChart data={data} />
         <UtilityWidgets data={data} />

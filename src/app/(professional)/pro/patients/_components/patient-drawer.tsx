@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
+import { RADIUS } from "@/lib/design-tokens";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import {
@@ -61,8 +62,8 @@ export function PatientDrawer({
         side={isMobile ? "bottom" : "right"}
         className={
           isMobile
-            ? "h-[90vh] w-full rounded-t-2xl p-0"
-            : "w-full sm:max-w-2xl p-0"
+            ? `h-[90vh] w-full ${RADIUS.card} rounded-b-none p-0`
+            : `w-full sm:max-w-2xl p-0 ${RADIUS.card}`
         }
       >
         <SheetHeader className="px-6 pt-6">

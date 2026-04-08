@@ -22,6 +22,7 @@ import { EmptyKpiState } from "./EmptyKpiState";
 import { Clock } from "lucide-react";
 import { useChartColors } from "./useChartColors";
 import { SmallSampleWarning } from "./SmallSampleWarning";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface PunctualityData {
   onTime: number;
@@ -44,7 +45,7 @@ export function PunctualityChart({ data }: { data: PunctualityData }) {
   const barColors = [colors.chart2, colors.chart3, colors.destructive];
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -123,7 +124,7 @@ export function PunctualityChart({ data }: { data: PunctualityData }) {
                             )
                           : 0;
                       return (
-                        <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
+                        <div className={`${RADIUS.sm} border bg-background px-3 py-2 shadow-md`}>
                           <p className="text-sm font-semibold">{item.name}</p>
                           <p className="text-xs text-muted-foreground">
                             {item.value} ({pct}%)

@@ -12,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
+import { RADIUS } from "@/lib/design-tokens";
 import { InfoRow, MiniKpi, computeAge } from "./patient-drawer-helpers";
 
 interface DrawerTranslations {
@@ -101,7 +102,7 @@ export function PatientDrawerInfo({
             </h3>
             <Badge
               variant={statusBadgeVariant[patientStatus]}
-              className="text-xs shrink-0"
+              className={`text-xs shrink-0 ${RADIUS.badge}`}
             >
               {statusBadgeLabels[patientStatus] ?? patientStatus}
             </Badge>
@@ -146,7 +147,7 @@ export function PatientDrawerInfo({
               <p className="text-sm text-muted-foreground">{dt.languages}</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {data.languages_spoken.map((code) => (
-                  <Badge key={code} variant="secondary" className="text-xs">
+                  <Badge key={code} variant="secondary" className={`text-xs ${RADIUS.badge}`}>
                     {code}
                   </Badge>
                 ))}

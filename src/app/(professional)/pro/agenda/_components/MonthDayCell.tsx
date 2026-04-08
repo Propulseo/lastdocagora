@@ -1,5 +1,6 @@
 "use client";
 
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 
@@ -80,7 +81,7 @@ export function MonthDayCell({
             <button
               key={apt.id}
               type="button"
-              className="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left transition-colors hover:bg-muted"
+              className={`flex w-full items-center gap-1 ${RADIUS.sm} px-1 py-0.5 text-left transition-colors hover:bg-muted`}
               onClick={(e) => {
                 e.stopPropagation();
                 onAppointmentClick(apt);
@@ -103,7 +104,7 @@ export function MonthDayCell({
           .map((ev) => (
             <div
               key={ev.id}
-              className="flex items-center gap-1 rounded px-1 py-0.5 opacity-60"
+              className={`flex items-center gap-1 ${RADIUS.sm} px-1 py-0.5 opacity-60`}
             >
               <span
                 className="h-1.5 w-1.5 shrink-0 rounded-full"

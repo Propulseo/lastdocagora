@@ -1,6 +1,7 @@
 "use client";
 
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 
 interface AttendanceRateProps {
   stats: {
@@ -26,7 +27,7 @@ export function AttendanceRate({ stats }: AttendanceRateProps) {
   const a = t.agenda;
 
   return (
-    <div className="rounded-lg border border-border/60 px-4 py-3">
+    <div className={`border border-border/60 px-4 py-3 ${RADIUS.card} ${SHADOW.card}`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">{a.attendanceRate}</p>
         <p className={`text-sm font-bold ${textColor}`}>{rate}%</p>

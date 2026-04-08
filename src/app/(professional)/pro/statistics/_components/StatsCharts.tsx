@@ -20,6 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useChartColors } from "./useChartColors";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 // ---------------------------------------------------------------------------
 // Revenue trend chart (Analyze → Performance tab)
@@ -48,13 +49,13 @@ export function RevenueChart({ data, title, description, locale }: RevenueChartP
   };
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] w-full">
+        <div className="h-[220px] sm:h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={colors.border} strokeOpacity={0.4} />
@@ -77,7 +78,7 @@ export function RevenueChart({ data, title, description, locale }: RevenueChartP
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.length) return null;
                   return (
-                    <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
+                    <div className={`${RADIUS.sm} border bg-background px-3 py-2 shadow-md`}>
                       <p className="text-xs font-medium text-muted-foreground">
                         {formatDate(String(label ?? ""))}
                       </p>
@@ -126,7 +127,7 @@ export function CompareChart({ data, title, labelA, labelB, dayLabel = "Jour" }:
   const colors = useChartColors();
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="flex items-center gap-4">
@@ -141,7 +142,7 @@ export function CompareChart({ data, title, labelA, labelB, dayLabel = "Jour" }:
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[340px] w-full">
+        <div className="h-[240px] sm:h-[340px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
               <defs>
@@ -179,7 +180,7 @@ export function CompareChart({ data, title, labelA, labelB, dayLabel = "Jour" }:
                   const b = Number(payload[1]?.value ?? 0);
                   const diff = b > 0 ? Math.round(((a - b) / b) * 100) : 0;
                   return (
-                    <div className="min-w-[160px] rounded-xl border bg-background/95 px-3.5 py-2.5 shadow-lg backdrop-blur-sm">
+                    <div className={`min-w-[160px] ${RADIUS.element} border bg-background/95 px-3.5 py-2.5 shadow-lg backdrop-blur-sm`}>
                       <p className="mb-2 text-xs font-medium text-muted-foreground">
                         {dayLabel} {label}
                       </p>

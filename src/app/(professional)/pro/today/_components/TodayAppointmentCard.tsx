@@ -16,6 +16,7 @@ import {
   STATUS_PILL_COLORS,
 } from "@/app/(professional)/pro/agenda/_lib/agenda-constants";
 import type { TodayAppointment } from "../_hooks/useTodayData";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface TodayAppointmentCardTranslations {
   currentAppointment: string;
@@ -82,7 +83,7 @@ export function TodayAppointmentCard({
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group rounded-xl border-2 p-4 transition-all",
+        `group ${RADIUS.card} ${SHADOW.card} border-2 p-4 transition-all`,
         isClickable && "cursor-pointer hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm",
         isCurrent && "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20",
         past && !isCurrent && "opacity-60"
@@ -140,7 +141,7 @@ export function TodayAppointmentCard({
         <Button
           size="sm"
           variant="outline"
-          className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 h-8 text-xs"
+          className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 h-8 min-h-[44px] text-xs"
           onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "present"); }}
           disabled={apt.attendance_status === "present"}
         >
@@ -150,7 +151,7 @@ export function TodayAppointmentCard({
         <Button
           size="sm"
           variant="outline"
-          className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950 h-8 text-xs"
+          className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950 h-8 min-h-[44px] text-xs"
           onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "absent"); }}
           disabled={apt.attendance_status === "absent"}
         >
@@ -160,7 +161,7 @@ export function TodayAppointmentCard({
         <Button
           size="sm"
           variant="outline"
-          className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950 h-8 text-xs"
+          className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950 h-8 min-h-[44px] text-xs"
           onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "late"); }}
           disabled={apt.attendance_status === "late"}
         >

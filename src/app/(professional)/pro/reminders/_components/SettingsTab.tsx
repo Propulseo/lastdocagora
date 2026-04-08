@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import type { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { ProfessionalSettings } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface SettingsTabProps {
   settings: ProfessionalSettings | null;
@@ -45,7 +46,7 @@ export function SettingsTab({ settings, onSettingChange, t }: SettingsTabProps) 
         </p>
       </div>
 
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <CardContent className="divide-y pt-6">
           <SettingRow
             label={t.reminders.settings.patientReminders}

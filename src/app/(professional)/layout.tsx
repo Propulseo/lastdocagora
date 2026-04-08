@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -102,6 +103,9 @@ export default async function ProfessionalLayout({
     avatarUrl: userProfile.avatar_url,
   };
 
+  const cookieStore = await cookies();
+  const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
+
   // Minimal shell during onboarding — no sidebar, no bottom nav
   if (!onboardingCompleted) {
     return (
@@ -120,13 +124,11 @@ export default async function ProfessionalLayout({
       <ThemeSync userId={user.id} target="professional_settings" />
       <ProfessionalI18nProvider translations={t} locale={locale}>
         <ProRealtimeNotifier professionalUserId={user.id} />
-        <SidebarProvider>
-          <div className="hidden lg:contents">
-            <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} />
-          </div>
+        <SidebarProvider defaultOpen={sidebarOpen}>
+          <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} />
           <SidebarInset>
             <ProMobileHeader user={sidebarUser} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
-            <header className="hidden lg:flex h-14 items-center border-b border-border/60 px-6">
+            <header className="hidden lg:flex h-14 items-center border-b border-border/40 px-6">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
@@ -139,7 +141,7 @@ export default async function ProfessionalLayout({
                 <ThemeToggle />
               </div>
             </header>
-            <main className="pro-dashboard w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
+            <main className="pro-dashboard w-full flex-1 overflow-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">
               {children}
             </main>
           </SidebarInset>

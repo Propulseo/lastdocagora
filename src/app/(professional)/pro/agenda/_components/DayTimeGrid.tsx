@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { RADIUS } from "@/lib/design-tokens";
 import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock } from "./AppointmentBlock";
@@ -239,7 +240,7 @@ export function DayTimeGrid({
                   {t.agenda.clearDayButton}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className={RADIUS.card}>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t.agenda.clearDayTitle}</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -360,7 +361,7 @@ export function DayTimeGrid({
 
             {isDragging && selectionHeight > 0 && (
               <div
-                className="absolute left-16 right-2 rounded-md bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]"
+                className={`absolute left-16 right-2 ${RADIUS.sm} bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]`}
                 style={{
                   top: `${selectionTop}px`,
                   height: `${selectionHeight}px`,

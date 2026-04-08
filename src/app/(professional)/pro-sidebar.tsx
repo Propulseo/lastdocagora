@@ -84,11 +84,16 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
   return (
-    <Sidebar>
-      <SidebarHeader className="px-4 py-5">
-        <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-          DOCAGORA
-        </span>
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="px-3 py-4">
+        <div className="flex items-center gap-3 px-2">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary">
+            <span className="text-sm font-bold text-primary-foreground">D</span>
+          </div>
+          <span className="text-lg font-bold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+            DOCAGORA
+          </span>
+        </div>
       </SidebarHeader>
 
       <SidebarSeparator />
@@ -99,7 +104,7 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
           if (items.length === 0) return null;
           return (
             <SidebarGroup key={group.key}>
-              <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-sidebar-foreground/40">
+              <SidebarGroupLabel className="px-5 pt-5 pb-2 text-[10px] uppercase tracking-widest text-sidebar-foreground/40">
                 {t.navGroups[group.translationKey as keyof typeof t.navGroups] ?? group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -116,6 +121,10 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
                           asChild
                           isActive={isActive}
                           tooltip={label}
+                          className={cn(
+                            "mx-2 rounded-xl px-4 py-2.5 transition-all duration-150",
+                            isActive && "border-l-2 border-l-primary shadow-sm"
+                          )}
                         >
                           <Link href={item.href}>
                             {Icon && <Icon className="size-5" strokeWidth={1.5} />}
@@ -130,7 +139,7 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
                                   href="/pro/agenda?status=pending&view=day"
                                   onClick={(e) => e.stopPropagation()}
                                   className={cn(
-                                    "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-bold tabular-nums transition-colors",
+                                    "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold tabular-nums transition-colors",
                                     "peer-data-[size=default]/menu-button:top-1.5",
                                     "group-data-[collapsible=icon]:hidden",
                                     pendingCount >= 4
@@ -165,8 +174,8 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
       <SidebarSeparator />
 
       <SidebarFooter className="p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="size-8 ring-2 ring-sidebar-border">
+        <div className="mx-2 flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-sidebar-accent">
+          <Avatar className="size-8 shrink-0 ring-2 ring-sidebar-border">
             <AvatarImage
               src={user.avatarUrl ?? undefined}
               alt={user.firstName}
@@ -175,7 +184,7 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
               {initials || "?"}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-sm font-medium text-sidebar-foreground">
               {user.firstName} {user.lastName}
             </p>
@@ -183,16 +192,18 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
               {user.email}
             </p>
           </div>
-          <LanguageSwitcher locale={locale} />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0 text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            onClick={handleLogout}
-            title={t.sidebar.logout}
-          >
-            <LogOut className="size-5" strokeWidth={1.5} />
-          </Button>
+          <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+            <LanguageSwitcher locale={locale} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0 text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              onClick={handleLogout}
+              title={t.sidebar.logout}
+            >
+              <LogOut className="size-5" strokeWidth={1.5} />
+            </Button>
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>

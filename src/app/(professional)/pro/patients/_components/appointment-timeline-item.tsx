@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
 import { STATUS_VARIANT, ATTENDANCE_COLORS } from "./patient-drawer-helpers";
 
@@ -41,10 +43,10 @@ export function AppointmentTimelineItem({
   notesPlaceholder,
 }: AppointmentTimelineItemProps) {
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className={cn("border overflow-hidden", RADIUS.element)}>
       <button
         type="button"
-        className="flex w-full items-start justify-between p-3 text-left hover:bg-accent/50 transition-colors"
+        className="flex w-full items-start justify-between p-3 text-left hover:bg-muted/50 transition-colors"
         onClick={onToggle}
       >
         <div className="min-w-0 flex-1">

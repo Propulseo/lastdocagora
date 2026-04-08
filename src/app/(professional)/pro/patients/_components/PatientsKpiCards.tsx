@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SPACING, SHADOW, RADIUS, TYPE } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import type { PatientsKpi } from "../_lib/types";
 
@@ -62,18 +63,21 @@ function KpiTile({
   return (
     <div
       className={cn(
-        "bg-card text-card-foreground relative rounded-xl border border-l-[3px] p-4 shadow-sm transition-shadow hover:shadow-md",
+        "bg-card text-card-foreground relative border border-l-[3px] transition-shadow",
+        RADIUS.card,
+        SPACING.card_sm,
+        SHADOW.card,
         v.border,
         className
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+          <p className={cn(TYPE.label, "text-xs uppercase tracking-wide")}>
             {label}
           </p>
           <p
-            className="text-2xl font-bold tabular-nums tracking-tight truncate"
+            className={cn(TYPE.kpi_number, "tabular-nums truncate")}
             title={typeof value === "string" ? value : undefined}
           >
             {value}
@@ -86,7 +90,8 @@ function KpiTile({
         </div>
         <div
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-lg",
+            "flex size-9 shrink-0 items-center justify-center",
+            RADIUS.sm,
             v.icon
           )}
         >

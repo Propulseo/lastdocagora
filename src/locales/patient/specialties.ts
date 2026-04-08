@@ -24,6 +24,7 @@ export const SPECIALTY_KEYS = [
   "nutrition",
   "oncology",
   "psychology",
+  "internal_medicine",
   "other",
 ] as const;
 
@@ -107,6 +108,11 @@ const specialtyTranslations: Record<
     fr: "Psychologie",
     en: "Psychology",
   },
+  internal_medicine: {
+    pt: "Medicina Interna",
+    fr: "Médecine interne",
+    en: "Internal Medicine",
+  },
   other: {
     pt: "Outra",
     fr: "Autre",
@@ -133,6 +139,7 @@ export const LEGACY_FRENCH_TO_KEY: Record<string, SpecialtyKey> = {
   "Nutrition": "nutrition",
   "Oncologie": "oncology",
   "Psychologie": "psychology",
+  "Médecine interne": "internal_medicine",
   "Autre": "other",
 };
 
@@ -142,16 +149,79 @@ export const LEGACY_FRENCH_TO_KEY: Record<string, SpecialtyKey> = {
 
 /**
  * Translate a specialty key (stored in DB) to the given locale.
- * Falls back to the raw key if no translation exists.
+ *
+ * Lookup order:
+ *  1. Canonical key (e.g. "general_practitioner")
+ *  2. Legacy French display value from DB (e.g. "Médecin Généraliste")
+ *  3. Reverse-lookup from any locale display value (handles PT/EN values stored in DB)
+ *  4. Raw value as fallback
  */
 export function translateSpecialty(
   specialty: string | null | undefined,
   locale: string,
 ): string | null {
   if (!specialty) return null;
+
+  // 1. Canonical key lookup
   const entry = specialtyTranslations[specialty as SpecialtyKey];
-  if (!entry) return specialty; // unknown key — show as-is
-  return (entry as Record<string, string>)[locale] ?? entry.pt;
+  if (entry) return (entry as Record<string, string>)[locale] ?? entry.pt;
+
+  // 2. Legacy French → canonical key
+  const legacyKey = LEGACY_FRENCH_TO_KEY[specialty];
+  if (legacyKey) {
+    const legacyEntry = specialtyTranslations[legacyKey];
+    return (legacyEntry as Record<string, string>)[locale] ?? legacyEntry.pt;
+  }
+
+  // 3. Reverse-lookup from any locale display value
+  for (const [key, translations] of Object.entries(specialtyTranslations)) {
+    if (
+      translations.pt === specialty ||
+      translations.en === specialty ||
+      translations.fr === specialty
+    ) {
+      const found = specialtyTranslations[key as SpecialtyKey];
+      return (found as Record<string, string>)[locale] ?? found.pt;
+    }
+  }
+
+  // 4. Unknown — show as-is
+  return specialty;
+}
+
+// Private helper — accent-insensitive normalization
+function normalizeText(text: string): string {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+/**
+ * Resolve free-text input to matching canonical specialty keys.
+ * Checks canonical key (underscores → spaces) and all locale translations.
+ * Accent-insensitive so "medecin generaliste" matches "Médecin Généraliste".
+ */
+export function resolveSpecialtyKeys(query: string): SpecialtyKey[] {
+  const normalized = normalizeText(query)
+  if (!normalized) return []
+
+  const matched: SpecialtyKey[] = []
+  for (const key of SPECIALTY_KEYS) {
+    // Check canonical key (underscores → spaces)
+    const keyNorm = key.replace(/_/g, " ")
+    if (keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+      matched.push(key)
+      continue
+    }
+    // Check all 3 locale translations
+    const tr = specialtyTranslations[key]
+    for (const label of [tr.pt, tr.fr, tr.en]) {
+      const norm = normalizeText(label)
+      if (norm.includes(normalized) || normalized.includes(norm)) {
+        matched.push(key)
+        break
+      }
+    }
+  }
+  return matched
 }
 
 /**

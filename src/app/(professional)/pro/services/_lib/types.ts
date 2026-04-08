@@ -9,6 +9,9 @@ export interface ServiceDashboardRow {
   name_fr?: string | null;
   name_en?: string | null;
   description: string | null;
+  description_pt?: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
   duration_minutes: number;
   consultation_type: string;
   is_active: boolean;
@@ -22,17 +25,28 @@ export interface ServicesKpi {
   activeServices: number;
   avgPrice: number;
   totalRevenue: number;
-  mostPopularService: string | null;
+  mostPopularService: {
+    name: string;
+    name_pt?: string | null;
+    name_fr?: string | null;
+    name_en?: string | null;
+  } | null;
   avgDuration: number;
 }
 
 export interface RevenuePerServiceSlice {
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
   revenue: number;
 }
 
 export interface AppointmentVolumeSlice {
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
   appointments: number;
 }
 

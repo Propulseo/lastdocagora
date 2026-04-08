@@ -124,11 +124,11 @@ export function AvailabilityGrid({
             setOffset((o) => o - 1)
           }}
           disabled={!canPrev}
-          className="mt-3 shrink-0 p-0.5 rounded text-muted-foreground hover:text-foreground
+          className="mt-3 shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded text-muted-foreground hover:text-foreground
                      disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Previous days"
         >
-          <ChevronLeft className="size-3.5" />
+          <ChevronLeft className="size-4" />
         </button>
 
         <div
@@ -191,11 +191,11 @@ export function AvailabilityGrid({
             setOffset((o) => o + 1)
           }}
           disabled={!canNext}
-          className="mt-3 shrink-0 p-0.5 rounded text-muted-foreground hover:text-foreground
+          className="mt-3 shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded text-muted-foreground hover:text-foreground
                      disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Next days"
         >
-          <ChevronRight className="size-3.5" />
+          <ChevronRight className="size-4" />
         </button>
       </div>
 

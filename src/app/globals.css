@@ -399,8 +399,8 @@ html.dark body.role-professional {
 
 /* ─── Pro Dashboard: scoped card styling ─── */
 .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
-  border-radius: 10px;
-  border-color: var(--border);
+  border-radius: 1rem;
+  border-color: transparent;
   box-shadow: var(--shadow-card);
 }
 html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
@@ -506,6 +506,23 @@ html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
   animation: authShake 0.5s ease-in-out;
 }
 
+/* ─── Scrollbar discrète ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  opacity: 0.3;
+}
+
+/* ─── Sélection texte cohérente ─── */
+::selection {
+  background: oklch(from var(--primary) l c h / 0.15);
+}
+
 /* ─── Reduced Motion ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -513,4 +530,16 @@ html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ─── Scrollbar masquée (filtres horizontaux) ─── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Safe area iPhone ─── */
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ─── Empêcher zoom iOS sur focus input ─── */
+@media (max-width: 768px) {
+  input, select, textarea { font-size: 16px !important; }
 }

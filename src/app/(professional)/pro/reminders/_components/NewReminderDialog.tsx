@@ -13,6 +13,7 @@ import { Trash2 } from "lucide-react";
 import { useReminderForm } from "../_hooks/useReminderForm";
 import { ReminderFormFields } from "./ReminderFormFields";
 import type { ReminderRule } from "../_hooks/useReminderForm";
+import { RADIUS } from "@/lib/design-tokens";
 
 interface NewReminderDialogProps {
   professionalId: string;
@@ -45,7 +46,7 @@ function ReminderForm({
   });
 
   return (
-    <ResponsiveDialogContent className="sm:max-w-md">
+    <ResponsiveDialogContent className={`sm:max-w-md ${RADIUS.card}`}>
       <ResponsiveDialogHeader>
         <ResponsiveDialogTitle>
           {editRule

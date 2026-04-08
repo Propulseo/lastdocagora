@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/shared/search-input";
+import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 export function ServicesFiltersBar() {
@@ -37,7 +39,7 @@ export function ServicesFiltersBar() {
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className={cn("flex flex-wrap items-center gap-3 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
       <Suspense>
         <SearchInput
           placeholder={sf.searchPlaceholder}
@@ -49,7 +51,7 @@ export function ServicesFiltersBar() {
         value={currentStatus}
         onValueChange={(v) => updateParam("status", v)}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[130px]">
+        <SelectTrigger className={`h-9 w-auto min-w-[130px] ${RADIUS.element}`}>
           <SelectValue placeholder={sf.statusLabel} />
         </SelectTrigger>
         <SelectContent>
@@ -63,7 +65,7 @@ export function ServicesFiltersBar() {
         value={currentSort}
         onValueChange={(v) => updateParam("sort", v)}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[160px]">
+        <SelectTrigger className={`h-9 w-auto min-w-[160px] ${RADIUS.element}`}>
           <SelectValue placeholder={sf.sortLabel} />
         </SelectTrigger>
         <SelectContent>

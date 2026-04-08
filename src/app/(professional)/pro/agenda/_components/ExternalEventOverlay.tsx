@@ -1,5 +1,6 @@
 "use client";
 
+import { RADIUS } from "@/lib/design-tokens";
 import { HOUR_HEIGHT, START_HOUR } from "../_lib/agenda-constants";
 import type { ExternalEvent } from "../_types/agenda";
 
@@ -32,7 +33,7 @@ export function ExternalEventOverlay({ events, selectedDate }: ExternalEventOver
         return (
           <div
             key={ev.id}
-            className="absolute right-2 overflow-hidden rounded-md px-3 py-1 border-l-[3px] opacity-60 pointer-events-none"
+            className={`absolute right-2 overflow-hidden ${RADIUS.sm} px-3 py-1 border-l-[3px] opacity-60 pointer-events-none`}
             style={{
               top: `${topOffset}px`,
               height: `${Math.max(height, 24)}px`,

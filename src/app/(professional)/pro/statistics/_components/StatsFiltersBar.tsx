@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
+import { RADIUS } from "@/lib/design-tokens";
 
 const RANGES = ["7d", "30d", "90d", "1y"] as const;
 type StatsRange = (typeof RANGES)[number];
@@ -68,13 +69,13 @@ export function StatsFiltersBar({
   return (
     <div className="flex flex-wrap items-center gap-3 overflow-x-auto whitespace-nowrap">
       {/* Period toggle */}
-      <div className="inline-flex items-center rounded-lg bg-muted p-0.5">
+      <div className={`inline-flex items-center ${RADIUS.sm} bg-muted p-0.5`}>
         {RANGES.map((range) => (
           <button
             key={range}
             onClick={() => updateParam("range", range)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors min-h-[44px]",
+              `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-colors min-h-[44px]`,
               currentRange === range
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",

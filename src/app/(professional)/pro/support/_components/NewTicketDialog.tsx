@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { createTicket } from "@/app/(professional)/_actions/pro-support-actions";
+import { RADIUS } from "@/lib/design-tokens";
 
 interface NewTicketDialogProps {
   open: boolean;
@@ -87,7 +88,7 @@ export function NewTicketDialog({ open, onOpenChange }: NewTicketDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={`sm:max-w-md ${RADIUS.card}`}>
         <DialogHeader>
           <DialogTitle>{(s.newTicket as string) ?? "New ticket"}</DialogTitle>
         </DialogHeader>

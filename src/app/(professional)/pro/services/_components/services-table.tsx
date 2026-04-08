@@ -27,10 +27,12 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, PackageOpen, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
+import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { EditServiceDialog } from "./edit-service-dialog";
 import { DeleteServiceDialog } from "./delete-service-dialog";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
-import { getServiceName } from "@/lib/get-service-name";
+import { getServiceName, getServiceDescription } from "@/lib/get-service-name";
 import type { ServiceDashboardRow } from "../_lib/types";
 
 // Re-export the old type for backwards compat with create/edit dialogs
@@ -78,7 +80,7 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
             />
           ) : (
             <>
-              <div className="rounded-lg border">
+              <div className={cn("bg-card overflow-hidden", RADIUS.card, SHADOW.card)}>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -107,12 +109,12 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                   </TableHeader>
                   <TableBody>
                     {services.map((service) => (
-                      <TableRow key={service.id}>
+                      <TableRow key={service.id} className="hover:bg-muted/50 transition-colors">
                         <TableCell className="font-medium">
                           {getServiceName(service, locale)}
                         </TableCell>
                         <TableCell className="hidden max-w-[250px] truncate text-muted-foreground md:table-cell">
-                          {service.description ?? "-"}
+                          {getServiceDescription(service, locale) || "-"}
                         </TableCell>
                         <TableCell className="tabular-nums">
                           {service.duration_minutes} {t.common.min}
@@ -131,7 +133,7 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                             : "\u2014"}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          <Badge variant="outline">
+                          <Badge variant="outline" className={RADIUS.badge}>
                             {consultationTypeLabel[service.consultation_type] ??
                               service.consultation_type}
                           </Badge>
@@ -139,6 +141,7 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                         <TableCell>
                           <Badge
                             variant={service.is_active ? "default" : "secondary"}
+                            className={RADIUS.badge}
                           >
                             {service.is_active ? sv.active : sv.inactive}
                           </Badge>
@@ -151,7 +154,7 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                                 <span className="sr-only">{sv.actions}</span>
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className={RADIUS.element}>
                               <DropdownMenuItem
                                 onClick={() => setEditService(service)}
                               >

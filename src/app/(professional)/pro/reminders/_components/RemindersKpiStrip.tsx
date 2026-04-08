@@ -79,7 +79,7 @@ export function RemindersKpiStrip({
         label={kpiLabels.activeRules}
         value={kpiData.activeRulesCount}
         description={rulesDesc}
-        iconVariant="blue"
+        iconVariant="violet"
         className={cardClass}
       />
 
@@ -88,7 +88,7 @@ export function RemindersKpiStrip({
         label={kpiLabels.activeTemplates}
         value={kpiData.activeTemplatesCount}
         description={templatesDesc}
-        iconVariant="green"
+        iconVariant="amber"
         className={cardClass}
       />
 

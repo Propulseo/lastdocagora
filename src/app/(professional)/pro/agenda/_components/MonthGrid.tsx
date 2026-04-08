@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
@@ -114,7 +115,7 @@ export function MonthGrid({
               return (
                 <div
                   key={dayIdx}
-                  className={`text-center text-xs font-medium text-muted-foreground ${isWeekend ? "bg-muted/30 rounded" : ""}`}
+                  className={`text-center text-xs font-medium text-muted-foreground ${isWeekend ? `bg-muted/30 ${RADIUS.sm}` : ""}`}
                 >
                   {t.agenda.days[dayIdx].slice(0, 3)}
                 </div>

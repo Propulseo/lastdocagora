@@ -18,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { useChartColors } from "@/app/(professional)/pro/statistics/_components/useChartColors";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -46,7 +48,7 @@ export function PatientAcquisitionChart({
   };
 
   return (
-    <Card>
+    <Card className={cn(RADIUS.card, SHADOW.card)}>
       <CardHeader>
         <CardTitle>{ct.acquisitionTitle}</CardTitle>
         <CardDescription>{ct.acquisitionDesc}</CardDescription>

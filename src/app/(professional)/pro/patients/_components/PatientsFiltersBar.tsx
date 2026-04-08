@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/shared/search-input";
+import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 interface PatientsFiltersBarProps {
@@ -45,7 +47,7 @@ export function PatientsFiltersBar({
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className={cn("flex flex-wrap items-center gap-3 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
       {/* Search */}
       <Suspense>
         <SearchInput
@@ -60,7 +62,7 @@ export function PatientsFiltersBar({
         value={currentStatus}
         onValueChange={(v) => updateParam("status", v)}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[130px]">
+        <SelectTrigger className={`h-9 w-auto min-w-[130px] ${RADIUS.element}`}>
           <SelectValue placeholder={pf.statusLabel} />
         </SelectTrigger>
         <SelectContent>
@@ -77,7 +79,7 @@ export function PatientsFiltersBar({
           value={currentInsurance}
           onValueChange={(v) => updateParam("insurance", v)}
         >
-          <SelectTrigger className="h-9 w-auto min-w-[140px]">
+          <SelectTrigger className={`h-9 w-auto min-w-[140px] ${RADIUS.element}`}>
             <SelectValue placeholder={pf.insuranceLabel} />
           </SelectTrigger>
           <SelectContent>
@@ -96,7 +98,7 @@ export function PatientsFiltersBar({
         value={currentSort}
         onValueChange={(v) => updateParam("sort", v)}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[160px]">
+        <SelectTrigger className={`h-9 w-auto min-w-[160px] ${RADIUS.element}`}>
           <SelectValue placeholder={pf.sortLabel} />
         </SelectTrigger>
         <SelectContent>

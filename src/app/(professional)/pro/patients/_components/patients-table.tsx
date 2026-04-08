@@ -21,6 +21,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, UserX, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
+import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { EditPatientDialog } from "./edit-patient-dialog";
 import { DeletePatientDialog } from "./delete-patient-dialog";
 import { PatientDrawer } from "./patient-drawer";
@@ -85,7 +87,7 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
                   <button
                     key={patient.patient_id}
                     onClick={() => setSelectedPatientId(patient.patient_id)}
-                    className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
+                    className={cn("flex w-full items-center gap-3 border p-3 text-left transition-colors hover:bg-accent/50", RADIUS.sm)}
                   >
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
                       {(patient.first_name?.[0] ?? "") + (patient.last_name?.[0] ?? "")}
@@ -101,7 +103,7 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
 
               {/* Desktop table */}
               <div className="hidden lg:block">
-                <div className="rounded-lg border">
+                <div className={cn("bg-card overflow-hidden", RADIUS.card, SHADOW.card)}>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -135,7 +137,7 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
                         return (
                           <TableRow
                             key={p.patient_id}
-                            className="cursor-pointer"
+                            className="cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() =>
                               setSelectedPatientId(p.patient_id)
                             }

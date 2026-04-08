@@ -112,6 +112,7 @@ export type PatientTranslations = {
     insuranceFilter: string
     insuranceAll: string
     insuranceBadgeMore: string
+    thirdPartyPayment: string
   }
   professionalDetail: {
     backToSearch: string
@@ -490,6 +491,7 @@ export const ptPatient: PatientTranslations = {
     insuranceFilter: "Seguro",
     insuranceAll: "Todos os seguros",
     insuranceBadgeMore: "+{count}",
+    thirdPartyPayment: "Pagamento por terceiros",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",

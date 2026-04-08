@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RADIUS } from "@/lib/design-tokens";
 import { useManualAppointment } from "../_hooks/useManualAppointment";
 import { PatientPicker } from "./PatientPicker";
 import type { Appointment } from "../_types/agenda";
@@ -52,7 +53,7 @@ export function CreateManualAppointmentDialog({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
-      <ResponsiveDialogContent className="sm:max-w-md p-6">
+      <ResponsiveDialogContent className={`sm:max-w-md p-6 ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>{form.t.agenda.createAppointment}</ResponsiveDialogTitle>
         </ResponsiveDialogHeader>

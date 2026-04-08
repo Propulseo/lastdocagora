@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { ProNotificationBell } from "./ProNotificationBell";
@@ -25,6 +26,7 @@ export function ProMobileHeader({ user, userId, initialNotifications, initialUnr
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center border-b border-border/60 bg-background px-4 lg:hidden">
+      <SidebarTrigger className="-ml-1 mr-2" />
       <span className="text-sm font-bold">DOCAGORA</span>
       <span className="mx-auto max-w-[200px] truncate text-center text-sm font-medium">
         {user.firstName} {user.lastName}

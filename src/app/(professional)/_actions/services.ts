@@ -13,6 +13,9 @@ export async function createService(formData: {
   name_fr?: string | null;
   name_en?: string | null;
   description?: string;
+  description_pt?: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
   duration_minutes: number;
   is_active: boolean;
   price?: number | null;
@@ -33,12 +36,17 @@ export async function createService(formData: {
 
   const namePt = (formData.name_pt ?? formData.name).trim();
 
+  const descPt = (formData.description_pt ?? formData.description)?.trim() || null;
+
   const { error } = await supabase.from("services").insert({
     name: namePt,
     name_pt: namePt,
     name_fr: formData.name_fr?.trim() || null,
     name_en: formData.name_en?.trim() || null,
-    description: formData.description?.trim() || null,
+    description: descPt,
+    description_pt: descPt,
+    description_fr: formData.description_fr?.trim() || null,
+    description_en: formData.description_en?.trim() || null,
     duration_minutes: formData.duration_minutes,
     is_active: formData.is_active,
     price: formData.price ?? 0,
@@ -61,6 +69,9 @@ export async function updateService(
     name_fr?: string | null;
     name_en?: string | null;
     description?: string;
+    description_pt?: string | null;
+    description_fr?: string | null;
+    description_en?: string | null;
     duration_minutes: number;
     is_active: boolean;
     price?: number | null;
@@ -74,6 +85,8 @@ export async function updateService(
 
   const namePt = (formData.name_pt ?? formData.name).trim();
 
+  const descPt = (formData.description_pt ?? formData.description)?.trim() || null;
+
   const { error } = await supabase
     .from("services")
     .update({
@@ -81,7 +94,10 @@ export async function updateService(
       name_pt: namePt,
       name_fr: formData.name_fr?.trim() || null,
       name_en: formData.name_en?.trim() || null,
-      description: formData.description?.trim() || null,
+      description: descPt,
+      description_pt: descPt,
+      description_fr: formData.description_fr?.trim() || null,
+      description_en: formData.description_en?.trim() || null,
       duration_minutes: formData.duration_minutes,
       is_active: formData.is_active,
       price: formData.price ?? 0,

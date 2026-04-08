@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { RADIUS } from "@/lib/design-tokens";
 import type { PatientRow } from "../_lib/types";
 
 export interface PatientRowActionsProps {
@@ -35,7 +36,7 @@ export function PatientRowActions({
           <span className="sr-only">{labels.actions}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className={RADIUS.element}>
         <DropdownMenuItem onClick={() => onEdit(patient)}>
           <Pencil className="mr-2 size-4" />
           {labels.editPatient}

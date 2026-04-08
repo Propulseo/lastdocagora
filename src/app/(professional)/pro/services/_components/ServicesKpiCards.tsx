@@ -9,17 +9,20 @@ import {
   Clock,
 } from "lucide-react";
 import { KPICard } from "@/components/shared/kpi-card";
+import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW, SPACING } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
+import { getServiceName } from "@/lib/get-service-name";
 import type { ServicesKpi } from "../_lib/types";
 
 interface ServicesKpiCardsProps {
   kpi: ServicesKpi;
 }
 
-const cardClass = "h-24 p-4";
+const cardClass = cn("h-24", SPACING.card_sm, RADIUS.card, SHADOW.card);
 
 export function ServicesKpiCards({ kpi }: ServicesKpiCardsProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const sk = t.services.kpi as Record<string, string>;
 
   return (
@@ -60,7 +63,7 @@ export function ServicesKpiCards({ kpi }: ServicesKpiCardsProps) {
       <KPICard
         icon={Star}
         label={sk.mostPopular}
-        value={kpi.mostPopularService ?? "\u2014"}
+        value={kpi.mostPopularService ? getServiceName(kpi.mostPopularService, locale) : "\u2014"}
         iconVariant="blue"
         className={cardClass}
       />

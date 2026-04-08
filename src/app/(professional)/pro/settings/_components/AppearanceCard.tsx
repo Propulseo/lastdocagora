@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Palette, Sun, Moon, Monitor } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export function AppearanceCard() {
   const { t } = useProfessionalI18n();
@@ -27,7 +28,7 @@ export function AppearanceCard() {
   ] as const;
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Palette className="size-5" />
@@ -44,7 +45,7 @@ export function AppearanceCard() {
             </p>
           </div>
           {mounted && (
-            <div className="flex gap-1 rounded-lg border p-1">
+            <div className={`flex gap-1 ${RADIUS.sm} border p-1`}>
               {themeOptions.map((opt) => {
                 const Icon = opt.icon;
                 const isActive = theme === opt.value;

@@ -45,6 +45,9 @@
   "nameTabFr": "Français",
   "nameTabEn": "English",
   "nameOptional": "(facultatif)",
+  "descTabPt": "Português",
+  "descTabFr": "Français",
+  "descTabEn": "English",
   "consultationType": {
     "in-person": "En cabinet"
   },

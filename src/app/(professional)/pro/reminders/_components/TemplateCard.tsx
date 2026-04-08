@@ -29,6 +29,7 @@ import {
   User,
 } from "lucide-react";
 import type { Tables } from "@/lib/supabase/types";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 type MessageTemplate = Tables<"message_templates">;
 
@@ -130,7 +131,7 @@ export function TemplateCard({
     <>
       <Card
         className={cn(
-          "group transition-all hover:shadow-md",
+          `group transition-all hover:shadow-md ${RADIUS.card} ${SHADOW.card}`,
           !template.is_active && "opacity-60",
         )}
       >

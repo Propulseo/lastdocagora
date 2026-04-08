@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createService } from "@/app/(professional)/_actions/services";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 const serviceSchema = z.object({
@@ -40,6 +41,8 @@ export function CreateServiceDialog() {
   const [price, setPrice] = useState<number | null>(null);
   const [nameFr, setNameFr] = useState("");
   const [nameEn, setNameEn] = useState("");
+  const [descFr, setDescFr] = useState("");
+  const [descEn, setDescEn] = useState("");
   const { t } = useProfessionalI18n();
   const sv = t.services;
 
@@ -59,6 +62,9 @@ export function CreateServiceDialog() {
       name_pt: values.name,
       name_fr: nameFr || null,
       name_en: nameEn || null,
+      description_pt: values.description || null,
+      description_fr: descFr || null,
+      description_en: descEn || null,
       price: showPrice && price ? price : null,
     });
     if (result.success) {
@@ -66,6 +72,8 @@ export function CreateServiceDialog() {
       form.reset();
       setNameFr("");
       setNameEn("");
+      setDescFr("");
+      setDescEn("");
       setShowPrice(false);
       setPrice(null);
       setOpen(false);
@@ -82,7 +90,7 @@ export function CreateServiceDialog() {
           {sv.addService}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className={RADIUS.card}>
         <DialogHeader>
           <DialogTitle>{sv.addService}</DialogTitle>
           <DialogDescription>{sv.description}</DialogDescription>
@@ -127,13 +135,40 @@ export function CreateServiceDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">{sv.descriptionField}</Label>
-            <Textarea
-              id="description"
-              placeholder={sv.descriptionPlaceholder}
-              rows={3}
-              {...form.register("description")}
-            />
+            <Label>{sv.descriptionField}</Label>
+            <Tabs defaultValue="pt" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="pt" className="flex-1">{(sv as unknown as Record<string, string>).descTabPt ?? "PT"}</TabsTrigger>
+                <TabsTrigger value="fr" className="flex-1">{(sv as unknown as Record<string, string>).descTabFr ?? "FR"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                <TabsTrigger value="en" className="flex-1">{(sv as unknown as Record<string, string>).descTabEn ?? "EN"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+              </TabsList>
+              <TabsContent value="pt">
+                <Textarea
+                  id="description"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  {...form.register("description")}
+                />
+              </TabsContent>
+              <TabsContent value="fr">
+                <Textarea
+                  id="description_fr"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  value={descFr}
+                  onChange={(e) => setDescFr(e.target.value)}
+                />
+              </TabsContent>
+              <TabsContent value="en">
+                <Textarea
+                  id="description_en"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  value={descEn}
+                  onChange={(e) => setDescEn(e.target.value)}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
           <div className="space-y-2">
             <Label htmlFor="duration_minutes">{sv.duration}</Label>

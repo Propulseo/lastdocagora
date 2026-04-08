@@ -16,6 +16,7 @@ import { DisplayField, EditField, SectionCardHeader, SectionCardFooter } from ".
 import { LockedField } from "./LockedField";
 import { ApprovalField } from "./ApprovalField";
 import type { ProfileClientProps } from "./profile-types";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export function ProfileClient({ userId, userProfile, professional, recentRatings, insuranceProviders, professionalInsuranceIds }: ProfileClientProps) {
   const { t, locale } = useProfessionalI18n();
@@ -33,7 +34,7 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
       <ProfileRatingsSection professional={professional} recentRatings={recentRatings} />
 
       {/* Personal Info */}
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <SectionCardHeader icon={UserCircle} title={t.profile.personalInfo} sectionKey="personal" {...headerBase} />
         <CardContent>
           {editing.editingSection === "personal" ? (
@@ -54,7 +55,7 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
       </Card>
 
       {/* Professional Info */}
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <SectionCardHeader icon={Stethoscope} title={t.profile.professionalInfo} sectionKey="professional" {...headerBase} />
         <CardContent>
           {editing.editingSection === "professional" ? (
@@ -109,7 +110,7 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
       </Card>
 
       {/* Location */}
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <SectionCardHeader icon={MapPin} title={t.profile.location} sectionKey="location" {...headerBase} />
         <CardContent>
           {editing.editingSection === "location" ? (
@@ -142,7 +143,7 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
       )}
 
       {/* Languages */}
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <SectionCardHeader icon={Globe} title={t.profile.languages} sectionKey="languages" {...headerBase} />
         <CardContent>
           {editing.editingSection === "languages" ? (
@@ -157,7 +158,7 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
       </Card>
 
       {/* Insurances */}
-      <Card>
+      <Card className={`${RADIUS.card} ${SHADOW.card}`}>
         <SectionCardHeader icon={Shield} title={t.profile.insuranceSection} sectionKey="insurances" {...headerBase} />
         <CardContent>
           {editing.editingSection === "insurances" ? (

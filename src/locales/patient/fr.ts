@@ -114,6 +114,7 @@ export const frPatient: PatientTranslations = {
     insuranceFilter: "Assurance",
     insuranceAll: "Toutes les assurances",
     insuranceBadgeMore: "+{count}",
+    thirdPartyPayment: "Tiers payant",
   },
   professionalDetail: {
     backToSearch: "Retour \u00e0 la recherche",

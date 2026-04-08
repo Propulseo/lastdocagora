@@ -19,6 +19,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { toLocalDateStr } from "../_lib/date-utils";
 import { RejectAppointmentDialog } from "./RejectAppointmentDialog";
 
@@ -269,7 +270,7 @@ export function PendingBanner({
 
   return (
     <>
-      <div className="rounded-lg border border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 overflow-hidden">
+      <div className={cn(RADIUS.element, "border border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 overflow-hidden")}>
         {/* Header — always visible */}
         <button
           type="button"
@@ -365,7 +366,7 @@ export function PendingBanner({
                           <div
                             key={apt.id}
                             className={cn(
-                              "flex items-center gap-3 rounded-lg border bg-white p-3 transition-all dark:bg-background",
+                              "flex items-center gap-3 rounded-xl border bg-card p-3 transition-all",
                               isProcessing && "opacity-40 pointer-events-none scale-95",
                               groupKey === "today" &&
                                 "border-red-200/80 dark:border-red-900/40",
@@ -419,7 +420,7 @@ export function PendingBanner({
                             <div className="flex shrink-0 items-center gap-1.5">
                               <Button
                                 size="sm"
-                                className="h-9 min-h-[44px] gap-1.5 text-xs bg-green-600 hover:bg-green-700 text-white"
+                                className={cn("h-9 min-h-[44px] gap-1.5 text-xs bg-green-600 hover:bg-green-700 text-white", RADIUS.element)}
                                 onClick={() => handleConfirm(apt.id)}
                                 disabled={isProcessing}
                               >
@@ -431,7 +432,7 @@ export function PendingBanner({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-9 min-h-[44px] gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
+                                className={cn("h-9 min-h-[44px] gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive", RADIUS.element)}
                                 onClick={() => setRejectTarget(apt.id)}
                                 disabled={isProcessing}
                               >

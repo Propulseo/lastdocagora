@@ -16,10 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { useChartColors } from "@/app/(professional)/pro/statistics/_components/useChartColors";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BarChart3 } from "lucide-react";
+import { getServiceName } from "@/lib/get-service-name";
 import type { RevenuePerServiceSlice } from "../_lib/types";
 
 interface RevenuePerServiceChartProps {
@@ -28,11 +31,16 @@ interface RevenuePerServiceChartProps {
 
 export function RevenuePerServiceChart({ data }: RevenuePerServiceChartProps) {
   const colors = useChartColors();
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const ct = t.services.charts as Record<string, string>;
 
+  const localizedData = data.map((item) => ({
+    ...item,
+    name: getServiceName(item, locale),
+  }));
+
   return (
-    <Card>
+    <Card className={cn(RADIUS.card, SHADOW.card)}>
       <CardHeader>
         <CardTitle>{ct.revenueTitle}</CardTitle>
         <CardDescription>{ct.revenueDesc}</CardDescription>
@@ -42,7 +50,7 @@ export function RevenuePerServiceChart({ data }: RevenuePerServiceChartProps) {
           <EmptyState icon={BarChart3} title={ct.noData} description="" />
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
+            <BarChart data={localizedData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
               <XAxis
                 type="number"

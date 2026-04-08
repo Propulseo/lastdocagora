@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { updateService } from "@/app/(professional)/_actions/services";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 const serviceSchema = z.object({
@@ -42,6 +43,9 @@ interface EditServiceDialogProps {
     name_fr?: string | null;
     name_en?: string | null;
     description: string | null;
+    description_pt?: string | null;
+    description_fr?: string | null;
+    description_en?: string | null;
     duration_minutes: number;
     is_active: boolean;
     price: number;
@@ -62,12 +66,14 @@ export function EditServiceDialog({
   );
   const [nameFr, setNameFr] = useState(service.name_fr ?? "");
   const [nameEn, setNameEn] = useState(service.name_en ?? "");
+  const [descFr, setDescFr] = useState(service.description_fr ?? "");
+  const [descEn, setDescEn] = useState(service.description_en ?? "");
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       name: service.name_pt ?? service.name,
-      description: service.description ?? "",
+      description: service.description_pt ?? service.description ?? "",
       duration_minutes: service.duration_minutes,
       is_active: service.is_active,
     },
@@ -80,6 +86,9 @@ export function EditServiceDialog({
       name_pt: values.name,
       name_fr: nameFr || null,
       name_en: nameEn || null,
+      description_pt: values.description || null,
+      description_fr: descFr || null,
+      description_en: descEn || null,
       price: showPrice && price ? price : null,
     });
     setIsSubmitting(false);
@@ -93,7 +102,7 @@ export function EditServiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={RADIUS.card}>
         <DialogHeader>
           <DialogTitle>{sv.editService}</DialogTitle>
           <DialogDescription>{sv.description}</DialogDescription>
@@ -138,13 +147,40 @@ export function EditServiceDialog({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit_description">{sv.descriptionField}</Label>
-            <Textarea
-              id="edit_description"
-              placeholder={sv.descriptionPlaceholder}
-              rows={3}
-              {...form.register("description")}
-            />
+            <Label>{sv.descriptionField}</Label>
+            <Tabs defaultValue="pt" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="pt" className="flex-1">{(sv as unknown as Record<string, string>).descTabPt ?? "PT"}</TabsTrigger>
+                <TabsTrigger value="fr" className="flex-1">{(sv as unknown as Record<string, string>).descTabFr ?? "FR"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+                <TabsTrigger value="en" className="flex-1">{(sv as unknown as Record<string, string>).descTabEn ?? "EN"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
+              </TabsList>
+              <TabsContent value="pt">
+                <Textarea
+                  id="edit_description"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  {...form.register("description")}
+                />
+              </TabsContent>
+              <TabsContent value="fr">
+                <Textarea
+                  id="edit_description_fr"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  value={descFr}
+                  onChange={(e) => setDescFr(e.target.value)}
+                />
+              </TabsContent>
+              <TabsContent value="en">
+                <Textarea
+                  id="edit_description_en"
+                  placeholder={sv.descriptionPlaceholder}
+                  rows={3}
+                  value={descEn}
+                  onChange={(e) => setDescEn(e.target.value)}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit_duration">{sv.duration}</Label>

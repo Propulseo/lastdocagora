@@ -33,7 +33,7 @@ export default async function ServicesPage({
   const [{ data: services }, { data: appointments }] = await Promise.all([
     supabase
       .from("services")
-      .select("id, name, name_pt, name_fr, name_en, description, duration_minutes, consultation_type, is_active, price")
+      .select("id, name, name_pt, name_fr, name_en, description, description_pt, description_fr, description_en, duration_minutes, consultation_type, is_active, price")
       .eq("professional_id", professionalId)
       .order("name", { ascending: true }),
     supabase

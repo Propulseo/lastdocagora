@@ -114,6 +114,7 @@ export const enPatient: PatientTranslations = {
     insuranceFilter: "Insurance",
     insuranceAll: "All insurances",
     insuranceBadgeMore: "+{count}",
+    thirdPartyPayment: "Third-party payment",
   },
   professionalDetail: {
     backToSearch: "Back to search",

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { HOUR_HEIGHT, START_HOUR, END_HOUR, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
@@ -192,7 +193,7 @@ export function WeekTimeGrid({
                       return (
                         <div
                           key={ev.id}
-                          className="absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 border-l-2 opacity-50 pointer-events-none"
+                          className={`absolute left-0.5 right-0.5 overflow-hidden ${RADIUS.sm} px-1 py-0.5 border-l-2 opacity-50 pointer-events-none`}
                           style={{
                             top: `${topOffset}px`,
                             height: `${Math.max(height, 20)}px`,

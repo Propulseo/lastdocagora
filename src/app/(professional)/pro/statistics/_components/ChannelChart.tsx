@@ -18,6 +18,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyKpiState } from "./EmptyKpiState";
 import { Users } from "lucide-react";
 import { useChartColors } from "./useChartColors";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface ChannelStat {
   channel: string;
@@ -47,7 +48,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
   const pieColors = [colors.chart2, colors.chart4, "#f59e0b"];
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{t.statistics.channel.title}</CardTitle>
         <CardDescription>{t.statistics.channel.description}</CardDescription>
@@ -93,7 +94,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
                             )
                           : 0;
                       return (
-                        <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
+                        <div className={`${RADIUS.sm} border bg-background px-3 py-2 shadow-md`}>
                           <p className="text-sm font-semibold">{item.name}</p>
                           <p className="text-xs text-muted-foreground">
                             {item.value} ({pct}%)

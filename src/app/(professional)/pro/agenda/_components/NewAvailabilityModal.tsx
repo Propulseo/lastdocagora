@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 
 interface NewAvailabilityModalProps {
@@ -124,7 +125,7 @@ export function NewAvailabilityModal({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
-      <ResponsiveDialogContent className="p-6">
+      <ResponsiveDialogContent className={`p-6 ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>{t.agenda.newAvailabilityTitle}</ResponsiveDialogTitle>
         </ResponsiveDialogHeader>

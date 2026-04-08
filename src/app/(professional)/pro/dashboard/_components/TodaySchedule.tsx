@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { Badge } from "@/components/ui/badge";
 import type { DashboardData } from "../_hooks/useDashboardData";
 import { toLocalDateStr } from "@/app/(professional)/pro/agenda/_lib/date-utils";
@@ -22,13 +23,13 @@ const statusColors: Record<string, string> = {
 };
 
 const statusBadgeVariant: Record<string, string> = {
-  confirmed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  completed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  scheduled: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  cancelled: "bg-red-500/10 text-red-400 border-red-500/20",
-  rejected: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-  no_show: "bg-red-500/10 text-red-400 border-red-500/20",
+  confirmed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  completed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  pending: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  scheduled: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+  cancelled: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+  rejected: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+  no_show: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
 };
 
 /* Generate free-slot placeholder lines between/after appointments */
@@ -88,13 +89,10 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
       : t.dashboard.tomorrowFree;
 
   return (
-    <div className="flex flex-col rounded-xl border border-border/40 bg-card/50">
+    <div className={cn("flex flex-col overflow-hidden border border-border/40 bg-card", RADIUS.card, SHADOW.card)}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/30 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">
-            {t.dashboard.todayTitle} · {formattedDate}
-          </span>
+      <div className="flex items-center justify-between border-b border-border/30 bg-muted/20 px-4 py-3">
+        <div className="flex items-center gap-2.5">
           <span
             className={cn(
               "size-2 rounded-full",
@@ -103,18 +101,24 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                 : "bg-red-500"
             )}
           />
+          <span className="text-sm font-semibold">
+            {t.dashboard.todayTitle}
+          </span>
+          <span className="text-xs text-muted-foreground/60">
+            {formattedDate}
+          </span>
         </div>
-        <Badge variant="secondary" className="tabular-nums text-xs font-medium">
+        <Badge variant="secondary" className="tabular-nums text-xs font-semibold">
           {todayCount} {t.dashboard.rdv}
         </Badge>
       </div>
 
       {/* Timeline — flex-1 to fill available height */}
-      <div className="flex flex-1 flex-col overflow-y-auto px-4 py-3">
+      <div className="flex flex-1 flex-col overflow-y-auto px-3 py-2">
         {classifiedAppointments.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-muted/50">
-              <Sparkles className="size-5 text-muted-foreground" />
+            <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10">
+              <Sparkles className="size-5 text-emerald-500" />
             </div>
             <div>
               <p className="text-sm font-medium">{t.dashboard.freeDay}</p>
@@ -124,7 +128,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
             </div>
           </div>
         ) : (
-          <div className="relative space-y-1">
+          <div className="relative space-y-0.5">
             {/* Now indicator line */}
             {classifiedAppointments.some((a) => !a.isPast) &&
               classifiedAppointments.some((a) => a.isPast) && (
@@ -138,9 +142,9 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                     }%`,
                   }}
                 >
-                  <div className="size-1.5 rounded-full bg-red-500" />
-                  <div className="h-px flex-1 bg-red-500/60" />
-                  <span className="text-[10px] font-medium text-red-400">
+                  <div className="size-2 rounded-full bg-red-500 ring-2 ring-red-500/20" />
+                  <div className="h-px flex-1 bg-gradient-to-r from-red-500/60 to-transparent" />
+                  <span className="rounded-full bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">
                     {t.dashboard.now}
                   </span>
                 </div>
@@ -158,13 +162,13 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                   key={apt.id}
                   href={`/pro/agenda?date=${todayDate}&appointmentId=${apt.id}&view=day`}
                   className={cn(
-                    "group flex min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50",
-                    apt.isPast && "opacity-50"
+                    "group flex min-h-[52px] items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-150 hover:bg-accent/50",
+                    apt.isPast && "opacity-45"
                   )}
                 >
                   <div
                     className={cn(
-                      "h-10 w-[3px] shrink-0 rounded-full",
+                      "h-10 w-[3px] shrink-0 rounded-full transition-all",
                       statusColors[status] ?? "bg-muted"
                     )}
                   />
@@ -172,7 +176,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                     <span
                       className={cn(
                         "text-sm font-bold tabular-nums",
-                        apt.isPast ? "text-muted-foreground" : "text-blue-400"
+                        apt.isPast ? "text-muted-foreground" : "text-primary"
                       )}
                     >
                       {apt.appointment_time?.slice(0, 5)}
@@ -188,13 +192,13 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {apt.duration_minutes && (
-                      <span className="rounded-full bg-muted/50 px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+                      <span className="hidden rounded-full bg-muted/60 px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground sm:inline-flex">
                         {apt.duration_minutes} {t.common.min}
                       </span>
                     )}
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                        "rounded-full border px-2 py-0.5 text-[10px] font-semibold",
                         statusBadgeVariant[status] ?? "bg-muted text-muted-foreground"
                       )}
                     >
@@ -227,7 +231,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
 
         {/* Tomorrow preview — pushed to bottom when day is light */}
         {isLightDay && (
-          <div className="mt-auto flex items-center gap-2 rounded-lg bg-muted/20 px-3 py-2.5">
+          <div className="mt-auto flex items-center gap-2 rounded-xl bg-muted/30 px-3 py-2.5">
             <CalendarDays className="size-3.5 text-muted-foreground/60" />
             <span className="text-xs text-muted-foreground/70">
               {tomorrowLabel}
@@ -237,13 +241,13 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-border/30 px-4 py-2.5">
+      <div className="border-t border-border/30 px-4 py-3">
         <Link
           href="/pro/agenda"
-          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           {t.dashboard.viewFullAgenda}
-          <ArrowRight className="size-3" />
+          <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { StatsFiltersBar } from "./StatsFiltersBar";
 import { YearNavigator } from "./YearNavigator";
 import type { KpiData } from "./KpiCards";
@@ -72,11 +73,11 @@ export function StatisticsClient({ data }: { data: DashboardData }) {
         action={
           <div className="flex flex-wrap items-center gap-3">
             {/* Mode toggle */}
-            <div className="inline-flex items-center rounded-lg bg-muted p-0.5">
+            <div className={`inline-flex items-center ${RADIUS.sm} bg-muted p-0.5`}>
               <button
                 onClick={() => setMode("analyze")}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-colors`,
                   mode === "analyze"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",
@@ -87,7 +88,7 @@ export function StatisticsClient({ data }: { data: DashboardData }) {
               <button
                 onClick={() => setMode("compare")}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-colors`,
                   mode === "compare"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",

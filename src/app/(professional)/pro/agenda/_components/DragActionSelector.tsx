@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarPlus, Clock } from "lucide-react";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import {
   ResponsiveDialog,
@@ -30,7 +31,7 @@ export function DragActionSelector({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <ResponsiveDialogContent className="max-w-xs p-0">
+      <ResponsiveDialogContent className={`max-w-xs p-0 ${RADIUS.card}`}>
         <ResponsiveDialogHeader className="sr-only">
           <ResponsiveDialogTitle>{startTime} – {endTime}</ResponsiveDialogTitle>
         </ResponsiveDialogHeader>
@@ -40,7 +41,7 @@ export function DragActionSelector({
           </p>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-accent focus:bg-accent focus:outline-none"
+            className={`flex w-full items-center gap-2 ${RADIUS.element} px-2 py-2 text-sm hover:bg-accent focus:bg-accent focus:outline-none`}
             onClick={onCreateAppointment}
           >
             <CalendarPlus className="h-4 w-4 shrink-0" />
@@ -48,7 +49,7 @@ export function DragActionSelector({
           </button>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-accent focus:bg-accent focus:outline-none"
+            className={`flex w-full items-center gap-2 ${RADIUS.element} px-2 py-2 text-sm hover:bg-accent focus:bg-accent focus:outline-none`}
             onClick={onCreateAvailability}
           >
             <Clock className="h-4 w-4 shrink-0" />

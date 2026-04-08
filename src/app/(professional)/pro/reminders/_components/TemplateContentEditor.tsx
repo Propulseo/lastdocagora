@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Code2 } from "lucide-react";
 import type { useProfessionalI18n } from "@/lib/i18n/pro";
+import { RADIUS } from "@/lib/design-tokens";
 
 const TEMPLATE_VARIABLES = [
   { key: "{patient_prenom}", example: "Maria" },
@@ -91,7 +92,7 @@ export function TemplateContentEditor({
             )}
           </div>
 
-          <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+          <div className={`${RADIUS.sm} border bg-muted/30 p-3 space-y-2`}>
             <p className="text-xs font-medium">
               {t.reminders.templates.variables}
             </p>
@@ -104,7 +105,7 @@ export function TemplateContentEditor({
                   key={v.key}
                   type="button"
                   onClick={() => onInsertVariable(v.key)}
-                  className="inline-flex items-center rounded-md border bg-background px-1.5 py-0.5 text-[11px] font-mono hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  className={`inline-flex items-center ${RADIUS.sm} border bg-background px-1.5 py-0.5 text-[11px] font-mono hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer`}
                 >
                   {v.key}
                 </button>
@@ -129,7 +130,7 @@ export function TemplateContentEditor({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="preview" className="mt-2">
-            <div className="rounded-lg border bg-muted/30 p-4 space-y-2 text-sm">
+            <div className={`${RADIUS.sm} border bg-muted/30 p-4 space-y-2 text-sm`}>
               {isEmail && previewSubject && (
                 <p className="font-semibold">{previewSubject}</p>
               )}
@@ -139,7 +140,7 @@ export function TemplateContentEditor({
             </div>
           </TabsContent>
           <TabsContent value="source" className="mt-2">
-            <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+            <div className={`${RADIUS.sm} border bg-muted/30 p-4 text-sm`}>
               {isEmail && subject && (
                 <p className="font-mono text-xs mb-2 opacity-70">{subject}</p>
               )}

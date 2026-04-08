@@ -17,6 +17,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { AppearanceCard } from "./AppearanceCard";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 type NotificationKey = "notify_new_appointments" | "notify_cancellations" | "notify_reminders" | "notify_sound";
 
@@ -172,7 +173,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
       <AppearanceCard />
 
       {sections.map((section) => (
-        <Card key={section.title}>
+        <Card key={section.title} className={`${RADIUS.card} ${SHADOW.card}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <section.icon className="size-5" />

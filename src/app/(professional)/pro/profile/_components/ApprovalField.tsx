@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { requestFieldChange } from "@/app/_actions/profile-change-request";
+import { RADIUS } from "@/lib/design-tokens";
 
 interface ApprovalFieldProps {
   label: string;
@@ -66,7 +67,7 @@ export function ApprovalField({ label, value, fallbackLabel, fieldName, professi
               <ClipboardEdit className="size-3.5" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className={`sm:max-w-md ${RADIUS.card}`}>
             <DialogHeader>
               <DialogTitle>{t.profile.requestChangeTitle}</DialogTitle>
               <DialogDescription>{t.profile.requestChangeDescription}</DialogDescription>
@@ -74,7 +75,7 @@ export function ApprovalField({ label, value, fallbackLabel, fieldName, professi
             <div className="space-y-4 pt-2">
               <div className="space-y-1.5">
                 <Label className="text-muted-foreground">{t.profile.currentValue}</Label>
-                <div className="rounded-md border bg-muted/50 px-3 py-2 text-sm">
+                <div className={`${RADIUS.sm} border bg-muted/50 px-3 py-2 text-sm`}>
                   {value || fallbackLabel}
                 </div>
               </div>

@@ -6,6 +6,7 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/shared/responsive-dialog";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { CancelAppointmentDialog } from "./CancelAppointmentDialog";
 import { RejectAppointmentDialog } from "./RejectAppointmentDialog";
@@ -51,7 +52,7 @@ export function AppointmentDetailDialog({
 
   return (
     <ResponsiveDialog open={!!selected} onOpenChange={() => onClose()}>
-      <ResponsiveDialogContent className="p-6">
+      <ResponsiveDialogContent className={`p-6 ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>{t.agenda.appointmentDetails}</ResponsiveDialogTitle>
         </ResponsiveDialogHeader>

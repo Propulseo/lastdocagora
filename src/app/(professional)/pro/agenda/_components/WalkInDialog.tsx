@@ -29,6 +29,7 @@ import {
   type SlotInfo,
 } from "@/app/(professional)/_actions/walkins";
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
 import { pt, enGB, fr } from "date-fns/locale";
@@ -67,7 +68,7 @@ export function WalkInDialog({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
-      <ResponsiveDialogContent className="sm:max-w-lg p-6">
+      <ResponsiveDialogContent className={`sm:max-w-lg p-6 ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle className="flex items-center gap-2">
             <UserPlus className="size-5 text-amber-600" />
@@ -289,7 +290,7 @@ function WalkInForm({
                 <p className="mb-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   {walkInT.today}
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {todaySlots.map((slot) => {
                     const time = slot.slot_start.slice(0, 5);
                     const isNow = slot.slot_start === currentSlot;
@@ -303,7 +304,7 @@ function WalkInForm({
                         type="button"
                         onClick={() => selectSlot(slot.slot_start)}
                         className={cn(
-                          "relative flex items-center justify-center gap-1 rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors min-h-[44px]",
+                          "relative flex items-center justify-center gap-1 border px-2 py-2.5 text-sm font-medium transition-colors min-h-[44px]", RADIUS.element,
                           isSelected
                             ? "bg-amber-500 text-white border-amber-500"
                             : isNow

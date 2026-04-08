@@ -21,6 +21,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyKpiState } from "./EmptyKpiState";
 import { Stethoscope } from "lucide-react";
 import { useChartColors } from "./useChartColors";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface ServiceStat {
   name: string;
@@ -35,7 +36,7 @@ export function ServiceBreakdownChart({ data }: { data: ServiceStat[] }) {
   const hasData = data.length > 0 && data.some((d) => d.total > 0);
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{t.statistics.services.title}</CardTitle>
         <CardDescription>{t.statistics.services.description}</CardDescription>
@@ -48,7 +49,7 @@ export function ServiceBreakdownChart({ data }: { data: ServiceStat[] }) {
             description={t.statistics.emptyState.description}
           />
         ) : (
-          <div className="h-[250px] w-full">
+          <div className="h-[200px] sm:h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={data}
@@ -81,7 +82,7 @@ export function ServiceBreakdownChart({ data }: { data: ServiceStat[] }) {
                     if (!active || !payload?.length) return null;
                     const item = payload[0]?.payload as ServiceStat;
                     return (
-                      <div className="rounded-lg border bg-background px-3 py-2 shadow-md">
+                      <div className={`${RADIUS.sm} border bg-background px-3 py-2 shadow-md`}>
                         <p className="text-sm font-semibold">{item.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {t.statistics.services.total}: {item.total}

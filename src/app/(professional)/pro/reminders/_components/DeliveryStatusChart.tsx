@@ -22,6 +22,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BarChart3 } from "lucide-react";
 import type { StatusSlice } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface DeliveryStatusChartProps {
   data: StatusSlice[];
@@ -43,7 +44,7 @@ export function DeliveryStatusChart({ data }: DeliveryStatusChartProps) {
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{ct.statusTitle}</CardTitle>
         <CardDescription>{ct.statusDesc}</CardDescription>

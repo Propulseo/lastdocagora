@@ -1,6 +1,7 @@
 "use client";
 
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { STAT_COLORS } from "../_lib/agenda-constants";
 
 interface AttendanceStatsProps {
@@ -25,7 +26,7 @@ export function AttendanceStats({ stats }: AttendanceStatsProps) {
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-center overflow-x-auto rounded-lg border border-border/60 sm:divide-x divide-border/60">
+    <div className={`flex flex-col sm:flex-row items-center overflow-x-auto border border-border/60 sm:divide-x divide-border/60 ${RADIUS.card} ${SHADOW.card}`}>
       {items.map((item) => (
         <div key={item.key} className="flex items-center gap-2 px-4 py-2 whitespace-nowrap">
           <span className={`text-lg font-bold tabular-nums ${STAT_COLORS[item.key]}`}>

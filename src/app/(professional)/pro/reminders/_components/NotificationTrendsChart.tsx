@@ -22,6 +22,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BarChart3 } from "lucide-react";
 import type { NotificationTrendPoint } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface NotificationTrendsChartProps {
   data: NotificationTrendPoint[];
@@ -44,7 +45,7 @@ export function NotificationTrendsChart({ data }: NotificationTrendsChartProps) 
   };
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{ct.trendsTitle}</CardTitle>
         <CardDescription>{ct.trendsDesc}</CardDescription>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { ReminderRule } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface RulesCardProps {
   rules: ReminderRule[];
@@ -67,7 +68,7 @@ export function RulesCard({
   t,
 }: RulesCardProps) {
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="size-5" />

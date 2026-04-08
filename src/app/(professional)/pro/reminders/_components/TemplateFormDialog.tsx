@@ -21,6 +21,7 @@ import {
 import { useTemplateForm } from "../_hooks/useTemplateForm";
 import { TemplateContentEditor } from "./TemplateContentEditor";
 import type { Tables } from "@/lib/supabase/types";
+import { RADIUS } from "@/lib/design-tokens";
 
 type MessageTemplate = Tables<"message_templates">;
 
@@ -78,7 +79,7 @@ function TemplateForm({
   });
 
   return (
-    <ResponsiveDialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+    <ResponsiveDialogContent className={`sm:max-w-2xl max-h-[90vh] overflow-y-auto ${RADIUS.card}`}>
       <ResponsiveDialogHeader>
         <ResponsiveDialogTitle>
           {editTemplate

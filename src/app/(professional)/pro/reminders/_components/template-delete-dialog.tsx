@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RADIUS } from "@/lib/design-tokens";
 
 export interface TemplateDeleteDialogProps {
   open: boolean;
@@ -32,7 +33,7 @@ export function TemplateDeleteDialog({
 }: TemplateDeleteDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className={RADIUS.card}>
         <AlertDialogHeader>
           <AlertDialogTitle>{confirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>{confirmDescription}</AlertDialogDescription>

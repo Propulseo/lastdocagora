@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface Insight {
   type: "warning" | "danger" | "success" | "info";
@@ -52,7 +53,7 @@ export function InsightsTable({ insights }: { insights: Insight[] }) {
   const { t } = useProfessionalI18n();
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{t.statistics.insights.title}</CardTitle>
         <CardDescription>
@@ -72,9 +73,9 @@ export function InsightsTable({ insights }: { insights: Insight[] }) {
               return (
                 <div
                   key={i}
-                  className="flex items-start gap-3 rounded-lg border border-border/60 p-3"
+                  className={`flex items-start gap-3 ${RADIUS.sm} border border-border/60 p-3`}
                 >
-                  <div className={`rounded-lg p-2 ${config.bg}`}>
+                  <div className={`${RADIUS.element} p-2 ${config.bg}`}>
                     <Icon className={`size-4 ${config.color}`} />
                   </div>
                   <div className="min-w-0 flex-1">

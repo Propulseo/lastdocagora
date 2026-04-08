@@ -12,6 +12,7 @@ import {
 } from "@/components/shared/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { deletePatient } from "@/app/(professional)/_actions/patients";
+import { RADIUS, SPACING } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 interface DeletePatientDialogProps {
@@ -45,7 +46,7 @@ export function DeletePatientDialog({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
-      <ResponsiveDialogContent className="p-6">
+      <ResponsiveDialogContent className={`${SPACING.card} ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>
             {pt.deletePatient}: {patientName}

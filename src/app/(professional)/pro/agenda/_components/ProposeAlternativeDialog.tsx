@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { START_HOUR, END_HOUR } from "../_lib/agenda-constants";
 
@@ -89,7 +90,7 @@ export function ProposeAlternativeDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className={RADIUS.card}>
         <AlertDialogHeader>
           <AlertDialogTitle>{t.agenda.propose.title}</AlertDialogTitle>
           <AlertDialogDescription>

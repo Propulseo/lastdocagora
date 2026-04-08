@@ -22,6 +22,7 @@ import {
 } from "@/app/(professional)/_actions/pro-support-actions";
 import { cn } from "@/lib/utils";
 import { TicketMessageBubble } from "./ticket-message-bubble";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 type Message = {
   id: string;
@@ -162,7 +163,7 @@ export function TicketConversation({
   }
 
   return (
-    <div className="flex flex-col rounded-xl border border-border/40 bg-card/50">
+    <div className={`flex flex-col ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50`}>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-3">
         <h3 className="min-w-0 truncate text-sm font-semibold">
@@ -223,7 +224,7 @@ export function TicketConversation({
 
           {/* Reopen dialog */}
           <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
-            <DialogContent>
+            <DialogContent className={RADIUS.card}>
               <DialogHeader>
                 <DialogTitle>
                   {awaitingT.reopenTitle ?? "Reopen ticket"}
@@ -314,7 +315,7 @@ export function TicketConversation({
             />
             <Button
               size="icon"
-              className="size-8 shrink-0 rounded-lg"
+              className={`size-8 shrink-0 ${RADIUS.sm}`}
               onClick={handleSend}
               disabled={!reply.trim() || sending}
             >

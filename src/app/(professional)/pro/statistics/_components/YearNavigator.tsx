@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RADIUS } from "@/lib/design-tokens";
 
 interface YearNavigatorProps {
   selectedYear: number;
@@ -36,7 +37,7 @@ export function YearNavigator({
   const canGoForward = selectedYear < maxYear;
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-lg bg-muted p-0.5">
+    <div className={`inline-flex items-center gap-1 ${RADIUS.sm} bg-muted p-0.5`}>
       <Button
         variant="ghost"
         size="icon"

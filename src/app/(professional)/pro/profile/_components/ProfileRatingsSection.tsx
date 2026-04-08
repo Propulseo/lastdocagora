@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale/fr";
 import { enGB } from "date-fns/locale/en-GB";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Professional, Rating } from "./profile-types";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface ProfileRatingsSectionProps {
   professional: Professional;
@@ -20,13 +21,15 @@ export function ProfileRatingsSection({ professional, recentRatings }: ProfileRa
   const { t, locale } = useProfessionalI18n();
   const dateLocale = locale === "fr" ? fr : locale === "en" ? enGB : pt;
   const reviewCount = professional.total_reviews ?? 0;
+  const bioKey = `bio_${locale}` as "bio_pt" | "bio_fr" | "bio_en";
+  const bio = (professional[bioKey] as string | null) ?? professional.bio_pt ?? professional.bio;
 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
+        <Card className={`${RADIUS.card} ${SHADOW.card}`}>
           <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-xl bg-amber-50 p-2.5">
+            <div className={`${RADIUS.element} bg-amber-50 p-2.5`}>
               <Star className="size-5 text-amber-600" />
             </div>
             <div>
@@ -37,17 +40,17 @@ export function ProfileRatingsSection({ professional, recentRatings }: ProfileRa
             </div>
           </CardContent>
         </Card>
-        {professional.bio && (
-          <Card>
+        {bio && (
+          <Card className={`${RADIUS.card} ${SHADOW.card}`}>
             <CardContent className="pt-6">
-              <p className="text-sm leading-relaxed text-muted-foreground">{professional.bio}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{bio}</p>
             </CardContent>
           </Card>
         )}
       </div>
 
       {recentRatings.length > 0 && (
-        <Card>
+        <Card className={`${RADIUS.card} ${SHADOW.card}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageSquare className="size-4 text-muted-foreground" />

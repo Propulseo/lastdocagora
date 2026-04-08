@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { cn } from "@/lib/utils";
 import type { TicketData } from "./SupportClient";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 interface TicketListProps {
   tickets: TicketData[];
@@ -71,7 +72,7 @@ export function TicketList({
   const yesterdayLabel = (s.yesterday as string) ?? "Yesterday";
 
   return (
-    <div className="flex flex-col rounded-xl border border-border/40 bg-card/50">
+    <div className={`flex flex-col ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50`}>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-3">
         <span className="text-sm font-semibold">
@@ -130,7 +131,7 @@ export function TicketList({
                 )}
               >
                 {/* Category icon */}
-                <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/30">
+                <div className={`mt-0.5 flex size-8 shrink-0 items-center justify-center ${RADIUS.sm} bg-muted/30`}>
                   <IconComp className="size-3.5 text-muted-foreground" />
                 </div>
 

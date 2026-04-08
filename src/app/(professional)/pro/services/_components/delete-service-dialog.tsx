@@ -16,6 +16,7 @@ import {
   deleteService,
   deactivateService,
 } from "@/app/(professional)/_actions/services";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
 interface DeleteServiceDialogProps {
@@ -66,7 +67,7 @@ export function DeleteServiceDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className={RADIUS.card}>
         <AlertDialogHeader>
           <AlertDialogTitle>
             {sv.deleteService}: {serviceName}

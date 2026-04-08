@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 
 const REASON_KEYS = [
@@ -76,7 +77,7 @@ export function RejectAppointmentDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className={RADIUS.card}>
         <AlertDialogHeader>
           <AlertDialogTitle>{t.agenda.rejection.title}</AlertDialogTitle>
           <AlertDialogDescription>

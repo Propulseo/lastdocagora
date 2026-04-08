@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { updateAppointmentStatus } from "@/app/(professional)/_actions/attendance";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
 import { STATUS_VARIANT } from "./patient-drawer-helpers";
@@ -63,7 +64,7 @@ export function UpcomingAppointmentCard({
 
   const card = (
     <div
-      className={`flex items-start justify-between rounded-lg border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-800 dark:bg-blue-950/30 ${
+      className={`flex items-start justify-between ${RADIUS.element} border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-800 dark:bg-blue-950/30 ${SHADOW.subtle} ${
         isActionable
           ? "cursor-pointer transition-colors hover:bg-blue-100/70 dark:hover:bg-blue-900/40"
           : ""
@@ -96,7 +97,7 @@ export function UpcomingAppointmentCard({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{card}</PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="end">
+      <PopoverContent className={`w-56 p-2 ${RADIUS.element}`} align="end">
         <div className="flex flex-col gap-1.5">
           {apt.status === "pending" && (
             <Button

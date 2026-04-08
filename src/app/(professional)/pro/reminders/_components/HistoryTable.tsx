@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { NotificationLog } from "../_types/reminders";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 function getStatusVariant(
   status: string,
@@ -62,9 +63,9 @@ export function HistoryTable({
   statusLabels,
 }: HistoryTableProps) {
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardContent className="p-0">
-        <div className="rounded-lg border">
+        <div className={`${RADIUS.sm} border`}>
           <Table>
             <TableHeader>
               <TableRow>

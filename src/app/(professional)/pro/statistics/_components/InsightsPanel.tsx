@@ -14,6 +14,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { useInsights } from "../_lib/useStatsData";
 import type { PeriodStats } from "../_actions/compare-actions";
 import type { AIInsight } from "../_actions/insights-actions";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 // ---------------------------------------------------------------------------
 // Insight card
@@ -48,9 +49,9 @@ function InsightCard({ insight }: { insight: AIInsight }) {
   const colors = COLOR_MAP[insight.type];
 
   return (
-    <Card className={`border ${colors.border}`}>
+    <Card className={`${RADIUS.card} ${SHADOW.card} border ${colors.border}`}>
       <CardContent className="flex items-start gap-3 p-4">
-        <div className={`rounded-lg p-2 ${colors.bg}`}>
+        <div className={`${RADIUS.element} p-2 ${colors.bg}`}>
           <Icon className={`size-4 ${colors.text}`} />
         </div>
         <div className="min-w-0 flex-1">
@@ -82,7 +83,7 @@ export function InsightsPanel({ dataA, dataB }: InsightsPanelProps) {
   }, [dataA, dataB]);
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>{t.statistics.compare?.insightsTitle ?? "Insights IA"}</CardTitle>
@@ -116,7 +117,7 @@ export function InsightsPanel({ dataA, dataB }: InsightsPanelProps) {
           </p>
         )}
         {!loading && !error && insights.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {insights.map((insight, i) => (
               <InsightCard key={i} insight={insight} />
             ))}

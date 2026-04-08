@@ -14,6 +14,7 @@ import { computeDelta, formatCurrency } from "../_lib/compare-utils";
 import { CompareChart, type ComparePoint } from "./StatsCharts";
 import { InsightsPanel } from "./InsightsPanel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RADIUS } from "@/lib/design-tokens";
 import { PeriodSelector, usePresetLabels } from "./ComparePeriodSelector";
 import { CompareKpiCard } from "./CompareKpiCard";
 
@@ -44,15 +45,15 @@ export function CompareMode() {
     return (
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton className="h-24 w-full rounded-lg" />
-          <Skeleton className="h-24 w-full rounded-lg" />
+          <Skeleton className={`h-24 w-full ${RADIUS.card}`} />
+          <Skeleton className={`h-24 w-full ${RADIUS.card}`} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 w-full rounded-lg" />
+            <Skeleton key={i} className={`h-40 w-full ${RADIUS.card}`} />
           ))}
         </div>
-        <Skeleton className="h-[360px] w-full rounded-lg" />
+        <Skeleton className={`h-[360px] w-full ${RADIUS.card}`} />
       </div>
     );
   }

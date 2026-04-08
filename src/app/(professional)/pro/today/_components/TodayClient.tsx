@@ -10,6 +10,7 @@ import { markAttendance } from "@/app/(professional)/_actions/attendance";
 import { PatientDrawer } from "@/app/(professional)/pro/patients/_components/patient-drawer";
 import { WalkInDialog } from "@/app/(professional)/pro/agenda/_components/WalkInDialog";
 import { useTodayData, type TodayFilter } from "../_hooks/useTodayData";
+import { RADIUS } from "@/lib/design-tokens";
 import { TodayAppointmentCard } from "./TodayAppointmentCard";
 import { TodayStickyHeader } from "./TodayStickyHeader";
 
@@ -105,10 +106,10 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
         onFilterChange={setFilter}
       />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 space-y-3 pb-20 lg:pb-6">
+      <div className="flex-1 overflow-y-auto py-4 space-y-3 pb-20 lg:pb-6">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
+            <Skeleton key={i} className={`h-28 ${RADIUS.card}`} />
           ))
         ) : appointments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">

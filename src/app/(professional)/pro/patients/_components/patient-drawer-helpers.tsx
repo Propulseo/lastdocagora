@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW, SPACING } from "@/lib/design-tokens";
 
 export function computeAge(dob: string): number | null {
   const birth = new Date(dob);
@@ -53,7 +55,7 @@ interface MiniKpiProps {
 
 export function MiniKpi({ icon, label, value }: MiniKpiProps) {
   return (
-    <div className="rounded-lg border p-3">
+    <div className={cn("border", RADIUS.element, SPACING.card_sm, SHADOW.subtle)}>
       <div className="flex items-center gap-2 mb-1">
         {icon}
         <p className="text-xs text-muted-foreground truncate">{label}</p>

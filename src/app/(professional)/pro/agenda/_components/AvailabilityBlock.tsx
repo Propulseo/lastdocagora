@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CalendarPlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import {
   AlertDialog,
@@ -147,7 +148,7 @@ export function AvailabilityBlock({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={RADIUS.card}>
           <AlertDialogHeader>
             <AlertDialogTitle>{t.agenda.deleteSlotTitle}</AlertDialogTitle>
             <AlertDialogDescription>

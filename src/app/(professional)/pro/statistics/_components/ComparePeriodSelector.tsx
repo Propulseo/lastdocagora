@@ -16,6 +16,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import type { PeriodPreset } from "../_lib/compare-utils";
+import { RADIUS } from "@/lib/design-tokens";
 
 const PRESETS: PeriodPreset[] = ["this-month", "last-month", "3-months", "this-year", "custom"];
 
@@ -69,7 +70,7 @@ export function PeriodSelector({ label, color, borderColor, value, onChange, lab
   };
 
   return (
-    <Card className={`flex-1 border-l-[3px] ${borderColor}`}>
+    <Card className={`flex-1 ${RADIUS.card} border-l-[3px] ${borderColor}`}>
       <CardContent className="flex flex-col gap-3 p-3 sm:p-4">
         <div className="flex items-center gap-3">
           <span className={`inline-block size-2.5 shrink-0 rounded-full ${color}`} />

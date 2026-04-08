@@ -12,6 +12,7 @@ import { ChannelChart, type ChannelStat } from "./ChannelChart";
 import { PunctualityChart, type PunctualityData } from "./PunctualityChart";
 import type { KpiData } from "./KpiCards";
 import { formatCurrency } from "../_lib/compare-utils";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 // ---------------------------------------------------------------------------
 // Mini KPI card used inside tabs
@@ -27,9 +28,9 @@ interface MiniKpiProps {
 
 function MiniKpi({ label, value, icon: Icon, color, bg }: MiniKpiProps) {
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardContent className="flex items-center gap-3 p-4">
-        <div className={`rounded-lg p-2 ${bg}`}>
+        <div className={`${RADIUS.element} p-2 ${bg}`}>
           <Icon className={`size-5 ${color}`} />
         </div>
         <div>
@@ -80,7 +81,7 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
         <div className="hidden sm:block">
           <TrendsChart data={trends} />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <MiniKpi
             label={t.statistics.kpi.totalAppointments}
             value={String(kpi.totalAppointments)}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 
@@ -78,17 +79,17 @@ export function AgendaControlBar({
         : `${month} ${year}`;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={cn("flex flex-wrap items-center gap-2 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
       {/* Segmented period toggle */}
-      <div className="hidden sm:inline-flex rounded-lg bg-muted p-0.5">
+      <div className={cn("hidden sm:inline-flex", RADIUS.element, "bg-muted p-1 gap-0.5")}>
         {periodOptions.map((opt) => (
           <button
             key={opt.value}
             onClick={() => onPeriodChange(opt.value)}
             className={cn(
-              "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+              RADIUS.sm, "px-3 py-1 text-xs font-medium transition-colors",
               periodFilter === opt.value
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -103,7 +104,7 @@ export function AgendaControlBar({
           <Badge
             key={opt.value}
             variant={statusFilters.includes(opt.value) ? "default" : "outline"}
-            className="h-6 cursor-pointer text-[11px]"
+            className={cn("h-6 cursor-pointer text-[11px]", RADIUS.badge)}
             onClick={() => toggleStatus(opt.value)}
           >
             {opt.label}
@@ -119,7 +120,7 @@ export function AgendaControlBar({
         <Button
           variant="ghost"
           size="icon"
-          className="size-7 sm:size-7 min-h-[44px] min-w-[44px]"
+          className={cn("size-7 sm:size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
           onClick={() => navigate(-1)}
         >
           <ChevronLeft className="size-4" />
@@ -127,7 +128,7 @@ export function AgendaControlBar({
         <Button
           variant="ghost"
           size="icon"
-          className="size-7 sm:size-7 min-h-[44px] min-w-[44px]"
+          className={cn("size-7 sm:size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
           onClick={() => navigate(1)}
         >
           <ChevronRight className="size-4" />
@@ -135,7 +136,7 @@ export function AgendaControlBar({
         <span className="px-1 text-sm font-medium tabular-nums">
           {dateLabel}
         </span>
-        <Button variant="outline" size="sm" className="h-7 min-h-[44px] text-xs" onClick={goToday}>
+        <Button variant="outline" size="sm" className={cn("h-7 min-h-[44px] text-xs", RADIUS.element)} onClick={goToday}>
           {t.common.today}
         </Button>
       </div>

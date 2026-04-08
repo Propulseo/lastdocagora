@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import {
   HOUR_HEIGHT,
@@ -40,7 +41,7 @@ export function WeekAppointmentBlock({
     <button
       type="button"
       className={cn(
-        "absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-left transition-opacity hover:opacity-80 border-l-2",
+        "absolute left-0.5 right-0.5 overflow-hidden px-1 py-0.5 text-left transition-opacity hover:opacity-80 border-l-2", RADIUS.sm,
         isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn && "border-dashed",
       )}

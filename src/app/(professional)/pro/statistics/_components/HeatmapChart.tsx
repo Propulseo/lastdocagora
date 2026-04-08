@@ -12,6 +12,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { EmptyKpiState } from "./EmptyKpiState";
 import { CalendarDays } from "lucide-react";
 import { useChartColors } from "./useChartColors";
+import { SHADOW, RADIUS } from "@/lib/design-tokens";
 
 export interface HeatmapCell {
   day: number; // 0=Sun..6=Sat
@@ -46,7 +47,7 @@ export function HeatmapChart({ data }: { data: HeatmapCell[] }) {
   };
 
   return (
-    <Card>
+    <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardHeader>
         <CardTitle>{t.statistics.heatmap.title}</CardTitle>
         <CardDescription>{t.statistics.heatmap.description}</CardDescription>

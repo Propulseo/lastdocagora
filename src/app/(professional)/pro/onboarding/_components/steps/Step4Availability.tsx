@@ -161,7 +161,7 @@ export const Step4Availability = forwardRef<StepHandle, Step4Props>(
                   {existing.map((slot) => (
                     <div
                       key={slot.id}
-                      className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5 text-sm"
+                      className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-1.5 text-sm"
                     >
                       <Clock className="size-3.5 text-muted-foreground" />
                       <span>

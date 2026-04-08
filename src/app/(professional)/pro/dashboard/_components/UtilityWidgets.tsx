@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Bell, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { SHADOW, RADIUS, TYPE, SPACING } from "@/lib/design-tokens";
 import type { DashboardData } from "../_hooks/useDashboardData";
 import { NextSlotsWidget } from "./NextSlotsWidget";
 
@@ -24,7 +25,7 @@ function NoShowGauge({
   countLabel: string;
 }) {
   const radius = 36;
-  const strokeW = 8;
+  const strokeW = 7;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(rate, 100) / 100;
   const offset = circumference * (1 - progress);
@@ -36,16 +37,22 @@ function NoShowGauge({
   }[color];
 
   const textColor = {
-    emerald: "text-emerald-400",
-    amber: "text-amber-400",
-    red: "text-red-400",
+    emerald: "text-emerald-600 dark:text-emerald-400",
+    amber: "text-amber-600 dark:text-amber-400",
+    red: "text-red-600 dark:text-red-400",
+  }[color];
+
+  const bgGlow = {
+    emerald: "shadow-[0_0_20px_rgba(16,185,129,0.08)]",
+    amber: "shadow-[0_0_20px_rgba(245,158,11,0.08)]",
+    red: "shadow-[0_0_20px_rgba(239,68,68,0.08)]",
   }[color];
 
   const isZero = rate === 0;
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="relative size-28">
+      <div className={cn("relative size-28 rounded-full", bgGlow)}>
         <svg viewBox="0 0 80 80" className="size-full -rotate-90">
           {/* Background track */}
           <circle
@@ -78,7 +85,7 @@ function NoShowGauge({
         </div>
       </div>
       {/* Label under gauge */}
-      <span className={cn("text-[11px] font-medium", isZero ? "text-emerald-400" : textColor)}>
+      <span className={cn("text-center text-[11px] font-medium", isZero ? "text-emerald-600 dark:text-emerald-400" : textColor)}>
         {isZero ? zeroLabel : countLabel}
       </span>
     </div>
@@ -102,15 +109,17 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
       <NextSlotsWidget data={data} />
 
       {/* Reminders widget */}
-      <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-        <div className="flex items-center gap-2">
-          <Bell className="size-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold">{t.dashboard.remindersToSend}</h3>
+      <div className={cn("border border-border/40 bg-card", RADIUS.card, SHADOW.card, SPACING.card_sm)}>
+        <div className="flex items-center gap-2.5">
+          <div className={cn("flex size-8 items-center justify-center bg-violet-500/10", RADIUS.element)}>
+            <Bell className="size-3.5 text-violet-600 dark:text-violet-400" />
+          </div>
+          <h3 className={TYPE.card_title}>{t.dashboard.remindersToSend}</h3>
         </div>
 
         {unconfirmedNext24h > 0 ? (
           <>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2.5 text-xs text-muted-foreground">
               {t.dashboard.unconfirmedNext24h.replace(
                 "{count}",
                 String(unconfirmedNext24h)
@@ -129,22 +138,22 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
             </Button>
           </>
         ) : (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2.5 text-xs text-muted-foreground">
             {t.dashboard.noReminders}
           </p>
         )}
       </div>
 
       {/* Recent patients widget */}
-      <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-        <h3 className="text-sm font-semibold">{t.dashboard.recentPatients}</h3>
+      <div className={cn("border border-border/40 bg-card", RADIUS.card, SHADOW.card, SPACING.card_sm)}>
+        <h3 className={TYPE.card_title}>{t.dashboard.recentPatients}</h3>
 
         {recentPatients.length === 0 ? (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2.5 text-xs text-muted-foreground">
             {t.dashboard.noRecentPatients}
           </p>
         ) : (
-          <div className="mt-3 space-y-2.5">
+          <div className="mt-3 space-y-1">
             {recentPatients.map((p) => {
               const initial =
                 (p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "");
@@ -156,9 +165,9 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
                 <Link
                   key={p.id}
                   href="/pro/patients"
-                  className="group flex items-center gap-3 rounded-lg px-1 py-1 transition-colors hover:bg-accent/50"
+                  className={cn("group flex items-center gap-3 rounded-xl px-1.5 py-1.5 transition-all duration-150 hover:bg-accent/50")}
                 >
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold uppercase text-primary">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold uppercase text-primary ring-1 ring-primary/10">
                     {initial}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -177,8 +186,8 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
       </div>
 
       {/* No-show gauge widget — flex-1 to fill remaining space */}
-      <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-border/40 bg-card/50 p-4">
-        <h3 className="mb-3 self-start text-sm font-semibold">
+      <div className={cn("flex flex-1 flex-col items-center justify-center border border-border/40 bg-card", RADIUS.card, SHADOW.card, SPACING.card_sm)}>
+        <h3 className={cn("mb-3 self-start", TYPE.card_title)}>
           {t.dashboard.noShowThisMonth}
         </h3>
         <div className="flex flex-1 items-center">

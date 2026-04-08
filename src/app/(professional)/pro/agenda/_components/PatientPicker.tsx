@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { RADIUS } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,7 +91,7 @@ export function PatientPicker({
             />
           </div>
 
-          <div className="max-h-40 overflow-y-auto rounded-md border">
+          <div className={`max-h-40 overflow-y-auto ${RADIUS.element} border`}>
             <button
               type="button"
               className={cn(
@@ -157,7 +158,7 @@ export function PatientPicker({
           </div>
         </div>
       ) : (
-        <div className="space-y-3 rounded-md border p-3 bg-muted/30">
+        <div className={`space-y-3 ${RADIUS.element} border p-3 bg-muted/30`}>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="new-first-name" className="text-xs">
