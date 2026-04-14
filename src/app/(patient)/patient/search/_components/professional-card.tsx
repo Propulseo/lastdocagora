@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Star, Euro, Globe, Shield, Briefcase, CalendarCheck } from "lucide-react"
 import {
   getProfessionalName,
@@ -83,34 +83,41 @@ export function ProfessionalCard({
     <>
       <Card className="flex flex-col transition-shadow hover:shadow-md">
         <CardContent className="flex flex-1 flex-col gap-4 pt-6">
-          <div className="flex items-start gap-3">
-            <Avatar className="size-20 md:size-24 border-2 border-background shadow-sm">
-              <AvatarImage
-                src={prof.users?.avatar_url ?? undefined}
-                alt={profName}
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-primary/10 text-primary text-xl md:text-2xl">
-                {getProfessionalInitials(profData, fullT.professional)}
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex items-start gap-4">
+            <div className="relative size-30 shrink-0 overflow-hidden rounded-xl border-2 border-background shadow-sm sm:size-40">
+              {prof.users?.avatar_url ? (
+                <Image
+                  src={prof.users.avatar_url}
+                  alt={profName}
+                  fill
+                  className="object-cover object-[50%_20%]"
+                  sizes="(min-width: 640px) 160px, 120px"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-muted">
+                  <span className="text-2xl font-semibold text-muted-foreground">
+                    {getProfessionalInitials(profData, fullT.professional)}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{profName}</p>
               <Badge variant="secondary" className="mt-1">
                 {translateSpecialty(prof.specialty, locale)}
               </Badge>
+              {prof.rating != null && (
+                <div className="mt-2 flex items-center gap-1 text-sm">
+                  <Star className="size-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{prof.rating.toFixed(1)}</span>
+                  {prof.total_reviews != null && (
+                    <span className="text-muted-foreground">
+                      ({prof.total_reviews})
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
-            {prof.rating != null && (
-              <div className="flex items-center gap-1 text-sm">
-                <Star className="size-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{prof.rating.toFixed(1)}</span>
-                {prof.total_reviews != null && (
-                  <span className="text-muted-foreground">
-                    ({prof.total_reviews})
-                  </span>
-                )}
-              </div>
-            )}
           </div>
           <div className="flex-1 space-y-2">
             {(prof.city || prof.neighborhood) && (

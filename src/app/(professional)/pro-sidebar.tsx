@@ -14,6 +14,7 @@ import {
   LogOut,
   LifeBuoy,
   ListChecks,
+  Star,
 } from "lucide-react";
 import {
   Sidebar,
@@ -54,6 +55,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWi
   Settings,
   LifeBuoy,
   ListChecks,
+  Star,
 };
 
 interface ProSidebarProps {

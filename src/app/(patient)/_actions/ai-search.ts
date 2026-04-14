@@ -10,6 +10,7 @@ import {
   type AISearchFilters,
 } from "@/lib/ai/schemas"
 import type { ProfessionalResult } from "@/app/(patient)/patient/search/_components/professional-card"
+import type { Json } from "@/lib/supabase/types"
 
 type DetectedLang = "FR" | "EN" | "PT"
 
@@ -290,8 +291,34 @@ function baseQuery(supabase: Awaited<ReturnType<typeof createClient>>) {
     .eq("verification_status", "verified")
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapResults(data: any[]): ProfessionalResult[] {
+interface ProfessionalRow {
+  id: string
+  specialty: string
+  subspecialties: string[] | null
+  city: string | null
+  neighborhood: string | null
+  address: string | null
+  postal_code: string | null
+  cabinet_name: string | null
+  consultation_fee: number | null
+  languages_spoken: string[] | null
+  insurances_accepted: string[] | null
+  third_party_payment: boolean | null
+  years_experience: number | null
+  practice_type: string | null
+  rating: number | null
+  total_reviews: number | null
+  bio: string | null
+  bio_pt: string | null
+  bio_fr: string | null
+  bio_en: string | null
+  accessibility_options: Json | null
+  latitude: number | null
+  longitude: number | null
+  users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
+}
+
+function mapResults(data: ProfessionalRow[]): ProfessionalResult[] {
   return data.map((prof) => ({
     id: prof.id,
     specialty: prof.specialty,
@@ -314,14 +341,10 @@ function mapResults(data: any[]): ProfessionalResult[] {
     bio_fr: prof.bio_fr,
     bio_en: prof.bio_en,
     accessibility_options: prof.accessibility_options as Record<string, unknown> | null,
-    latitude: prof.latitude as number | null,
-    longitude: prof.longitude as number | null,
+    latitude: prof.latitude,
+    longitude: prof.longitude,
     nextSlot: null as string | null,
-    users: prof.users as {
-      first_name: string | null
-      last_name: string | null
-      avatar_url?: string | null
-    } | null,
+    users: prof.users,
   }))
 }
 

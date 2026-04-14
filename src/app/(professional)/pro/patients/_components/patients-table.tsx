@@ -195,7 +195,7 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
                                 labels={{
                                   actions: pt.actions,
                                   editPatient: pt.editPatient,
-                                  deletePatient: pt.deletePatient,
+                                  removePatient: pt.removePatient,
                                 }}
                                 onEdit={setEditPatient}
                                 onDelete={setDeletePatient}

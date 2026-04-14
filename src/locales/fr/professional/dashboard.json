@@ -49,5 +49,7 @@
   "noShowCount": "{count} no-show",
   "nextSlot": "Prochain créneau libre",
   "registerWalkIn": "Enregistrer un walk-in",
-  "noAvailableSlots": "Aucun créneau disponible"
+  "noAvailableSlots": "Aucun créneau disponible",
+  "reviews": "Avis",
+  "reviewsCount": "{count} ce mois"
 }

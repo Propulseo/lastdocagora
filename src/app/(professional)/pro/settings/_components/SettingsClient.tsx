@@ -71,9 +71,9 @@ export function SettingsClient({ settings }: SettingsClientProps) {
 
     if (error) {
       setNotifSettings((s) => ({ ...s, [key]: prev }));
-      toast.error("Erro ao guardar definição");
+      toast.error(t.settings.settingSaveError);
     } else {
-      toast.success("Definição atualizada");
+      toast.success(t.settings.settingUpdated);
     }
   }
 

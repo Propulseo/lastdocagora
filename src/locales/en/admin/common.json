@@ -10,5 +10,16 @@
   "allStatuses": "All statuses",
   "noResultsHint": "No results found. Try adjusting your filters.",
   "errorUpdating": "Error updating",
-  "clearFilters": "Clear filters"
+  "clearFilters": "Clear filters",
+  "processing": "Processing...",
+  "lightMode": "Light mode",
+  "darkMode": "Dark mode",
+  "globalSearch": "Search users by name, email, or phone...",
+  "globalSearchResults": "Search results",
+  "noSearchResults": "No users found",
+  "viewProfile": "View profile",
+  "close": "Close",
+  "edit": "Edit",
+  "delete": "Delete",
+  "saving": "Saving..."
 }

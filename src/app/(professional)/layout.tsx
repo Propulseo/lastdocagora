@@ -18,7 +18,7 @@ import { ThemeSync } from "@/components/theme-sync";
 import { ProBottomNav } from "./_components/pro-bottom-nav";
 import { ProMobileHeader } from "./_components/pro-mobile-header";
 import { ProRealtimeNotifier } from "./_components/pro-realtime-notifier";
-import { ProNotificationBell } from "./_components/ProNotificationBell";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -38,10 +38,7 @@ export default async function ProfessionalLayout({
 
   const supabase = await createClient();
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const [{ data: userProfile }, { data: ticketsWithMessages }, { data: proRecord }, { data: initialNotifications }] =
+  const [{ data: userProfile }, { data: ticketsWithMessages }, { data: proRecord }] =
     await Promise.all([
       supabase
         .from("users")
@@ -63,13 +60,6 @@ export default async function ProfessionalLayout({
         .select("onboarding_completed")
         .eq("user_id", user.id)
         .single(),
-      supabase
-        .from("notifications")
-        .select("id, user_id, title, message, type, is_read, related_id, created_at, params")
-        .eq("user_id", user.id)
-        .gte("created_at", thirtyDaysAgo.toISOString())
-        .order("created_at", { ascending: false })
-        .limit(50),
     ]);
 
   if (!userProfile) {
@@ -93,9 +83,6 @@ export default async function ProfessionalLayout({
 
   const onboardingCompleted = proRecord?.onboarding_completed === true;
 
-  const notifs = (initialNotifications ?? []) as { id: string; user_id: string; title: string; message: string; type: string; is_read: boolean | null; related_id: string | null; created_at: string | null; params: Record<string, string> | null }[];
-  const unreadNotifCount = notifs.filter((n) => !n.is_read).length;
-
   const sidebarUser = {
     email: userProfile.email,
     firstName: userProfile.first_name,
@@ -105,6 +92,23 @@ export default async function ProfessionalLayout({
 
   const cookieStore = await cookies();
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
+
+  const nb = t.notificationBell as Record<string, string>;
+  const notifTranslations = {
+    title: nb.title,
+    markAllRead: nb.markAllRead,
+    empty: nb.empty,
+    markAsRead: nb.markAsRead,
+    markAsUnread: nb.markAsUnread,
+    justNow: nb.justNow,
+  };
+  const notifContent = {
+    new_booking: { title: nb.notifNewBookingTitle, message: nb.notifNewBookingMessage },
+    ticket_reply: { title: nb.notifTicketReplyTitle, message: nb.notifTicketReplyMessage },
+    ticket_resolved: { title: nb.notifTicketResolvedTitle, message: nb.notifTicketResolvedMessage },
+    ticket_updated: { title: nb.notifTicketUpdatedTitle, message: nb.notifTicketUpdatedMessage },
+    system: { title: nb.notifReopenedTitle, message: nb.notifReopenedMessage },
+  };
 
   // Minimal shell during onboarding — no sidebar, no bottom nav
   if (!onboardingCompleted) {
@@ -127,18 +131,20 @@ export default async function ProfessionalLayout({
         <SidebarProvider defaultOpen={sidebarOpen}>
           <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} />
           <SidebarInset>
-            <ProMobileHeader user={sidebarUser} userId={user.id} initialNotifications={notifs} initialUnreadNotifCount={unreadNotifCount} />
+            <ProMobileHeader user={sidebarUser} userId={user.id} />
             <header className="hidden lg:flex h-14 items-center border-b border-border/40 px-6">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="mx-3 h-4" />
               <ProLayoutHeaderTitle />
               <div className="ml-auto flex items-center gap-2">
-                <ProNotificationBell
+                <NotificationBell
                   userId={user.id}
-                  initialNotifications={notifs}
-                  initialUnreadCount={unreadNotifCount}
+                  translations={notifTranslations}
+                  contentTranslations={notifContent}
+                  locale={locale}
+                  role="professional"
                 />
-                <ThemeToggle />
+                <ThemeToggle lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
               </div>
             </header>
             <main className="pro-dashboard w-full flex-1 overflow-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">

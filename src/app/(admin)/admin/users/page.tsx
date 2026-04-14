@@ -26,7 +26,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   let query = supabase
     .from("users")
-    .select("id, first_name, last_name, email, role, status, created_at, avatar_url", {
+    .select("id, first_name, last_name, email, role, status, created_at, avatar_url, phone, language", {
       count: "exact",
     })
     .order("created_at", { ascending: false })
@@ -46,12 +46,36 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   const { data: users, count } = await query;
 
+  // For each user, fetch role-specific data
+  const enrichedUsers = await Promise.all(
+    (users ?? []).map(async (u) => {
+      const row: Record<string, unknown> = { ...u };
+      if (u.role === "professional") {
+        const { data: pro } = await supabase
+          .from("professionals")
+          .select("specialty, registration_number, consultation_fee, bio, languages_spoken, address, city, postal_code")
+          .eq("user_id", u.id)
+          .maybeSingle();
+        if (pro) Object.assign(row, pro);
+      }
+      if (u.role === "patient") {
+        const { data: pat } = await supabase
+          .from("patients")
+          .select("insurance_provider, address, city")
+          .eq("user_id", u.id)
+          .maybeSingle();
+        if (pat) Object.assign(row, pat);
+      }
+      return row;
+    })
+  );
+
   return (
     <div className="space-y-6">
       <AdminPageHeader section="users" />
 
       <UsersFilters totalCount={count ?? 0} />
-      <UsersTable data={(users ?? []) as never[]} currentUserId={user?.id} />
+      <UsersTable data={enrichedUsers as never[]} currentUserId={user?.id} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>
   );

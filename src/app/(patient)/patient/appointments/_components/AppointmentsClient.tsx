@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -8,11 +9,10 @@ import { Calendar } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
-import { AppointmentCard, type Appointment } from "./appointment-card"
+import { AppointmentCard, isAppointmentPast, type Appointment } from "./appointment-card"
 
 interface AppointmentsClientProps {
-  upcoming: Appointment[]
-  past: Appointment[]
+  active: Appointment[]
   cancelled: Appointment[]
   ratedIds: string[]
 }
@@ -21,13 +21,28 @@ const tabTriggerClass =
   "data-[state=active]:text-[#3da4ab] after:bg-[#3da4ab] gap-2 min-h-[44px]"
 
 export function AppointmentsClient({
-  upcoming,
-  past,
+  active,
   cancelled,
   ratedIds,
 }: AppointmentsClientProps) {
   const { t, locale, dateLocale } = usePatientTranslations()
   const ratedSet = new Set(ratedIds)
+
+  const { upcoming, past } = useMemo(() => {
+    const up: Appointment[] = []
+    const pa: Appointment[] = []
+    for (const appt of active) {
+      if (isAppointmentPast(appt)) {
+        pa.push(appt)
+      } else {
+        up.push(appt)
+      }
+    }
+    // upcoming already sorted ascending from server query
+    // past: reverse to show most recent first
+    pa.reverse()
+    return { upcoming: up, past: pa }
+  }, [active])
 
   return (
     <div className="space-y-5">

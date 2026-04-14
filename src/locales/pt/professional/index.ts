@@ -16,6 +16,7 @@ import settings from "./settings.json";
 import support from "./support.json";
 import notificationBell from "./notificationBell.json";
 import onboarding from "./onboarding.json";
+import reviews from "./reviews.json";
 
 export const professionalPt = {
   mobileNav,
@@ -36,4 +37,5 @@ export const professionalPt = {
   support,
   notificationBell,
   onboarding,
+  reviews,
 };

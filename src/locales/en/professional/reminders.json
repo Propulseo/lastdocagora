@@ -108,6 +108,7 @@
     "allTimings": "All timings",
     "activeOnly": "Active only",
     "preview": "Preview",
+    "source": "Source",
     "variables": "Available variables",
     "variableHint": "Click to insert",
     "smsCounter": "{{count}} / 160 characters",

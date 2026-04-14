@@ -96,7 +96,14 @@ export function BookingModal({
             p_professional_id: professionalId,
           })
           if (!error) {
-            const fetchedSlots = (slotData as Slot[]) ?? []
+            const rawSlots = (slotData as Slot[]) ?? []
+            // Filter past slots for today
+            const nowPre = new Date()
+            const todayMid = new Date()
+            todayMid.setHours(0, 0, 0, 0)
+            const fetchedSlots = preDate.getTime() === todayMid.getTime()
+              ? rawSlots.filter((s) => new Date(`${preselectedDate}T${s.slot_start}`).getTime() > nowPre.getTime() + 30 * 60 * 1000)
+              : rawSlots
             setSlots(fetchedSlots)
             // Auto-select the matching time slot
             if (preselectedTime) {
@@ -144,7 +151,17 @@ export function BookingModal({
         p_professional_id: professionalId,
       })
       if (error) throw error
-      setSlots((data as Slot[]) ?? [])
+      const raw = (data as Slot[]) ?? []
+      // Filter out past slots for today (start > now + 30min)
+      const now = new Date()
+      const todayMidnight = new Date()
+      todayMidnight.setHours(0, 0, 0, 0)
+      if (date && date.getTime() === todayMidnight.getTime()) {
+        const cutoff = now.getTime() + 30 * 60 * 1000
+        setSlots(raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff))
+      } else {
+        setSlots(raw)
+      }
     } catch {
       toast.error(t.booking.errorLoadSlots)
     } finally {
@@ -176,7 +193,15 @@ export function BookingModal({
         notes: notes || undefined,
       })
       if (!result.success) {
-        toast.error(result.error === "self_booking_not_allowed" ? t.booking.selfBookingError : t.booking.errorBooking)
+        toast.error(
+          result.error === "self_booking_not_allowed"
+            ? t.booking.selfBookingError
+            : result.error === "SLOT_UNAVAILABLE"
+              ? t.booking.slotUnavailable
+              : result.error === "SLOT_IN_PAST"
+                ? t.booking.slotInPast
+                : t.booking.errorBooking
+        )
         return
       }
       toast.success(t.booking.successBooked)

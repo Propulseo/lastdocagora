@@ -49,5 +49,7 @@
   "noShowCount": "{count} no-show",
   "nextSlot": "Next available slot",
   "registerWalkIn": "Register walk-in",
-  "noAvailableSlots": "No available slots"
+  "noAvailableSlots": "No available slots",
+  "reviews": "Reviews",
+  "reviewsCount": "{count} this month"
 }

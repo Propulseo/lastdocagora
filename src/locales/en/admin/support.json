@@ -23,5 +23,11 @@
   "typeFilter": "Ticket type",
   "allTypes": "All types",
   "typeChangeRequest": "Change requests",
-  "typeGeneral": "General support"
+  "typeGeneral": "General support",
+  "assignToSelf": "Take over",
+  "assigned": "Ticket assigned to you",
+  "deleteTicket": "Delete ticket",
+  "deleteConfirmTitle": "Delete this ticket?",
+  "deleteConfirmDesc": "This ticket and all its messages will be permanently deleted.",
+  "ticketDeleted": "Ticket deleted"
 }

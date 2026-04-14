@@ -9,6 +9,8 @@ export type LandingTranslations = {
     forPatients: string
     forProfessionals: string
     theme: string
+    lightMode: string
+    darkMode: string
   }
   hero: {
     title: string
@@ -129,6 +131,8 @@ export const ptLanding: LandingTranslations = {
     forPatients: "Para Pacientes",
     forProfessionals: "Para Profissionais",
     theme: "Tema",
+    lightMode: "Modo claro",
+    darkMode: "Modo escuro",
   },
   hero: {
     title: "Encontre o seu médico em",

@@ -30,7 +30,7 @@ async function getAdminClient() {
 
 export async function updateUserStatus(userId: string, status: string) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase
     .from("users")
@@ -47,7 +47,7 @@ export async function updateVerificationStatus(
   status: string
 ) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase
     .from("professionals")
@@ -65,12 +65,12 @@ export async function updateTicketStatus(
   adminMessage?: string
 ) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Nao autorizado" };
+  if (!user) return { success: false, error: "Unauthorized" };
 
   const updateData: Record<string, string> = { status };
   if (status === "resolved") {
@@ -107,16 +107,19 @@ export async function updateTicketStatus(
     .single();
 
   if (ticket) {
-    const notificationMessage =
-      status === "awaiting_confirmation"
-        ? `O seu ticket "${ticket.subject}" foi tratado. Por favor confirme se o problema foi resolvido.`
-        : `O seu ticket "${ticket.subject}" foi atualizado para: ${status}`;
+    const isResolved = status === "awaiting_confirmation";
+    const notifType = isResolved ? "ticket_resolved" : "ticket_updated";
+    // Title/message are fallbacks — the frontend maps by `type` and uses `params` for i18n
+    const notificationTitle = isResolved ? "Ticket resolved" : "Ticket updated";
+    const notificationMessage = isResolved
+      ? `Your ticket "${ticket.subject}" has been resolved. Please confirm.`
+      : `Your ticket "${ticket.subject}" has been updated to: ${status}`;
 
     const { error: notifError } = await supabase.from("notifications").insert({
       user_id: ticket.user_id,
-      title: "Ticket atualizado",
+      title: notificationTitle,
       message: notificationMessage,
-      type: status === "awaiting_confirmation" ? "ticket_resolved" : "ticket_updated",
+      type: notifType,
       params: { subject: ticket.subject, status },
     });
     if (notifError) {
@@ -130,12 +133,12 @@ export async function updateTicketStatus(
 
 export async function replyToTicket(ticketId: string, content: string) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Nao autorizado" };
+  if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("ticket_messages").insert({
     ticket_id: ticketId,
@@ -160,10 +163,11 @@ export async function replyToTicket(ticketId: string, content: string) {
     .single();
 
   if (ticket) {
+    // Title/message are fallbacks — the frontend maps by `type` and uses `params` for i18n
     const { error: notifError } = await supabase.from("notifications").insert({
       user_id: ticket.user_id,
-      title: "Nova resposta ao ticket",
-      message: `O seu ticket "${ticket.subject}" recebeu uma resposta do suporte.`,
+      title: "New ticket reply",
+      message: `Your ticket "${ticket.subject}" received a support reply.`,
       type: "ticket_reply",
       params: { subject: ticket.subject },
     });
@@ -178,7 +182,7 @@ export async function replyToTicket(ticketId: string, content: string) {
 
 export async function updateSystemSetting(settingId: string, value: string) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase
     .from("system_settings")
@@ -192,7 +196,7 @@ export async function updateSystemSetting(settingId: string, value: string) {
 
 export async function cancelAppointment(appointmentId: string) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase
     .from("appointments")
@@ -210,7 +214,7 @@ export async function toggleContentPublished(
   published: boolean
 ) {
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const table = type === "page" ? "content_pages" : "faqs";
   const { error } = await supabase
@@ -228,12 +232,12 @@ export async function deleteUser(
 ): Promise<{ success: boolean; error?: string }> {
   // 1. Verify admin
   const supabase = await getAdminClient();
-  if (!supabase) return { success: false, error: "Nao autorizado" };
+  if (!supabase) return { success: false, error: "Unauthorized" };
 
   const {
     data: { user: adminUser },
   } = await supabase.auth.getUser();
-  if (!adminUser) return { success: false, error: "Nao autorizado" };
+  if (!adminUser) return { success: false, error: "Unauthorized" };
 
   // 2. Guard self-deletion
   if (userId === adminUser.id) {

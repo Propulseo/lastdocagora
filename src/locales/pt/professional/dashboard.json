@@ -49,5 +49,7 @@
   "noShowCount": "{count} no-show",
   "nextSlot": "Próximo horário livre",
   "registerWalkIn": "Registar walk-in",
-  "noAvailableSlots": "Sem horários disponíveis"
+  "noAvailableSlots": "Sem horários disponíveis",
+  "reviews": "Avaliações",
+  "reviewsCount": "{count} este mês"
 }

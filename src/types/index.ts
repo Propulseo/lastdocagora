@@ -8,7 +8,7 @@ export type AppointmentStatus =
   | "rejected"
   | "no-show";
 
-export type VerificationStatus = "pending" | "verified" | "rejected";
+export type VerificationStatus = "pending" | "verified" | "rejected" | "suspended";
 
 export type ConsultationType = "in-person";
 

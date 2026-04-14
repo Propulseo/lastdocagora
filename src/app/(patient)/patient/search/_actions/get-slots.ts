@@ -50,9 +50,20 @@ export async function getAvailableSlotsForPro(
 
       if (error || !data) return null
 
-      const allSlots = (data as { slot_start: string; slot_end: string }[]).map(
-        (s) => s.slot_start.slice(0, 5)
-      )
+      const now = new Date()
+      const todayStr = format(now, "yyyy-MM-dd")
+      const marginMs = 30 * 60 * 1000 // 30 minutes
+
+      const allSlots = (data as { slot_start: string; slot_end: string }[])
+        .filter((s) => {
+          // For today, exclude slots whose start is <= now + 30min
+          if (dateStr === todayStr) {
+            const slotStart = new Date(`${dateStr}T${s.slot_start}`)
+            return slotStart.getTime() > now.getTime() + marginMs
+          }
+          return true
+        })
+        .map((s) => s.slot_start.slice(0, 5))
 
       if (allSlots.length === 0) return null
 

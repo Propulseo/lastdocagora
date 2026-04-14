@@ -8,6 +8,8 @@ import {
   endOfWeek,
   subWeeks,
   startOfMonth,
+  subMonths,
+  endOfMonth,
   addDays,
 } from "date-fns";
 
@@ -32,6 +34,8 @@ export default async function DashboardPage() {
     "yyyy-MM-dd"
   );
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
+  const lastMonthStart = format(startOfMonth(subMonths(now, 1)), "yyyy-MM-dd");
+  const lastMonthEnd = format(endOfMonth(subMonths(now, 1)), "yyyy-MM-dd");
   const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
   const nowTimeStr = format(now, "HH:mm:ss");
 
@@ -55,6 +59,8 @@ export default async function DashboardPage() {
     { count: unconfirmedCount },
     { data: monthAppts },
     { data: nextSlotData },
+    { data: reviewsThisMonthRaw },
+    { data: reviewsLastMonthRaw },
   ] = await Promise.all([
     supabase
       .from("users")
@@ -150,6 +156,19 @@ export default async function DashboardPage() {
     supabase.rpc("get_next_available_slot", {
       p_professional_id: professionalId,
     }),
+    // Reviews this month
+    supabase
+      .from("reviews")
+      .select("rating")
+      .eq("professional_id", professionalId)
+      .gte("created_at", monthStart),
+    // Reviews last month
+    supabase
+      .from("reviews")
+      .select("rating")
+      .eq("professional_id", professionalId)
+      .gte("created_at", lastMonthStart)
+      .lte("created_at", lastMonthEnd),
   ]);
 
   // Distinct patient count
@@ -217,6 +236,19 @@ export default async function DashboardPage() {
     })
     .slice(0, 3);
 
+  // Reviews aggregation
+  const reviewsThisMonth = reviewsThisMonthRaw ?? [];
+  const reviewsThisMonthCount = reviewsThisMonth.length;
+  const reviewsAvgThisMonth =
+    reviewsThisMonthCount > 0
+      ? reviewsThisMonth.reduce((sum, r) => sum + r.rating, 0) / reviewsThisMonthCount
+      : 0;
+  const reviewsLastMonth = reviewsLastMonthRaw ?? [];
+  const reviewsAvgLastMonth =
+    reviewsLastMonth.length > 0
+      ? reviewsLastMonth.reduce((sum, r) => sum + r.rating, 0) / reviewsLastMonth.length
+      : 0;
+
   return (
     <DashboardClient
       firstName={userProfile?.first_name ?? ""}
@@ -235,6 +267,9 @@ export default async function DashboardPage() {
       unconfirmedNext24h={unconfirmedCount ?? 0}
       noShowRate={noShowRate}
       nextAvailableSlot={typeof nextSlotData === "string" ? nextSlotData : null}
+      reviewsThisMonth={reviewsThisMonthCount}
+      reviewsAvgThisMonth={reviewsAvgThisMonth}
+      reviewsAvgLastMonth={reviewsAvgLastMonth}
     />
   );
 }

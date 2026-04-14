@@ -30,6 +30,29 @@ export type Appointment = {
     users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
   } | null
   services: { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null
+  appointment_attendance: { status: string } | null
+}
+
+const ATTENDED_STATUSES = ["present", "absent", "late"]
+
+export function isAppointmentPast(appt: Appointment): boolean {
+  if (appt.status === "completed" || appt.status === "no-show" || appt.status === "no_show") return true
+  const att = appt.appointment_attendance?.status
+  if (att && ATTENDED_STATUSES.includes(att)) return true
+  const [year, month, day] = appt.appointment_date.split("-").map(Number)
+  const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
+  const end = new Date(year, month - 1, day, h, m + (appt.duration_minutes ?? 30))
+  return end < new Date()
+}
+
+export function canCancelAppointment(appt: Appointment): boolean {
+  if (appt.status !== "pending" && appt.status !== "confirmed") return false
+  const att = appt.appointment_attendance?.status
+  if (att && ATTENDED_STATUSES.includes(att)) return false
+  const [year, month, day] = appt.appointment_date.split("-").map(Number)
+  const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
+  const start = new Date(year, month - 1, day, h, m)
+  return start > new Date(Date.now() + 30 * 60 * 1000)
 }
 
 const borderColors: Record<string, string> = {
@@ -115,7 +138,7 @@ export function AppointmentCard({
               {appt.duration_minutes && ` · ${appt.duration_minutes} ${t.professionalDetail.min}`}
             </p>
           </div>
-          {type === "upcoming" && (
+          {canCancelAppointment(appt) && (
             <CancelDialog appointmentId={appt.id} professionalName={profName} />
           )}
           {type === "past" && appt.status === "completed" && !hasRating && (

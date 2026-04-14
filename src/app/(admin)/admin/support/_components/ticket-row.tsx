@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
+import { assignTicketToSelf, deleteTicket } from "@/app/(admin)/_actions/admin-crud-actions";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
@@ -60,6 +62,8 @@ export function TicketRow({ ticket }: TicketRowProps) {
   const [sending, setSending] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [resolutionMessage, setResolutionMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const allowedNext = ALLOWED_TRANSITIONS[ticket.status] ?? [];
@@ -264,6 +268,32 @@ export function TicketRow({ ticket }: TicketRowProps) {
                 {t.support.noMessages}
               </p>
             )}
+            {/* Admin quick actions */}
+            <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
+              {ticket.status === "open" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="min-h-[44px]"
+                  onClick={async () => {
+                    const result = await assignTicketToSelf(ticket.id);
+                    if (result.success) toast.success(t.support.assigned);
+                    else toast.error(result.error ?? t.common.errorUpdating);
+                  }}
+                >
+                  {t.support.assignToSelf}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="destructive"
+                className="min-h-[44px]"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                {t.support.deleteTicket}
+              </Button>
+            </div>
+
             {/* Admin reply form */}
             <div className="mt-3 flex gap-2">
               <Textarea
@@ -289,6 +319,28 @@ export function TicketRow({ ticket }: TicketRowProps) {
           </TableCell>
         </TableRow>
       )}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title={t.support.deleteConfirmTitle}
+        description={t.support.deleteConfirmDesc}
+        confirmLabel={t.support.deleteTicket}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
+        variant="destructive"
+        loading={deleting}
+        onConfirm={async () => {
+          setDeleting(true);
+          const result = await deleteTicket(ticket.id);
+          setDeleting(false);
+          if (result.success) {
+            toast.success(t.support.ticketDeleted);
+            setShowDeleteConfirm(false);
+          } else {
+            toast.error(result.error ?? t.common.errorUpdating);
+          }
+        }}
+      />
     </>
   );
 }

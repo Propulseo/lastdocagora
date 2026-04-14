@@ -20,5 +20,9 @@
   "notifTicketUpdatedMessage": "Votre ticket « {subject} » a été mis à jour : {status}",
   "notifReopenedTitle": "Ticket rouvert",
   "notifReopenedMessage": "Le ticket « {subject} » a été rouvert.",
-  "notifSystemTitle": "Notification système"
+  "notifSystemTitle": "Notification système",
+  "markAsRead": "Marquer comme lu",
+  "markAsUnread": "Marquer comme non lu",
+  "justNow": "À l'instant",
+  "dateAtConnector": "à"
 }

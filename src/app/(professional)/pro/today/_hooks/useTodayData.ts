@@ -26,9 +26,10 @@ export type TodayFilter = "all" | "pending" | "confirmed" | "present" | "absent"
 
 interface UseTodayDataParams {
   professionalId: string;
+  dateStr: string;
 }
 
-export function useTodayData({ professionalId }: UseTodayDataParams) {
+export function useTodayData({ professionalId, dateStr }: UseTodayDataParams) {
   const [appointments, setAppointments] = useState<TodayAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<TodayFilter>("all");
@@ -40,7 +41,7 @@ export function useTodayData({ professionalId }: UseTodayDataParams) {
     async function fetchToday() {
       setLoading(true);
       const supabase = createClient();
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = dateStr;
 
       const { data, error } = await supabase
         .from("appointments")
@@ -92,7 +93,7 @@ export function useTodayData({ professionalId }: UseTodayDataParams) {
 
     fetchToday();
     return () => { cancelled = true; };
-  }, [professionalId, refreshKey]);
+  }, [professionalId, dateStr, refreshKey]);
 
   const filteredAppointments = useMemo(() => {
     if (filter === "all") return appointments;

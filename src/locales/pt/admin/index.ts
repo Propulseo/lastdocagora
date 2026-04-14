@@ -11,6 +11,8 @@ import statistics from "./statistics.json";
 import content from "./content.json";
 import support from "./support.json";
 import settings from "./settings.json";
+import notifications from "./notifications.json";
+import reviews from "./reviews.json";
 
 export const adminPt = {
   sidebar,
@@ -26,4 +28,6 @@ export const adminPt = {
   content,
   support,
   settings,
+  notifications,
+  reviews,
 };

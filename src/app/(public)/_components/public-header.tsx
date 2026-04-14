@@ -43,7 +43,7 @@ export function PublicHeader() {
         {/* Desktop nav */}
         <div className="hidden items-center gap-3 md:flex">
           <LanguageSwitcher locale={locale} />
-          <ThemeToggle size="sm" />
+          <ThemeToggle size="sm" lightLabel={t.header.lightMode} darkLabel={t.header.darkMode} />
           <Button variant="ghost" size="sm" asChild>
             <Link href="/login">{t.header.login}</Link>
           </Button>
@@ -108,7 +108,7 @@ export function PublicHeader() {
 
                 <div className="flex items-center justify-between border-t pt-4">
                   <span className="text-sm text-muted-foreground">{t.header.theme}</span>
-                  <ThemeToggle size="sm" />
+                  <ThemeToggle size="sm" lightLabel={t.header.lightMode} darkLabel={t.header.darkMode} />
                 </div>
 
                 <div className="pt-4">

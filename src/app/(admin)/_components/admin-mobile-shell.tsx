@@ -10,16 +10,18 @@ interface AdminMobileShellProps {
     first_name: string;
     last_name: string;
   };
+  userId: string;
   openTicketCount: number;
 }
 
-export function AdminMobileShell({ user, openTicketCount }: AdminMobileShellProps) {
+export function AdminMobileShell({ user, userId, openTicketCount }: AdminMobileShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
       <AdminMobileHeader
         user={{ firstName: user.first_name, lastName: user.last_name }}
+        userId={userId}
         onMenuOpen={() => setMenuOpen(true)}
       />
       <AdminMobileNav

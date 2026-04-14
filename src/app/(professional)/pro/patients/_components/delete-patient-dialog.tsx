@@ -11,7 +11,7 @@ import {
   ResponsiveDialogTitle,
 } from "@/components/shared/responsive-dialog";
 import { Button } from "@/components/ui/button";
-import { deletePatient } from "@/app/(professional)/_actions/patients";
+import { removePatient } from "@/app/(professional)/_actions/patients";
 import { RADIUS, SPACING } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 
@@ -30,17 +30,23 @@ export function DeletePatientDialog({
 }: DeletePatientDialogProps) {
   const { t } = useProfessionalI18n();
   const pt = t.patients;
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    const result = await deletePatient(patientId);
-    setIsDeleting(false);
+  const handleRemove = async () => {
+    setIsRemoving(true);
+    const result = await removePatient(patientId);
+    setIsRemoving(false);
     if (result.success) {
-      toast.success(pt.patientDeleted);
+      toast.success(pt.patientRemoved);
       onOpenChange(false);
+    } else if (result.error === "linked_data") {
+      toast.error(pt.removeErrorLinkedData);
+    } else if (result.error === "permission_denied") {
+      toast.error(pt.removeErrorPermission);
+    } else if (result.error === "not_owned") {
+      toast.error(pt.removeErrorNotOwned);
     } else {
-      toast.error(pt.errorDeleting);
+      toast.error(pt.errorRemoving);
     }
   };
 
@@ -49,13 +55,13 @@ export function DeletePatientDialog({
       <ResponsiveDialogContent className={`${SPACING.card} ${RADIUS.card}`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>
-            {pt.deletePatient}: {patientName}
+            {pt.removePatient}: {patientName}
           </ResponsiveDialogTitle>
           <ResponsiveDialogDescription>
-            {pt.deletePatientConfirm}
+            {pt.removePatientConfirm}
             <br />
             <span className="mt-1 block text-xs text-muted-foreground">
-              {pt.deletePatientWarning}
+              {pt.removePatientWarning}
             </span>
           </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
@@ -64,11 +70,11 @@ export function DeletePatientDialog({
             {t.common.cancel}
           </Button>
           <Button
-            onClick={handleDelete}
-            disabled={isDeleting}
+            onClick={handleRemove}
+            disabled={isRemoving}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isDeleting ? pt.deleting : pt.deletePatient}
+            {isRemoving ? pt.removing : pt.removePatient}
           </Button>
         </ResponsiveDialogFooter>
       </ResponsiveDialogContent>

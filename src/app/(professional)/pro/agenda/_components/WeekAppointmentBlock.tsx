@@ -8,7 +8,6 @@ import {
   START_HOUR,
   STATUS_COLORS,
   ATTENDANCE_DOT_COLORS,
-  PAYMENT_DOT_COLORS,
 } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 
@@ -61,14 +60,6 @@ export function WeekAppointmentBlock({
             className={cn(
               "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
               ATTENDANCE_DOT_COLORS[currentAttendance] ?? "bg-gray-400",
-            )}
-          />
-        )}
-        {apt.payment_status && (
-          <span
-            className={cn(
-              "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
-              PAYMENT_DOT_COLORS[apt.payment_status] ?? "bg-muted",
             )}
           />
         )}

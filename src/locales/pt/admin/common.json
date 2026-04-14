@@ -10,5 +10,16 @@
   "allStatuses": "Todos os estados",
   "noResultsHint": "Nenhum resultado encontrado. Tente ajustar os filtros.",
   "errorUpdating": "Erro ao atualizar",
-  "clearFilters": "Limpar filtros"
+  "clearFilters": "Limpar filtros",
+  "processing": "A processar...",
+  "lightMode": "Modo claro",
+  "darkMode": "Modo escuro",
+  "globalSearch": "Pesquisar utilizadores por nome, email ou telefone...",
+  "globalSearchResults": "Resultados da pesquisa",
+  "noSearchResults": "Nenhum utilizador encontrado",
+  "viewProfile": "Ver perfil",
+  "close": "Fechar",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "saving": "A guardar..."
 }

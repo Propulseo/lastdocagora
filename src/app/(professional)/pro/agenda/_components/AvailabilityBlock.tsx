@@ -56,12 +56,14 @@ interface AvailabilityBlockProps {
   slot: AvailabilitySlot;
   onCreateAppointment: (startTime: string, endTime: string) => void;
   onDeleted?: () => void;
+  isRecentlyAdded?: boolean;
 }
 
 export function AvailabilityBlock({
   slot,
   onCreateAppointment,
   onDeleted,
+  isRecentlyAdded,
 }: AvailabilityBlockProps) {
   const { t } = useProfessionalI18n();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -103,6 +105,13 @@ export function AvailabilityBlock({
           "hover:shadow-md hover:-translate-y-0.5",
           "hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
           "group",
+          // Entrance animation for newly created slots
+          isRecentlyAdded && [
+            "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-500",
+            "border-emerald-400 dark:border-emerald-500/60",
+            "bg-emerald-100/80 dark:bg-emerald-900/40",
+            "ring-2 ring-emerald-400/50 dark:ring-emerald-500/30",
+          ],
         )}
         style={{
           top: `${topOffset}px`,

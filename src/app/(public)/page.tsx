@@ -18,7 +18,7 @@ export default async function HomePage() {
     const role = userData?.role
     if (role === "admin") redirect("/admin/dashboard")
     if (role === "professional") redirect("/pro/dashboard")
-    redirect("/patient/dashboard")
+    if (role === "patient") redirect("/patient/dashboard")
   }
 
   return <LandingPage />

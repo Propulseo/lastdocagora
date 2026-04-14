@@ -35,5 +35,7 @@
   "themeDark": "Sombre",
   "themeSystem": "Système",
   "notificationSound": "Son de notification",
-  "notificationSoundDesc": "Jouer un son lors de la réception d'une nouvelle notification"
+  "notificationSoundDesc": "Jouer un son lors de la réception d'une nouvelle notification",
+  "settingSaveError": "Erreur lors de l'enregistrement du paramètre",
+  "settingUpdated": "Paramètre mis à jour"
 }

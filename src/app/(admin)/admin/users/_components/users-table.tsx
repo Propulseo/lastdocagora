@@ -12,12 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Ban, UserCheck } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { updateUserStatus, deleteUser } from "@/app/(admin)/_actions/admin-actions";
+import { banUser, unbanUser } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { UserMobileList } from "./user-mobile-list";
+import { UserEditModal } from "./user-edit-modal";
+import { UserDeleteDialog } from "./user-delete-dialog";
 
 export interface UserRow {
   id: string;
@@ -28,6 +30,19 @@ export interface UserRow {
   status: string | null;
   created_at: string | null;
   avatar_url: string | null;
+  phone?: string | null;
+  language?: string | null;
+  // Professional fields (joined)
+  specialty?: string | null;
+  registration_number?: string | null;
+  consultation_fee?: number | null;
+  bio?: string | null;
+  languages_spoken?: string[] | null;
+  address?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+  // Patient fields (joined)
+  insurance_provider?: string | null;
 }
 
 interface UsersTableProps {
@@ -62,47 +77,47 @@ function buildMultiRoleSet(data: UserRow[]): Set<string> {
 
 export function UsersTable({ data, currentUserId }: UsersTableProps) {
   const { t } = useAdminI18n();
-  const [confirm, setConfirm] = useState<{
-    userId: string;
-    status: string;
-    label: string;
-    action: "status" | "delete";
-  } | null>(null);
   const [isPending, startTransition] = useTransition();
   const multiRoleUsers = buildMultiRoleSet(data);
   const [actionSheet, setActionSheet] = useState<UserRow | null>(null);
 
+  // Edit modal state
+  const [editUser, setEditUser] = useState<UserRow | null>(null);
+
+  // Delete dialog state
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; fullName: string } | null>(null);
+
+  // Ban/unban confirm state
+  const [banConfirm, setBanConfirm] = useState<{ userId: string; action: "ban" | "unban" } | null>(null);
+
   function handleAction(userId: string, status: string, label: string) {
     setActionSheet(null);
-    setConfirm({
-      userId,
-      status,
-      label,
-      action: status === "delete" ? "delete" : "status",
-    });
+    const row = data.find((r) => r.id === userId);
+    if (status === "delete" && row) {
+      setDeleteTarget({ id: userId, fullName: `${row.first_name} ${row.last_name}` });
+    } else if (status === "edit" && row) {
+      setEditUser(row);
+    } else if (status === "ban") {
+      setBanConfirm({ userId, action: "ban" });
+    } else if (status === "unban") {
+      setBanConfirm({ userId, action: "unban" });
+    }
   }
 
-  function handleConfirm() {
-    if (!confirm) return;
+  function handleBanConfirm() {
+    if (!banConfirm) return;
     startTransition(async () => {
-      if (confirm.action === "delete") {
-        const result = await deleteUser(confirm.userId);
-        if (result.success) {
-          toast.success(t.users.userDeleted);
-        } else if (result.error === "self_deletion") {
-          toast.error(t.users.cannotDeleteSelf);
-        } else {
-          toast.error(result.error ?? t.common.errorUpdating);
-        }
+      const result = banConfirm.action === "ban"
+        ? await banUser(banConfirm.userId)
+        : await unbanUser(banConfirm.userId);
+      if (result.success) {
+        toast.success(banConfirm.action === "ban" ? t.users.banned : t.users.unbanned);
+      } else if (result.error === "cannot_ban_self") {
+        toast.error(t.users.cannotDeleteSelf);
       } else {
-        const result = await updateUserStatus(confirm.userId, confirm.status);
-        if (result.success) {
-          toast.success(t.users.statusUpdated);
-        } else {
-          toast.error(result.error ?? t.common.errorUpdating);
-        }
+        toast.error(result.error ?? t.common.errorUpdating);
       }
-      setConfirm(null);
+      setBanConfirm(null);
     });
   }
 
@@ -173,14 +188,20 @@ export function UsersTable({ data, currentUserId }: UsersTableProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {(row.status ?? "active") !== "active" && (
-              <DropdownMenuItem onClick={() => handleAction(row.id, "active", t.users.activate)}>
-                {t.users.activate}
+            <DropdownMenuItem onClick={() => handleAction(row.id, "edit", t.users.edit)}>
+              <Pencil className="mr-2 size-4" />
+              {t.users.edit}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {(row.status ?? "active") === "suspended" ? (
+              <DropdownMenuItem onClick={() => handleAction(row.id, "unban", t.users.unban)}>
+                <UserCheck className="mr-2 size-4" />
+                {t.users.unban}
               </DropdownMenuItem>
-            )}
-            {(row.status ?? "active") !== "suspended" && (
-              <DropdownMenuItem onClick={() => handleAction(row.id, "suspended", t.users.suspend)} className="text-destructive">
-                {t.users.suspend}
+            ) : (
+              <DropdownMenuItem onClick={() => handleAction(row.id, "ban", t.users.ban)} className="text-destructive">
+                <Ban className="mr-2 size-4" />
+                {t.users.ban}
               </DropdownMenuItem>
             )}
             {row.id !== currentUserId && (
@@ -223,23 +244,35 @@ export function UsersTable({ data, currentUserId }: UsersTableProps) {
         />
       </div>
 
+      {/* Edit Modal */}
+      <UserEditModal
+        user={editUser}
+        open={!!editUser}
+        onOpenChange={(open) => !open && setEditUser(null)}
+      />
+
+      {/* Delete Double Confirmation */}
+      {deleteTarget && (
+        <UserDeleteDialog
+          userId={deleteTarget.id}
+          fullName={deleteTarget.fullName}
+          open={!!deleteTarget}
+          onOpenChange={(open) => !open && setDeleteTarget(null)}
+        />
+      )}
+
+      {/* Ban/Unban Confirmation */}
       <ConfirmDialog
-        open={!!confirm}
-        onOpenChange={(open) => !open && setConfirm(null)}
-        title={
-          confirm?.action === "delete"
-            ? t.users.deleteConfirmTitle
-            : t.users.confirmTitle.replace("{action}", confirm?.label ?? "")
-        }
-        description={
-          confirm?.action === "delete"
-            ? t.users.deleteConfirmDescription
-            : t.users.confirmDescription.replace("{action}", confirm?.label?.toLowerCase() ?? "")
-        }
-        confirmLabel={confirm?.label ?? t.common.confirm}
-        variant={confirm?.action === "delete" || confirm?.status === "suspended" ? "destructive" : "default"}
+        open={!!banConfirm}
+        onOpenChange={(open) => !open && setBanConfirm(null)}
+        title={banConfirm?.action === "ban" ? t.users.banConfirmTitle : t.users.unban}
+        description={banConfirm?.action === "ban" ? t.users.banConfirmDescription : ""}
+        confirmLabel={banConfirm?.action === "ban" ? t.users.ban : t.users.unban}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
+        variant={banConfirm?.action === "ban" ? "destructive" : "default"}
         loading={isPending}
-        onConfirm={handleConfirm}
+        onConfirm={handleBanConfirm}
       />
     </>
   );

@@ -8,16 +8,31 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal, X as XIcon } from "lucide-react";
+import { Eye, MoreHorizontal, Pencil, Trash2, X as XIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cancelAppointment } from "@/app/(admin)/_actions/admin-actions";
+import {
+  updateAppointmentStatusAdmin,
+  updateAttendanceAdmin,
+  deleteAppointmentAdmin,
+} from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { AppointmentMobileList } from "./appointment-mobile-list";
 import { AppointmentDetailModal } from "./appointment-detail-modal";
+import { AppointmentEditModal } from "./appointment-edit-modal";
+import type { AppointmentStatus, AttendanceStatus } from "@/types";
 
 export interface AppointmentRow {
   id: string;
@@ -67,6 +82,14 @@ function hashStr(s: string): number {
   return Math.abs(hash);
 }
 
+const APPOINTMENT_STATUSES: AppointmentStatus[] = [
+  "pending", "confirmed", "completed", "cancelled", "rejected", "no-show",
+];
+
+const ATTENDANCE_STATUSES: AttendanceStatus[] = [
+  "waiting", "present", "absent", "late", "cancelled",
+];
+
 function KpiStrip({ counts, t }: { counts: StatusCounts; t: Record<string, unknown> }) {
   const items = [
     { label: t.kpiTotal as string, value: counts.total, color: "#374151" },
@@ -95,9 +118,11 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
   const { t } = useAdminI18n();
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionSheet, setActionSheet] = useState<AppointmentRow | null>(null);
   const [detailRow, setDetailRow] = useState<AppointmentRow | null>(null);
+  const [editTarget, setEditTarget] = useState<{ id: string; date: string; time: string } | null>(null);
 
   function handleCancel(id: string) {
     setActionSheet(null);
@@ -116,6 +141,44 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
       setConfirmCancel(null);
     });
   }
+
+  function executeDelete() {
+    if (!confirmDelete) return;
+    startTransition(async () => {
+      const result = await deleteAppointmentAdmin(confirmDelete);
+      if (result.success) {
+        toast.success(t.appointments.appointmentDeleted);
+      } else {
+        toast.error(result.error ?? t.common.errorUpdating);
+      }
+      setConfirmDelete(null);
+    });
+  }
+
+  function handleStatusChange(appointmentId: string, status: string) {
+    startTransition(async () => {
+      const result = await updateAppointmentStatusAdmin(appointmentId, status as AppointmentStatus);
+      if (result.success) {
+        toast.success(t.appointments.appointmentUpdated);
+      } else {
+        toast.error(result.error ?? t.common.errorUpdating);
+      }
+    });
+  }
+
+  function handleAttendanceChange(appointmentId: string, status: string) {
+    startTransition(async () => {
+      const result = await updateAttendanceAdmin(appointmentId, status as AttendanceStatus);
+      if (result.success) {
+        toast.success(t.appointments.appointmentUpdated);
+      } else {
+        toast.error(result.error ?? t.common.errorUpdating);
+      }
+    });
+  }
+
+  const statusLabels = t.statuses.appointment as Record<string, string>;
+  const attendanceLabels = t.statuses.attendance as Record<string, string>;
 
   const columns: ColumnDef<AppointmentRow>[] = [
     {
@@ -162,34 +225,68 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
     {
       key: "status",
       header: t.common.status,
-      render: (row) => <StatusBadge type="appointment" value={row.status} labels={t.statuses.appointment} />,
+      render: (row) => (
+        <Select value={row.status} onValueChange={(v) => handleStatusChange(row.id, v)}>
+          <SelectTrigger className="h-8 w-[130px] text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {APPOINTMENT_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{statusLabels[s] ?? statusLabels[s.replace("-", "_")] ?? s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ),
+    },
+    {
+      key: "attendance",
+      header: t.appointments.changeAttendance,
+      render: (row) => (
+        <Select value={row.attendance_status ?? "waiting"} onValueChange={(v) => handleAttendanceChange(row.id, v)}>
+          <SelectTrigger className="h-8 w-[120px] text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ATTENDANCE_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{attendanceLabels[s] ?? s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ),
     },
     {
       key: "actions",
       header: "",
       className: "w-10",
       render: (row) => (
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" aria-label={t.common.actions}>
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setDetailRow(row)}>
-                <Eye className="size-4 mr-2" />
-                {t.appointments.viewDetails}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" aria-label={t.common.actions}>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setDetailRow(row)}>
+              <Eye className="size-4 mr-2" />
+              {t.appointments.viewDetails}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setEditTarget({ id: row.id, date: row.date, time: row.time })}>
+              <Pencil className="size-4 mr-2" />
+              {t.appointments.editDateTime}
+            </DropdownMenuItem>
+            {row.status !== "completed" && row.status !== "cancelled" && (
+              <DropdownMenuItem onClick={() => handleCancel(row.id)} className="text-destructive">
+                <XIcon className="size-4 mr-2" />
+                {t.appointments.cancelAppointment}
               </DropdownMenuItem>
-              {row.status !== "completed" && row.status !== "cancelled" && (
-                <DropdownMenuItem onClick={() => setConfirmCancel(row.id)} className="text-destructive">
-                  <XIcon className="size-4 mr-2" />
-                  {t.appointments.cancelAppointment}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setConfirmDelete(row.id)} className="text-destructive">
+              <Trash2 className="size-4 mr-2" />
+              {t.appointments.deleteAppointment}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
@@ -224,15 +321,40 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
         title={t.appointments.confirmCancelTitle}
         description={t.appointments.confirmCancelDesc}
         confirmLabel={t.appointments.cancelAppointment}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
         variant="destructive"
         loading={isPending}
         onConfirm={executeCancel}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onOpenChange={(open) => !open && setConfirmDelete(null)}
+        title={t.appointments.deleteConfirmTitle}
+        description={t.appointments.deleteConfirmDesc}
+        confirmLabel={t.appointments.deleteAppointment}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
+        variant="destructive"
+        loading={isPending}
+        onConfirm={executeDelete}
       />
 
       <AppointmentDetailModal
         appointment={detailRow}
         onClose={() => setDetailRow(null)}
       />
+
+      {editTarget && (
+        <AppointmentEditModal
+          appointmentId={editTarget.id}
+          currentDate={editTarget.date}
+          currentTime={editTarget.time}
+          open={!!editTarget}
+          onOpenChange={(open) => !open && setEditTarget(null)}
+        />
+      )}
     </div>
   );
 }

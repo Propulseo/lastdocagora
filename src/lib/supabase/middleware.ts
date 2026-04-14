@@ -42,6 +42,7 @@ export async function updateSession(request: NextRequest) {
   if (error && !user) {
     for (const cookie of request.cookies.getAll()) {
       if (cookie.name.startsWith("sb-")) {
+        request.cookies.delete(cookie.name);
         supabaseResponse.cookies.delete(cookie.name);
       }
     }
@@ -55,6 +56,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/patient/search") ||
+    pathname.startsWith("/api/auth/callback") ||
     pathname.startsWith("/api/health") ||
     pathname.startsWith("/api/landing-chat");
 

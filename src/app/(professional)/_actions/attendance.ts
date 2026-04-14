@@ -52,7 +52,7 @@ export async function markAttendance(
   // Get appointment and verify ownership
   const { data: appointment } = await supabase
     .from("appointments")
-    .select("id, professional_id, professional_user_id, status")
+    .select("id, professional_id, professional_user_id, status, appointment_date, appointment_time")
     .eq("id", appointmentId)
     .single();
 
@@ -60,6 +60,29 @@ export async function markAttendance(
 
   if (!isAdmin && appointment.professional_user_id !== user.id) {
     return { success: false, error: "Not your appointment" };
+  }
+
+  // Lock: once marked "present", attendance cannot be changed
+  if (status !== "present") {
+    const { data: existing } = await supabase
+      .from("appointment_attendance")
+      .select("status")
+      .eq("appointment_id", appointmentId)
+      .single();
+    if (existing?.status === "present") {
+      return { success: false, error: "ATTENDANCE_LOCKED_PRESENT" };
+    }
+  }
+
+  // Guard: cannot mark absent before 15 min after appointment start
+  if (status === "absent" && appointment.appointment_date && appointment.appointment_time) {
+    const [year, month, day] = appointment.appointment_date.split("-").map(Number);
+    const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
+    const start = new Date(year, month - 1, day, h, m);
+    const threshold = new Date(start.getTime() + 15 * 60 * 1000);
+    if (new Date() < threshold) {
+      return { success: false, error: "ABSENT_TOO_EARLY" };
+    }
   }
 
   const now = new Date().toISOString();
@@ -211,13 +234,16 @@ export async function cancelAppointment(
 
     const patientUserId = apptDetails?.patient_user_id;
     const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
-    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
+      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
       const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
-        title: "Consulta cancelada",
-        message: `${proName} cancelou a sua consulta.${reason ? ` Motivo: ${reason}` : ""}`,
+        title: "Appointment cancelled",
+        message: reason
+          ? `${proName} cancelled your appointment. Reason: ${reason}`
+          : `${proName} cancelled your appointment.`,
         type: "cancellation",
         related_id: appointmentId,
         params: { proName, reason: reason || undefined },
@@ -321,13 +347,16 @@ export async function rejectAppointment(
 
     const patientUserId = apptDetails?.patient_user_id;
     const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
-    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
+      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
       const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
-        title: "Consulta recusada",
-        message: `${proName} recusou o seu pedido de consulta.${reason ? ` Motivo: ${reason}` : ""}`,
+        title: "Appointment rejected",
+        message: reason
+          ? `${proName} rejected your appointment request. Reason: ${reason}`
+          : `${proName} rejected your appointment request.`,
         type: "appointment_rejected",
         related_id: appointmentId,
         params: { proName, reason: reason || undefined },
@@ -409,7 +438,7 @@ export async function proposeAlternativeTime(
     .from("appointments")
     .update({
       status: "rejected",
-      rejection_reason: `Horário alternativo proposto: ${proposedDate} às ${proposedTime}`,
+      rejection_reason: `Alternative time proposed: ${proposedDate} ${proposedTime}`,
       decided_at: now,
       decided_by: user.id,
       cancellation_notify_patient: true,
@@ -428,20 +457,22 @@ export async function proposeAlternativeTime(
 
   const patientUserId = apptDetails?.patient_user_id;
   const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
-  const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+  const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
   if (patientUserId) {
+    const dateTime = `${proposedDate} ${proposedTime}`;
     const msg = message?.trim()
-      ? `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}. ${message.trim()}`
-      : `${proName} propôs um novo horário: ${proposedDate} às ${proposedTime}.`;
+      ? `${proName} proposed a new time: ${dateTime}. ${message.trim()}`
+      : `${proName} proposed a new time: ${dateTime}.`;
 
+    // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
     const { error: notifError } = await supabase.from("notifications").insert({
       user_id: patientUserId,
-      title: "Novo horário proposto",
+      title: "New time proposed",
       message: msg,
       type: "alternative_proposed",
       related_id: appointmentId,
-      params: { proName, dateTime: `${proposedDate} às ${proposedTime}` },
+      params: { proName, dateTime },
     });
     if (notifError) {
       console.error("[proposeAlternativeTime] Failed to insert notification:", notifError.message);
@@ -525,16 +556,17 @@ export async function updateAppointmentStatus(
 
     const patientUserId = apptDetails?.patient_user_id;
     const pro = (apptDetails?.professionals as { users?: { first_name?: string; last_name?: string } } | null)?.users;
-    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() : "Seu profissional";
+    const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
       const isConfirmed = newStatus === "confirmed";
+      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
       const { error: notifError } = await supabase.from("notifications").insert({
         user_id: patientUserId,
-        title: isConfirmed ? "Consulta confirmada" : "Consulta cancelada",
+        title: isConfirmed ? "Appointment confirmed" : "Appointment cancelled",
         message: isConfirmed
-          ? `${proName} confirmou a sua consulta.`
-          : `${proName} cancelou a sua consulta.`,
+          ? `${proName} confirmed your appointment.`
+          : `${proName} cancelled your appointment.`,
         type: isConfirmed ? "appointment_confirmed" : "cancellation",
         related_id: appointmentId,
         params: { proName },

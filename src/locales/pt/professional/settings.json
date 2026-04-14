@@ -35,5 +35,7 @@
   "themeDark": "Escuro",
   "themeSystem": "Sistema",
   "notificationSound": "Som de notificação",
-  "notificationSoundDesc": "Reproduzir um som ao receber uma nova notificação"
+  "notificationSoundDesc": "Reproduzir um som ao receber uma nova notificação",
+  "settingSaveError": "Erro ao guardar definição",
+  "settingUpdated": "Definição atualizada"
 }

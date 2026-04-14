@@ -5,6 +5,7 @@ import { Pagination } from "@/components/shared/pagination";
 import { AppointmentsFilters } from "./_components/appointments-filters";
 import { AppointmentsTable } from "./_components/appointments-table";
 import { AdminPageHeader } from "../../_components/admin-page-header";
+import { AppointmentsHeaderAction } from "./_components/appointments-header-action";
 
 const PAGE_SIZE = 20;
 
@@ -119,7 +120,7 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader section="appointments" />
+      <AdminPageHeader section="appointments" action={<AppointmentsHeaderAction />} />
 
       <AppointmentsFilters totalCount={count ?? 0} />
       <AppointmentsTable data={mapped} statusCounts={statusCounts} />

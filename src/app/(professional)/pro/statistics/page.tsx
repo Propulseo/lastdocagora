@@ -16,6 +16,7 @@ import {
   buildChannels,
   buildPunctuality,
   buildInsights,
+  type InsightLabels,
   buildRevenueTrends,
   computeAvgGapMinutes,
   computeBillableHours,
@@ -170,7 +171,16 @@ export default async function StatisticsPage({
   const serviceBreakdown = buildServiceBreakdown(chartRows, locale, deletedServiceLabel);
   const channels = buildChannels(chartRows, channelLabels);
   const punctuality = buildPunctuality(chartRows);
-  const insights = buildInsights(serviceBreakdown, heatmap, historyRows);
+  const insightLabels: InsightLabels = {
+    worstService: proI18n.statistics.insights.worstService,
+    worstServiceAction: proI18n.statistics.insights.worstServiceAction,
+    bestService: proI18n.statistics.insights.bestService,
+    bestServiceAction: proI18n.statistics.insights.bestServiceAction,
+    patientFallback: proI18n.statistics.insights.patientFallback,
+    riskyPatient: proI18n.statistics.insights.riskyPatient,
+    riskyPatientAction: proI18n.statistics.insights.riskyPatientAction,
+  };
+  const insights = buildInsights(serviceBreakdown, heatmap, historyRows, insightLabels);
   const { trends: revenueTrends, total: totalRevenue } = buildRevenueTrends(chartRows, allDates);
 
   // --- Compute operational KPIs ---

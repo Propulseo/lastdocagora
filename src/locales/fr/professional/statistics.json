@@ -100,6 +100,7 @@
     "bestServiceAction": "Service à promouvoir — excellente adhésion",
     "worstService": "\"{{name}}\" : {{rate}}% absent",
     "worstServiceAction": "Activer rappel spécifique pour ce service",
+    "patientFallback": "Patient",
     "noInsights": "Aucun insight disponible pour la période actuelle."
   },
   "emptyState": {

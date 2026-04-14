@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { z } from "zod/v4"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -37,6 +37,20 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
   const [role, setRole] = useState<"patient" | "professional">("patient")
   const [shaking, setShaking] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
+  const [wrongPortal, setWrongPortal] = useState<"patient" | "professional" | null>(null)
+  const searchParams = useSearchParams()
+
+  // Handle OAuth callback errors (wrong portal via Google SSO)
+  useEffect(() => {
+    const errorParam = searchParams.get("error")
+    if (errorParam === "wrong_portal_pro") {
+      setAuthError(t.auth.loginErrorWrongPortalPro)
+      setWrongPortal("professional")
+    } else if (errorParam === "wrong_portal_patient") {
+      setAuthError(t.auth.loginErrorWrongPortalPatient)
+      setWrongPortal("patient")
+    }
+  }, [searchParams, t.auth.loginErrorWrongPortalPro, t.auth.loginErrorWrongPortalPatient])
 
   const {
     register,
@@ -55,6 +69,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
 
   async function onSubmit(data: LoginValues) {
     setAuthError(null)
+    setWrongPortal(null)
     setLoading(true)
 
     try {
@@ -85,10 +100,29 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
           .eq("id", user.id)
           .single()
 
+        const userRole = userData?.role
+
+        // Check role matches selected portal (admins bypass)
+        if (userRole !== "admin") {
+          if (userRole === "professional" && role === "patient") {
+            await supabase.auth.signOut()
+            setAuthError(t.auth.loginErrorWrongPortalPro)
+            setWrongPortal("professional")
+            setLoading(false)
+            return
+          }
+          if (userRole === "patient" && role === "professional") {
+            await supabase.auth.signOut()
+            setAuthError(t.auth.loginErrorWrongPortalPatient)
+            setWrongPortal("patient")
+            setLoading(false)
+            return
+          }
+        }
+
         if (redirectTo && redirectTo.startsWith("/")) {
           router.push(redirectTo)
         } else {
-          const userRole = userData?.role
           if (userRole === "admin") router.push("/admin/dashboard")
           else if (userRole === "professional") router.push("/pro/dashboard")
           else router.push("/patient/dashboard")
@@ -106,6 +140,8 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
   }
 
   function handleGoogleSSO() {
+    // Store selected portal role for the OAuth callback to verify
+    document.cookie = `auth_portal_role=${role}; path=/; max-age=600; SameSite=Lax`
     const supabase = createClient()
     supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/api/auth/callback` } })
   }
@@ -209,9 +245,29 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
 
         {/* Auth error */}
         {authError && (
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <span>{authError}</span>
+          <div className="flex flex-col gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{authError}</span>
+            </div>
+            {wrongPortal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRole(wrongPortal)
+                  setWrongPortal(null)
+                  setAuthError(null)
+                }}
+                className="ml-6 text-xs font-medium text-[#0891B2] hover:underline text-left"
+              >
+                {t.auth.loginSwitchToTab.replace(
+                  "{role}",
+                  wrongPortal === "professional"
+                    ? t.auth.roleProfessional
+                    : t.auth.rolePatient
+                )}
+              </button>
+            )}
           </div>
         )}
 

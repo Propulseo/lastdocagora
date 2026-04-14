@@ -1,22 +1,24 @@
 "use client";
 
-import { Menu, Bell } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 
 interface AdminMobileHeaderProps {
   user: {
     firstName: string;
     lastName: string;
   };
+  userId: string;
   onMenuOpen: () => void;
 }
 
-export function AdminMobileHeader({ user, onMenuOpen }: AdminMobileHeaderProps) {
-  const { t } = useAdminI18n();
+export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeaderProps) {
+  const { t, locale } = useAdminI18n();
   const initials =
     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
@@ -39,15 +41,20 @@ export function AdminMobileHeader({ user, onMenuOpen }: AdminMobileHeaderProps) 
         </Badge>
       </div>
 
-      <ThemeToggle size="sm" />
-      <Button
-        variant="ghost"
-        size="icon"
-        className="min-h-[44px] min-w-[44px]"
-        aria-label={t.mobile.notifications}
-      >
-        <Bell className="size-5" />
-      </Button>
+      <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+      <NotificationBell
+        userId={userId}
+        translations={{
+          title: t.notifications.title,
+          markAllRead: t.notifications.markAllRead,
+          empty: t.notifications.empty,
+          markAsRead: t.notifications.markAsRead,
+          markAsUnread: t.notifications.markAsUnread,
+          justNow: t.notifications.justNow,
+        }}
+        locale={locale}
+        role="admin"
+      />
 
       <Avatar className="ml-1 size-8">
         <AvatarFallback className="text-xs">{initials}</AvatarFallback>

@@ -71,7 +71,13 @@ export function useAttendanceAction(
             }
           : null,
       );
-      toast.error(t.agenda.attendance.error);
+      toast.error(
+        result.error === "ATTENDANCE_LOCKED_PRESENT"
+          ? t.agenda.attendance.lockedPresent
+          : result.error === "ABSENT_TOO_EARLY"
+            ? t.agenda.attendance.absentTooEarly
+            : t.agenda.attendance.error,
+      );
     } else {
       toast.success(t.agenda.attendance.updated);
     }

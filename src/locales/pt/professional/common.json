@@ -12,5 +12,7 @@
     "cancelled": "Cancelada",
     "noShow": "Não compareceu",
     "rejected": "Recusada"
-  }
+  },
+  "lightMode": "Modo claro",
+  "darkMode": "Modo escuro"
 }

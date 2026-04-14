@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Star } from "lucide-react"
@@ -33,30 +33,38 @@ export function ProMapCard({ prof, locale, t, labels, onViewProfile, onBook }: P
   return (
     <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md">
       <div className="flex items-start gap-3">
-        <Avatar size="lg" className="size-12">
-          <AvatarImage
-            src={prof.users?.avatar_url ?? undefined}
-            alt={profName}
-/>
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl border border-border/40 shadow-sm sm:size-20">
+          {prof.users?.avatar_url ? (
+            <Image
+              src={prof.users.avatar_url}
+              alt={profName}
+              fill
+              className="object-cover object-[50%_20%]"
+              sizes="(min-width: 640px) 80px, 64px"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-muted">
+              <span className="text-sm font-semibold text-muted-foreground sm:text-base">
+                {initials}
+              </span>
+            </div>
+          )}
+        </div>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{profName}</p>
           <Badge variant="secondary" className="mt-1">
             {translateSpecialty(prof.specialty, locale)}
           </Badge>
+          {prof.rating != null && (
+            <div className="mt-1.5 flex items-center gap-1 text-sm">
+              <Star className="size-4 fill-yellow-400 text-yellow-400" />
+              <span className="font-medium">{prof.rating.toFixed(1)}</span>
+              {prof.total_reviews != null && (
+                <span className="text-muted-foreground">({prof.total_reviews})</span>
+              )}
+            </div>
+          )}
         </div>
-        {prof.rating != null && (
-          <div className="flex items-center gap-1 text-sm shrink-0">
-            <Star className="size-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-medium">{prof.rating.toFixed(1)}</span>
-            {prof.total_reviews != null && (
-              <span className="text-muted-foreground">({prof.total_reviews})</span>
-            )}
-          </div>
-        )}
       </div>
 
       {(prof.city || prof.address) && (

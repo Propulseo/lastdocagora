@@ -63,7 +63,13 @@ export function HistoryTab({ notifications, t }: HistoryTabProps) {
   );
 
   const handleExport = () => {
-    const headers = ["Data", "Paciente", "Tipo", "Canal", "Estado"];
+    const headers = [
+      historyLabels.date,
+      historyLabels.patient,
+      historyLabels.type,
+      historyLabels.channel,
+      historyLabels.status,
+    ];
 
     const rows = filtered.map((n) => {
       const patientName = n.appointments?.patients

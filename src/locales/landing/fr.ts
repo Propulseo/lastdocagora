@@ -11,6 +11,8 @@ export const frLanding: LandingTranslations = {
     forPatients: "Pour les Patients",
     forProfessionals: "Pour les Professionnels",
     theme: "Thème",
+    lightMode: "Mode clair",
+    darkMode: "Mode sombre",
   },
   hero: {
     title: "Trouvez votre médecin au",

@@ -1,7 +1,8 @@
 "use client";
 
-import { ListChecks, UserPlus } from "lucide-react";
+import { ListChecks, UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import type { TodayFilter } from "../_hooks/useTodayData";
@@ -24,6 +25,13 @@ export interface TodayStickyHeaderProps {
   filterKeys: TodayFilter[];
   filterLabels: Record<string, string>;
   onFilterChange: (key: TodayFilter) => void;
+  isToday: boolean;
+  isMaxFuture: boolean;
+  onPrevDay: () => void;
+  onNextDay: () => void;
+  onGoToday: () => void;
+  todayButtonLabel: string;
+  walkInTodayOnlyLabel: string;
 }
 
 export function TodayStickyHeader({
@@ -37,28 +45,78 @@ export function TodayStickyHeader({
   filterKeys,
   filterLabels,
   onFilterChange,
+  isToday,
+  isMaxFuture,
+  onPrevDay,
+  onNextDay,
+  onGoToday,
+  todayButtonLabel,
+  walkInTodayOnlyLabel,
 }: TodayStickyHeaderProps) {
   return (
     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="py-4">
         <div className="flex items-center gap-3 mb-3">
           <ListChecks className="size-6 text-primary" />
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold">{title}</h1>
-            <p className="text-sm text-muted-foreground capitalize">{todayDate}</p>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
+                onClick={onPrevDay}
+              >
+                <ChevronLeft className="size-[18px]" />
+              </Button>
+              <span className="text-sm text-muted-foreground capitalize tabular-nums">
+                {todayDate}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
+                onClick={onNextDay}
+                disabled={isMaxFuture}
+              >
+                <ChevronRight className="size-[18px]" />
+              </Button>
+              {!isToday && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn("h-7 min-h-[44px] text-xs ml-1", RADIUS.element)}
+                  onClick={onGoToday}
+                >
+                  {todayButtonLabel}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="mb-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2"
-            onClick={onWalkInClick}
-          >
-            <UserPlus className="size-4" />
-            {walkInButtonLabel}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2"
+                    onClick={onWalkInClick}
+                    disabled={!isToday}
+                  >
+                    <UserPlus className="size-4" />
+                    {walkInButtonLabel}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!isToday && (
+                <TooltipContent>{walkInTodayOnlyLabel}</TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className={cn("flex gap-1 mb-3 overflow-x-auto", RADIUS.card)}>

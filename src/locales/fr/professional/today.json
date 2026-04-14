@@ -1,6 +1,9 @@
 {
   "title": "Consultations du Jour",
   "noAppointments": "Aucune consultation pour aujourd'hui",
+  "noAppointmentsDate": "Aucune consultation ce jour",
+  "todayButton": "Aujourd'hui",
+  "walkInTodayOnly": "Walk-in disponible uniquement aujourd'hui",
   "currentAppointment": "En cours",
   "viewDetails": "Voir détails",
   "filters": {
@@ -15,5 +18,15 @@
     "confirmed": "confirmées",
     "present": "présents",
     "pending": "en attente"
+  },
+  "postConsultation": {
+    "title": "Notes de consultation",
+    "placeholder": "Diagnostic, traitement, observations...",
+    "followUpLabel": "Planifier une consultation de suivi",
+    "followUpDateLabel": "Date suggérée pour le suivi",
+    "ignore": "Ignorer",
+    "save": "Enregistrer les notes",
+    "saveError": "Erreur lors de l'enregistrement des notes",
+    "saveSuccess": "Notes enregistrées avec succès"
   }
 }

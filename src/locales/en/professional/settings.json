@@ -35,5 +35,7 @@
   "themeDark": "Dark",
   "themeSystem": "System",
   "notificationSound": "Notification sound",
-  "notificationSoundDesc": "Play a sound when receiving a new notification"
+  "notificationSoundDesc": "Play a sound when receiving a new notification",
+  "settingSaveError": "Error saving setting",
+  "settingUpdated": "Setting updated"
 }

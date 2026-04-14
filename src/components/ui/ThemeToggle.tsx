@@ -11,6 +11,10 @@ const getServerSnapshot = () => false
 interface ThemeToggleProps {
   size?: "sm" | "md"
   variant?: "icon" | "pill"
+  /** Aria-label when switching to light mode */
+  lightLabel?: string
+  /** Aria-label when switching to dark mode */
+  darkLabel?: string
 }
 
 function useToggleTheme() {
@@ -68,7 +72,9 @@ function useToggleTheme() {
 
 export function ThemeToggle({
   size = "md",
-  variant = "icon"
+  variant = "icon",
+  lightLabel = "Switch to light mode",
+  darkLabel = "Switch to dark mode",
 }: ThemeToggleProps) {
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const { isDark, toggle } = useToggleTheme()
@@ -87,11 +93,11 @@ export function ThemeToggle({
             : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
           }
         `}
-        aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+        aria-label={isDark ? lightLabel : darkLabel}
       >
         {isDark
-          ? <><Sun size={14} /> Modo claro</>
-          : <><Moon size={14} /> Modo escuro</>
+          ? <><Sun size={14} /> {lightLabel}</>
+          : <><Moon size={14} /> {darkLabel}</>
         }
       </button>
     )
@@ -113,7 +119,7 @@ export function ThemeToggle({
           : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100"
         }
       `}
-      aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+      aria-label={isDark ? lightLabel : darkLabel}
     >
       <Sun
         size={iconSize}

@@ -1,6 +1,9 @@
 {
   "title": "Today's Appointments",
   "noAppointments": "No appointments for today",
+  "noAppointmentsDate": "No appointments on this day",
+  "todayButton": "Today",
+  "walkInTodayOnly": "Walk-in available for today only",
   "currentAppointment": "Current",
   "viewDetails": "View details",
   "filters": {
@@ -15,5 +18,15 @@
     "confirmed": "confirmed",
     "present": "present",
     "pending": "pending"
+  },
+  "postConsultation": {
+    "title": "Consultation notes",
+    "placeholder": "Diagnosis, treatment, observations...",
+    "followUpLabel": "Schedule a follow-up consultation",
+    "followUpDateLabel": "Suggested follow-up date",
+    "ignore": "Dismiss",
+    "save": "Save notes",
+    "saveError": "Error saving notes",
+    "saveSuccess": "Notes saved successfully"
   }
 }

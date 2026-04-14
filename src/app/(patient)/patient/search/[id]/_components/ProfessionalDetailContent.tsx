@@ -1,9 +1,7 @@
-import { format } from "date-fns"
 import { type Locale } from "date-fns/locale"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Building2, Globe, Shield } from "lucide-react"
 import { translateSpecialty } from "@/locales/patient/specialties"
 import { ProLocationMapWrapper } from "./ProLocationMapWrapper"
@@ -71,11 +69,11 @@ function resolveServiceName(svc: Service, locale: string): string {
 export function ProfessionalDetailContent({
   prof,
   services,
-  reviews,
+  reviews: _reviews,
   proInsurances,
   t,
   locale,
-  dateLocale,
+  dateLocale: _dateLocale,
 }: ProfessionalDetailContentProps) {
   const u = prof.users
   const fullName = `${t.professional.namePrefix} ${u.first_name} ${u.last_name}`
@@ -87,21 +85,28 @@ export function ProfessionalDetailContent({
   }
 
   return (
-    <div className="space-y-6 lg:col-span-2">
+    <div className="space-y-6">
       {/* Header card */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex gap-4">
-            <Avatar className="size-28 md:size-36 border-2 border-background shadow-sm">
-              <AvatarImage
-                src={u.avatar_url ?? undefined}
-                alt={fullName}
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-primary/10 text-3xl md:text-4xl font-semibold text-primary">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative size-40 shrink-0 overflow-hidden rounded-2xl border-2 border-background shadow-sm md:size-48">
+              {u.avatar_url ? (
+                <Image
+                  src={u.avatar_url}
+                  alt={fullName}
+                  fill
+                  className="object-cover object-[50%_20%]"
+                  sizes="(min-width: 768px) 192px, 160px"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-muted">
+                  <span className="text-3xl font-semibold text-muted-foreground md:text-4xl">
+                    {initials}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="min-w-0 flex-1 space-y-2">
               <div>
                 <h1 className="text-xl font-bold">{fullName}</h1>
@@ -224,49 +229,7 @@ export function ProfessionalDetailContent({
         </Card>
       )}
 
-      {/* Reviews */}
-      {reviews && reviews.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>{t.professionalDetail.reviewsTitle}</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reviews.map((review) => {
-                const r = review as ReviewData
-                const rv = r.appointments?.patients?.users
-                const rvInit = rv ? `${rv.first_name?.[0] ?? ""}${rv.last_name?.[0] ?? ""}`.toUpperCase() : "?"
-                return (
-                  <div key={r.id}>
-                    <div className="flex items-start gap-3">
-                      <Avatar size="sm">
-                        <AvatarFallback className="bg-primary/10 text-xs text-primary">{rvInit}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-medium">
-                            {rv ? `${rv.first_name ?? ""} ${rv.last_name ?? ""}` : t.professionalDetail.fallbackReviewer}
-                          </span>
-                          <div className="flex items-center gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`size-3 ${i < (r.rating ?? 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
-                            ))}
-                          </div>
-                          {r.created_at && (
-                            <span className="text-xs text-muted-foreground">
-                              {format(new Date(r.created_at), "d MMM yyyy", { locale: dateLocale })}
-                            </span>
-                          )}
-                        </div>
-                        {r.comment && <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>}
-                      </div>
-                    </div>
-                    <Separator className="mt-4" />
-                  </div>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Reviews are now handled by the ProfessionalReviews component */}
     </div>
   )
 }

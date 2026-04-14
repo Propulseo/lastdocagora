@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { pt } from "date-fns/locale";
+import type { Locale } from "date-fns";
+import { pt, enGB, fr } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/client";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
@@ -13,12 +14,25 @@ interface ProRealtimeNotifierProps {
   professionalUserId: string;
 }
 
-function formatAppointmentDate(dateStr: string, timeStr: string): string {
+const dateLocaleMap: Record<string, Locale> = {
+  "pt-PT": pt,
+  "en-GB": enGB,
+  "fr-FR": fr,
+};
+
+function formatAppointmentDate(
+  dateStr: string,
+  timeStr: string,
+  locale: Locale,
+  atConnector: string
+): string {
   const scheduledDate = new Date(`${dateStr}T${timeStr}`);
   if (!isNaN(scheduledDate.getTime())) {
-    return format(scheduledDate, "EEE, d MMM 'às' HH:mm", { locale: pt });
+    return format(scheduledDate, `EEE, d MMM '${atConnector}' HH:mm`, {
+      locale,
+    });
   }
-  return `${dateStr} às ${timeStr}`;
+  return `${dateStr} ${atConnector} ${timeStr}`;
 }
 
 export function ProRealtimeNotifier({
@@ -90,7 +104,17 @@ export function ProRealtimeNotifier({
             };
             const dateStr = row.appointment_date ?? "";
             const timeStr = row.appointment_time ?? "";
-            const formattedDate = formatAppointmentDate(dateStr, timeStr);
+            const currentT = tRef.current;
+            const locale =
+              dateLocaleMap[currentT.common.dateLocale as string] ?? pt;
+            const atConnector =
+              currentT.notificationBell.dateAtConnector ?? "às";
+            const formattedDate = formatAppointmentDate(
+              dateStr,
+              timeStr,
+              locale,
+              atConnector
+            );
 
             toast.info(
               tRef.current.notificationBell.toastNewBooking ?? "Novo agendamento",
@@ -150,7 +174,17 @@ export function ProRealtimeNotifier({
             if (row.status === "cancelled") {
               const dateStr = row.appointment_date ?? "";
               const timeStr = row.appointment_time ?? "";
-              const formattedDate = formatAppointmentDate(dateStr, timeStr);
+              const currentT = tRef.current;
+              const locale =
+                dateLocaleMap[currentT.common.dateLocale as string] ?? pt;
+              const atConnector =
+                currentT.notificationBell.dateAtConnector ?? "às";
+              const formattedDate = formatAppointmentDate(
+                dateStr,
+                timeStr,
+                locale,
+                atConnector
+              );
 
               toast.warning(
                 tRef.current.notificationBell.toastCancellation ??

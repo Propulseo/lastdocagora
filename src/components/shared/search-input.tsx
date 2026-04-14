@@ -14,7 +14,7 @@ interface SearchInputProps {
 }
 
 export function SearchInput({
-  placeholder = "Pesquisar...",
+  placeholder = "",
   paramKey = "search",
   className,
   minLength = 1,

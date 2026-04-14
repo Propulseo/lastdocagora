@@ -131,6 +131,17 @@ export type PatientDetailEnhanced = {
     status: string;
     serviceName: string | null;
   }[];
+  consultationNotes: {
+    id: string;
+    content: string;
+    follow_up_needed: boolean;
+    follow_up_suggested_date: string | null;
+    created_at: string;
+    updated_at: string;
+    appointment_id: string;
+    appointment_date: string | null;
+    appointment_time: string | null;
+  }[];
 };
 
 type EnhancedDetailResult =
@@ -181,6 +192,14 @@ export async function getPatientDetailEnhanced(
 
   const patient = patientResult.data;
   if (!patient) return { success: false, error: "patient_not_found" };
+
+  // Fetch consultation notes for this patient
+  const fromNotes = (supabase.from as unknown as (table: string) => ReturnType<typeof supabase.from>);
+  const { data: notesData } = await fromNotes("consultation_notes")
+    .select("id, content, follow_up_needed, follow_up_suggested_date, created_at, updated_at, appointment_id")
+    .eq("patient_id", patientId)
+    .eq("professional_id", professionalId)
+    .order("created_at", { ascending: false }) as unknown as { data: { id: string; content: string; follow_up_needed: boolean; follow_up_suggested_date: string | null; created_at: string; updated_at: string; appointment_id: string }[] | null };
 
   const rows = appointmentsResult.data ?? [];
   const upcoming = upcomingResult.data ?? [];
@@ -248,6 +267,17 @@ export async function getPatientDetailEnhanced(
       r.services && !Array.isArray(r.services) ? r.services.name : null,
   }));
 
+  // Map notes with appointment date/time
+  const appointmentMap = new Map(rows.map((r) => [r.id, { date: r.appointment_date, time: r.appointment_time }]));
+  const consultationNotes = (notesData ?? []).map((n) => {
+    const apt = appointmentMap.get(n.appointment_id);
+    return {
+      ...n,
+      appointment_date: apt?.date ?? null,
+      appointment_time: apt?.time ?? null,
+    };
+  });
+
   return {
     success: true,
     data: {
@@ -261,6 +291,7 @@ export async function getPatientDetailEnhanced(
       avgSpent,
       allAppointments,
       upcomingAppointments,
+      consultationNotes,
     },
   };
 }
@@ -348,41 +379,44 @@ export async function updatePatient(
   return { success: true };
 }
 
-export async function deletePatient(patientId: string): Promise<ActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Not authenticated" };
 
-  // Get user_id before deleting patient
+export async function removePatient(patientId: string): Promise<ActionResult> {
+  const professionalId = await getProfessionalId();
+  const supabase = await createClient();
+
+  // Verify the patient exists
   const { data: patient } = await supabase
     .from("patients")
-    .select("user_id")
+    .select("id, created_by_professional_id")
     .eq("id", patientId)
     .single();
 
-  if (!patient) return { success: false, error: "Patient not found" };
+  if (!patient) return { success: false, error: "patient_not_found" };
 
-  // Nullify patient_id on related appointments (preserve history)
-  // This is also handled by ON DELETE SET NULL FK, but explicit for clarity.
-  await supabase
-    .from("appointments")
-    .update({ patient_id: null })
-    .eq("patient_id", patientId);
+  // Clear ownership if this pro created the patient
+  if (patient.created_by_professional_id === professionalId) {
+    const { error } = await supabase
+      .from("patients")
+      .update({ created_by_professional_id: null })
+      .eq("id", patientId)
+      .eq("created_by_professional_id", professionalId);
 
-  // Delete patient record
-  const { error } = await supabase.from("patients").delete().eq("id", patientId);
-  if (error) return { success: false, error: error.message };
+    if (error) {
+      if (error.code === "23503") return { success: false, error: "linked_data" };
+      if (error.code === "42501") return { success: false, error: "permission_denied" };
+      return { success: false, error: error.message };
+    }
+  }
 
-  // Delete orphaned user record (only if role is patient and no other patient record)
-  const { count: otherPatients } = await supabase
-    .from("patients")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", patient.user_id);
+  // Hide patient from this pro's list via RPC (avoids typed client issues)
+  const { error: hideError } = await (supabase.rpc as unknown as (fn: string, params: Record<string, string>) => Promise<{ error: { code: string; message: string } | null }>)("hide_patient_for_pro", {
+    p_professional_id: professionalId,
+    p_patient_id: patientId,
+  });
 
-  if (!otherPatients || otherPatients === 0) {
-    await supabase.from("users").delete().eq("id", patient.user_id).eq("role", "patient");
+  if (hideError) {
+    if (hideError.code === "42501") return { success: false, error: "permission_denied" };
+    return { success: false, error: hideError.message };
   }
 
   revalidatePath("/pro/patients");

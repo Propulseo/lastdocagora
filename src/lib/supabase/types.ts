@@ -639,6 +639,78 @@ export type Database = {
           },
         ]
       }
+      consultation_notes: {
+        Row: {
+          appointment_id: string
+          content: string
+          created_at: string
+          follow_up_needed: boolean
+          follow_up_suggested_date: string | null
+          id: string
+          patient_id: string
+          professional_id: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          content: string
+          created_at?: string
+          follow_up_needed?: boolean
+          follow_up_suggested_date?: string | null
+          id?: string
+          patient_id: string
+          professional_id: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          content?: string
+          created_at?: string
+          follow_up_needed?: boolean
+          follow_up_suggested_date?: string | null
+          id?: string
+          patient_id?: string
+          professional_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_notes_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_notes_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_notes_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "consultation_notes_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_notes_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_pages: {
         Row: {
           content_en: string
@@ -997,6 +1069,7 @@ export type Database = {
           is_read: boolean | null
           message: string
           params: Json | null
+          read_at: string | null
           related_id: string | null
           title: string
           type: string
@@ -1008,6 +1081,7 @@ export type Database = {
           is_read?: boolean | null
           message: string
           params?: Json | null
+          read_at?: string | null
           related_id?: string | null
           title: string
           type: string
@@ -1019,6 +1093,7 @@ export type Database = {
           is_read?: boolean | null
           message?: string
           params?: Json | null
+          read_at?: string | null
           related_id?: string | null
           title?: string
           type?: string
@@ -1638,17 +1713,75 @@ export type Database = {
           },
         ]
       }
+      review_requests: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          declined: boolean
+          id: string
+          opened_at: string | null
+          patient_id: string
+          sent_at: string
+          token: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          declined?: boolean
+          id?: string
+          opened_at?: string | null
+          patient_id: string
+          sent_at?: string
+          token?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          declined?: boolean
+          id?: string
+          opened_at?: string | null
+          patient_id?: string
+          sent_at?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_requests_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_requests_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           appointment_id: string | null
           comment: string | null
           created_at: string | null
           id: string
+          is_anonymous: boolean
+          moderated_at: string | null
+          moderated_by: string | null
           patient_id: string
           patient_user_id: string | null
           professional_id: string
+          professional_reply: string | null
           professional_user_id: string | null
           rating: number
+          rating_clarity: number | null
+          rating_listening: number | null
+          rating_punctuality: number | null
+          replied_at: string | null
+          status: string
+          updated_at: string
           would_recommend: boolean | null
         }
         Insert: {
@@ -1656,11 +1789,21 @@ export type Database = {
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
           patient_id: string
           patient_user_id?: string | null
           professional_id: string
+          professional_reply?: string | null
           professional_user_id?: string | null
           rating: number
+          rating_clarity?: number | null
+          rating_listening?: number | null
+          rating_punctuality?: number | null
+          replied_at?: string | null
+          status?: string
+          updated_at?: string
           would_recommend?: boolean | null
         }
         Update: {
@@ -1668,11 +1811,21 @@ export type Database = {
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
           patient_id?: string
           patient_user_id?: string | null
           professional_id?: string
+          professional_reply?: string | null
           professional_user_id?: string | null
           rating?: number
+          rating_clarity?: number | null
+          rating_listening?: number | null
+          rating_punctuality?: number | null
+          replied_at?: string | null
+          status?: string
+          updated_at?: string
           would_recommend?: boolean | null
         }
         Relationships: [
@@ -1681,6 +1834,13 @@ export type Database = {
             columns: ["appointment_id"]
             isOneToOne: true
             referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -2105,9 +2265,21 @@ export type Database = {
         }
         Returns: Json
       }
+      get_professional_rating_stats: {
+        Args: { professional_uuid: string }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
       is_professional: { Args: never; Returns: boolean }
       promote_to_admin: { Args: { target_email: string }; Returns: string }
+      get_hidden_patient_ids: {
+        Args: { p_professional_id: string }
+        Returns: { patient_id: string }[]
+      }
+      hide_patient_for_pro: {
+        Args: { p_professional_id: string; p_patient_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

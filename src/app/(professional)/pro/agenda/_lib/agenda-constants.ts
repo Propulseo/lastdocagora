@@ -1,6 +1,9 @@
 // ─── Hidden statuses (CLAUDE.md §17) ───
 export const HIDDEN_APPOINTMENT_STATUSES = ["cancelled", "rejected"] as const;
 
+// ─── Default visible status filters (all active by default) ───
+export const DEFAULT_STATUS_FILTERS = ["confirmed", "pending", "completed", "no-show"] as const;
+
 // ─── Grid Geometry ───
 export const HOUR_HEIGHT = 56;
 export const START_HOUR = 7;
@@ -46,6 +49,24 @@ export const ATTENDANCE_BADGE_COLORS: Record<string, string> = {
   absent: "border-red-500/40 text-red-700 dark:text-red-300 bg-red-500/10",
 };
 
+// ─── Absent delay threshold (minutes after appointment start) ───
+const ABSENT_DELAY_MINUTES = 15;
+
+/**
+ * Returns true if enough time has elapsed since the appointment start
+ * to allow marking the patient as absent (15 min after start).
+ */
+export function canMarkAbsent(appointment: {
+  appointment_date: string;
+  appointment_time: string;
+}): boolean {
+  const [year, month, day] = appointment.appointment_date.split("-").map(Number);
+  const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
+  const start = new Date(year, month - 1, day, h, m);
+  const threshold = new Date(start.getTime() + ABSENT_DELAY_MINUTES * 60 * 1000);
+  return new Date() >= threshold;
+}
+
 // ─── Stat accent colors (for AttendanceStats row) ───
 export const STAT_COLORS: Record<string, string> = {
   total: "text-blue-600 dark:text-blue-400",
@@ -55,17 +76,3 @@ export const STAT_COLORS: Record<string, string> = {
   waiting: "text-orange-600 dark:text-orange-400",
 };
 
-// ─── Payment status colors ───
-export const PAYMENT_BADGE_COLORS: Record<string, string> = {
-  paid: "border-green-500/40 text-green-700 dark:text-green-300 bg-green-500/10",
-  invoiced: "border-orange-500/40 text-orange-700 dark:text-orange-300 bg-orange-500/10",
-  reminder_sent: "border-blue-500/40 text-blue-700 dark:text-blue-300 bg-blue-500/10",
-  unpaid: "border-red-500/40 text-red-700 dark:text-red-300 bg-red-500/10",
-};
-
-export const PAYMENT_DOT_COLORS: Record<string, string> = {
-  paid: "bg-green-500",
-  invoiced: "bg-orange-500",
-  reminder_sent: "bg-blue-500",
-  unpaid: "bg-red-500",
-};

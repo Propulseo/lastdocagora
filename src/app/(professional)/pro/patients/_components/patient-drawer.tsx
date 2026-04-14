@@ -18,6 +18,7 @@ import {
 } from "@/app/(professional)/_actions/patients";
 import { PatientDrawerInfo } from "./patient-drawer-info";
 import { PatientDrawerAppointments } from "./patient-drawer-appointments";
+import { PatientDrawerNotes } from "./patient-drawer-notes";
 
 interface PatientDrawerProps {
   patientId: string | null;
@@ -101,6 +102,22 @@ export function PatientDrawer({
                 savingNotes={savingNotes}
                 setSavingNotes={setSavingNotes}
                 setData={setData}
+              />
+
+              <PatientDrawerNotes
+                notes={data.consultationNotes}
+                dateLocale={dateLocale}
+                onNoteUpdated={(noteId, newContent) => {
+                  setData((prev) => {
+                    if (!prev) return prev;
+                    return {
+                      ...prev,
+                      consultationNotes: prev.consultationNotes.map((n) =>
+                        n.id === noteId ? { ...n, content: newContent } : n,
+                      ),
+                    };
+                  });
+                }}
               />
             </div>
           </ScrollArea>

@@ -108,6 +108,7 @@
     "allTimings": "Todos os momentos",
     "activeOnly": "Apenas ativos",
     "preview": "Pré-visualização",
+    "source": "Código",
     "variables": "Variáveis disponíveis",
     "variableHint": "Clique para inserir",
     "smsCounter": "{{count}} / 160 caracteres",

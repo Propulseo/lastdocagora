@@ -39,49 +39,7 @@ const COLOR_MAP: Record<string, string> = {
 
 const DEFAULT_COLOR = "bg-muted text-muted-foreground";
 
-const DEFAULT_LABELS: Record<string, Record<string, string>> = {
-  userStatus: {
-    active: "Ativo",
-    inactive: "Inativo",
-    suspended: "Suspenso",
-  },
-  role: {
-    patient: "Paciente",
-    professional: "Profissional",
-    admin: "Administrador",
-  },
-  verification: {
-    verified: "Verificado",
-    pending: "Pendente",
-    rejected: "Rejeitado",
-  },
-  appointment: {
-    pending: "Pendente",
-    scheduled: "Agendada",
-    confirmed: "Confirmada",
-    completed: "Concluída",
-    cancelled: "Cancelada",
-    rejected: "Recusada",
-    no_show: "Falta",
-  },
-  ticket: {
-    open: "Aberto",
-    in_progress: "Em progresso",
-    awaiting_confirmation: "Aguardando confirmação",
-    resolved: "Resolvido",
-    closed: "Fechado",
-  },
-  priority: {
-    low: "Baixa",
-    medium: "Média",
-    high: "Alta",
-    urgent: "Urgente",
-  },
-  published: {
-    true: "Publicado",
-    false: "Rascunho",
-  },
-};
+const DEFAULT_LABELS: Record<string, Record<string, string>> = {};
 
 interface StatusBadgeProps {
   type: string;

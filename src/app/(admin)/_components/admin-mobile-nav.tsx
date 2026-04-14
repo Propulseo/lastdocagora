@@ -153,7 +153,7 @@ export function AdminMobileNav({
             </div>
             <LanguageSwitcher locale={locale} />
           </div>
-          <ThemeToggle variant="pill" />
+          <ThemeToggle variant="pill" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button
             onClick={handleLogout}
             className="flex h-10 w-full items-center gap-3 rounded-md px-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"

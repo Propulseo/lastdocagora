@@ -5,15 +5,18 @@ import {
   XCircle,
   Clock,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { getServiceName } from "@/lib/get-service-name";
 import {
   ATTENDANCE_BADGE_COLORS,
   STATUS_PILL_COLORS,
+  canMarkAbsent,
 } from "@/app/(professional)/pro/agenda/_lib/agenda-constants";
 import type { TodayAppointment } from "../_hooks/useTodayData";
 import { SHADOW, RADIUS } from "@/lib/design-tokens";
@@ -25,6 +28,7 @@ interface TodayAppointmentCardTranslations {
     statusPresent: string;
     statusAbsent: string;
     statusLate: string;
+    absentTooEarly: string;
     [key: string]: string;
   };
   commonStatus: Record<string, string>;
@@ -137,44 +141,54 @@ export function TodayAppointmentCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 h-8 min-h-[44px] text-xs"
-          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "present"); }}
-          disabled={apt.attendance_status === "present"}
-        >
-          <CheckCircle className="size-3.5 mr-1" />
-          {tr.attendance.statusPresent}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950 h-8 min-h-[44px] text-xs"
-          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "absent"); }}
-          disabled={apt.attendance_status === "absent"}
-        >
-          <XCircle className="size-3.5 mr-1" />
-          {tr.attendance.statusAbsent}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950 h-8 min-h-[44px] text-xs"
-          onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, "late"); }}
-          disabled={apt.attendance_status === "late"}
-        >
-          <Clock className="size-3.5 mr-1" />
-          {tr.attendance.statusLate}
-        </Button>
-        {apt.patient_id && (
-          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-            {tr.viewDetails}
-            <ChevronRight className="size-3.5" />
-          </span>
-        )}
-      </div>
+      <TooltipProvider>
+        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
+          {([
+            { status: "present" as const, label: tr.attendance.statusPresent, Icon: apt.attendance_status === "present" ? Lock : CheckCircle, cls: "text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950" },
+            { status: "absent" as const, label: tr.attendance.statusAbsent, Icon: XCircle, cls: "text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950" },
+            { status: "late" as const, label: tr.attendance.statusLate, Icon: Clock, cls: "text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950" },
+          ] as const).map(({ status, label, Icon, cls }) => {
+            const isLocked = apt.attendance_status === "present" && status !== "present";
+            const isActive = apt.attendance_status === status;
+            const isAbsentTooEarly = status === "absent" && !isLocked && !isActive && !canMarkAbsent(apt);
+            const btn = (
+              <Button
+                size="sm"
+                variant="outline"
+                className={`${cls} h-8 min-h-[44px] text-xs`}
+                onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, status); }}
+                disabled={isActive || isLocked || isAbsentTooEarly}
+              >
+                <Icon className="size-3.5 mr-1" />
+                {label}
+              </Button>
+            );
+            if (isLocked) {
+              return (
+                <Tooltip key={status}>
+                  <TooltipTrigger asChild><span>{btn}</span></TooltipTrigger>
+                  <TooltipContent>{tr.attendance.lockedTooltip}</TooltipContent>
+                </Tooltip>
+              );
+            }
+            if (isAbsentTooEarly) {
+              return (
+                <Tooltip key={status}>
+                  <TooltipTrigger asChild><span>{btn}</span></TooltipTrigger>
+                  <TooltipContent>{tr.attendance.absentTooEarly}</TooltipContent>
+                </Tooltip>
+              );
+            }
+            return <span key={status}>{btn}</span>;
+          })}
+          {apt.patient_id && (
+            <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+              {tr.viewDetails}
+              <ChevronRight className="size-3.5" />
+            </span>
+          )}
+        </div>
+      </TooltipProvider>
     </div>
   );
 }

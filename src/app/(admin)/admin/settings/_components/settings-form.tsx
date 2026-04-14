@@ -103,6 +103,8 @@ function SettingRow({ setting }: { setting: Setting }) {
           setting.setting_key
         )}
         confirmLabel={t.common.save}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
         loading={isPending}
         onConfirm={handleConfirm}
       />

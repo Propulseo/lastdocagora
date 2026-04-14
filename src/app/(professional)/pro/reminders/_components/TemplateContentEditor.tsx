@@ -126,7 +126,7 @@ export function TemplateContentEditor({
             </TabsTrigger>
             <TabsTrigger value="source" className="text-xs gap-1">
               <Code2 className="size-3" />
-              Source
+              {t.reminders.templates.source}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="preview" className="mt-2">

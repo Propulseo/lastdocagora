@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import {
   CalendarCheck,
   Users,
   Clock,
   TrendingUp,
+  Star,
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
@@ -24,20 +26,15 @@ interface MetricProps {
   deltaLabel?: string;
   accent?: string;
   borderAccent?: string;
+  href?: string;
+  subtitle?: string;
 }
 
-function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10 text-primary", borderAccent = "border-t-primary" }: MetricProps) {
+function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10 text-primary", borderAccent = "border-t-primary", href, subtitle }: MetricProps) {
   const hasDelta = delta !== undefined && delta !== 0;
 
-  return (
-    <div
-      className={cn(
-        "group relative flex flex-col gap-3.5 overflow-hidden bg-card border border-border/40",
-        RADIUS.card,
-        SHADOW.card,
-        "p-4 transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:border-border/60",
-      )}
-    >
+  const content = (
+    <>
       {/* Subtle colored top accent line */}
       <div className={cn("absolute inset-x-0 top-0 h-[2px]", borderAccent)} />
 
@@ -71,17 +68,50 @@ function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10
         <p className={cn(TYPE.label, "mt-1.5")}>
           {label}
         </p>
+        {subtitle && (
+          <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>
+        )}
       </div>
-    </div>
+    </>
   );
+
+  const wrapperClass = cn(
+    "group relative flex flex-col gap-3.5 overflow-hidden bg-card border border-border/40",
+    RADIUS.card,
+    SHADOW.card,
+    "p-4 transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:border-border/60",
+    href && "cursor-pointer",
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={wrapperClass}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={wrapperClass}>{content}</div>;
 }
 
 export function KPIStrip({ data }: KPIStripProps) {
-  const { t, todayCount, todayDelta, totalPatients, pendingCount, attendanceRate } =
-    data;
+  const {
+    t, todayCount, todayDelta, totalPatients, pendingCount, attendanceRate,
+    reviewsThisMonth, reviewsAvgThisMonth, reviewsAvgLastMonth,
+  } = data;
+
+  const reviewsDelta =
+    reviewsAvgThisMonth > 0 && reviewsAvgLastMonth > 0
+      ? parseFloat((reviewsAvgThisMonth - reviewsAvgLastMonth).toFixed(1))
+      : undefined;
+
+  const dashboardT = t.dashboard as Record<string, string>;
+  const reviewsSubtitle = dashboardT.reviewsCount
+    ? dashboardT.reviewsCount.replace("{count}", String(reviewsThisMonth))
+    : `${reviewsThisMonth} este mes`;
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
       <Metric
         icon={<CalendarCheck className="size-4" />}
         label={t.dashboard.appointmentsToday}
@@ -108,9 +138,19 @@ export function KPIStrip({ data }: KPIStripProps) {
       <Metric
         icon={<TrendingUp className="size-4" />}
         label={t.dashboard.attendanceRate}
-        value={attendanceRate > 0 ? `${Math.round(attendanceRate)}%` : "—"}
+        value={attendanceRate > 0 ? `${Math.round(attendanceRate)}%` : "\u2014"}
         accent="bg-teal-500/10 text-teal-600 dark:text-teal-400"
         borderAccent="bg-teal-500/70"
+      />
+      <Metric
+        icon={<Star className="size-4" />}
+        label={dashboardT.reviews ?? "Avaliações"}
+        value={reviewsAvgThisMonth > 0 ? reviewsAvgThisMonth.toFixed(1) : "\u2014"}
+        delta={reviewsDelta}
+        subtitle={reviewsSubtitle}
+        href="/pro/reviews"
+        accent="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+        borderAccent="bg-yellow-500/70"
       />
     </div>
   );

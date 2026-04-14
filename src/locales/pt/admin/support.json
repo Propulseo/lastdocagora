@@ -23,5 +23,11 @@
   "typeFilter": "Tipo de ticket",
   "allTypes": "Todos os tipos",
   "typeChangeRequest": "Pedidos de alteração",
-  "typeGeneral": "Suporte geral"
+  "typeGeneral": "Suporte geral",
+  "assignToSelf": "Assumir",
+  "assigned": "Ticket atribuído a si",
+  "deleteTicket": "Eliminar ticket",
+  "deleteConfirmTitle": "Eliminar este ticket?",
+  "deleteConfirmDesc": "Este ticket e todas as suas mensagens serão eliminados permanentemente.",
+  "ticketDeleted": "Ticket eliminado"
 }

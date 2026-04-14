@@ -24,18 +24,19 @@ export async function requestFieldChange(
 
   const supabase = await createClient();
 
+  // Structured description — admin reads raw field data, no i18n needed
   const description = [
-    `Campo: ${input.fieldName}`,
-    `Valor atual: ${input.currentValue || "—"}`,
-    `Novo valor: ${input.requestedValue}`,
-    input.reason ? `Motivo: ${input.reason}` : null,
+    `Field: ${input.fieldName}`,
+    `Current value: ${input.currentValue || "—"}`,
+    `Requested value: ${input.requestedValue}`,
+    input.reason ? `Reason: ${input.reason}` : null,
   ]
     .filter(Boolean)
     .join("\n");
 
   const { error } = await supabase.from("support_tickets").insert({
     user_id: user.id,
-    subject: `Pedido de alteração: ${input.fieldName}`,
+    subject: `Profile change request: ${input.fieldName}`,
     description,
     status: "open",
     priority: "medium",
@@ -59,8 +60,8 @@ export async function requestFieldChange(
   if (admins && admins.length > 0) {
     const notifications = admins.map((admin) => ({
       user_id: admin.id,
-      title: "Novo pedido de alteração de perfil",
-      message: `Profissional solicitou alteração do campo "${input.fieldName}"`,
+      title: "New profile change request",
+      message: `Professional requested change of field "${input.fieldName}"`,
       type: "system" as const,
       read: false,
     }));

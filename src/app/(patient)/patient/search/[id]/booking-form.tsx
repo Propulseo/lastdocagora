@@ -67,7 +67,18 @@ export function BookingForm({
         p_professional_id: professionalId,
       })
       if (error) throw error
-      setSlots((data as Slot[]) ?? [])
+      const raw = (data as Slot[]) ?? []
+      // Filter out past slots for today (start_time > now + 30min margin)
+      const now = new Date()
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      if (date.getTime() === today.getTime()) {
+        const marginMs = 30 * 60 * 1000
+        const cutoff = now.getTime() + marginMs
+        setSlots(raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff))
+      } else {
+        setSlots(raw)
+      }
     } catch {
       toast.error(t.booking.errorLoadSlots)
     } finally {
@@ -94,6 +105,10 @@ export function BookingForm({
       if (!result.success) {
         if (result.error === "self_booking_not_allowed") {
           toast.error(t.booking.selfBookingError)
+        } else if (result.error === "SLOT_UNAVAILABLE") {
+          toast.error(t.booking.slotUnavailable)
+        } else if (result.error === "SLOT_IN_PAST") {
+          toast.error(t.booking.slotInPast)
         } else {
           toast.error(t.booking.errorBooking)
         }

@@ -48,6 +48,9 @@ export interface DashboardProps {
   unconfirmedNext24h: number;
   noShowRate: number;
   nextAvailableSlot: string | null;
+  reviewsThisMonth: number;
+  reviewsAvgThisMonth: number;
+  reviewsAvgLastMonth: number;
 }
 
 export function useDashboardData(props: DashboardProps) {

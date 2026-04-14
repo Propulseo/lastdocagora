@@ -6,10 +6,16 @@ import { Separator } from "@/components/ui/separator";
 import { adminNav } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NotificationBell } from "@/components/shared/NotificationBell";
+import { AdminGlobalSearch } from "./admin-global-search";
 
-export function AdminTopbar() {
+interface AdminTopbarProps {
+  userId: string;
+}
+
+export function AdminTopbar({ userId }: AdminTopbarProps) {
   const pathname = usePathname();
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
 
   const matchedItem = adminNav.find((item) =>
     pathname.startsWith(item.href),
@@ -23,8 +29,24 @@ export function AdminTopbar() {
       <SidebarTrigger className="-ml-2" aria-label={t.topbar.toggleSidebar} />
       <Separator orientation="vertical" className="h-5" />
       <h2 className="text-sm font-medium">{title}</h2>
-      <div className="ml-auto">
-        <ThemeToggle />
+      <div className="ml-4 flex-1 max-w-md">
+        <AdminGlobalSearch />
+      </div>
+      <div className="ml-auto flex items-center gap-2">
+        <NotificationBell
+          userId={userId}
+          translations={{
+            title: t.notifications.title,
+            markAllRead: t.notifications.markAllRead,
+            empty: t.notifications.empty,
+            markAsRead: t.notifications.markAsRead,
+            markAsUnread: t.notifications.markAsUnread,
+            justNow: t.notifications.justNow,
+          }}
+          locale={locale}
+          role="admin"
+        />
+        <ThemeToggle lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
       </div>
     </header>
   );

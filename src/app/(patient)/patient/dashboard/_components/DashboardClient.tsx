@@ -1,19 +1,19 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Search, ArrowRight } from "lucide-react"
 import { format } from "date-fns"
 import { StatusBadge } from "@/components/shared/status-badge"
 import {
   getProfessionalName,
-  getProfessionalSpecialty,
   getProfessionalInitials,
 } from "@/app/(patient)/_components/professional-name"
 import { usePatientTranslations } from "@/locales/locale-context"
+import { translateSpecialty } from "@/locales/patient/specialties"
 
 type DashboardAppointment = {
   id: string
@@ -38,7 +38,7 @@ export function DashboardClient({
   nextAppointment,
   recentAppointments,
 }: DashboardClientProps) {
-  const { t, dateLocale } = usePatientTranslations()
+  const { t, locale, dateLocale } = usePatientTranslations()
 
   return (
     <div className="space-y-6">
@@ -91,22 +91,30 @@ export function DashboardClient({
 
                 {/* Professional info */}
                 <div className="flex flex-1 items-center gap-4">
-                  <Avatar size="lg" className="size-14">
-                    <AvatarImage
-                      src={nextAppointment.professionals?.users?.avatar_url ?? undefined}
-                      alt={getProfessionalName(nextAppointment.professionals, t.professional)}
-                    />
-                    <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
-                      {getProfessionalInitials(nextAppointment.professionals, t.professional)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative size-20 shrink-0 overflow-hidden rounded-xl border-2 border-background shadow-sm sm:size-24">
+                    {nextAppointment.professionals?.users?.avatar_url ? (
+                      <Image
+                        src={nextAppointment.professionals.users.avatar_url}
+                        alt={getProfessionalName(nextAppointment.professionals, t.professional)}
+                        fill
+                        className="object-cover object-[50%_20%]"
+                        sizes="(min-width: 640px) 96px, 80px"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center bg-muted">
+                        <span className="text-xl font-semibold text-muted-foreground">
+                          {getProfessionalInitials(nextAppointment.professionals, t.professional)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <p className="truncate text-lg font-semibold">
                       {getProfessionalName(nextAppointment.professionals, t.professional)}
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="secondary">
-                        {getProfessionalSpecialty(nextAppointment.professionals, t.professional)}
+                        {translateSpecialty(nextAppointment.professionals?.specialty, locale) ?? t.professional.fallbackSpecialty}
                       </Badge>
                       <StatusBadge type="appointment" value={nextAppointment.status} labels={{ confirmed: t.status.confirmed, pending: t.status.pending, cancelled: t.status.cancelled, completed: t.status.completed, no_show: t.status.noShow }} />
                     </div>
@@ -163,15 +171,23 @@ export function DashboardClient({
                     className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition-colors hover:bg-muted/30"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <Avatar>
-                        <AvatarImage
-                          src={appt.professionals?.users?.avatar_url ?? undefined}
-                          alt={getProfessionalName(appt.professionals, t.professional)}
-                        />
-                        <AvatarFallback className="bg-primary/10 text-xs text-primary">
-                          {getProfessionalInitials(appt.professionals, t.professional)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-border/40">
+                        {appt.professionals?.users?.avatar_url ? (
+                          <Image
+                            src={appt.professionals.users.avatar_url}
+                            alt={getProfessionalName(appt.professionals, t.professional)}
+                            fill
+                            className="object-cover object-[50%_20%]"
+                            sizes="48px"
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center bg-muted">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              {getProfessionalInitials(appt.professionals, t.professional)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
                           {getProfessionalName(appt.professionals, t.professional)}

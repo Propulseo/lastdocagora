@@ -336,11 +336,51 @@ export function buildRevenueTrends(
   return { trends, total };
 }
 
+export interface InsightLabels {
+  /** e.g. `"{{name}}": {{rate}}% no-show` — use {{name}} and {{rate}} */
+  worstService: string;
+  /** e.g. `Enable specific reminder for this service` */
+  worstServiceAction: string;
+  /** e.g. `"{{name}}": {{rate}}% attendance rate` — use {{name}} and {{rate}} */
+  bestService: string;
+  /** e.g. `Service to promote — excellent adherence` */
+  bestServiceAction: string;
+  /** Fallback patient name, e.g. `Patient` */
+  patientFallback: string;
+  /** e.g. `{{name}}: {{count}} absences/cancellations` — use {{name}} and {{count}} */
+  riskyPatient: string;
+  /** e.g. `Consider follow-up or deposit` */
+  riskyPatientAction: string;
+}
+
+const DEFAULT_INSIGHT_LABELS: InsightLabels = {
+  worstService: '"{{name}}" : {{rate}}% não compareceu',
+  worstServiceAction: "Ativar lembrete específico para este serviço",
+  bestService: '"{{name}}" : {{rate}}% taxa presença',
+  bestServiceAction: "Serviço a promover — excelente adesão",
+  patientFallback: "Paciente",
+  riskyPatient: "{{name}} : {{count}} ausências/cancelamentos",
+  riskyPatientAction: "Considerar acompanhamento ou acompte",
+};
+
+function interpolate(
+  template: string,
+  vars: Record<string, string | number>,
+): string {
+  let result = template;
+  for (const [key, value] of Object.entries(vars)) {
+    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), String(value));
+  }
+  return result;
+}
+
 export function buildInsights(
   serviceBreakdown: ServiceStat[],
   heatmap: HeatmapCell[],
   historyRows: HistoryRow[],
+  labels?: InsightLabels,
 ): Insight[] {
+  const l = labels ?? DEFAULT_INSIGHT_LABELS;
   const insights: Insight[] = [];
 
   // 1) Services with high no-show rates
@@ -350,14 +390,14 @@ export function buildInsights(
     if (noShowRate >= 25) {
       insights.push({
         type: "danger",
-        message: `"${svc.name}" : ${noShowRate}% não compareceu`,
-        action: "Ativar lembrete específico para este serviço",
+        message: interpolate(l.worstService, { name: svc.name, rate: noShowRate }),
+        action: l.worstServiceAction,
       });
     } else if (noShowRate === 0 && svc.total >= 5) {
       insights.push({
         type: "success",
-        message: `"${svc.name}" : ${100}% taxa presença`,
-        action: "Serviço a promover — excelente adesão",
+        message: interpolate(l.bestService, { name: svc.name, rate: 100 }),
+        action: l.bestServiceAction,
       });
     }
   }
@@ -372,7 +412,7 @@ export function buildInsights(
     const entry = patientRisk.get(r.patient_id) ?? {
       name: [r.patients?.first_name, r.patients?.last_name]
         .filter(Boolean)
-        .join(" ") || "Paciente",
+        .join(" ") || l.patientFallback,
       noShows: 0,
       cancels: 0,
     };
@@ -386,8 +426,8 @@ export function buildInsights(
     if (total >= 2) {
       insights.push({
         type: "warning",
-        message: `${p.name} : ${total} ausências/cancelamentos`,
-        action: "Considerar acompanhamento ou acompte",
+        message: interpolate(l.riskyPatient, { name: p.name, count: total }),
+        action: l.riskyPatientAction,
       });
     }
   }

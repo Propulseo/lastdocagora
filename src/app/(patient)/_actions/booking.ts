@@ -154,6 +154,52 @@ export async function createAppointment(input: {
     .single()
   if (!service) return { success: false, error: "invalid_service" }
 
+  // Reject booking in the past
+  const slotDateTime = new Date(`${input.appointmentDate}T${input.appointmentTime}`)
+  if (slotDateTime.getTime() <= Date.now()) {
+    return { success: false, error: "SLOT_IN_PAST" }
+  }
+
+  // Check for overlapping appointments (server-side validation)
+  const requestedStart = input.appointmentTime // "HH:MM"
+  const [rH, rM] = requestedStart.split(":").map(Number)
+  const totalEndMin = rH * 60 + rM + service.duration_minutes
+  const requestedEnd = `${String(Math.floor(totalEndMin / 60)).padStart(2, "0")}:${String(totalEndMin % 60).padStart(2, "0")}`
+
+  const { data: overlapping } = await supabase
+    .from("appointments")
+    .select("id")
+    .eq("professional_id", input.professionalId)
+    .eq("appointment_date", input.appointmentDate)
+    .not("status", "in", '("cancelled","rejected")')
+    .lt("appointment_time", requestedEnd)
+    .limit(1)
+
+  // Filter server-side: check that existing end_time > requestedStart
+  // Since Supabase doesn't support computed column filters, we fetch candidates
+  // where appointment_time < requestedEnd, then check overlap in code
+  if (overlapping && overlapping.length > 0) {
+    // Re-query with duration to confirm actual overlap
+    const { data: candidates } = await supabase
+      .from("appointments")
+      .select("id, appointment_time, duration_minutes")
+      .eq("professional_id", input.professionalId)
+      .eq("appointment_date", input.appointmentDate)
+      .not("status", "in", '("cancelled","rejected")')
+      .lt("appointment_time", requestedEnd)
+
+    const hasOverlap = (candidates ?? []).some((apt) => {
+      const [aH, aM] = apt.appointment_time.split(":").map(Number)
+      const existingEndMin = aH * 60 + aM + apt.duration_minutes
+      const existingEnd = `${String(Math.floor(existingEndMin / 60)).padStart(2, "0")}:${String(existingEndMin % 60).padStart(2, "0")}`
+      return existingEnd > requestedStart
+    })
+
+    if (hasOverlap) {
+      return { success: false, error: "SLOT_UNAVAILABLE" }
+    }
+  }
+
   // Insert appointment (select id for notification)
   const { data: appointment, error } = await supabase
     .from("appointments")
@@ -191,14 +237,15 @@ export async function createAppointment(input: {
   ])
 
   const patientName = patientUser
-    ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim()
-    : "Novo paciente"
-  const serviceName = serviceData?.name ?? "Consulta"
+    ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim() || "Patient"
+    : "Patient"
+  const serviceName = serviceData?.name ?? "Appointment"
 
+  // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
   const { error: notifError } = await supabase.from("notifications").insert({
     user_id: pro.user_id,
-    title: `Novo agendamento: ${patientName}`,
-    message: `${serviceName} - ${input.appointmentDate} às ${input.appointmentTime}`,
+    title: `New booking: ${patientName}`,
+    message: `${serviceName} - ${input.appointmentDate} at ${input.appointmentTime}`,
     type: "new_booking",
     related_id: appointment.id,
     params: { patientName, serviceName, date: input.appointmentDate, time: input.appointmentTime },

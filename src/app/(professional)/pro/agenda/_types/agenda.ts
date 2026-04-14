@@ -8,8 +8,6 @@ export type Appointment = {
   notes: string | null;
   title: string | null;
   created_via: string | null;
-  payment_status: string | null;
-  price: number | null;
   patients: { first_name: string | null; last_name: string | null } | null;
   services: { name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null;
   appointment_attendance: {

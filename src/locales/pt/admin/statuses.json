@@ -12,14 +12,25 @@
   "verification": {
     "pending": "Pendente",
     "verified": "Verificado",
-    "rejected": "Rejeitado"
+    "rejected": "Rejeitado",
+    "suspended": "Suspenso"
   },
   "appointment": {
+    "pending": "Pendente",
     "scheduled": "Agendada",
     "confirmed": "Confirmada",
     "completed": "Concluída",
     "cancelled": "Cancelada",
+    "rejected": "Recusada",
+    "no-show": "Falta",
     "no_show": "Falta"
+  },
+  "attendance": {
+    "waiting": "Em espera",
+    "present": "Presente",
+    "absent": "Ausente",
+    "late": "Atrasado",
+    "cancelled": "Cancelado"
   },
   "ticket": {
     "open": "Aberto",

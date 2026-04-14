@@ -12,5 +12,7 @@
     "cancelled": "Cancelled",
     "noShow": "No-show",
     "rejected": "Rejected"
-  }
+  },
+  "lightMode": "Light mode",
+  "darkMode": "Dark mode"
 }

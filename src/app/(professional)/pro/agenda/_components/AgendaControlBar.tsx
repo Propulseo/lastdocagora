@@ -1,14 +1,38 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, CalendarDays, CalendarRange } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 
 type PeriodFilter = "day" | "week" | "month";
+
+const STATUS_COLORS: Record<string, { active: string; dot: string }> = {
+  confirmed: {
+    active: "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:ring-emerald-500/40",
+    dot: "bg-emerald-500",
+  },
+  pending: {
+    active: "bg-amber-100 text-amber-700 ring-1 ring-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:ring-amber-500/40",
+    dot: "bg-amber-500",
+  },
+  completed: {
+    active: "bg-blue-100 text-blue-700 ring-1 ring-blue-300 dark:bg-blue-500/20 dark:text-blue-300 dark:ring-blue-500/40",
+    dot: "bg-blue-500",
+  },
+  "no-show": {
+    active: "bg-orange-100 text-orange-700 ring-1 ring-orange-300 dark:bg-orange-500/20 dark:text-orange-300 dark:ring-orange-500/40",
+    dot: "bg-orange-500",
+  },
+};
+
+const PERIOD_ICONS: Record<PeriodFilter, typeof Calendar> = {
+  day: Calendar,
+  week: CalendarDays,
+  month: CalendarRange,
+};
 
 interface AgendaControlBarProps {
   periodFilter: PeriodFilter;
@@ -79,37 +103,51 @@ export function AgendaControlBar({
         : `${month} ${year}`;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
+    <div className={cn("flex flex-wrap items-center gap-3 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
       {/* Segmented period toggle */}
-      <div className={cn("hidden sm:inline-flex", RADIUS.element, "bg-muted p-1 gap-0.5")}>
-        {periodOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onPeriodChange(opt.value)}
-            className={cn(
-              RADIUS.sm, "px-3 py-1 text-xs font-medium transition-colors",
-              periodFilter === opt.value
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className={cn("hidden sm:inline-flex", RADIUS.element, "bg-muted p-1 gap-1")}>
+        {periodOptions.map((opt) => {
+          const Icon = PERIOD_ICONS[opt.value];
+          return (
+            <button
+              key={opt.value}
+              onClick={() => onPeriodChange(opt.value)}
+              className={cn(
+                RADIUS.sm, "inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold transition-all",
+                periodFilter === opt.value
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground",
+              )}
+            >
+              <Icon className="size-3.5" />
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Status filter badges */}
-      <div className="flex items-center gap-1 overflow-x-auto flex-nowrap">
-        {statusOptions.map((opt) => (
-          <Badge
-            key={opt.value}
-            variant={statusFilters.includes(opt.value) ? "default" : "outline"}
-            className={cn("h-6 cursor-pointer text-[11px]", RADIUS.badge)}
-            onClick={() => toggleStatus(opt.value)}
-          >
-            {opt.label}
-          </Badge>
-        ))}
+      {/* Status filter pills — colorful per status */}
+      <div className="inline-flex overflow-x-auto flex-nowrap gap-1.5">
+        {statusOptions.map((opt) => {
+          const isActive = statusFilters.includes(opt.value);
+          const colors = STATUS_COLORS[opt.value];
+          return (
+            <button
+              key={opt.value}
+              onClick={() => toggleStatus(opt.value)}
+              className={cn(
+                RADIUS.badge,
+                "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all whitespace-nowrap",
+                isActive
+                  ? colors.active
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <span className={cn("size-2 rounded-full shrink-0", isActive ? colors.dot : "bg-muted-foreground/40")} />
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Spacer */}

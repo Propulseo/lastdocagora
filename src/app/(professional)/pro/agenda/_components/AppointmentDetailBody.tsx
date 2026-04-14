@@ -2,8 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, CalendarClock, UserCheck, UserMinus, UserX } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCircle, XCircle, CalendarClock, Lock, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { canMarkAbsent } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
 
@@ -134,10 +136,9 @@ export function AppointmentDetailBody({
       )}
 
       {canConfirm && (
-        <div className="flex gap-2 border-t pt-4">
+        <div className="flex flex-col sm:flex-row gap-2 border-t pt-4 w-full">
           <Button
-            size="sm"
-            className="flex-1 gap-1.5 min-h-[48px] bg-green-600 hover:bg-green-700 text-white"
+            className="w-full sm:flex-1 gap-1.5 min-h-[48px] bg-green-600 hover:bg-green-700 text-white"
             disabled={isUpdating}
             onClick={() => onStatusChange("confirmed")}
           >
@@ -145,24 +146,22 @@ export function AppointmentDetailBody({
             {t.agenda.acceptAppointment}
           </Button>
           <Button
-            variant="destructive"
-            size="sm"
-            className="flex-1 gap-1.5 min-h-[48px]"
-            disabled={isUpdating}
-            onClick={() => onShowRejectDialog(true)}
-          >
-            <XCircle className="h-4 w-4" />
-            {t.agenda.rejectAppointment}
-          </Button>
-          <Button
             variant="outline"
-            size="sm"
-            className="w-full gap-1.5 min-h-[44px]"
+            className="w-full sm:flex-1 gap-1.5 min-h-[48px] sm:order-3"
             disabled={isUpdating}
             onClick={() => onShowProposeDialog(true)}
           >
             <CalendarClock className="h-4 w-4" />
             {t.agenda.propose.button}
+          </Button>
+          <Button
+            variant="destructive"
+            className="w-full sm:flex-1 gap-1.5 min-h-[48px] sm:order-2"
+            disabled={isUpdating}
+            onClick={() => onShowRejectDialog(true)}
+          >
+            <XCircle className="h-4 w-4" />
+            {t.agenda.rejectAppointment}
           </Button>
         </div>
       )}
@@ -187,25 +186,54 @@ export function AppointmentDetailBody({
           <p className="mb-3 text-sm font-medium">
             {t.agenda.attendance.markAttendance}
           </p>
-          <div className="flex gap-2">
-            {attendanceActions.map((action) => {
-              const Icon = action.icon;
-              const isActive = selectedAttendance === action.status;
-              return (
-                <Button
-                  key={action.status}
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
-                  className={`flex-1 gap-1.5 min-h-[48px] ${isActive ? action.activeClass : ""}`}
-                  disabled={isUpdating}
-                  onClick={() => onMarkAttendance(action.status)}
-                >
-                  <Icon className="h-4 w-4" />
-                  {action.label}
-                </Button>
-              );
-            })}
-          </div>
+          <TooltipProvider>
+            <div className="flex gap-2">
+              {attendanceActions.map((action) => {
+                const Icon = action.icon;
+                const isActive = selectedAttendance === action.status;
+                const isLocked = selectedAttendance === "present" && action.status !== "present";
+                const isAbsentTooEarly = action.status === "absent" && !isLocked && !isActive && !canMarkAbsent(selected);
+                const btn = (
+                  <Button
+                    key={action.status}
+                    variant={isActive ? "default" : "outline"}
+                    size="sm"
+                    className={`flex-1 gap-1.5 min-h-[48px] ${isActive ? action.activeClass : ""}`}
+                    disabled={isUpdating || isLocked || isAbsentTooEarly}
+                    onClick={() => onMarkAttendance(action.status)}
+                  >
+                    {isActive && selectedAttendance === "present" ? (
+                      <Lock className="h-4 w-4" />
+                    ) : (
+                      <Icon className="h-4 w-4" />
+                    )}
+                    {action.label}
+                  </Button>
+                );
+                if (isLocked) {
+                  return (
+                    <Tooltip key={action.status}>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1">{btn}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{t.agenda.attendance.lockedTooltip}</TooltipContent>
+                    </Tooltip>
+                  );
+                }
+                if (isAbsentTooEarly) {
+                  return (
+                    <Tooltip key={action.status}>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1">{btn}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{t.agenda.attendance.absentTooEarly}</TooltipContent>
+                    </Tooltip>
+                  );
+                }
+                return btn;
+              })}
+            </div>
+          </TooltipProvider>
         </div>
       )}
     </div>

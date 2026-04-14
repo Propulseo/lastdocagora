@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { csvResponse } from "@/lib/export-csv";
 
+type ExportLang = "pt" | "fr" | "en";
+
+const CSV_LABELS: Record<ExportLang, {
+  headers: string[];
+  attendance: Record<string, string>;
+  channel: Record<string, string>;
+}> = {
+  pt: {
+    headers: ["Data", "Hora", "Estado", "Preço (€)", "Serviço", "Duração (min)", "Origem", "Presença", "Atraso (min)"],
+    attendance: { present: "Presente", absent: "Ausente", late: "Atrasado", waiting: "Em espera" },
+    channel: { walk_in: "Walk-in", manual: "Manual", patient_booking: "Online" },
+  },
+  fr: {
+    headers: ["Date", "Heure", "Statut", "Prix (€)", "Service", "Durée (min)", "Origine", "Présence", "Retard (min)"],
+    attendance: { present: "Présent", absent: "Absent", late: "En retard", waiting: "En attente" },
+    channel: { walk_in: "Walk-in", manual: "Manuel", patient_booking: "En ligne" },
+  },
+  en: {
+    headers: ["Date", "Time", "Status", "Price (€)", "Service", "Duration (min)", "Source", "Attendance", "Late (min)"],
+    attendance: { present: "Present", absent: "Absent", late: "Late", waiting: "Waiting" },
+    channel: { walk_in: "Walk-in", manual: "Manual", patient_booking: "Online" },
+  },
+};
+
+function isExportLang(value: string): value is ExportLang {
+  return value === "pt" || value === "fr" || value === "en";
+}
+
 function getDateRange(
   range: string,
   year?: number,
@@ -68,6 +96,9 @@ export async function GET(request: NextRequest) {
   const channelFilter = request.nextUrl.searchParams.get("channel") || "";
   const yearParam = request.nextUrl.searchParams.get("year");
   const year = yearParam ? parseInt(yearParam, 10) : undefined;
+  const langParam = request.nextUrl.searchParams.get("lang") || "pt";
+  const lang: ExportLang = isExportLang(langParam) ? langParam : "pt";
+  const labels = CSV_LABELS[lang];
   const { from, to } = getDateRange(range, year);
 
   let query = supabase
@@ -96,17 +127,7 @@ export async function GET(request: NextRequest) {
   const { data: appointments } = await query;
   const rawRows = appointments ?? [];
 
-  const headers = [
-    "Data",
-    "Hora",
-    "Estado",
-    "Preço (€)",
-    "Serviço",
-    "Duração (min)",
-    "Origem",
-    "Presença",
-    "Atraso (min)",
-  ];
+  const headers = labels.headers;
 
   const rows = rawRows.map((r) => {
     const serviceName =
@@ -118,23 +139,9 @@ export async function GET(request: NextRequest) {
         ? r.appointment_attendance[0]
         : null;
 
-    const channelLabel =
-      r.created_via === "walk_in"
-        ? "Walk-in"
-        : r.created_via === "manual"
-          ? "Manual"
-          : "Online";
+    const channelLabel = labels.channel[r.created_via ?? ""] ?? r.created_via ?? "";
 
-    const attendanceLabel =
-      att?.status === "present"
-        ? "Presente"
-        : att?.status === "absent"
-          ? "Ausente"
-          : att?.status === "late"
-            ? "Atrasado"
-            : att?.status === "waiting"
-              ? "Em espera"
-              : "";
+    const attendanceLabel = att?.status ? (labels.attendance[att.status] ?? "") : "";
 
     return [
       r.appointment_date,

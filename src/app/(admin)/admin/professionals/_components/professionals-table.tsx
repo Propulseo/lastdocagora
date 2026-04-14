@@ -12,13 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MapPin, MoreHorizontal, ShieldCheck, Star, Trash2 } from "lucide-react";
+import { Ban, Calendar, MapPin, MoreHorizontal, Pencil, ShieldCheck, Star, Trash2, UserCheck, Wrench } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { updateVerificationStatus, deleteUser } from "@/app/(admin)/_actions/admin-actions";
+import { suspendProfessional, unsuspendProfessional } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { translateSpecialty } from "@/locales/patient/specialties";
 import { ProfessionalMobileList } from "./professional-mobile-list";
+import { ProfessionalEditModal } from "./professional-edit-modal";
+import { ProfessionalDetailModal } from "./professional-detail-modal";
 
 export interface ProfessionalRow {
   id: string;
@@ -30,6 +33,12 @@ export interface ProfessionalRow {
   rating: number | null;
   total_reviews: number | null;
   verification_status: string;
+  registration_number?: string | null;
+  consultation_fee?: number | null;
+  bio?: string | null;
+  languages_spoken?: string[] | null;
+  address?: string | null;
+  postal_code?: string | null;
 }
 
 interface ProfessionalsTableProps {
@@ -65,20 +74,33 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
     userId: string;
     status: string;
     label: string;
-    action: "verification" | "delete";
+    action: "verification" | "delete" | "suspend" | "unsuspend";
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionSheet, setActionSheet] = useState<ProfessionalRow | null>(null);
+  const [editPro, setEditPro] = useState<ProfessionalRow | null>(null);
+  const [detailPro, setDetailPro] = useState<ProfessionalRow | null>(null);
 
   function handleAction(id: string, status: string, label: string, userId?: string) {
     setActionSheet(null);
-    setConfirm({
-      id,
-      userId: userId ?? "",
-      status,
-      label,
-      action: status === "delete" ? "delete" : "verification",
-    });
+    if (status === "edit") {
+      const row = data.find((r) => r.id === id);
+      if (row) setEditPro(row);
+      return;
+    }
+    if (status === "detail") {
+      const row = data.find((r) => r.id === id);
+      if (row) setDetailPro(row);
+      return;
+    }
+    const action = status === "delete"
+      ? "delete" as const
+      : status === "suspend"
+      ? "suspend" as const
+      : status === "unsuspend"
+      ? "unsuspend" as const
+      : "verification" as const;
+    setConfirm({ id, userId: userId ?? "", status, label, action });
   }
 
   function handleConfirm() {
@@ -88,6 +110,20 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         const result = await deleteUser(confirm.userId);
         if (result.success) {
           toast.success(t.professionals.professionalDeleted);
+        } else {
+          toast.error(result.error ?? t.common.errorUpdating);
+        }
+      } else if (confirm.action === "suspend") {
+        const result = await suspendProfessional(confirm.id);
+        if (result.success) {
+          toast.success(t.professionals.suspended);
+        } else {
+          toast.error(result.error ?? t.common.errorUpdating);
+        }
+      } else if (confirm.action === "unsuspend") {
+        const result = await unsuspendProfessional(confirm.id);
+        if (result.success) {
+          toast.success(t.professionals.unsuspended);
         } else {
           toast.error(result.error ?? t.common.errorUpdating);
         }
@@ -192,19 +228,42 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleAction(row.id, "edit", "")}>
+              <Pencil className="mr-2 size-4" />
+              {t.professionals.editProfessional}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleAction(row.id, "detail", "")}>
+              <Calendar className="mr-2 size-4" />
+              {t.professionals.viewAvailability} / {t.professionals.viewServices}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             {row.verification_status !== "verified" && (
-              <DropdownMenuItem
-                onClick={() => handleAction(row.id, "verified", t.professionals.verify)}
-              >
+              <DropdownMenuItem onClick={() => handleAction(row.id, "verified", t.professionals.verify)}>
+                <ShieldCheck className="mr-2 size-4" />
                 {t.professionals.verify}
               </DropdownMenuItem>
             )}
-            {row.verification_status !== "rejected" && (
+            {row.verification_status !== "rejected" && row.verification_status !== "suspended" && (
               <DropdownMenuItem
                 onClick={() => handleAction(row.id, "rejected", t.professionals.reject)}
                 className="text-destructive"
               >
                 {t.professionals.reject}
+              </DropdownMenuItem>
+            )}
+            {row.verification_status === "verified" && (
+              <DropdownMenuItem
+                onClick={() => handleAction(row.id, "suspend", t.professionals.suspend)}
+                className="text-destructive"
+              >
+                <Ban className="mr-2 size-4" />
+                {t.professionals.suspend}
+              </DropdownMenuItem>
+            )}
+            {row.verification_status === "suspended" && (
+              <DropdownMenuItem onClick={() => handleAction(row.id, "unsuspend", t.professionals.unsuspend)}>
+                <UserCheck className="mr-2 size-4" />
+                {t.professionals.unsuspend}
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -245,21 +304,42 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         />
       </div>
 
+      {/* Edit Modal */}
+      <ProfessionalEditModal
+        professional={editPro}
+        open={!!editPro}
+        onOpenChange={(open) => !open && setEditPro(null)}
+      />
+
+      {/* Detail Modal (Availability + Services) */}
+      <ProfessionalDetailModal
+        professionalId={detailPro?.id ?? null}
+        professionalName={detailPro?.name ?? ""}
+        open={!!detailPro}
+        onOpenChange={(open) => !open && setDetailPro(null)}
+      />
+
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(open) => !open && setConfirm(null)}
         title={
           confirm?.action === "delete"
             ? t.professionals.deleteConfirmTitle
+            : confirm?.action === "suspend"
+            ? t.professionals.suspendConfirmTitle
             : t.professionals.confirmTitle.replace("{action}", confirm?.label ?? "")
         }
         description={
           confirm?.action === "delete"
             ? t.professionals.deleteConfirmDescription
+            : confirm?.action === "suspend"
+            ? t.professionals.suspendConfirmDescription
             : t.professionals.confirmDescription.replace("{action}", confirm?.label?.toLowerCase() ?? "")
         }
         confirmLabel={confirm?.label ?? t.common.confirm}
-        variant={confirm?.action === "delete" || confirm?.status === "rejected" ? "destructive" : "default"}
+        cancelLabel={t.common.cancel}
+        loadingLabel={t.common.processing}
+        variant={confirm?.action === "delete" || confirm?.action === "suspend" || confirm?.status === "rejected" ? "destructive" : "default"}
         loading={isPending}
         onConfirm={handleConfirm}
       />

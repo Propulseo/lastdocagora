@@ -100,6 +100,7 @@
     "bestServiceAction": "Service to promote — excellent adherence",
     "worstService": "\"{{name}}\": {{rate}}% no-show",
     "worstServiceAction": "Enable specific reminder for this service",
+    "patientFallback": "Patient",
     "noInsights": "No insights available for the current period."
   },
   "emptyState": {

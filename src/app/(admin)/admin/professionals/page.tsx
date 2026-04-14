@@ -27,7 +27,7 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
   let query = supabase
     .from("professionals")
     .select(
-      "id, specialty, city, rating, total_reviews, verification_status, user_id, users!professionals_user_id_fkey(first_name, last_name, avatar_url)",
+      "id, specialty, city, rating, total_reviews, verification_status, user_id, registration_number, consultation_fee, bio, languages_spoken, address, postal_code, users!professionals_user_id_fkey(first_name, last_name, avatar_url)",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
@@ -85,6 +85,12 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
       rating: pro.rating,
       total_reviews: pro.total_reviews,
       verification_status: pro.verification_status ?? "pending",
+      registration_number: (pro as Record<string, unknown>).registration_number as string | null,
+      consultation_fee: (pro as Record<string, unknown>).consultation_fee as number | null,
+      bio: (pro as Record<string, unknown>).bio as string | null,
+      languages_spoken: (pro as Record<string, unknown>).languages_spoken as string[] | null,
+      address: (pro as Record<string, unknown>).address as string | null,
+      postal_code: (pro as Record<string, unknown>).postal_code as string | null,
     };
   });
 

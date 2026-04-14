@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { BookingForm } from "./booking-form"
 import { ProfessionalDetailContent } from "./_components/ProfessionalDetailContent"
+import { ProfessionalReviews } from "./_components/ProfessionalReviews"
 import { getLocale, getPatientTranslations, getDateLocale } from "@/locales/patient"
 
 export default async function ProfessionalDetailPage({
@@ -82,15 +83,18 @@ export default async function ProfessionalDetailPage({
       </Button>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ProfessionalDetailContent
-          prof={prof}
-          services={(services ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["services"]}
-          reviews={(reviews ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["reviews"]}
-          proInsurances={(proInsurances ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["proInsurances"]}
-          t={t}
-          locale={locale}
-          dateLocale={dateLocale}
-        />
+        <div className="space-y-6 lg:col-span-2">
+          <ProfessionalDetailContent
+            prof={prof}
+            services={(services ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["services"]}
+            reviews={(reviews ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["reviews"]}
+            proInsurances={(proInsurances ?? []) as Parameters<typeof ProfessionalDetailContent>[0]["proInsurances"]}
+            t={t}
+            locale={locale}
+            dateLocale={dateLocale}
+          />
+          <ProfessionalReviews professionalId={prof.id} />
+        </div>
 
         <div className="lg:sticky lg:top-6 lg:self-start">
           <BookingForm

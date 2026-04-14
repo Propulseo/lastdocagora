@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Check, ClipboardPaste, Copy, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { RADIUS } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock } from "./AppointmentBlock";
@@ -29,6 +30,12 @@ import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 import { deleteAllDayAvailability } from "@/app/(professional)/_actions/availability";
+import { PasteAvailabilityDialog } from "./PasteAvailabilityDialog";
+
+export type ClipboardData = {
+  slots: { start_time: string; end_time: string }[];
+  sourceDate: string;
+};
 
 const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
 
@@ -59,7 +66,10 @@ interface DayTimeGridProps {
   onCreateAppointment: (startTime: string, endTime: string) => void;
   onCreateAvailability: (startTime: string, endTime: string) => void;
   onAvailabilityDeleted: () => void;
+  recentlyAddedSlotId?: string | null;
   highlightedAppointmentId?: string | null;
+  clipboard: ClipboardData | null;
+  onCopy: (data: ClipboardData) => void;
 }
 
 export function DayTimeGrid({
@@ -73,7 +83,10 @@ export function DayTimeGrid({
   onCreateAppointment,
   onCreateAvailability,
   onAvailabilityDeleted,
+  recentlyAddedSlotId,
   highlightedAppointmentId,
+  clipboard,
+  onCopy,
 }: DayTimeGridProps) {
   const { t } = useProfessionalI18n();
   const attendance = useAttendanceAction(onAttendanceChange);
@@ -88,8 +101,14 @@ export function DayTimeGrid({
   const highlightRef = useRef<HTMLDivElement>(null);
   const todayStr = toLocalDateStr(new Date());
   const isToday = selectedDate === todayStr;
+  const isPast = selectedDate < todayStr;
   const [, setTick] = useState(0);
   const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+  const [justCopied, setJustCopied] = useState(false);
+  const [pasteDialogOpen, setPasteDialogOpen] = useState(false);
+
+  const canPaste =
+    clipboard !== null && clipboard.sourceDate !== selectedDate;
 
   useEffect(() => {
     if (!isToday) return;
@@ -198,6 +217,19 @@ export function DayTimeGrid({
   const now = new Date();
   const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
 
+  const handleCopy = () => {
+    if (availabilitySlots.length === 0) return;
+    onCopy({
+      slots: availabilitySlots.map((s) => ({
+        start_time: s.start_time,
+        end_time: s.end_time,
+      })),
+      sourceDate: selectedDate,
+    });
+    setJustCopied(true);
+    setTimeout(() => setJustCopied(false), 2000);
+  };
+
   const handleBatchDelete = async () => {
     setIsBatchDeleting(true);
     const d = parseLocalDate(selectedDate);
@@ -226,48 +258,96 @@ export function DayTimeGrid({
   return (
     <>
       <Card>
-        {/* Batch delete bar — only when availability slots exist */}
-        {availabilitySlots.length > 0 && (
-          <div className="flex items-center justify-end px-4 pt-3 pb-0">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  {t.agenda.clearDayButton}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className={RADIUS.card}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t.agenda.clearDayTitle}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {(t.agenda.clearDayDescription as string).replace(
-                      "{{date}}",
-                      dateForDisplay,
+        {/* Toolbar — copy/paste/clear when availability slots exist or clipboard has data */}
+        {(availabilitySlots.length > 0 || canPaste) && (
+          <div className="flex items-center justify-end gap-2 px-4 pt-3 pb-0 flex-wrap">
+            {/* Copy button */}
+            {availabilitySlots.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "gap-1.5",
+                  justCopied
+                    ? "text-emerald-600 border-emerald-300 dark:text-emerald-400 dark:border-emerald-600"
+                    : clipboard
+                      ? "border-primary/30"
+                      : "",
+                )}
+                onClick={handleCopy}
+              >
+                {justCopied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    {t.agenda.slotsCopied}
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    {t.agenda.copySlots}
+                    {clipboard && (
+                      <span className="ml-1 size-1.5 rounded-full bg-primary inline-block" />
                     )}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isBatchDeleting}>
-                    {t.common.cancel}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleBatchDelete}
-                    disabled={isBatchDeleting}
-                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* Paste button */}
+            {canPaste && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-primary border-primary/30 hover:bg-primary/10 hover:border-primary"
+                onClick={() => setPasteDialogOpen(true)}
+              >
+                <ClipboardPaste className="h-3.5 w-3.5" />
+                {t.agenda.pasteSlots}
+              </Button>
+            )}
+
+            {/* Clear day button */}
+            {availabilitySlots.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
                   >
-                    {isBatchDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      t.agenda.clearDayConfirm
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    {t.agenda.clearDayButton}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className={RADIUS.card}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.agenda.clearDayTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {(t.agenda.clearDayDescription as string).replace(
+                        "{{date}}",
+                        dateForDisplay,
+                      )}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isBatchDeleting}>
+                      {t.common.cancel}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleBatchDelete}
+                      disabled={isBatchDeleting}
+                      className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                      {isBatchDeleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        t.agenda.clearDayConfirm
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         )}
         <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
@@ -320,14 +400,27 @@ export function DayTimeGrid({
               );
             })}
 
-            {availabilitySlots.map((slot) => (
-              <AvailabilityBlock
-                key={slot.id}
-                slot={slot}
-                onCreateAppointment={onCreateAppointment}
-                onDeleted={onAvailabilityDeleted}
-              />
-            ))}
+            {availabilitySlots
+              .filter((slot) => {
+                // Past days: hide all availability slots
+                if (isPast) return false;
+                // Today: hide slots whose end_time has passed
+                if (isToday) {
+                  const slotEnd = new Date(`${selectedDate}T${slot.end_time}`);
+                  return slotEnd > now;
+                }
+                // Future days: show all
+                return true;
+              })
+              .map((slot) => (
+                <AvailabilityBlock
+                  key={slot.id}
+                  slot={slot}
+                  onCreateAppointment={onCreateAppointment}
+                  onDeleted={onAvailabilityDeleted}
+                  isRecentlyAdded={slot.id === recentlyAddedSlotId}
+                />
+              ))}
 
             {visible.map((apt) => (
               <div
@@ -401,6 +494,16 @@ export function DayTimeGrid({
           setPendingDrag(null);
         }}
         onClose={() => setPendingDrag(null)}
+      />
+
+      <PasteAvailabilityDialog
+        open={pasteDialogOpen}
+        onOpenChange={setPasteDialogOpen}
+        clipboard={clipboard}
+        targetDate={selectedDate}
+        existingCount={availabilitySlots.length}
+        professionalId={professionalId}
+        onPasted={onAvailabilityDeleted}
       />
 
       <AppointmentDetailDialog

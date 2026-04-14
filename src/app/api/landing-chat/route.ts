@@ -116,19 +116,27 @@ function baseQuery() {
     .eq("verification_status", "verified")
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapResults(data: any[]) {
+interface LandingProfessionalRow {
+  id: string
+  specialty: string
+  city: string | null
+  consultation_fee: number | null
+  rating: number | null
+  users: { first_name: string | null; last_name: string | null; avatar_url: string | null } | { first_name: string | null; last_name: string | null; avatar_url: string | null }[] | null
+}
+
+function mapResults(data: LandingProfessionalRow[]) {
   return data.map((prof) => {
     const user = Array.isArray(prof.users) ? prof.users[0] : prof.users
     return {
-      id: prof.id as string,
-      first_name: (user?.first_name as string | null) ?? null,
-      last_name: (user?.last_name as string | null) ?? null,
-      specialty: prof.specialty as string,
-      city: (prof.city as string | null) ?? null,
-      consultation_fee: (prof.consultation_fee as number | null) ?? null,
-      rating: (prof.rating as number | null) ?? null,
-      avatar_url: (user?.avatar_url as string | null) ?? null,
+      id: prof.id,
+      first_name: user?.first_name ?? null,
+      last_name: user?.last_name ?? null,
+      specialty: prof.specialty,
+      city: prof.city ?? null,
+      consultation_fee: prof.consultation_fee ?? null,
+      rating: prof.rating ?? null,
+      avatar_url: user?.avatar_url ?? null,
     }
   })
 }

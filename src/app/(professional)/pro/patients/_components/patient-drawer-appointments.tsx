@@ -8,6 +8,7 @@ import { CalendarPlus, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppointmentNotes } from "@/app/(professional)/_actions/attendance";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
+import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { AppointmentTimelineItem } from "./appointment-timeline-item";
 import { UpcomingAppointmentCard } from "./upcoming-appointment-card";
 
@@ -45,13 +46,10 @@ interface PatientDrawerAppointmentsProps {
   setData: Dispatch<SetStateAction<PatientDetailEnhanced | null>>;
 }
 
-const DEFAULT_ACTION_LABELS = {
-  confirm: "Confirmar consulta",
-  cancel: "Cancelar consulta",
-  confirmed: "Consulta confirmada",
-  cancelled: "Consulta cancelada",
-  error: "Erro ao atualizar consulta",
-};
+function useDefaultActionLabels() {
+  const { t } = useProfessionalI18n();
+  return t.patients.drawer.actions;
+}
 
 export function PatientDrawerAppointments({
   data,
@@ -66,9 +64,10 @@ export function PatientDrawerAppointments({
   setSavingNotes,
   setData,
 }: PatientDrawerAppointmentsProps) {
+  const defaultActionLabels = useDefaultActionLabels();
   const statusLabels = dt.status;
   const attendanceLabels = dt.attendance ?? {};
-  const actionLabels = dt.actions ?? DEFAULT_ACTION_LABELS;
+  const actionLabels = dt.actions ?? defaultActionLabels;
 
   function handleUpcomingStatusChange(
     aptId: string,

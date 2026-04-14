@@ -73,9 +73,10 @@ export default async function AdminLayout({
                 first_name: profile.first_name,
                 last_name: profile.last_name,
               }}
+              userId={user.id}
               openTicketCount={openTicketCount ?? 0}
             />
-            <AdminTopbar />
+            <AdminTopbar userId={user.id} />
             <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
               {children}
             </main>

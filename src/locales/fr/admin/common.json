@@ -10,5 +10,16 @@
   "allStatuses": "Tous les statuts",
   "noResultsHint": "Aucun résultat trouvé. Essayez d'ajuster les filtres.",
   "errorUpdating": "Erreur lors de la mise à jour",
-  "clearFilters": "Effacer les filtres"
+  "clearFilters": "Effacer les filtres",
+  "processing": "Traitement en cours...",
+  "lightMode": "Mode clair",
+  "darkMode": "Mode sombre",
+  "globalSearch": "Rechercher des utilisateurs par nom, email ou téléphone...",
+  "globalSearchResults": "Résultats de recherche",
+  "noSearchResults": "Aucun utilisateur trouvé",
+  "viewProfile": "Voir le profil",
+  "close": "Fermer",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "saving": "Enregistrement..."
 }

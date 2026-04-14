@@ -9,7 +9,7 @@ import { useAgendaData } from "../_hooks/useAgendaData";
 import { AgendaControlBar } from "./AgendaControlBar";
 import { AttendanceStats } from "./AttendanceStats";
 import { AttendanceRate } from "./AttendanceRate";
-import { DayTimeGrid } from "./DayTimeGrid";
+import { DayTimeGrid, type ClipboardData } from "./DayTimeGrid";
 import { WeekTimeGrid } from "./WeekTimeGrid";
 import { MonthGrid } from "./MonthGrid";
 import { NewAvailabilityModal } from "./NewAvailabilityModal";
@@ -30,6 +30,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const agenda = useAgendaData({ professionalId, userId });
   const isMobile = useIsMobileLg();
   const [walkInDialogOpen, setWalkInDialogOpen] = useState(false);
+  const [clipboard, setClipboard] = useState<ClipboardData | null>(null);
 
   useEffect(() => {
     if (isMobile && agenda.periodFilter !== "day") {
@@ -97,7 +98,10 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           onCreateAppointment={agenda.openCreateDialog}
           onCreateAvailability={agenda.openAvailabilityModal}
           onAvailabilityDeleted={agenda.refreshAvailability}
+          recentlyAddedSlotId={agenda.recentlyAddedSlotId}
           highlightedAppointmentId={agenda.highlightedAppointmentId}
+          clipboard={clipboard}
+          onCopy={setClipboard}
         />
       )}
 
@@ -142,7 +146,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         onOpenChange={agenda.setModalOpen}
         professionalId={professionalId}
         userId={userId}
-        onCreated={agenda.refresh}
+        onCreated={agenda.refreshAvailability}
         initialStartTime={agenda.modalStartTime}
         initialEndTime={agenda.modalEndTime}
         initialDate={agenda.selectedDate}
