@@ -49,23 +49,26 @@ export const ATTENDANCE_BADGE_COLORS: Record<string, string> = {
   absent: "border-red-500/40 text-red-700 dark:text-red-300 bg-red-500/10",
 };
 
-// ─── Absent delay threshold (minutes after appointment start) ───
-const ABSENT_DELAY_MINUTES = 15;
+// ─── Delay threshold for absent/late (minutes after appointment start) ───
+const NON_PRESENT_DELAY_MINUTES = 15;
 
 /**
  * Returns true if enough time has elapsed since the appointment start
- * to allow marking the patient as absent (15 min after start).
+ * to allow marking the patient as absent or late (15 min after start).
  */
-export function canMarkAbsent(appointment: {
+export function canMarkNonPresent(appointment: {
   appointment_date: string;
   appointment_time: string;
 }): boolean {
   const [year, month, day] = appointment.appointment_date.split("-").map(Number);
   const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
   const start = new Date(year, month - 1, day, h, m);
-  const threshold = new Date(start.getTime() + ABSENT_DELAY_MINUTES * 60 * 1000);
+  const threshold = new Date(start.getTime() + NON_PRESENT_DELAY_MINUTES * 60 * 1000);
   return new Date() >= threshold;
 }
+
+/** @deprecated Use canMarkNonPresent — kept for backward compatibility */
+export const canMarkAbsent = canMarkNonPresent;
 
 // ─── Stat accent colors (for AttendanceStats row) ───
 export const STAT_COLORS: Record<string, string> = {

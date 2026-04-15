@@ -76,7 +76,9 @@ export function useAttendanceAction(
           ? t.agenda.attendance.lockedPresent
           : result.error === "ABSENT_TOO_EARLY"
             ? t.agenda.attendance.absentTooEarly
-            : t.agenda.attendance.error,
+            : result.error === "LATE_TOO_EARLY"
+              ? t.agenda.attendance.lateTooEarly
+              : t.agenda.attendance.error,
       );
     } else {
       toast.success(t.agenda.attendance.updated);

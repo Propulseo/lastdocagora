@@ -10,11 +10,12 @@ import {
   STATUS_COLORS,
   STATUS_PILL_COLORS,
   ATTENDANCE_BADGE_COLORS,
+  ATTENDANCE_DOT_COLORS,
 } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 
-const MIN_BLOCK_HEIGHT = 64;
-const OVERFLOW_THRESHOLD = 80;
+const MIN_BLOCK_HEIGHT = 32;
+const OVERFLOW_THRESHOLD = 48;
 
 interface AppointmentBlockProps {
   appointment: Appointment;
@@ -79,8 +80,8 @@ export function AppointmentBlock({
     <button
       type="button"
       className={cn(
-        "absolute left-16 right-2 z-[10] px-3 py-1.5 text-left shadow-sm transition-all hover:shadow-md hover:brightness-95", RADIUS.sm,
-        isCompact ? "overflow-visible" : "overflow-hidden",
+        "absolute left-16 right-2 z-[10] text-left shadow-sm transition-all hover:shadow-md hover:brightness-95", RADIUS.sm,
+        isCompact ? "overflow-hidden px-2 py-0.5" : "overflow-hidden px-3 py-1.5",
         isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn
           ? "border-l-[3px] border-dashed"
@@ -91,52 +92,63 @@ export function AppointmentBlock({
       onClick={() => onClick(appointment)}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="flex h-full flex-col justify-between">
-        {/* Top zone: name, time, service */}
-        <div className="min-w-0">
-          {/* Walk-in badge */}
-          {isWalkIn && (
-            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">Walk-in</span>
-          )}
-          {/* Name + status pill */}
-          <div className="flex items-start justify-between gap-1">
-            <p className={cn(
-              "font-semibold leading-tight text-sm min-w-0",
-              isCompact ? "truncate" : "line-clamp-2",
-            )}>
-              {displayName}
-            </p>
-            <span className={cn("shrink-0 rounded-full border px-1.5 text-[10px] leading-4", pillColors)}>
+      {isCompact ? (
+        /* ── Compact: single-line time + name ── */
+        <div className="flex h-full items-center justify-between gap-1 min-w-0">
+          <p className="truncate text-sm min-w-0">
+            <span className="font-medium text-muted-foreground">{startTime}–{endTime}</span>
+            {isWalkIn && <span className="ml-1 text-[10px] font-bold text-amber-600">W</span>}
+            <span className="ml-1.5 font-semibold">{displayName}</span>
+          </p>
+          <div className="flex items-center gap-1 shrink-0">
+            {canShowAttendance && (
+              <span className={cn("inline-block size-2 rounded-full", ATTENDANCE_DOT_COLORS[currentAttendance] ?? "bg-gray-400")} />
+            )}
+            <span className={cn("rounded-full border px-1.5 text-[10px] leading-4", pillColors)}>
               {statusLabel[appointment.status] ?? appointment.status}
             </span>
           </div>
-          {/* Time range */}
-          <p className="text-xs text-muted-foreground">
-            {startTime} → {endTime}
-          </p>
-          {/* Service (if tall enough) */}
-          {!isCompact && service?.name && (
-            <p className="truncate text-[11px] italic opacity-75">
-              {getServiceName(service, locale)}
+        </div>
+      ) : (
+        /* ── Full: multi-line layout ── */
+        <div className="flex h-full flex-col justify-between">
+          <div className="min-w-0">
+            {isWalkIn && (
+              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">Walk-in</span>
+            )}
+            <div className="flex items-start justify-between gap-1">
+              <p className="font-semibold leading-tight text-sm min-w-0 line-clamp-2">
+                {displayName}
+              </p>
+              <span className={cn("shrink-0 rounded-full border px-1.5 text-[10px] leading-4", pillColors)}>
+                {statusLabel[appointment.status] ?? appointment.status}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {startTime} → {endTime}
             </p>
+            {service?.name && (
+              <p className="truncate text-[11px] italic opacity-75">
+                {getServiceName(service, locale)}
+              </p>
+            )}
+          </div>
+
+          {canShowAttendance && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              <span
+                className={cn(
+                  RADIUS.badge,
+                  "text-[11px] font-medium px-2 py-0.5",
+                  ATTENDANCE_BADGE_COLORS[currentAttendance] ?? ATTENDANCE_BADGE_COLORS.waiting,
+                )}
+              >
+                {attendanceLabel[currentAttendance] ?? currentAttendance}
+              </span>
+            </div>
           )}
         </div>
-
-        {/* Bottom zone: badges */}
-        {canShowAttendance && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            <span
-              className={cn(
-                RADIUS.badge,
-                "text-[11px] font-medium px-2 py-0.5",
-                ATTENDANCE_BADGE_COLORS[currentAttendance] ?? ATTENDANCE_BADGE_COLORS.waiting,
-              )}
-            >
-              {attendanceLabel[currentAttendance] ?? currentAttendance}
-            </span>
-          </div>
-        )}
-      </div>
+      )}
     </button>
   );
 }

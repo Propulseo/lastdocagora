@@ -122,7 +122,9 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
           ? attendanceT.lockedPresent
           : result.error === "ABSENT_TOO_EARLY"
             ? attendanceT.absentTooEarly
-            : attendanceT.error,
+            : result.error === "LATE_TOO_EARLY"
+              ? attendanceT.lateTooEarly
+              : attendanceT.error,
       );
     }
   }
@@ -231,5 +233,6 @@ type TodayCardAttendanceT = {
   statusAbsent: string;
   statusLate: string;
   absentTooEarly: string;
+  lateTooEarly: string;
   [key: string]: string;
 };

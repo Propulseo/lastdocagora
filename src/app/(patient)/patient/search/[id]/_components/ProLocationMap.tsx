@@ -28,7 +28,10 @@ export default function ProLocationMap({ latitude, longitude }: ProLocationMapPr
       attributionControl={false}
       className="h-full w-full"
     >
-      <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" />
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
       <Marker position={[latitude, longitude]} />
     </MapContainer>
   )

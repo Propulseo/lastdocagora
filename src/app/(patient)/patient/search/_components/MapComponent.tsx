@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo, useEffect, useCallback } from "react"
+import { useMemo, useEffect, useCallback, useRef } from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet"
 import MarkerClusterGroup from "react-leaflet-cluster"
 import { getProfessionalInitials } from "@/app/(patient)/_components/professional-name"
 import { translateSpecialty } from "@/locales/patient/specialties"
@@ -18,50 +18,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/leaflet/marker-shadow.png",
 })
 
-const SPECIALTY_COLORS: Record<string, string> = {
-  general_practitioner: "#3B82F6",
-  cardiology: "#EF4444",
-  dentist: "#10B981",
-  dermatology: "#F59E0B",
-  gynecology: "#EC4899",
-  neurology: "#8B5CF6",
-  ophthalmology: "#06B6D4",
-  orthopedics: "#F97316",
-  pediatrics: "#84CC16",
-  psychiatry: "#6366F1",
-}
-
-const DEFAULT_COLOR = "#6B7280"
 const PORTUGAL_CENTER: [number, number] = [39.3999, -8.2245]
+const PIN_SIZE = 36
+const SELECTED_SIZE = 47 // 36 × 1.3
+const HIGHLIGHTED_SIZE = 42
 
-interface MapComponentProps {
-  professionals: ProfessionalResult[]
-  locale: string
-  t: PatientTranslations["search"]
-  labels: PatientTranslations["professional"]
-  onSelectProfessional: (prof: ProfessionalResult | null) => void
-  selectedProfessionalId: string | null
-  userPosition: [number, number] | null
-  isMobile: boolean
-  highlightedId: string | null
-  searchFilter: string
-  onVisibleChange?: (visible: ProfessionalResult[]) => void
-}
-
-function createProIcon(initials: string, specialty: string | null, isSelected: boolean, isHighlighted: boolean): L.DivIcon {
-  const color = SPECIALTY_COLORS[specialty ?? ""] ?? DEFAULT_COLOR
-  const size = isSelected ? 44 : isHighlighted ? 42 : 36
-  const borderWidth = isSelected ? 3 : isHighlighted ? 3 : 2
-  const selectedClass = isSelected ? " selected" : isHighlighted ? " highlighted" : ""
-
+function createProIcon(initials: string, isSelected: boolean, isHighlighted: boolean): L.DivIcon {
+  const size = isSelected ? SELECTED_SIZE : isHighlighted ? HIGHLIGHTED_SIZE : PIN_SIZE
+  const cls = isSelected ? " selected" : isHighlighted ? " highlighted" : ""
   return L.divIcon({
     className: "",
     iconSize: [size, size],
     iconAnchor: [size / 2, size],
     popupAnchor: [0, -size],
-    html: `<div class="pro-marker-pin${selectedClass}" style="background:${color};width:${size}px;height:${size}px;border-width:${borderWidth}px;">
-      <span>${initials}</span>
-    </div>`,
+    html: `<div class="pro-marker-pin${cls}"><span>${initials}</span></div>`,
   })
 }
 
@@ -88,31 +58,27 @@ function FitBounds({ professionals, userPosition }: { professionals: Professiona
   return null
 }
 
-function UserMarker({ position }: { position: [number, number] }) {
-  const icon = useMemo(
-    () =>
-      L.divIcon({
-        className: "",
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
-        html: `<div class="user-location-marker"></div>`,
-      }),
-    []
-  )
+const USER_ICON = L.divIcon({ className: "", iconSize: [22, 22], iconAnchor: [11, 11], html: `<div class="user-location-marker"></div>` })
 
-  return <Marker position={position} icon={icon} />
+function UserMarker({ position }: { position: [number, number] }) {
+  return <Marker position={position} icon={USER_ICON} />
 }
 
-function MapBoundsSync({
+function MapEventsSync({
   professionals,
   onVisibleChange,
+  onDeselect,
+  markerClickRef,
 }: {
   professionals: ProfessionalResult[]
-  onVisibleChange: (visible: ProfessionalResult[]) => void
+  onVisibleChange: ((visible: ProfessionalResult[]) => void) | null
+  onDeselect: () => void
+  markerClickRef: React.RefObject<number>
 }) {
   const map = useMap()
 
   const updateVisible = useCallback(() => {
+    if (!onVisibleChange) return
     const bounds = map.getBounds()
     const visible = professionals.filter((p) => {
       if (p.latitude == null || p.longitude == null) return false
@@ -124,15 +90,32 @@ function MapBoundsSync({
   useMapEvents({
     moveend: updateVisible,
     zoomend: updateVisible,
+    click: () => {
+      if (Date.now() - markerClickRef.current < 100) return
+      onDeselect()
+    },
   })
 
-  // Fire after initial fitBounds animation completes
   useEffect(() => {
     const timer = setTimeout(updateVisible, 400)
     return () => clearTimeout(timer)
   }, [updateVisible])
 
   return null
+}
+
+interface MapComponentProps {
+  professionals: ProfessionalResult[]
+  locale: string
+  t: PatientTranslations["search"]
+  labels: PatientTranslations["professional"]
+  onSelectProfessional: (prof: ProfessionalResult | null) => void
+  selectedProfessionalId: string | null
+  userPosition: [number, number] | null
+  isMobile: boolean
+  highlightedId: string | null
+  searchFilter: string
+  onVisibleChange?: (visible: ProfessionalResult[]) => void
 }
 
 export default function MapComponent({
@@ -148,6 +131,8 @@ export default function MapComponent({
   searchFilter,
   onVisibleChange,
 }: MapComponentProps) {
+  const markerClickRef = useRef(0)
+
   const geoProfs = useMemo(
     () =>
       professionals
@@ -166,7 +151,7 @@ export default function MapComponent({
       const initials = getProfessionalInitials(profData, labels)
       const isSelected = prof.id === selectedProfessionalId
       const isHighlighted = prof.id === highlightedId
-      map.set(prof.id, createProIcon(initials, prof.specialty, isSelected, isHighlighted))
+      map.set(prof.id, createProIcon(initials, isSelected, isHighlighted))
     }
     return map
   }, [geoProfs, selectedProfessionalId, highlightedId, labels])
@@ -179,17 +164,17 @@ export default function MapComponent({
   return (
     <MapContainer center={center} zoom={zoom} className="leaflet-container h-full w-full rounded-lg">
       <TileLayer
-        attribution='&copy; Google Maps'
-        url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <FitBounds professionals={geoProfs} userPosition={userPosition} />
       {userPosition && <UserMarker position={userPosition} />}
-      {onVisibleChange && (
-        <MapBoundsSync
-          professionals={geoProfs}
-          onVisibleChange={onVisibleChange}
-        />
-      )}
+      <MapEventsSync
+        professionals={geoProfs}
+        onVisibleChange={onVisibleChange ?? null}
+        onDeselect={() => onSelectProfessional(null)}
+        markerClickRef={markerClickRef}
+      />
       <MarkerClusterGroup
         chunkedLoading
         iconCreateFunction={(cluster: { getChildCount: () => number }) => {
@@ -225,27 +210,12 @@ export default function MapComponent({
               icon={icon}
               opacity={matchesFilter ? 1 : 0.3}
               eventHandlers={{
-                click: () => onSelectProfessional(prof),
+                click: () => {
+                  markerClickRef.current = Date.now()
+                  onSelectProfessional(prof)
+                },
               }}
-            >
-              {!isMobile && (
-                <Popup>
-                  <div className="min-w-[200px] text-sm">
-                    <p className="font-semibold">
-                      {prof.users
-                        ? `Dr. ${prof.users.first_name ?? ""} ${prof.users.last_name ?? ""}`.trim()
-                        : t.mapNearbyPros}
-                    </p>
-                    <p className="text-muted-foreground">
-                      {translateSpecialty(prof.specialty, locale)}
-                    </p>
-                    {prof.city && (
-                      <p className="text-muted-foreground mt-1">{prof.city}</p>
-                    )}
-                  </div>
-                </Popup>
-              )}
-            </Marker>
+            />
           )
         })}
       </MarkerClusterGroup>

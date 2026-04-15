@@ -2,36 +2,50 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./env";
 
+/**
+ * Create a redirect response that carries over all cookies from supabaseResponse.
+ * This is CRITICAL: supabaseResponse may contain refreshed session tokens set
+ * by the setAll callback. Returning a new NextResponse.redirect() without these
+ * cookies causes the browser to lose the refreshed tokens, leading to
+ * "Invalid Refresh Token: Refresh Token Not Found" on the next request.
+ */
+function redirectWithCookies(
+  url: URL,
+  supabaseResponse: NextResponse
+): NextResponse {
+  const redirect = NextResponse.redirect(url);
+  supabaseResponse.cookies.getAll().forEach((cookie) => {
+    redirect.cookies.set(cookie.name, cookie.value);
+  });
+  return redirect;
+}
+
 export async function updateSession(request: NextRequest) {
   const { url, anonKey } = getSupabaseEnv();
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabase = createServerClient(
-    url,
-    anonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
+        supabaseResponse = NextResponse.next({
+          request,
+        });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
 
-  // Mandatory: refresh session cookie on every request
+  // IMPORTANT: Do not run code between createServerClient and getUser().
   const {
     data: { user },
     error,
@@ -56,7 +70,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/patient/search") ||
-    pathname.startsWith("/api/auth/callback") ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/health") ||
     pathname.startsWith("/api/landing-chat");
 
@@ -64,18 +78,14 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublicRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    const redirectResponse = NextResponse.redirect(redirectUrl);
-    // Carry over cookie deletions to the redirect response
-    for (const cookie of request.cookies.getAll()) {
-      if (cookie.name.startsWith("sb-")) {
-        redirectResponse.cookies.delete(cookie.name);
-      }
-    }
-    return redirectResponse;
+    return redirectWithCookies(redirectUrl, supabaseResponse);
   }
 
   // If authenticated on auth pages, redirect to the redirect param or root
-  if (user && (pathname.startsWith("/login") || pathname.startsWith("/register"))) {
+  if (
+    user &&
+    (pathname.startsWith("/login") || pathname.startsWith("/register"))
+  ) {
     const redirectParam = request.nextUrl.searchParams.get("redirect");
     const authRedirect = request.nextUrl.clone();
     if (redirectParam && redirectParam.startsWith("/")) {
@@ -83,12 +93,14 @@ export async function updateSession(request: NextRequest) {
       const redirectQuery = redirectParam.split("?")[1];
       if (redirectQuery) {
         const params = new URLSearchParams(redirectQuery);
-        params.forEach((value, key) => authRedirect.searchParams.set(key, value));
+        params.forEach((value, key) =>
+          authRedirect.searchParams.set(key, value)
+        );
       }
     } else {
       authRedirect.pathname = "/";
     }
-    return NextResponse.redirect(authRedirect);
+    return redirectWithCookies(authRedirect, supabaseResponse);
   }
 
   // Onboarding gate: redirect professionals who haven't completed onboarding
@@ -113,7 +125,7 @@ export async function updateSession(request: NextRequest) {
       if (pro && !pro.onboarding_completed) {
         const onboardingRedirect = request.nextUrl.clone();
         onboardingRedirect.pathname = "/pro/onboarding";
-        return NextResponse.redirect(onboardingRedirect);
+        return redirectWithCookies(onboardingRedirect, supabaseResponse);
       }
     }
   }

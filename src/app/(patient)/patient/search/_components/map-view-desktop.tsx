@@ -3,9 +3,8 @@
 import { type RefObject } from "react"
 import dynamic from "next/dynamic"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search, Crosshair, Loader2, MapPin } from "lucide-react"
+import { Search, Loader2, MapPin } from "lucide-react"
 import { BookingModal } from "./booking-modal"
 import { ProMapCard } from "./ProMapCard"
 import type { ProfessionalResult } from "./professional-card"
@@ -34,8 +33,6 @@ interface MapViewDesktopProps {
   setHighlightedId: (id: string | null) => void
   filterText: string
   setFilterText: (v: string) => void
-  geoLoading: boolean
-  onLocateMe: () => void
   bookingOpen: boolean
   setBookingOpen: (v: boolean) => void
   onViewProfile: (profId: string) => void
@@ -59,8 +56,6 @@ export function MapViewDesktop({
   setHighlightedId,
   filterText,
   setFilterText,
-  geoLoading,
-  onLocateMe,
   bookingOpen,
   setBookingOpen,
   onViewProfile,
@@ -72,7 +67,7 @@ export function MapViewDesktop({
   return (
     <>
       <div className="flex gap-4 h-[calc(100vh-14rem)]">
-        <div className="w-[340px] shrink-0 flex flex-col gap-3">
+        <div className="w-[500px] shrink-0 flex flex-col gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -82,31 +77,15 @@ export function MapViewDesktop({
               className="rounded-xl pl-9"
             />
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-foreground">
-                {t.mapAreaCount.replace("{count}", String(visiblePros.length))}
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-foreground">
+              {t.mapAreaCount.replace("{count}", String(visiblePros.length))}
+            </p>
+            {visiblePros.length < geoProfs.length && (
+              <p className="text-xs text-muted-foreground">
+                {t.mapAreaTotal.replace("{count}", String(geoProfs.length))}
               </p>
-              {visiblePros.length < geoProfs.length && (
-                <p className="text-xs text-muted-foreground">
-                  {t.mapAreaTotal.replace("{count}", String(geoProfs.length))}
-                </p>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="gap-1.5"
-              onClick={onLocateMe}
-              disabled={geoLoading}
-            >
-              {geoLoading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Crosshair className="size-4" />
-              )}
-              {t.mapLocateMe}
-            </Button>
+            )}
           </div>
           <ScrollArea className="flex-1 -mr-2 pr-2">
             <div className="space-y-3">
@@ -117,11 +96,11 @@ export function MapViewDesktop({
                     ref={(el) => {
                       if (el) cardRefs.current.set(prof.id, el)
                     }}
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all rounded-xl ${
                       selectedProf?.id === prof.id
-                        ? "ring-2 ring-primary rounded-xl"
+                        ? "ring-2 ring-primary border-primary bg-primary/[0.04] shadow-md"
                         : highlightedId === prof.id
-                          ? "ring-2 ring-primary/50 rounded-xl shadow-sm"
+                          ? "ring-2 ring-primary/50 shadow-sm"
                           : ""
                     }`}
                     onClick={() => onSelectProfessional(prof)}

@@ -74,14 +74,14 @@ export async function markAttendance(
     }
   }
 
-  // Guard: cannot mark absent before 15 min after appointment start
-  if (status === "absent" && appointment.appointment_date && appointment.appointment_time) {
+  // Guard: cannot mark absent or late before 15 min after appointment start
+  if ((status === "absent" || status === "late") && appointment.appointment_date && appointment.appointment_time) {
     const [year, month, day] = appointment.appointment_date.split("-").map(Number);
     const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
     const start = new Date(year, month - 1, day, h, m);
     const threshold = new Date(start.getTime() + 15 * 60 * 1000);
     if (new Date() < threshold) {
-      return { success: false, error: "ABSENT_TOO_EARLY" };
+      return { success: false, error: status === "absent" ? "ABSENT_TOO_EARLY" : "LATE_TOO_EARLY" };
     }
   }
 

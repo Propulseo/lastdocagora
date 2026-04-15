@@ -24,6 +24,7 @@ export type BookingSection = {
     selfBookingError: string
     slotUnavailable: string
     slotInPast: string
+    slotTooShort: string
     dateFormat: string
     morning: string
     afternoon: string
@@ -57,6 +58,7 @@ export const bookingPt: BookingSection = {
     selfBookingError: "N\u00e3o \u00e9 poss\u00edvel agendar uma consulta consigo mesmo.",
     slotUnavailable: "Este hor\u00e1rio j\u00e1 n\u00e3o est\u00e1 dispon\u00edvel. Por favor, escolha outro.",
     slotInPast: "Este hor\u00e1rio j\u00e1 passou. Por favor, escolha outro.",
+    slotTooShort: "O hor\u00e1rio selecionado n\u00e3o tem dura\u00e7\u00e3o suficiente para este servi\u00e7o. Por favor, escolha outro.",
     dateFormat: "d 'de' MMMM 'de' yyyy",
     morning: "Manh\u00e3",
     afternoon: "Tarde",

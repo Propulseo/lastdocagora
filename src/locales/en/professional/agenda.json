@@ -125,7 +125,8 @@
     "late": "Late",
     "lockedPresent": "Attendance already confirmed, status cannot be changed",
     "lockedTooltip": "Presence already confirmed — status locked",
-    "absentTooEarly": "Available 15 min after appointment start"
+    "absentTooEarly": "Available 15 min after appointment start",
+    "lateTooEarly": "Available 15 min after appointment start"
   },
   "appointmentSingular": "appointment",
   "appointmentPlural": "appointments",

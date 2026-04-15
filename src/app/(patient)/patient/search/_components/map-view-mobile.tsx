@@ -2,9 +2,8 @@
 
 import dynamic from "next/dynamic"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { Search, Crosshair, Loader2 } from "lucide-react"
+import { Search, Loader2 } from "lucide-react"
 import { BookingModal } from "./booking-modal"
 import { ProMapCard } from "./ProMapCard"
 import type { ProfessionalResult } from "./professional-card"
@@ -30,8 +29,6 @@ interface MapViewMobileProps {
   highlightedId: string | null
   filterText: string
   setFilterText: (v: string) => void
-  geoLoading: boolean
-  onLocateMe: () => void
   bookingOpen: boolean
   setBookingOpen: (v: boolean) => void
   onViewProfile: (profId: string) => void
@@ -51,8 +48,6 @@ export function MapViewMobile({
   highlightedId,
   filterText,
   setFilterText,
-  geoLoading,
-  onLocateMe,
   bookingOpen,
   setBookingOpen,
   onViewProfile,
@@ -73,19 +68,6 @@ export function MapViewMobile({
               className="rounded-xl bg-background/95 pl-9 shadow-md backdrop-blur-sm"
             />
           </div>
-          <Button
-            size="icon"
-            variant="secondary"
-            className="size-10 shrink-0 rounded-xl shadow-md"
-            onClick={onLocateMe}
-            disabled={geoLoading}
-          >
-            {geoLoading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Crosshair className="size-4" />
-            )}
-          </Button>
         </div>
 
         <div className="h-[calc(100dvh-12rem)] rounded-lg overflow-hidden">

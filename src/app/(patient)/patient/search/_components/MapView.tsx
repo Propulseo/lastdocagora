@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import { useIsPatientMobile } from "@/hooks/use-patient-mobile"
 import { usePatientTranslations } from "@/locales/locale-context"
 import {
@@ -27,9 +26,7 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
   const labels = fullT.professional
 
   const [selectedProf, setSelectedProf] = useState<ProfessionalResult | null>(null)
-  const [userPosition, setUserPosition] = useState<[number, number] | null>(null)
   const [filterText, setFilterText] = useState("")
-  const [geoLoading, setGeoLoading] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const [visiblePros, setVisiblePros] = useState<ProfessionalResult[]>([])
@@ -46,25 +43,6 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
       return name.includes(lower) || specialty.includes(lower) || city.includes(lower)
     })
   }, [professionals, filterText, locale])
-
-  const handleLocateMe = useCallback(() => {
-    if (!navigator.geolocation) {
-      toast.error(t.mapLocationDenied)
-      return
-    }
-    setGeoLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserPosition([pos.coords.latitude, pos.coords.longitude])
-        setGeoLoading(false)
-      },
-      () => {
-        toast.error(t.mapLocationDenied)
-        setGeoLoading(false)
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
-  }, [t.mapLocationDenied])
 
   const handleSelectProfessional = useCallback((prof: ProfessionalResult | null) => {
     setSelectedProf(prof)
@@ -106,12 +84,10 @@ export function MapView({ professionals, locale, t }: MapViewProps) {
     labels,
     selectedProf,
     onSelectProfessional: handleSelectProfessional,
-    userPosition,
+    userPosition: null as [number, number] | null,
     highlightedId,
     filterText,
     setFilterText,
-    geoLoading,
-    onLocateMe: handleLocateMe,
     bookingOpen,
     setBookingOpen,
     onViewProfile: handleViewProfile,

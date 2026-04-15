@@ -125,7 +125,8 @@
     "late": "En retard",
     "lockedPresent": "Présence déjà confirmée, statut non modifiable",
     "lockedTooltip": "Présence déjà confirmée — statut verrouillé",
-    "absentTooEarly": "Disponible 15 min après le début de la consultation"
+    "absentTooEarly": "Disponible 15 min après le début de la consultation",
+    "lateTooEarly": "Disponible 15 min après le début de la consultation"
   },
   "appointmentSingular": "consultation",
   "appointmentPlural": "consultations",

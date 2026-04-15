@@ -20,6 +20,15 @@ type Availability = {
   is_recurring: boolean | null; specific_date: string | null
 }
 
+/** Keep only slots whose free window >= service duration */
+function filterSlotsByDuration(slots: Slot[], durationMinutes: number): Slot[] {
+  return slots.filter((s) => {
+    const [sH, sM] = s.slot_start.split(":").map(Number)
+    const [eH, eM] = s.slot_end.split(":").map(Number)
+    return (eH * 60 + eM) - (sH * 60 + sM) >= durationMinutes
+  })
+}
+
 interface BookingFormProps {
   professionalId: string; professionalUserId: string
   patientUserId: string
@@ -72,13 +81,16 @@ export function BookingForm({
       const now = new Date()
       const today = new Date()
       today.setHours(0, 0, 0, 0)
+      let filtered = raw
       if (date.getTime() === today.getTime()) {
         const marginMs = 30 * 60 * 1000
         const cutoff = now.getTime() + marginMs
-        setSlots(raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff))
-      } else {
-        setSlots(raw)
+        filtered = raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff)
       }
+      if (selectedService) {
+        filtered = filterSlotsByDuration(filtered, selectedService.duration_minutes)
+      }
+      setSlots(filtered)
     } catch {
       toast.error(t.booking.errorLoadSlots)
     } finally {
@@ -109,6 +121,8 @@ export function BookingForm({
           toast.error(t.booking.slotUnavailable)
         } else if (result.error === "SLOT_IN_PAST") {
           toast.error(t.booking.slotInPast)
+        } else if (result.error === "SLOT_TOO_SHORT") {
+          toast.error(t.booking.slotTooShort)
         } else {
           toast.error(t.booking.errorBooking)
         }

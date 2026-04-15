@@ -160,6 +160,26 @@ export async function createAppointment(input: {
     return { success: false, error: "SLOT_IN_PAST" }
   }
 
+  // Verify slot window is long enough for the service duration
+  const [sH, sM] = input.appointmentTime.split(":").map(Number)
+  const startMinutes = sH * 60 + sM
+  const neededEnd = startMinutes + service.duration_minutes
+
+  const { data: availSlots } = await supabase.rpc("get_available_slots", {
+    p_date: input.appointmentDate,
+    p_professional_id: input.professionalId,
+  })
+
+  const fitsWindow = (availSlots as { slot_start: string; slot_end: string }[] | null)?.some((s) => {
+    const [wSH, wSM] = s.slot_start.split(":").map(Number)
+    const [wEH, wEM] = s.slot_end.split(":").map(Number)
+    return wSH * 60 + wSM <= startMinutes && wEH * 60 + wEM >= neededEnd
+  })
+
+  if (!fitsWindow) {
+    return { success: false, error: "SLOT_TOO_SHORT" }
+  }
+
   // Check for overlapping appointments (server-side validation)
   const requestedStart = input.appointmentTime // "HH:MM"
   const [rH, rM] = requestedStart.split(":").map(Number)

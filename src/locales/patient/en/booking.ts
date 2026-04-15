@@ -26,6 +26,7 @@ export const bookingEn: BookingSection = {
     selfBookingError: "You cannot book an appointment with yourself.",
     slotUnavailable: "This slot is no longer available. Please choose another one.",
     slotInPast: "This slot has already passed. Please choose another one.",
+    slotTooShort: "The selected slot is too short for this service. Please choose another one.",
     dateFormat: "MMMM d, yyyy",
     morning: "Morning",
     afternoon: "Afternoon",

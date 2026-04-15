@@ -125,7 +125,8 @@
     "late": "Atrasados",
     "lockedPresent": "Presença já confirmada, estatuto não pode ser alterado",
     "lockedTooltip": "Presença já confirmada — estatuto bloqueado",
-    "absentTooEarly": "Disponível 15 min após o início da consulta"
+    "absentTooEarly": "Disponível 15 min após o início da consulta",
+    "lateTooEarly": "Disponível 15 min após o início da consulta"
   },
   "appointmentSingular": "consulta",
   "appointmentPlural": "consultas",

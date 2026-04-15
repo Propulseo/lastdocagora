@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckCircle, XCircle, CalendarClock, Lock, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { canMarkAbsent } from "../_lib/agenda-constants";
+import { canMarkNonPresent } from "../_lib/agenda-constants";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
 
@@ -192,14 +192,17 @@ export function AppointmentDetailBody({
                 const Icon = action.icon;
                 const isActive = selectedAttendance === action.status;
                 const isLocked = selectedAttendance === "present" && action.status !== "present";
-                const isAbsentTooEarly = action.status === "absent" && !isLocked && !isActive && !canMarkAbsent(selected);
+                const isTooEarly = (action.status === "absent" || action.status === "late") && !isLocked && !isActive && !canMarkNonPresent(selected);
+                const tooEarlyTooltip = action.status === "absent"
+                  ? t.agenda.attendance.absentTooEarly
+                  : t.agenda.attendance.lateTooEarly;
                 const btn = (
                   <Button
                     key={action.status}
                     variant={isActive ? "default" : "outline"}
                     size="sm"
                     className={`flex-1 gap-1.5 min-h-[48px] ${isActive ? action.activeClass : ""}`}
-                    disabled={isUpdating || isLocked || isAbsentTooEarly}
+                    disabled={isUpdating || isLocked || isTooEarly}
                     onClick={() => onMarkAttendance(action.status)}
                   >
                     {isActive && selectedAttendance === "present" ? (
@@ -220,13 +223,13 @@ export function AppointmentDetailBody({
                     </Tooltip>
                   );
                 }
-                if (isAbsentTooEarly) {
+                if (isTooEarly) {
                   return (
                     <Tooltip key={action.status}>
                       <TooltipTrigger asChild>
                         <span className="flex-1">{btn}</span>
                       </TooltipTrigger>
-                      <TooltipContent>{t.agenda.attendance.absentTooEarly}</TooltipContent>
+                      <TooltipContent>{tooEarlyTooltip}</TooltipContent>
                     </Tooltip>
                   );
                 }

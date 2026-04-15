@@ -16,7 +16,7 @@ import { getServiceName } from "@/lib/get-service-name";
 import {
   ATTENDANCE_BADGE_COLORS,
   STATUS_PILL_COLORS,
-  canMarkAbsent,
+  canMarkNonPresent,
 } from "@/app/(professional)/pro/agenda/_lib/agenda-constants";
 import type { TodayAppointment } from "../_hooks/useTodayData";
 import { SHADOW, RADIUS } from "@/lib/design-tokens";
@@ -29,6 +29,7 @@ interface TodayAppointmentCardTranslations {
     statusAbsent: string;
     statusLate: string;
     absentTooEarly: string;
+    lateTooEarly: string;
     [key: string]: string;
   };
   commonStatus: Record<string, string>;
@@ -150,14 +151,17 @@ export function TodayAppointmentCard({
           ] as const).map(({ status, label, Icon, cls }) => {
             const isLocked = apt.attendance_status === "present" && status !== "present";
             const isActive = apt.attendance_status === status;
-            const isAbsentTooEarly = status === "absent" && !isLocked && !isActive && !canMarkAbsent(apt);
+            const isTooEarly = (status === "absent" || status === "late") && !isLocked && !isActive && !canMarkNonPresent(apt);
+            const tooEarlyTooltip = status === "absent"
+              ? tr.attendance.absentTooEarly
+              : tr.attendance.lateTooEarly;
             const btn = (
               <Button
                 size="sm"
                 variant="outline"
                 className={`${cls} h-8 min-h-[44px] text-xs`}
                 onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, status); }}
-                disabled={isActive || isLocked || isAbsentTooEarly}
+                disabled={isActive || isLocked || isTooEarly}
               >
                 <Icon className="size-3.5 mr-1" />
                 {label}
@@ -171,11 +175,11 @@ export function TodayAppointmentCard({
                 </Tooltip>
               );
             }
-            if (isAbsentTooEarly) {
+            if (isTooEarly) {
               return (
                 <Tooltip key={status}>
                   <TooltipTrigger asChild><span>{btn}</span></TooltipTrigger>
-                  <TooltipContent>{tr.attendance.absentTooEarly}</TooltipContent>
+                  <TooltipContent>{tooEarlyTooltip}</TooltipContent>
                 </Tooltip>
               );
             }

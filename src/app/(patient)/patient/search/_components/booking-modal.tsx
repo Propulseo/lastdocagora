@@ -19,6 +19,15 @@ import { BookingConfirmStep } from "./booking-modal-confirm-step"
 type Slot = { slot_start: string; slot_end: string }
 type BookingStep = "loading" | "service" | "datetime" | "confirm"
 
+/** Keep only slots whose free window >= service duration */
+function filterSlotsByDuration(slots: Slot[], durationMinutes: number): Slot[] {
+  return slots.filter((s) => {
+    const [sH, sM] = s.slot_start.split(":").map(Number)
+    const [eH, eM] = s.slot_end.split(":").map(Number)
+    return (eH * 60 + eM) - (sH * 60 + sM) >= durationMinutes
+  })
+}
+
 interface BookingModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -101,9 +110,10 @@ export function BookingModal({
             const nowPre = new Date()
             const todayMid = new Date()
             todayMid.setHours(0, 0, 0, 0)
-            const fetchedSlots = preDate.getTime() === todayMid.getTime()
+            let fetchedSlots = preDate.getTime() === todayMid.getTime()
               ? rawSlots.filter((s) => new Date(`${preselectedDate}T${s.slot_start}`).getTime() > nowPre.getTime() + 30 * 60 * 1000)
               : rawSlots
+            fetchedSlots = filterSlotsByDuration(fetchedSlots, autoService.duration_minutes)
             setSlots(fetchedSlots)
             // Auto-select the matching time slot
             if (preselectedTime) {
@@ -156,12 +166,15 @@ export function BookingModal({
       const now = new Date()
       const todayMidnight = new Date()
       todayMidnight.setHours(0, 0, 0, 0)
+      let filtered = raw
       if (date && date.getTime() === todayMidnight.getTime()) {
         const cutoff = now.getTime() + 30 * 60 * 1000
-        setSlots(raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff))
-      } else {
-        setSlots(raw)
+        filtered = raw.filter((s) => new Date(`${dateStr}T${s.slot_start}`).getTime() > cutoff)
       }
+      if (selectedService) {
+        filtered = filterSlotsByDuration(filtered, selectedService.duration_minutes)
+      }
+      setSlots(filtered)
     } catch {
       toast.error(t.booking.errorLoadSlots)
     } finally {
@@ -193,15 +206,17 @@ export function BookingModal({
         notes: notes || undefined,
       })
       if (!result.success) {
-        toast.error(
+        const errorMsg =
           result.error === "self_booking_not_allowed"
             ? t.booking.selfBookingError
             : result.error === "SLOT_UNAVAILABLE"
               ? t.booking.slotUnavailable
               : result.error === "SLOT_IN_PAST"
                 ? t.booking.slotInPast
-                : t.booking.errorBooking
-        )
+                : result.error === "SLOT_TOO_SHORT"
+                  ? t.booking.slotTooShort
+                  : t.booking.errorBooking
+        toast.error(errorMsg)
         return
       }
       toast.success(t.booking.successBooked)
