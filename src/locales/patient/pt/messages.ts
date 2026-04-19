@@ -38,6 +38,8 @@ export type MessagesSection = {
     notifRejectedWithReason: string
     notifAlternativeTitle: string
     notifAlternativeMessage: string
+    notifAlternativeAcceptedTitle: string
+    notifAlternativeDeclinedTitle: string
     notifReminderMessage: string
     notifTicketUpdatedTitle: string
     notifTicketUpdatedMessage: string
@@ -92,6 +94,8 @@ export const messagesPt: MessagesSection = {
     notifRejectedWithReason: "{proName} recusou o seu pedido de consulta. Motivo: {reason}",
     notifAlternativeTitle: "Novo hor\u00e1rio proposto",
     notifAlternativeMessage: "{proName} prop\u00f4s um novo hor\u00e1rio: {dateTime}.",
+    notifAlternativeAcceptedTitle: "Proposta aceite",
+    notifAlternativeDeclinedTitle: "Proposta recusada",
     notifReminderMessage: "Tem uma consulta agendada em breve.",
     notifTicketUpdatedTitle: "Ticket atualizado",
     notifTicketUpdatedMessage: "O seu ticket \"{subject}\" foi atualizado.",

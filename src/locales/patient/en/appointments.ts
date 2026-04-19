@@ -40,6 +40,8 @@ export const appointmentsEn: AppointmentsSection = {
     },
     rate: "Rate",
     dateFormat: "MMMM d, yyyy",
+    cancelTooLate: "Cancellation unavailable \u2014 contact the office directly.",
+    cancelTooLatePhone: "Phone: {phone}",
   },
   cancelDialog: {
     trigger: "Cancel",

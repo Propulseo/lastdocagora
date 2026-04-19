@@ -1,6 +1,6 @@
 "use client"
 
-import { Star } from "lucide-react"
+import { Star, Phone } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -10,6 +10,7 @@ import {
 } from "@/app/(patient)/_components/professional-name"
 import { CancelDialog } from "./cancel-dialog"
 import { RatingDialog } from "./rating-dialog"
+import { AlternativeResponse } from "./alternative-response"
 import { translateSpecialty } from "@/locales/patient/specialties"
 import type { PatientTranslations, DateFnsLocale } from "@/locales/patient"
 
@@ -27,7 +28,7 @@ export type Appointment = {
   professional_user_id: string
   professionals: {
     specialty: string | null
-    users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
+    users: { first_name: string | null; last_name: string | null; avatar_url?: string | null; phone?: string | null } | null
   } | null
   services: { name: string | null; name_pt?: string | null; name_fr?: string | null; name_en?: string | null } | null
   appointment_attendance: { status: string } | null
@@ -55,6 +56,18 @@ export function canCancelAppointment(appt: Appointment): boolean {
   return start > new Date(Date.now() + 30 * 60 * 1000)
 }
 
+/** Appointment is upcoming but within the 30-min no-cancel window */
+function isWithinCancelCutoff(appt: Appointment): boolean {
+  if (appt.status !== "pending" && appt.status !== "confirmed") return false
+  const att = appt.appointment_attendance?.status
+  if (att && ATTENDED_STATUSES.includes(att)) return false
+  const [year, month, day] = appt.appointment_date.split("-").map(Number)
+  const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
+  const start = new Date(year, month - 1, day, h, m)
+  const now = new Date()
+  return start > now && start <= new Date(now.getTime() + 30 * 60 * 1000)
+}
+
 const borderColors: Record<string, string> = {
   cancelled: "border-l-[#ef4444]",
   past: "border-l-[#9ca3af]",
@@ -71,6 +84,7 @@ interface AppointmentCardProps {
   appointment: Appointment
   type: "upcoming" | "past" | "cancelled"
   hasRating?: boolean
+  alternativeProposal?: { proposedDate: string; proposedTime: string }
   t: PatientTranslations
   locale: string
   dateLocale: DateFnsLocale
@@ -80,6 +94,7 @@ export function AppointmentCard({
   appointment: appt,
   type,
   hasRating,
+  alternativeProposal,
   t,
   locale,
   dateLocale,
@@ -141,6 +156,17 @@ export function AppointmentCard({
           {canCancelAppointment(appt) && (
             <CancelDialog appointmentId={appt.id} professionalName={profName} />
           )}
+          {type === "upcoming" && isWithinCancelCutoff(appt) && (
+            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+              <Phone className="size-3.5 shrink-0" />
+              <span>
+                {t.appointments.cancelTooLate}
+                {appt.professionals?.users?.phone && (
+                  <> {t.appointments.cancelTooLatePhone.replace("{phone}", appt.professionals.users.phone)}</>
+                )}
+              </span>
+            </div>
+          )}
           {type === "past" && appt.status === "completed" && !hasRating && (
             <RatingDialog
               appointmentId={appt.id}
@@ -168,6 +194,14 @@ export function AppointmentCard({
         <p className="mt-2 pl-[52px] text-xs italic text-muted-foreground">
           {t.appointments.reason.replace("{reason}", t.appointments.reasonLabels[appt.rejection_reason] ?? appt.rejection_reason)}
         </p>
+      )}
+
+      {alternativeProposal && appt.status === "rejected" && (
+        <AlternativeResponse
+          appointmentId={appt.id}
+          proposedDate={alternativeProposal.proposedDate}
+          proposedTime={alternativeProposal.proposedTime}
+        />
       )}
     </div>
   )

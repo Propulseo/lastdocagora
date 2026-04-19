@@ -123,6 +123,8 @@ export function BookingForm({
           toast.error(t.booking.slotInPast)
         } else if (result.error === "SLOT_TOO_SHORT") {
           toast.error(t.booking.slotTooShort)
+        } else if (result.error === "PATIENT_SLOT_CONFLICT") {
+          toast.error(t.booking.patientSlotConflict)
         } else {
           toast.error(t.booking.errorBooking)
         }

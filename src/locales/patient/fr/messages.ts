@@ -40,6 +40,8 @@ export const messagesFr: MessagesSection = {
     notifRejectedWithReason: "{proName} a refus\u00e9 votre demande de rendez-vous. Motif : {reason}",
     notifAlternativeTitle: "Nouvel horaire propos\u00e9",
     notifAlternativeMessage: "{proName} a propos\u00e9 un nouvel horaire : {dateTime}.",
+    notifAlternativeAcceptedTitle: "Proposition accept\u00e9e",
+    notifAlternativeDeclinedTitle: "Proposition refus\u00e9e",
     notifReminderMessage: "Vous avez un rendez-vous prochainement.",
     notifTicketUpdatedTitle: "Ticket mis \u00e0 jour",
     notifTicketUpdatedMessage: "Votre ticket \"{subject}\" a \u00e9t\u00e9 mis \u00e0 jour.",

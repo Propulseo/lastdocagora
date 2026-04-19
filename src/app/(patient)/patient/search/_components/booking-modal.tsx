@@ -215,7 +215,9 @@ export function BookingModal({
                 ? t.booking.slotInPast
                 : result.error === "SLOT_TOO_SHORT"
                   ? t.booking.slotTooShort
-                  : t.booking.errorBooking
+                  : result.error === "PATIENT_SLOT_CONFLICT"
+                    ? t.booking.patientSlotConflict
+                    : t.booking.errorBooking
         toast.error(errorMsg)
         return
       }

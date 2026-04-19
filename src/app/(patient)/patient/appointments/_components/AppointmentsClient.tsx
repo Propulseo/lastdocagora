@@ -11,10 +11,13 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { AppointmentCard, isAppointmentPast, type Appointment } from "./appointment-card"
 
+type AlternativeProposal = { proposedDate: string; proposedTime: string }
+
 interface AppointmentsClientProps {
   active: Appointment[]
   cancelled: Appointment[]
   ratedIds: string[]
+  alternativeProposals?: Record<string, AlternativeProposal>
 }
 
 const tabTriggerClass =
@@ -24,6 +27,7 @@ export function AppointmentsClient({
   active,
   cancelled,
   ratedIds,
+  alternativeProposals = {},
 }: AppointmentsClientProps) {
   const { t, locale, dateLocale } = usePatientTranslations()
   const ratedSet = new Set(ratedIds)
@@ -122,7 +126,15 @@ export function AppointmentsClient({
           {cancelled.length > 0 ? (
             <div className="space-y-3">
               {cancelled.map((appt) => (
-                <AppointmentCard key={appt.id} appointment={appt} type="cancelled" t={t} locale={locale} dateLocale={dateLocale} />
+                <AppointmentCard
+                  key={appt.id}
+                  appointment={appt}
+                  type="cancelled"
+                  alternativeProposal={alternativeProposals[appt.id]}
+                  t={t}
+                  locale={locale}
+                  dateLocale={dateLocale}
+                />
               ))}
             </div>
           ) : (

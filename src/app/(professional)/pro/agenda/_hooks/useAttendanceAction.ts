@@ -14,7 +14,7 @@ import type { AttendanceStatus } from "@/types";
 /** Map attendance → expected appointment status for optimistic update */
 function deriveAppointmentStatus(attendance: AttendanceStatus, current: string): string {
   if (attendance === "present" || attendance === "late") return "confirmed";
-  if (attendance === "absent") return "no_show";
+  if (attendance === "absent") return "no-show";
   return current;
 }
 

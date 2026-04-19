@@ -16,6 +16,8 @@ export type AppointmentsSection = {
     reasonLabels: Record<string, string>
     rate: string
     dateFormat: string
+    cancelTooLate: string
+    cancelTooLatePhone: string
   }
   cancelDialog: {
     trigger: string
@@ -83,6 +85,8 @@ export const appointmentsPt: AppointmentsSection = {
     },
     rate: "Avaliar",
     dateFormat: "d 'de' MMMM 'de' yyyy",
+    cancelTooLate: "Cancelamento indispon\u00edvel \u2014 contacte o consult\u00f3rio diretamente.",
+    cancelTooLatePhone: "Telefone: {phone}",
   },
   cancelDialog: {
     trigger: "Cancelar",

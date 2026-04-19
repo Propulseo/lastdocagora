@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, X } from "lucide-react"
 import { usePatientTranslations } from "@/locales/locale-context"
+import { cancelPatientAppointment } from "@/app/(patient)/_actions/booking"
 
 export function CancelDialog({
   appointmentId,
@@ -34,28 +34,21 @@ export function CancelDialog({
 
   async function handleCancel() {
     setLoading(true)
-    const supabase = createClient()
-
-    const { error } = await supabase
-      .from("appointments")
-      .update({
-        status: "cancelled",
-        cancellation_reason: reason || null,
-        cancelled_at: new Date().toISOString(),
-      })
-      .eq("id", appointmentId)
-
-    if (error) {
+    try {
+      const result = await cancelPatientAppointment(appointmentId, reason || undefined)
+      if (!result.success) {
+        toast.error(t.cancelDialog.errorCancel)
+        return
+      }
+      toast.success(t.cancelDialog.successCancel)
+      setOpen(false)
+      setReason("")
+      router.refresh()
+    } catch {
       toast.error(t.cancelDialog.errorCancel)
+    } finally {
       setLoading(false)
-      return
     }
-
-    toast.success(t.cancelDialog.successCancel)
-    setOpen(false)
-    setReason("")
-    setLoading(false)
-    router.refresh()
   }
 
   return (

@@ -1416,6 +1416,56 @@ export type Database = {
           },
         ]
       }
+      professional_hidden_patients: {
+        Row: {
+          created_at: string
+          id: string
+          patient_id: string
+          professional_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patient_id: string
+          professional_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patient_id?: string
+          professional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_hidden_patients_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_hidden_patients_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_monthly_stats"
+            referencedColumns: ["professional_id"]
+          },
+          {
+            foreignKeyName: "professional_hidden_patients_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_hidden_patients_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "top_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_insurances: {
         Row: {
           created_at: string | null
@@ -2198,6 +2248,23 @@ export type Database = {
       }
     }
     Functions: {
+      book_appointment_atomic: {
+        Args: {
+          p_appointment_date: string
+          p_appointment_time: string
+          p_consultation_type: string
+          p_created_via?: string
+          p_duration_minutes: number
+          p_notes?: string
+          p_patient_id: string
+          p_patient_user_id: string
+          p_price: number
+          p_professional_id: string
+          p_professional_user_id: string
+          p_service_id: string
+        }
+        Returns: string
+      }
       calculate_attendance_rate: { Args: { prof_id: string }; Returns: number }
       create_availability_slot: {
         Args: {
@@ -2239,6 +2306,12 @@ export type Database = {
           slot_start: string
         }[]
       }
+      get_hidden_patient_ids: {
+        Args: { p_professional_id: string }
+        Returns: {
+          patient_id: string
+        }[]
+      }
       get_next_available_slot: {
         Args: { p_professional_id: string }
         Returns: string
@@ -2269,17 +2342,13 @@ export type Database = {
         Args: { professional_uuid: string }
         Returns: Json
       }
+      hide_patient_for_pro: {
+        Args: { p_patient_id: string; p_professional_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
       is_professional: { Args: never; Returns: boolean }
       promote_to_admin: { Args: { target_email: string }; Returns: string }
-      get_hidden_patient_ids: {
-        Args: { p_professional_id: string }
-        Returns: { patient_id: string }[]
-      }
-      hide_patient_for_pro: {
-        Args: { p_professional_id: string; p_patient_id: string }
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never
