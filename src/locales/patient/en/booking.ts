@@ -28,6 +28,7 @@ export const bookingEn: BookingSection = {
     slotInPast: "This slot has already passed. Please choose another one.",
     slotTooShort: "The selected slot is too short for this service. Please choose another one.",
     patientSlotConflict: "You already have an appointment at this time.",
+    professionalUnavailable: "This professional is currently unavailable for booking.",
     alternativeAccept: "Accept",
     alternativeDecline: "Decline",
     alternativeAccepted: "New appointment created successfully.",

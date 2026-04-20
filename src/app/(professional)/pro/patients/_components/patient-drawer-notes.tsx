@@ -48,6 +48,21 @@ function formatDate(dateStr: string, locale: string): string {
   }
 }
 
+function formatDateTime(isoStr: string, locale: string): string {
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString(locale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return isoStr;
+  }
+}
+
 function formatTime(timeStr: string): string {
   return timeStr.slice(0, 5);
 }
@@ -124,12 +139,16 @@ export function PatientDrawerNotes({
                   className="rounded-lg border bg-muted/30 p-3 space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                      <span>
+                        {dt.noteWrittenAt}{" "}
+                        {formatDateTime(note.created_at, dateLocale)}
+                      </span>
                       {note.appointment_date && (
-                        <span>
-                          {formatDate(note.appointment_date, dateLocale)}
+                        <span className="text-muted-foreground/60">
+                          ({formatDate(note.appointment_date, dateLocale)}
                           {note.appointment_time &&
-                            ` ${formatTime(note.appointment_time)}`}
+                            ` ${formatTime(note.appointment_time)}`})
                         </span>
                       )}
                       {note.follow_up_needed && (

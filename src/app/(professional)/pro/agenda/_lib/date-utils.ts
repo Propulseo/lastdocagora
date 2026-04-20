@@ -22,3 +22,35 @@ export function toLocalDateStr(d: Date): string {
 export function parseLocalDate(dateStr: string): Date {
   return new Date(dateStr + "T00:00:00");
 }
+
+/**
+ * Compute the start/end date strings for a given period filter.
+ * Returns `[startDate, endDate]` as "YYYY-MM-DD" strings.
+ *
+ * - day   → [selectedDate, selectedDate]
+ * - week  → [monday, sunday] (ISO week)
+ * - month → [first, last day of month]
+ */
+export function getDateRange(
+  selectedDate: string,
+  periodFilter: "day" | "week" | "month",
+): [string, string] {
+  if (periodFilter === "day") {
+    return [selectedDate, selectedDate];
+  }
+  if (periodFilter === "week") {
+    const d = parseLocalDate(selectedDate);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const weekStart = new Date(d);
+    weekStart.setDate(d.getDate() + diff);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    return [toLocalDateStr(weekStart), toLocalDateStr(weekEnd)];
+  }
+  // month
+  const d = parseLocalDate(selectedDate);
+  const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+  const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return [toLocalDateStr(monthStart), toLocalDateStr(monthEnd)];
+}

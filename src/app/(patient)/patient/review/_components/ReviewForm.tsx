@@ -21,7 +21,7 @@ import { validateReviewToken } from "../_actions/validate-token"
 import { StarRating } from "./StarRating"
 
 const COMMENT_MAX = 1000
-type FormStatus = "loading" | "invalid" | "already_submitted" | "ready" | "submitting" | "success"
+type FormStatus = "loading" | "invalid" | "expired" | "already_submitted" | "ready" | "submitting" | "success"
 
 export function ReviewForm({ token }: { token: string | null }) {
   const { t } = usePatientTranslations()
@@ -68,6 +68,10 @@ export function ReviewForm({ token }: { token: string | null }) {
           setStatus("already_submitted")
           return
         }
+        if (res.status === 410) {
+          setStatus("expired")
+          return
+        }
         throw new Error(body.error || t.review.errorSubmitTitle)
       }
 
@@ -101,6 +105,18 @@ export function ReviewForm({ token }: { token: string | null }) {
         <p className="font-semibold">{t.review.invalidLink}</p>
         <p className="text-sm text-muted-foreground">
           {t.review.invalidLinkDescription}
+        </p>
+      </div>
+    </CenteredCard>
+  )
+
+  if (status === "expired") return (
+    <CenteredCard>
+      <div className="flex flex-col items-center gap-4 py-8 text-center">
+        <AlertCircle className="size-10 text-amber-500" />
+        <p className="font-semibold">{t.review.tokenExpired}</p>
+        <p className="text-sm text-muted-foreground">
+          {t.review.tokenExpiredDescription}
         </p>
       </div>
     </CenteredCard>

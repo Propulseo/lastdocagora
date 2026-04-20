@@ -21,5 +21,23 @@
   "close": "Close",
   "edit": "Edit",
   "delete": "Delete",
-  "saving": "Saving..."
+  "saving": "Saving...",
+  "errors": {
+    "invalidTransition": "Invalid status transition",
+    "attendanceLocked": "Attendance is locked after patient marked present",
+    "attendanceStatusInvalid": "Cannot mark attendance on this appointment",
+    "professionalNotActive": "Professional is not active",
+    "patientSuspended": "Patient account is suspended",
+    "slotConflict": "Time slot conflicts with existing appointment",
+    "appointmentImmutable": "Cannot modify a completed appointment",
+    "appointmentCancelBlocked": "Cannot cancel this appointment",
+    "missingRegistrationNumber": "Registration number required for verification",
+    "hasFutureAppointments": "Cannot proceed — future appointments exist",
+    "lastAdmin": "Cannot delete the last administrator",
+    "emailAlreadyExists": "Email address is already in use",
+    "appointmentNotFound": "Related appointment not found",
+    "patientMismatch": "Patient does not match the appointment",
+    "invalidStatus": "Invalid status value",
+    "noReplySent": "Ticket closed without any admin reply"
+  }
 }

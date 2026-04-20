@@ -10,6 +10,7 @@ import {
   Target,
   DollarSign,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
 import { RADIUS } from "@/lib/design-tokens";
@@ -25,6 +26,7 @@ interface DrawerTranslations {
   totalSpent: string;
   avgSpent: string;
   patientSince: string;
+  absenceWarning?: string;
 }
 
 interface PatientDrawerInfoProps {
@@ -106,6 +108,12 @@ export function PatientDrawerInfo({
             >
               {statusBadgeLabels[patientStatus] ?? patientStatus}
             </Badge>
+            {data.absenceCount >= 3 && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                <AlertTriangle className="size-3" />
+                {dt.absenceWarning?.replace("{count}", String(data.absenceCount)) ?? `${data.absenceCount} absences`}
+              </span>
+            )}
           </div>
           {data.email && (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">

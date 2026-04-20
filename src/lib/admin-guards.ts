@@ -114,7 +114,8 @@ export function deriveAppointmentStatus(
   attendance: string,
   currentStatus: string
 ): string {
-  if (attendance === "present" || attendance === "late") return "confirmed";
+  if (attendance === "present") return "confirmed";
   if (attendance === "absent") return "no-show";
+  // "late", "waiting", "cancelled" → keep current status
   return currentStatus;
 }

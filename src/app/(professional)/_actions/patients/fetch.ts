@@ -89,7 +89,7 @@ export async function getPatientDetailEnhanced(
       supabase
         .from("patients")
         .select(
-          "first_name, last_name, email, date_of_birth, avatar_url, languages_spoken, insurance_provider, created_at",
+          "first_name, last_name, email, date_of_birth, avatar_url, languages_spoken, insurance_provider, created_at, absence_count",
         )
         .eq("id", patientId)
         .single(),
@@ -224,6 +224,7 @@ export async function getPatientDetailEnhanced(
       lastConsultation,
       attendanceRate,
       attendanceTotal: attendTotal,
+      absenceCount: patient.absence_count ?? 0,
       totalSpent,
       avgSpent,
       allAppointments,

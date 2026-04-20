@@ -109,7 +109,7 @@ export function UserMobileList({
                 {t.users.activate}
               </button>
             )}
-            {actionSheet && (actionSheet.status ?? "active") !== "suspended" && (
+            {actionSheet && actionSheet.id !== currentUserId && (actionSheet.status ?? "active") !== "suspended" && (
               <button
                 onClick={() =>
                   onAction(actionSheet.id, "suspended", t.users.suspend)

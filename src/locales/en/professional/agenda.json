@@ -147,6 +147,7 @@
   "deleteSlotDescription": "The {{time}} slot will be permanently deleted. Patients will no longer be able to book this time.",
   "deleteSlotSuccess": "Slot deleted",
   "deleteSlotError": "Error deleting slot",
+  "cannotDeleteWithAppointment": "Cannot delete this slot: there are pending or confirmed appointments in this time range.",
   "clearDayTitle": "Delete all availability?",
   "clearDayDescription": "All available slots on {{date}} will be deleted. Patients will no longer be able to book this day. This action is irreversible.",
   "clearDayButton": "Clear day availability",

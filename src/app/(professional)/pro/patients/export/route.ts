@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     supabase
       .from("patients")
       .select(
-        "id, first_name, last_name, email, phone, insurance_provider, date_of_birth, created_at",
+        "id, first_name, last_name, email, phone, insurance_provider, date_of_birth, created_at, absence_count",
       )
       .eq("created_by_professional_id", professional.id),
     supabase

@@ -162,7 +162,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         open={walkInDialogOpen}
         onOpenChange={setWalkInDialogOpen}
         professionalId={professionalId}
-        onCreated={agenda.refresh}
+        onCreated={() => agenda.refresh()}
       />
 
       {/* Mobile FAB for walk-ins */}

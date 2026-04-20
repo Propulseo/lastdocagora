@@ -31,6 +31,8 @@ export const miscEn: MiscSection = {
     invalidLinkDescription: "This review link has expired or is not valid.",
     alreadySubmitted: "Review already submitted",
     alreadySubmittedDescription: "You have already submitted a review for this appointment. Thank you!",
+    tokenExpired: "Link expired",
+    tokenExpiredDescription: "This review link has expired after 7 days. Please contact your professional to request a new one.",
     successTitle: "Thank you for your review!",
     successDescription: "Your feedback helps other patients find the best professionals.",
     title: "Rate appointment",

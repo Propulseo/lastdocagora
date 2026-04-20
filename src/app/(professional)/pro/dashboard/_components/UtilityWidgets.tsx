@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SHADOW, RADIUS, TYPE, SPACING } from "@/lib/design-tokens";
 import type { DashboardData } from "../_hooks/useDashboardData";
 import { NextSlotsWidget } from "./NextSlotsWidget";
+import { FollowUpWidget } from "./FollowUpWidget";
 
 interface UtilityWidgetsProps {
   data: DashboardData;
@@ -143,6 +144,9 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
           </p>
         )}
       </div>
+
+      {/* Follow-up suggestions widget */}
+      <FollowUpWidget data={data} />
 
       {/* Recent patients widget */}
       <div className={cn("border border-border/40 bg-card", RADIUS.card, SHADOW.card, SPACING.card_sm)}>

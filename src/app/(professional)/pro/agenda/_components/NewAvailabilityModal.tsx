@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { toast } from "sonner";
 
 interface NewAvailabilityModalProps {
   open: boolean;
@@ -91,6 +92,22 @@ export function NewAvailabilityModal({
 
     setSaving(true);
     const supabase = createClient();
+
+    // Point 62: Check for overlapping appointments (warning, not blocking)
+    const slotDate = isRecurring ? null : specificDate;
+    if (slotDate) {
+      const { count } = await supabase
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("professional_id", professionalId)
+        .in("status", ["pending", "confirmed"])
+        .gte("scheduled_at", `${slotDate}T${startTime}`)
+        .lt("scheduled_at", `${slotDate}T${endTime}`);
+
+      if (count && count > 0) {
+        toast.warning(t.agenda.overlapError);
+      }
+    }
 
     const { error: insertError } = await supabase
       .from("availability")

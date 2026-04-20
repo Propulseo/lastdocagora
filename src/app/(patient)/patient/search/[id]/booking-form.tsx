@@ -115,7 +115,9 @@ export function BookingForm({
       })
 
       if (!result.success) {
-        if (result.error === "self_booking_not_allowed") {
+        if (result.error === "professional_unavailable") {
+          toast.error(t.booking.professionalUnavailable)
+        } else if (result.error === "self_booking_not_allowed") {
           toast.error(t.booking.selfBookingError)
         } else if (result.error === "SLOT_UNAVAILABLE") {
           toast.error(t.booking.slotUnavailable)

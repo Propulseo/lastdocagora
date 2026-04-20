@@ -38,6 +38,7 @@ export function PatientDrawer({
 
   const [data, setData] = useState<PatientDetailEnhanced | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [expandedAptId, setExpandedAptId] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
@@ -45,13 +46,25 @@ export function PatientDrawer({
   useEffect(() => {
     if (!patientId) {
       setData(null);
+      setError(false);
       return;
     }
     setLoading(true);
-    getPatientDetailEnhanced(patientId).then((result) => {
-      if (result.success) setData(result.data);
-      setLoading(false);
-    });
+    setError(false);
+    getPatientDetailEnhanced(patientId)
+      .then((result) => {
+        if (result.success) {
+          setData(result.data);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => {
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [patientId]);
 
   const insuranceLabels = t.patients.insuranceLabels as Record<string, string>;
@@ -78,13 +91,38 @@ export function PatientDrawer({
               {dt.loading}
             </span>
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <p className="text-sm text-destructive">
+              {(dt as unknown as Record<string, string>).errorLoading ?? "Erro ao carregar ficha do paciente."}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                if (patientId) {
+                  setLoading(true);
+                  setError(false);
+                  getPatientDetailEnhanced(patientId)
+                    .then((result) => {
+                      if (result.success) setData(result.data);
+                      else setError(true);
+                    })
+                    .catch(() => setError(true))
+                    .finally(() => setLoading(false));
+                }
+              }}
+              className="text-sm text-primary underline hover:no-underline"
+            >
+              {(dt as unknown as Record<string, string>).retry ?? "Tentar novamente"}
+            </button>
+          </div>
         ) : data ? (
           <ScrollArea className="h-[calc(100vh-5rem)]">
             <div className="space-y-6 px-6 pb-6 pt-4">
               <PatientDrawerInfo
                 data={data}
                 patientName={patientName}
-                dt={dt}
+                dt={{ ...dt, absenceWarning: t.patients.absenceWarning as string }}
                 dateLocale={dateLocale}
                 insuranceLabels={insuranceLabels}
                 statusBadgeLabels={statusBadgeLabels}

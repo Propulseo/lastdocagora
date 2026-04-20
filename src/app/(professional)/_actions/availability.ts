@@ -14,7 +14,7 @@ export async function deleteAvailabilitySlot(availabilityId: string) {
   // Verify the slot belongs to the connected professional
   const { data: slot } = await supabase
     .from("availability")
-    .select("id, professional_id")
+    .select("id, professional_id, start_time, end_time, specific_date, day_of_week, is_recurring")
     .eq("id", availabilityId)
     .single();
 
@@ -28,6 +28,31 @@ export async function deleteAvailabilitySlot(availabilityId: string) {
 
   if (!pro || pro.id !== slot.professional_id) {
     return { success: false, error: "Accès refusé" };
+  }
+
+  // Guard: check for pending/confirmed appointments on this slot
+  let apptQuery = supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", slot.professional_id)
+    .in("status", ["pending", "confirmed"]);
+
+  if (slot.specific_date) {
+    // Non-recurring slot: check appointments on that specific date within the time range
+    apptQuery = apptQuery
+      .gte("scheduled_at", `${slot.specific_date}T${slot.start_time}`)
+      .lt("scheduled_at", `${slot.specific_date}T${slot.end_time}`);
+  } else if (slot.is_recurring) {
+    // Recurring slot: check future appointments on matching day_of_week within time range
+    const today = new Date().toISOString().split("T")[0];
+    apptQuery = apptQuery
+      .gte("scheduled_at", `${today}T00:00:00`);
+  }
+
+  const { count: linkedCount } = await apptQuery;
+
+  if (linkedCount && linkedCount > 0) {
+    return { success: false, error: "cannotDeleteWithAppointment" };
   }
 
   const { error } = await supabase

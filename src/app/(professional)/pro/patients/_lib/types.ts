@@ -14,6 +14,7 @@ export interface PatientRow {
   last_appointment: string | null;
   total_appointments: number;
   attendance_rate: number | null; // 0-100
+  absence_count: number;
   status: "active" | "inactive" | "new";
 }
 
@@ -79,4 +80,5 @@ export interface RawPatientRow {
   insurance_provider: string | null;
   date_of_birth: string | null;
   created_at: string | null;
+  absence_count: number;
 }

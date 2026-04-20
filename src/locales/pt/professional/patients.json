@@ -95,6 +95,7 @@
     "patients": "pacientes",
     "noData": "Sem dados para exibir"
   },
+  "absenceWarning": "Faltas frequentes ({count})",
   "statusBadge": {
     "active": "Ativo",
     "inactive": "Inativo",
@@ -111,11 +112,13 @@
     "firstConsultation": "Primeira consulta",
     "lastConsultation": "Última consulta",
     "recentAppointments": "5 últimas consultas",
-    "allAppointments": "Todas as consultas",
+    "allAppointments": "Histórico",
     "upcomingAppointments": "Próximas consultas",
     "noAppointments": "Sem consultas",
     "noUpcoming": "Sem consultas agendadas",
     "loading": "A carregar...",
+    "errorLoading": "Erro ao carregar ficha do paciente.",
+    "retry": "Tentar novamente",
     "patientSince": "Paciente desde",
     "totalSpent": "Total gasto",
     "avgSpent": "Gasto médio",
@@ -151,6 +154,7 @@
     "cancelButton": "Cancelar",
     "saveButton": "Guardar",
     "noteSaveError": "Erro ao guardar nota",
-    "noteUpdated": "Nota atualizada"
+    "noteUpdated": "Nota atualizada",
+    "noteWrittenAt": "Escrita em"
   }
 }

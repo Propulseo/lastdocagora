@@ -4,24 +4,14 @@ import { useState, useTransition } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
-import { assignTicketToSelf, deleteTicket } from "@/app/(admin)/_actions/admin-crud-actions";
+import { deleteTicket } from "@/app/(admin)/_actions/admin-crud-actions";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { TicketExpandedContent } from "./TicketExpandedContent";
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   open: ["in_progress"],
@@ -67,7 +57,6 @@ export function TicketRow({ ticket }: TicketRowProps) {
 
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const allowedNext = ALLOWED_TRANSITIONS[ticket.status] ?? [];
-  const supportT = t.support as Record<string, unknown>;
 
   async function toggleExpand() {
     if (!expanded && messages.length === 0) {
@@ -183,141 +172,26 @@ export function TicketRow({ ticket }: TicketRowProps) {
         </TableCell>
       </TableRow>
       {expanded && (
-        <TableRow>
-          <TableCell colSpan={6} className="bg-muted/30 p-4">
-            {allowedNext.length > 0 && (
-              <div className="mb-3 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
-                    {t.support.changeStatus}
-                  </span>
-                  <Select
-                    value=""
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger
-                      className="w-[200px]"
-                      aria-label={t.support.changeStatusLabel}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <SelectValue placeholder={t.support.changeStatus} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {allowedNext.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {(t.statuses.ticket as Record<string, string>)[s] ?? s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {pendingStatus === "awaiting_confirmation" && (
-                  <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30" onClick={(e) => e.stopPropagation()}>
-                    <Textarea
-                      placeholder={(supportT.resolutionPlaceholder as string) ?? "Summary of what was done..."}
-                      value={resolutionMessage}
-                      onChange={(e) => setResolutionMessage(e.target.value)}
-                      className="mb-2 min-h-[60px] resize-none"
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={handleConfirmAwaitingConfirmation}
-                      >
-                        {(supportT.sendToConfirmation as string) ?? "Send for confirmation"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setPendingStatus(null);
-                          setResolutionMessage("");
-                        }}
-                      >
-                        {t.common.cancel}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 2 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full rounded-md" />
-                ))}
-              </div>
-            ) : messages.length > 0 ? (
-              <div className="space-y-3">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className="bg-card rounded-md border p-3 text-sm"
-                  >
-                    <p>{msg.content}</p>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      {msg.created_at
-                        ? new Date(msg.created_at).toLocaleString(dateLocale)
-                        : ""}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                {t.support.noMessages}
-              </p>
-            )}
-            {/* Admin quick actions */}
-            <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
-              {ticket.status === "open" && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="min-h-[44px]"
-                  onClick={async () => {
-                    const result = await assignTicketToSelf(ticket.id);
-                    if (result.success) toast.success(t.support.assigned);
-                    else toast.error(result.error ?? t.common.errorUpdating);
-                  }}
-                >
-                  {t.support.assignToSelf}
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="destructive"
-                className="min-h-[44px]"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                {t.support.deleteTicket}
-              </Button>
-            </div>
-
-            {/* Admin reply form */}
-            <div className="mt-3 flex gap-2">
-              <Textarea
-                placeholder={t.support.replyPlaceholder}
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                className="min-h-[60px] resize-none"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <Button
-                size="sm"
-                className="shrink-0 self-end"
-                disabled={sending || !replyText.trim()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReply();
-                }}
-              >
-                <Send className="size-4 mr-1" />
-                {sending ? "..." : t.support.sendButton}
-              </Button>
-            </div>
-          </TableCell>
-        </TableRow>
+        <TicketExpandedContent
+          ticketId={ticket.id}
+          ticketStatus={ticket.status}
+          allowedNext={allowedNext}
+          messages={messages}
+          loading={loading}
+          dateLocale={dateLocale}
+          replyText={replyText}
+          setReplyText={setReplyText}
+          sending={sending}
+          handleReply={handleReply}
+          handleStatusChange={handleStatusChange}
+          pendingStatus={pendingStatus}
+          setPendingStatus={setPendingStatus}
+          resolutionMessage={resolutionMessage}
+          setResolutionMessage={setResolutionMessage}
+          handleConfirmAwaitingConfirmation={handleConfirmAwaitingConfirmation}
+          setShowDeleteConfirm={setShowDeleteConfirm}
+          t={t}
+        />
       )}
       <ConfirmDialog
         open={showDeleteConfirm}

@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toast } from "sonner";
-import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 import { DEFAULT_STATUS_FILTERS } from "../_lib/agenda-constants";
+import { useAgendaAppointments } from "./useAgendaAppointments";
+import { useAgendaAvailability } from "./useAgendaAvailability";
+import { useExternalEvents } from "./useExternalEvents";
 
 const STATUS_COOKIE_NAME = "agenda_status_filters";
 const STATUS_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
@@ -72,14 +74,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     setStatusFiltersRaw(statuses);
     writeStatusCookie(statuses);
   }, []);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [createDialogOpen, setCreateDialogOpen] = useState(
-    () => searchParams.get("create") === "true"
-  );
 
-  // Handle URL params: clean navigation params (date, view, appointmentId)
   useEffect(() => {
     const hasNavParams = searchParams.get("date") || searchParams.get("view") || searchParams.get("appointmentId") || searchParams.get("status");
     if (!hasNavParams) return;
@@ -92,7 +87,6 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     router.replace(url.pathname + url.search, { scroll: false });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle URL params: Google Calendar feedback
   useEffect(() => {
     const calendarError = searchParams.get("calendar_error");
     const calendarConnected = searchParams.get("calendar_connected");
@@ -115,287 +109,72 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
       toast.error(messages[calendarError] ?? t.agenda.calendarGenericError);
     }
 
-    // Clean URL params
     const url = new URL(window.location.href);
     url.searchParams.delete("calendar_error");
     url.searchParams.delete("calendar_connected");
     url.searchParams.delete("create");
     router.replace(url.pathname + url.search, { scroll: false });
   }, [searchParams, router, t]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(
+    () => searchParams.get("create") === "true"
+  );
   const [createStartTime, setCreateStartTime] = useState("");
   const [createEndTime, setCreateEndTime] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
   const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
-  const [externalEvents, setExternalEvents] = useState<ExternalEvent[]>([]);
-  const [externalEventsKey, setExternalEventsKey] = useState(0);
-  const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
-  const [availabilityKey, setAvailabilityKey] = useState(0);
-  const [recentlyAddedSlotId, setRecentlyAddedSlotId] = useState<string | null>(null);
+  const [modalStartTime, setModalStartTime] = useState("");
+  const [modalEndTime, setModalEndTime] = useState("");
 
-  const handleAttendanceChange = useCallback(
-    (appointmentId: string, newAttendanceStatus: string, newAppointmentStatus?: string) => {
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === appointmentId
-            ? {
-                ...apt,
-                ...(newAppointmentStatus ? { status: newAppointmentStatus } : {}),
-                appointment_attendance: {
-                  id: apt.appointment_attendance?.id ?? "optimistic",
-                  status: newAttendanceStatus,
-                  marked_at: new Date().toISOString(),
-                },
-              }
-            : apt,
-        ),
-      );
+  const openCreateDialog = useCallback((startTime: string, endTime: string) => {
+    setCreateStartTime(startTime);
+    setCreateEndTime(endTime);
+    setCreateDialogOpen(true);
+  }, []);
+
+  const openAvailabilityModal = useCallback(
+    (startTime: string, endTime: string) => {
+      setModalStartTime(startTime);
+      setModalEndTime(endTime);
+      setModalOpen(true);
     },
     [],
   );
 
   const supabase = useMemo(() => createClient(), []);
 
-  // Fetch appointments
-  useEffect(() => {
-    let cancelled = false;
+  const {
+    appointments,
+    loading,
+    handleAttendanceChange,
+    refresh,
+  } = useAgendaAppointments({
+    supabase,
+    professionalId,
+    selectedDate,
+    periodFilter,
+  });
 
-    async function load() {
-      setLoading(true);
-      let query = supabase
-        .from("appointments")
-        .select(
-          "id, appointment_date, appointment_time, duration_minutes, status, consultation_type, notes, title, created_via, patients(first_name, last_name), services(name, name_pt, name_fr, name_en), appointment_attendance(id, status, marked_at)",
-        )
-        .eq("professional_id", professionalId)
-        .order("appointment_time", { ascending: true });
+  const {
+    availabilitySlots,
+    recentlyAddedSlotId,
+    refreshAvailability,
+  } = useAgendaAvailability({
+    supabase,
+    professionalId,
+    selectedDate,
+    periodFilter,
+  });
 
-      if (periodFilter === "day") {
-        query = query.eq("appointment_date", selectedDate);
-      } else if (periodFilter === "week") {
-        const d = parseLocalDate(selectedDate);
-        const day = d.getDay();
-        const diff = day === 0 ? -6 : 1 - day;
-        const weekStart = new Date(d);
-        weekStart.setDate(d.getDate() + diff);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        query = query
-          .gte("appointment_date", toLocalDateStr(weekStart))
-          .lte("appointment_date", toLocalDateStr(weekEnd));
-      } else {
-        const d = parseLocalDate(selectedDate);
-        const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
-        const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-        query = query
-          .gte("appointment_date", toLocalDateStr(monthStart))
-          .lte("appointment_date", toLocalDateStr(monthEnd));
-      }
+  // ─── External calendar events ───
+  const { externalEvents, refreshExternalEvents } = useExternalEvents({
+    supabase,
+    userId,
+    selectedDate,
+    periodFilter,
+  });
 
-      // Always hide cancelled/rejected (CLAUDE.md §17)
-      query = query.not("status", "in", '("cancelled","rejected")');
-
-      const { data } = await query;
-      if (!cancelled) {
-        setAppointments((data as Appointment[]) ?? []);
-        setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase, professionalId, selectedDate, periodFilter, refreshKey]);
-
-  // Fetch external calendar events
-  useEffect(() => {
-    async function loadExternalEvents() {
-      let rangeStart: string;
-      let rangeEnd: string;
-
-      if (periodFilter === "day") {
-        rangeStart = `${selectedDate}T00:00:00`;
-        rangeEnd = `${selectedDate}T23:59:59`;
-      } else if (periodFilter === "week") {
-        const d = parseLocalDate(selectedDate);
-        const day = d.getDay();
-        const diff = day === 0 ? -6 : 1 - day;
-        const weekStart = new Date(d);
-        weekStart.setDate(d.getDate() + diff);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        rangeStart = `${toLocalDateStr(weekStart)}T00:00:00`;
-        rangeEnd = `${toLocalDateStr(weekEnd)}T23:59:59`;
-      } else {
-        const d = parseLocalDate(selectedDate);
-        const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
-        const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-        rangeStart = `${toLocalDateStr(monthStart)}T00:00:00`;
-        rangeEnd = `${toLocalDateStr(monthEnd)}T23:59:59`;
-      }
-
-      const { data: events } = await supabase
-        .from("external_calendar_events")
-        .select("id, title, starts_at, ends_at, all_day, status, provider, calendar_id")
-        .eq("professional_user_id", userId)
-        .gte("ends_at", rangeStart)
-        .lte("starts_at", rangeEnd)
-        .neq("status", "cancelled")
-        .order("starts_at", { ascending: true });
-
-      if (!events || events.length === 0) {
-        setExternalEvents([]);
-        return;
-      }
-
-      const calendarIds = [...new Set(events.map((e) => e.calendar_id))];
-      const { data: cals } = await supabase
-        .from("calendar_calendars")
-        .select("id, color, name, selected")
-        .in("id", calendarIds);
-
-      const calMap = new Map(
-        (cals ?? []).map((c) => [c.id, { color: c.color, name: c.name, selected: c.selected }]),
-      );
-
-      const mapped: ExternalEvent[] = events
-        .filter((e) => {
-          const cal = calMap.get(e.calendar_id);
-          return cal?.selected !== false;
-        })
-        .map((e) => {
-          const cal = calMap.get(e.calendar_id);
-          return {
-            id: e.id,
-            title: e.title,
-            starts_at: e.starts_at,
-            ends_at: e.ends_at,
-            all_day: e.all_day,
-            status: e.status,
-            provider: e.provider,
-            color: cal?.color ?? null,
-            calendar_name: cal?.name ?? "",
-          };
-        });
-
-      setExternalEvents(mapped);
-    }
-
-    loadExternalEvents();
-  }, [supabase, userId, selectedDate, periodFilter, externalEventsKey]);
-
-  // Fetch availability slots
-  useEffect(() => {
-    async function loadAvailability() {
-      if (periodFilter !== "day") {
-        setAvailabilitySlots([]);
-        return;
-      }
-
-      const d = parseLocalDate(selectedDate);
-      const dayOfWeek = d.getDay();
-
-      const { data } = await supabase
-        .from("availability")
-        .select("id, start_time, end_time, is_recurring, specific_date, day_of_week")
-        .eq("professional_id", professionalId)
-        .eq("is_blocked", false)
-        .or(`and(is_recurring.eq.true,day_of_week.eq.${dayOfWeek}),specific_date.eq.${selectedDate}`);
-
-      setAvailabilitySlots((data as AvailabilitySlot[]) ?? []);
-    }
-
-    loadAvailability();
-  }, [supabase, professionalId, selectedDate, periodFilter, availabilityKey]);
-
-  // Clear recently-added animation after 2s
-  useEffect(() => {
-    if (!recentlyAddedSlotId) return;
-    const timer = setTimeout(() => setRecentlyAddedSlotId(null), 2000);
-    return () => clearTimeout(timer);
-  }, [recentlyAddedSlotId]);
-
-  // Refs for Realtime callback (avoid re-subscribing on view changes)
-  const periodFilterRef = useRef(periodFilter);
-  const selectedDateRef = useRef(selectedDate);
-  useEffect(() => { periodFilterRef.current = periodFilter; }, [periodFilter]);
-  useEffect(() => { selectedDateRef.current = selectedDate; }, [selectedDate]);
-
-  // Realtime: availability INSERT/UPDATE/DELETE
-  useEffect(() => {
-    const channel = supabase
-      .channel(`pro-availability-${professionalId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "availability",
-          filter: `professional_id=eq.${professionalId}`,
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            const row = payload.new as Record<string, unknown>;
-            if (row.is_blocked) return;
-
-            const slot: AvailabilitySlot = {
-              id: row.id as string,
-              start_time: row.start_time as string,
-              end_time: row.end_time as string,
-              is_recurring: row.is_recurring as boolean,
-              specific_date: (row.specific_date as string) ?? null,
-              day_of_week: row.day_of_week as number,
-            };
-
-            if (periodFilterRef.current !== "day") return;
-
-            const d = parseLocalDate(selectedDateRef.current);
-            const matches =
-              (slot.is_recurring && slot.day_of_week === d.getDay()) ||
-              slot.specific_date === selectedDateRef.current;
-
-            if (matches) {
-              setAvailabilitySlots((prev) =>
-                prev.some((s) => s.id === slot.id) ? prev : [...prev, slot],
-              );
-              setRecentlyAddedSlotId(slot.id);
-            }
-          } else if (payload.eventType === "UPDATE") {
-            const row = payload.new as Record<string, unknown>;
-            if (row.is_blocked) {
-              setAvailabilitySlots((prev) =>
-                prev.filter((s) => s.id !== (row.id as string)),
-              );
-            } else {
-              setAvailabilitySlots((prev) =>
-                prev.map((s) =>
-                  s.id === (row.id as string)
-                    ? {
-                        id: row.id as string,
-                        start_time: row.start_time as string,
-                        end_time: row.end_time as string,
-                        is_recurring: row.is_recurring as boolean,
-                        specific_date: (row.specific_date as string) ?? null,
-                        day_of_week: row.day_of_week as number,
-                      }
-                    : s,
-                ),
-              );
-            }
-          } else if (payload.eventType === "DELETE") {
-            const oldId = (payload.old as Record<string, unknown>).id as string;
-            setAvailabilitySlots((prev) => prev.filter((s) => s.id !== oldId));
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, professionalId]);
-
-  // Client-side filtering by active statuses (keeps raw appointments for stats)
+  // ─── Client-side filtering by active statuses (keeps raw appointments for stats) ───
   const filteredAppointments = useMemo(
     () =>
       statusFilters.length > 0
@@ -404,7 +183,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
     [appointments, statusFilters],
   );
 
-  // Today stats — computed from ALL appointments, unaffected by filters
+  // ─── Today stats — computed from ALL appointments, unaffected by filters ───
   const todayStr = toLocalDateStr(new Date());
   const todayAppointments = useMemo(
     () => appointments.filter((a) => a.appointment_date === todayStr),
@@ -433,28 +212,6 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
 
     return { total, present, late, absent, waiting };
   }, [todayAppointments]);
-
-  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
-  const refreshExternalEvents = useCallback(() => setExternalEventsKey((k) => k + 1), []);
-  const refreshAvailability = useCallback(() => setAvailabilityKey((k) => k + 1), []);
-
-  const openCreateDialog = useCallback((startTime: string, endTime: string) => {
-    setCreateStartTime(startTime);
-    setCreateEndTime(endTime);
-    setCreateDialogOpen(true);
-  }, []);
-
-  const [modalStartTime, setModalStartTime] = useState("");
-  const [modalEndTime, setModalEndTime] = useState("");
-
-  const openAvailabilityModal = useCallback(
-    (startTime: string, endTime: string) => {
-      setModalStartTime(startTime);
-      setModalEndTime(endTime);
-      setModalOpen(true);
-    },
-    [],
-  );
 
   return {
     t,

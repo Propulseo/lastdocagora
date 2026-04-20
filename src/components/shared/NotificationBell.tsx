@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { pt, fr, enGB, type Locale } from "date-fns/locale";
 import { Bell, BellOff, Check, CheckCheck, CircleDot } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,8 +12,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
 import { getNotificationHref } from "@/lib/notifications";
-
-const dateFnsLocales: Record<string, Locale> = { pt, fr, en: enGB };
+import { dateFnsLocales, formatDate, getLocalizedContent } from "./notification-helpers";
 
 export interface NotificationBellTranslations {
   title: string;
@@ -40,53 +37,6 @@ interface NotificationBellProps {
   role?: "patient" | "professional" | "admin";
 }
 
-function formatDate(
-  date: string,
-  dateLocale: Locale,
-  justNowLabel: string
-): string {
-  const diff = Date.now() - new Date(date).getTime();
-  if (diff < 60_000) return justNowLabel;
-  return formatDistanceToNow(new Date(date), {
-    addSuffix: true,
-    locale: dateLocale,
-  });
-}
-
-function interpolate(
-  template: string,
-  params: Record<string, string> | null
-): string {
-  if (!params) return template;
-  return template.replace(
-    /\{(\w+)\}/g,
-    (_, key: string) => params[key] ?? `{${key}}`
-  );
-}
-
-function getLocalizedContent(
-  notif: Notification,
-  contentMap?: NotificationContentMap
-): { title: string; message: string } {
-  // Only apply i18n templates when params are available for interpolation.
-  // If params is null, the DB already stores the resolved text — use it as-is.
-  const p = notif.params;
-  if (!contentMap || !p || Object.keys(p).length === 0) {
-    return { title: notif.title, message: notif.message };
-  }
-
-  const entry = contentMap[notif.type];
-  if (!entry) return { title: notif.title, message: notif.message };
-
-  const msgTemplate =
-    entry.messageAlt && p.reason ? entry.messageAlt : entry.message;
-
-  return {
-    title: interpolate(entry.title, p),
-    message: interpolate(msgTemplate, p),
-  };
-}
-
 export function NotificationBell({
   userId,
   translations: t,
@@ -98,7 +48,7 @@ export function NotificationBell({
     useNotifications(userId);
   const [open, setOpen] = useState(false);
 
-  const dateLocale = dateFnsLocales[locale] ?? pt;
+  const dateLocale = dateFnsLocales[locale] ?? dateFnsLocales.pt;
 
   const handleNotifClick = (notif: Notification) => {
     if (!notif.read_at) {

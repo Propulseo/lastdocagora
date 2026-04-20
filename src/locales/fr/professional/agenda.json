@@ -147,6 +147,7 @@
   "deleteSlotDescription": "Le créneau {{time}} sera supprimé définitivement. Les patients ne pourront plus réserver sur cette plage.",
   "deleteSlotSuccess": "Créneau supprimé",
   "deleteSlotError": "Erreur lors de la suppression",
+  "cannotDeleteWithAppointment": "Impossible de supprimer ce créneau : des consultations en attente ou confirmées existent sur cette plage horaire.",
   "clearDayTitle": "Supprimer toutes les disponibilités ?",
   "clearDayDescription": "Tous les créneaux disponibles du {{date}} seront supprimés. Les patients ne pourront plus réserver ce jour. Cette action est irréversible.",
   "clearDayButton": "Effacer disponibilités du jour",

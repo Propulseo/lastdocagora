@@ -9,10 +9,7 @@ import {
   ResponsiveDialogTitle,
 } from "@/components/shared/responsive-dialog";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   deleteAvailabilityAdmin,
@@ -21,23 +18,12 @@ import {
 } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
-
-interface AvailabilitySlot {
-  id: string;
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-  is_recurring: boolean;
-}
-
-interface ServiceItem {
-  id: string;
-  name: string;
-  duration_minutes: number;
-  price: number;
-}
-
-const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+import {
+  AvailabilityList,
+  ServicesList,
+  type AvailabilitySlot,
+  type ServiceItem,
+} from "./ProfessionalDetailSections";
 
 interface ProfessionalDetailModalProps {
   professionalId: string | null;
@@ -157,107 +143,38 @@ export function ProfessionalDetailModal({
             </TabsList>
 
             <TabsContent value="availability" className="space-y-3 mt-4">
-              {loading ? (
-                <p className="text-sm text-muted-foreground">{t.common.processing}</p>
-              ) : slots.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.professionals.noAvailability}</p>
-              ) : (
-                <>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {slots.map((slot) => (
-                      <div key={slot.id} className="flex items-center justify-between gap-2 rounded-md border p-2">
-                        <div className="text-sm">
-                          <span className="font-medium">{DAY_NAMES[slot.day_of_week]}</span>
-                          {" "}
-                          {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
-                          {slot.is_recurring && (
-                            <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
-                              recorrente
-                            </span>
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-destructive"
-                          onClick={() => handleDeleteSlot(slot.id)}
-                          disabled={isPending}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="w-full min-h-[44px]"
-                    onClick={() => setClearConfirm(true)}
-                    disabled={isPending}
-                  >
-                    {t.professionals.clearAllAvailability}
-                  </Button>
-                </>
-              )}
+              <AvailabilityList
+                slots={slots}
+                loading={loading}
+                isPending={isPending}
+                onDeleteSlot={handleDeleteSlot}
+                onClearAll={() => setClearConfirm(true)}
+                t={{
+                  processing: t.common.processing,
+                  noAvailability: t.professionals.noAvailability,
+                  clearAllAvailability: t.professionals.clearAllAvailability,
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="services" className="space-y-3 mt-4">
-              {loading ? (
-                <p className="text-sm text-muted-foreground">{t.common.processing}</p>
-              ) : services.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.professionals.noServices}</p>
-              ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {services.map((svc) => (
-                    <div key={svc.id} className="flex items-center justify-between gap-2 rounded-md border p-2">
-                      {editingService === svc.id ? (
-                        <div className="flex items-center gap-2 flex-1">
-                          <Input
-                            type="number"
-                            value={editValues.duration}
-                            onChange={(e) => setEditValues((prev) => ({ ...prev, duration: e.target.value }))}
-                            className="h-8 w-20"
-                            min={5}
-                          />
-                          <span className="text-xs text-muted-foreground">min</span>
-                          <Input
-                            type="number"
-                            value={editValues.price}
-                            onChange={(e) => setEditValues((prev) => ({ ...prev, price: e.target.value }))}
-                            className="h-8 w-20"
-                            min={0}
-                            step={0.01}
-                          />
-                          <span className="text-xs text-muted-foreground">&euro;</span>
-                          <Button size="sm" className="h-8" onClick={handleSaveService} disabled={isPending}>
-                            {t.common.save}
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-8" onClick={() => setEditingService(null)}>
-                            {t.common.cancel}
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="text-sm">
-                            <span className="font-medium">{svc.name}</span>
-                            <span className="ml-2 text-muted-foreground">
-                              {svc.duration_minutes} min &middot; {svc.price}&euro;
-                            </span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            onClick={() => startEditService(svc)}
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ServicesList
+                services={services}
+                loading={loading}
+                isPending={isPending}
+                editingService={editingService}
+                editValues={editValues}
+                onEditValuesChange={setEditValues}
+                onStartEdit={startEditService}
+                onSaveEdit={handleSaveService}
+                onCancelEdit={() => setEditingService(null)}
+                t={{
+                  processing: t.common.processing,
+                  noServices: t.professionals.noServices,
+                  save: t.common.save,
+                  cancel: t.common.cancel,
+                }}
+              />
             </TabsContent>
           </Tabs>
         </ResponsiveDialogContent>

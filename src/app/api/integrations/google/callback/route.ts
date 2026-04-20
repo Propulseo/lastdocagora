@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCalendarConfig } from "@/lib/calendar/config";
+import {
+  exchangeCodeForTokens,
+  fetchGoogleAccountEmail,
+} from "./google-token-exchange";
 
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_CALENDAR_LIST_URL =
   "https://www.googleapis.com/calendar/v3/users/me/calendarList";
-const GOOGLE_USERINFO_URL =
-  "https://www.googleapis.com/oauth2/v2/userinfo";
-
-interface GoogleTokenResponse {
-  access_token: string;
-  refresh_token?: string;
-  expires_in: number;
-  token_type: string;
-  scope: string;
-}
 
 interface GoogleCalendar {
   id: string;
@@ -26,10 +19,6 @@ interface GoogleCalendar {
 
 interface GoogleCalendarListResponse {
   items: GoogleCalendar[];
-}
-
-interface GoogleUserInfo {
-  email: string;
 }
 
 export async function GET(request: NextRequest) {
@@ -93,35 +82,20 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${config.appUrl}/api/integrations/google/callback`;
 
   // Exchange code for tokens
-  let tokenData: GoogleTokenResponse;
-  try {
-    const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id: config.googleClientId,
-        client_secret: config.googleClientSecret,
-        redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-      }),
-    });
+  const tokenResult = await exchangeCodeForTokens(
+    code,
+    config.googleClientId,
+    config.googleClientSecret,
+    redirectUri,
+  );
 
-    if (!tokenRes.ok) {
-      const errBody = await tokenRes.text();
-      console.error("Google token exchange failed:", errBody);
-      return NextResponse.redirect(
-        `${appUrl}/pro/agenda?calendar_error=token_exchange`
-      );
-    }
-
-    tokenData = await tokenRes.json();
-  } catch (err) {
-    console.error("Google token exchange error:", err);
+  if ("error" in tokenResult) {
     return NextResponse.redirect(
-      `${appUrl}/pro/agenda?calendar_error=token_exchange`
+      `${appUrl}/pro/agenda?calendar_error=${tokenResult.error}`
     );
   }
+
+  const tokenData = tokenResult.data;
 
   if (!tokenData.refresh_token) {
     console.error("No refresh_token received from Google");
@@ -131,18 +105,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Get Google account email
-  let accountEmail = "unknown";
-  try {
-    const userInfoRes = await fetch(GOOGLE_USERINFO_URL, {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    });
-    if (userInfoRes.ok) {
-      const userInfo: GoogleUserInfo = await userInfoRes.json();
-      accountEmail = userInfo.email;
-    }
-  } catch {
-    // Non-critical, continue with "unknown"
-  }
+  const accountEmail = await fetchGoogleAccountEmail(tokenData.access_token);
 
   // Encrypt tokens using Supabase RPC
   const { data: encAccessToken, error: encAccessErr } = await supabase.rpc(

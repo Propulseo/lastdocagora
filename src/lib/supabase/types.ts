@@ -1226,6 +1226,7 @@ export type Database = {
       }
       patients: {
         Row: {
+          absence_count: number
           address: string | null
           avatar_url: string | null
           city: string | null
@@ -1244,12 +1245,14 @@ export type Database = {
           insurance_provider_id: string | null
           languages_spoken: string[] | null
           last_name: string | null
+          last_visit_at: string | null
           phone: string | null
           postal_code: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          absence_count?: number
           address?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -1268,12 +1271,14 @@ export type Database = {
           insurance_provider_id?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
+          last_visit_at?: string | null
           phone?: string | null
           postal_code?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          absence_count?: number
           address?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -1292,6 +1297,7 @@ export type Database = {
           insurance_provider_id?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
+          last_visit_at?: string | null
           phone?: string | null
           postal_code?: string | null
           updated_at?: string | null
@@ -1820,7 +1826,7 @@ export type Database = {
           is_anonymous: boolean
           moderated_at: string | null
           moderated_by: string | null
-          patient_id: string
+          patient_id: string | null
           patient_user_id: string | null
           professional_id: string
           professional_reply: string | null
@@ -1842,7 +1848,7 @@ export type Database = {
           is_anonymous?: boolean
           moderated_at?: string | null
           moderated_by?: string | null
-          patient_id: string
+          patient_id?: string | null
           patient_user_id?: string | null
           professional_id: string
           professional_reply?: string | null
@@ -1864,7 +1870,7 @@ export type Database = {
           is_anonymous?: boolean
           moderated_at?: string | null
           moderated_by?: string | null
-          patient_id?: string
+          patient_id?: string | null
           patient_user_id?: string | null
           professional_id?: string
           professional_reply?: string | null

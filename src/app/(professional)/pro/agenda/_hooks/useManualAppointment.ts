@@ -4,32 +4,7 @@ import { toast } from "sonner";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import type { Appointment } from "../_types/agenda";
 import type { PatientOption, PatientMode } from "../_types/manual-appointment";
-
-function addMinutesToTime(time: string, minutes: number): string {
-  const [h, m] = time.split(":").map(Number);
-  const total = h * 60 + m + minutes;
-  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-}
-
-function timeDiffInMinutes(start: string, end: string): number {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  return eh * 60 + em - (sh * 60 + sm);
-}
-
-function hasOverlap(
-  appointments: Appointment[],
-  date: string,
-  start: string,
-  end: string,
-): boolean {
-  return appointments.some((apt) => {
-    if (apt.appointment_date !== date || apt.status === "cancelled") return false;
-    const aptStart = apt.appointment_time.slice(0, 5);
-    const aptEnd = addMinutesToTime(aptStart, apt.duration_minutes);
-    return start < aptEnd && end > aptStart;
-  });
-}
+import { timeDiffInMinutes, hasOverlap } from "./manual-appointment-helpers";
 
 interface UseManualAppointmentParams {
   open: boolean;
@@ -244,34 +219,13 @@ export function useManualAppointment({
   ]);
 
   return {
-    t,
-    startTime,
-    setStartTime,
-    endTime,
-    setEndTime,
-    title,
-    setTitle,
-    notes,
-    setNotes,
-    saving,
-    error,
-    patientMode,
-    togglePatientMode,
-    loadingPatients,
-    proPatients,
-    filteredPatients,
-    selectedPatient,
-    setSelectedPatient,
-    patientFilter,
-    setPatientFilter,
-    newFirstName,
-    setNewFirstName,
-    newLastName,
-    setNewLastName,
-    newEmail,
-    setNewEmail,
-    newPhone,
-    setNewPhone,
-    handleSubmit,
+    t, startTime, setStartTime, endTime, setEndTime,
+    title, setTitle, notes, setNotes, saving, error,
+    patientMode, togglePatientMode, loadingPatients,
+    proPatients, filteredPatients,
+    selectedPatient, setSelectedPatient,
+    patientFilter, setPatientFilter,
+    newFirstName, setNewFirstName, newLastName, setNewLastName,
+    newEmail, setNewEmail, newPhone, setNewPhone, handleSubmit,
   };
 }

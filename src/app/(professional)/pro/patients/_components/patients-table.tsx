@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, UserX, ChevronRight } from "lucide-react";
+import { Users, UserX, AlertTriangle } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ import { EditPatientDialog } from "./edit-patient-dialog";
 import { DeletePatientDialog } from "./delete-patient-dialog";
 import { PatientDrawer } from "./patient-drawer";
 import { PatientRowActions } from "./patient-row-actions";
+import { PatientMobileCard } from "./PatientMobileCard";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import type { PatientRow } from "../_lib/types";
 
@@ -84,20 +85,12 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
               {/* Mobile card list */}
               <div className="space-y-2 lg:hidden">
                 {patients.map((patient) => (
-                  <button
+                  <PatientMobileCard
                     key={patient.patient_id}
-                    onClick={() => setSelectedPatientId(patient.patient_id)}
-                    className={cn("flex w-full items-center gap-3 border p-3 text-left transition-colors hover:bg-accent/50", RADIUS.sm)}
-                  >
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
-                      {(patient.first_name?.[0] ?? "") + (patient.last_name?.[0] ?? "")}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{patient.first_name} {patient.last_name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{patient.email || patient.phone || ""}</p>
-                    </div>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                  </button>
+                    patient={patient}
+                    absenceWarning={pt.absenceWarning as string}
+                    onClick={setSelectedPatientId}
+                  />
                 ))}
               </div>
 
@@ -152,6 +145,12 @@ export function PatientsTable({ patients, totalUnfiltered }: PatientsTableProps)
                                 <span className="font-medium">
                                   {p.first_name} {p.last_name}
                                 </span>
+                                {p.absence_count >= 3 && (
+                                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" title={(pt.absenceWarning as string).replace("{count}", String(p.absence_count))}>
+                                    <AlertTriangle className="size-3" />
+                                    {p.absence_count}
+                                  </span>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell className="hidden text-muted-foreground md:table-cell">

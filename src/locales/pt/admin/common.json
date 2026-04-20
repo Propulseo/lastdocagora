@@ -21,5 +21,23 @@
   "close": "Fechar",
   "edit": "Editar",
   "delete": "Eliminar",
-  "saving": "A guardar..."
+  "saving": "A guardar...",
+  "errors": {
+    "invalidTransition": "Transição de estado inválida",
+    "attendanceLocked": "Presença bloqueada após marcar presente",
+    "attendanceStatusInvalid": "Não é possível marcar presença nesta consulta",
+    "professionalNotActive": "O profissional não está ativo",
+    "patientSuspended": "A conta do paciente está suspensa",
+    "slotConflict": "Conflito de horário com consulta existente",
+    "appointmentImmutable": "Não é possível modificar uma consulta concluída",
+    "appointmentCancelBlocked": "Não é possível cancelar esta consulta",
+    "missingRegistrationNumber": "Número de registo obrigatório para verificação",
+    "hasFutureAppointments": "Não é possível prosseguir — existem consultas futuras",
+    "lastAdmin": "Não é possível eliminar o último administrador",
+    "emailAlreadyExists": "Este endereço de email já está em uso",
+    "appointmentNotFound": "Consulta associada não encontrada",
+    "patientMismatch": "O paciente não corresponde à consulta",
+    "invalidStatus": "Valor de estado inválido",
+    "noReplySent": "Ticket fechado sem resposta do admin"
+  }
 }

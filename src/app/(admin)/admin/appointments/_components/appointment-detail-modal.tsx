@@ -9,41 +9,17 @@ import {
   ResponsiveDialogDescription,
 } from "@/components/shared/responsive-dialog";
 import {
-  Calendar,
-  Clock,
   Stethoscope,
   User,
-  MapPin,
-  FileText,
-  Tag,
   Shield,
 } from "lucide-react";
+import { AppointmentInfoGrid } from "./AppointmentInfoItems";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import type { AppointmentRow } from "./appointments-table";
 
 interface AppointmentDetailModalProps {
   appointment: AppointmentRow | null;
   onClose: () => void;
-}
-
-function InfoItem({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-2">
-      <Icon className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm">{value}</p>
-      </div>
-    </div>
-  );
 }
 
 export function AppointmentDetailModal({
@@ -181,56 +157,19 @@ export function AppointmentDetailModal({
           </div>
 
           {/* Info grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <InfoItem
-              icon={Calendar}
-              label={d.dateTime}
-              value={`${formattedDate} · ${appointment.time}`}
-            />
-            <InfoItem
-              icon={Clock}
-              label={d.duration}
-              value={
-                appointment.duration_minutes
-                  ? `${appointment.duration_minutes} ${d.minutes}`
-                  : "—"
-              }
-            />
-            <InfoItem
-              icon={Tag}
-              label={d.service}
-              value={appointment.service_name ?? d.noService}
-            />
-            {formattedPrice && (
-              <InfoItem icon={Tag} label={d.price} value={formattedPrice} />
-            )}
-            <InfoItem
-              icon={Stethoscope}
-              label={d.consultationType}
-              value={
-                appointment.consultation_type === "in-person"
-                  ? d.inPerson
-                  : (appointment.consultation_type ?? "—")
-              }
-            />
-            <InfoItem
-              icon={MapPin}
-              label={d.location}
-              value={appointment.location ?? d.noLocation}
-            />
-            <InfoItem
-              icon={FileText}
-              label={d.createdVia}
-              value={createdViaLabel}
-            />
-            {appointment.created_at && (
-              <InfoItem
-                icon={Calendar}
-                label={d.createdAt}
-                value={formatTimestamp(appointment.created_at)}
-              />
-            )}
-          </div>
+          <AppointmentInfoGrid
+            formattedDate={formattedDate}
+            time={appointment.time}
+            durationMinutes={appointment.duration_minutes}
+            serviceName={appointment.service_name}
+            formattedPrice={formattedPrice}
+            consultationType={appointment.consultation_type}
+            location={appointment.location}
+            createdViaLabel={createdViaLabel}
+            createdAt={appointment.created_at}
+            formatTimestamp={formatTimestamp}
+            d={d}
+          />
 
           {/* Conditional: cancelled */}
           {isCancelled && (

@@ -16,13 +16,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { updateService } from "@/app/(professional)/_actions/services";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
+import { EditServiceFields } from "./EditServiceFields";
 
 const serviceSchema = z.object({
   name: z.string().min(2).max(100),
@@ -108,80 +107,30 @@ export function EditServiceDialog({
           <DialogDescription>{sv.description}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label>{sv.name}</Label>
-            <Tabs defaultValue="pt" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="pt" className="flex-1">{sv.nameTabPt}</TabsTrigger>
-                <TabsTrigger value="fr" className="flex-1">{sv.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-                <TabsTrigger value="en" className="flex-1">{sv.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-              </TabsList>
-              <TabsContent value="pt">
-                <Input
-                  id="edit_name"
-                  placeholder={sv.namePlaceholder}
-                  {...form.register("name")}
-                />
-              </TabsContent>
-              <TabsContent value="fr">
-                <Input
-                  id="edit_name_fr"
-                  placeholder={sv.namePlaceholder}
-                  value={nameFr}
-                  onChange={(e) => setNameFr(e.target.value)}
-                />
-              </TabsContent>
-              <TabsContent value="en">
-                <Input
-                  id="edit_name_en"
-                  placeholder={sv.namePlaceholder}
-                  value={nameEn}
-                  onChange={(e) => setNameEn(e.target.value)}
-                />
-              </TabsContent>
-            </Tabs>
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>{sv.descriptionField}</Label>
-            <Tabs defaultValue="pt" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="pt" className="flex-1">{(sv as unknown as Record<string, string>).descTabPt ?? "PT"}</TabsTrigger>
-                <TabsTrigger value="fr" className="flex-1">{(sv as unknown as Record<string, string>).descTabFr ?? "FR"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-                <TabsTrigger value="en" className="flex-1">{(sv as unknown as Record<string, string>).descTabEn ?? "EN"} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-              </TabsList>
-              <TabsContent value="pt">
-                <Textarea
-                  id="edit_description"
-                  placeholder={sv.descriptionPlaceholder}
-                  rows={3}
-                  {...form.register("description")}
-                />
-              </TabsContent>
-              <TabsContent value="fr">
-                <Textarea
-                  id="edit_description_fr"
-                  placeholder={sv.descriptionPlaceholder}
-                  rows={3}
-                  value={descFr}
-                  onChange={(e) => setDescFr(e.target.value)}
-                />
-              </TabsContent>
-              <TabsContent value="en">
-                <Textarea
-                  id="edit_description_en"
-                  placeholder={sv.descriptionPlaceholder}
-                  rows={3}
-                  value={descEn}
-                  onChange={(e) => setDescEn(e.target.value)}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
+          <EditServiceFields
+            form={form}
+            nameFr={nameFr}
+            nameEn={nameEn}
+            descFr={descFr}
+            descEn={descEn}
+            onNameFrChange={setNameFr}
+            onNameEnChange={setNameEn}
+            onDescFrChange={setDescFr}
+            onDescEnChange={setDescEn}
+            labels={{
+              name: sv.name,
+              nameTabPt: sv.nameTabPt,
+              nameTabFr: sv.nameTabFr,
+              nameTabEn: sv.nameTabEn,
+              nameOptional: sv.nameOptional,
+              namePlaceholder: sv.namePlaceholder,
+              descriptionField: sv.descriptionField,
+              descTabPt: (sv as unknown as Record<string, string>).descTabPt ?? "PT",
+              descTabFr: (sv as unknown as Record<string, string>).descTabFr ?? "FR",
+              descTabEn: (sv as unknown as Record<string, string>).descTabEn ?? "EN",
+              descriptionPlaceholder: sv.descriptionPlaceholder,
+            }}
+          />
           <div className="space-y-2">
             <Label htmlFor="edit_duration">{sv.duration}</Label>
             <Input

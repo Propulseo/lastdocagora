@@ -71,6 +71,7 @@ export async function searchProfessionals(
        bio, bio_pt, bio_fr, bio_en, accessibility_options, latitude, longitude,
        users!professionals_user_id_fkey ( first_name, last_name, avatar_url )`
     )
+    .eq("verification_status", "verified")
     .order("rating", { ascending: false, nullsFirst: false })
     .limit(20)
 

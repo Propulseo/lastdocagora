@@ -60,6 +60,7 @@ export type PatientDetailEnhanced = {
   lastConsultation: string | null;
   attendanceRate: number;
   attendanceTotal: number;
+  absenceCount: number;
   totalSpent: number;
   avgSpent: number;
   allAppointments: {

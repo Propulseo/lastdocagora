@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { ChevronDown, ChevronRight, Send } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { MobileTicketMessages, type TicketMessage } from "./MobileTicketMessages";
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   open: ["in_progress"],
@@ -36,13 +36,6 @@ interface MappedTicket {
   user_email: string;
   user_name: string;
   user_avatar_url: string | null;
-}
-
-interface TicketMessage {
-  id: string;
-  content: string;
-  created_at: string | null;
-  sender_id: string | null;
 }
 
 interface MobileTicketCardProps {
@@ -228,50 +221,20 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
               )}
             </div>
           )}
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 2 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-md" />
-              ))}
-            </div>
-          ) : messages.length > 0 ? (
-            <div className="space-y-3">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className="bg-card rounded-md border p-3 text-sm"
-                >
-                  <p>{msg.content}</p>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    {msg.created_at
-                      ? new Date(msg.created_at).toLocaleString(dateLocale)
-                      : ""}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-sm">
-              {t.support.noMessages}
-            </p>
-          )}
-          <div className="flex gap-2">
-            <Textarea
-              placeholder={t.support.replyPlaceholder}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              className="min-h-[60px] resize-none"
-            />
-            <Button
-              size="sm"
-              className="shrink-0 self-end"
-              disabled={sending || !replyText.trim()}
-              onClick={handleReply}
-            >
-              <Send className="size-4 mr-1" />
-              {sending ? "..." : t.support.sendButton}
-            </Button>
-          </div>
+          <MobileTicketMessages
+            messages={messages}
+            loading={loading}
+            replyText={replyText}
+            onReplyTextChange={setReplyText}
+            sending={sending}
+            onReply={handleReply}
+            dateLocale={dateLocale}
+            t={{
+              noMessages: t.support.noMessages,
+              replyPlaceholder: t.support.replyPlaceholder,
+              sendButton: t.support.sendButton,
+            }}
+          />
         </div>
       )}
     </div>

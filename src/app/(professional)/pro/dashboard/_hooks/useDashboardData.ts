@@ -31,6 +31,14 @@ export interface DailyCount {
   count: number;
 }
 
+export interface FollowUpItem {
+  noteId: string;
+  patientId: string;
+  patientFirstName: string;
+  patientLastName: string;
+  followUpDate: string;
+}
+
 export interface DashboardProps {
   firstName: string;
   onboardingCompleted: boolean;
@@ -51,6 +59,7 @@ export interface DashboardProps {
   reviewsThisMonth: number;
   reviewsAvgThisMonth: number;
   reviewsAvgLastMonth: number;
+  followUps: FollowUpItem[];
 }
 
 export function useDashboardData(props: DashboardProps) {

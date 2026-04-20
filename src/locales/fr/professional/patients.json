@@ -95,6 +95,7 @@
     "patients": "patients",
     "noData": "Aucune donnée à afficher"
   },
+  "absenceWarning": "Absences fréquentes ({count})",
   "statusBadge": {
     "active": "Actif",
     "inactive": "Inactif",
@@ -111,11 +112,13 @@
     "firstConsultation": "Première consultation",
     "lastConsultation": "Dernière consultation",
     "recentAppointments": "5 derniers rendez-vous",
-    "allAppointments": "Tous les rendez-vous",
+    "allAppointments": "Historique",
     "upcomingAppointments": "Prochains rendez-vous",
     "noAppointments": "Aucun rendez-vous",
     "noUpcoming": "Aucun rendez-vous prévu",
     "loading": "Chargement...",
+    "errorLoading": "Erreur lors du chargement de la fiche patient.",
+    "retry": "Réessayer",
     "patientSince": "Patient depuis",
     "totalSpent": "Total dépensé",
     "avgSpent": "Dépense moyenne",
@@ -151,6 +154,7 @@
     "cancelButton": "Annuler",
     "saveButton": "Enregistrer",
     "noteSaveError": "Erreur lors de l'enregistrement de la note",
-    "noteUpdated": "Note mise à jour"
+    "noteUpdated": "Note mise à jour",
+    "noteWrittenAt": "Rédigée le"
   }
 }

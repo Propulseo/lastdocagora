@@ -57,7 +57,7 @@ export async function getWalkInSlots(
 }
 
 type WalkInResult =
-  | { success: true; appointmentId: string }
+  | { success: true; appointmentId: string; patientId: string | null }
   | { success: false; error: string };
 
 export async function createWalkIn(formData: {
@@ -149,5 +149,5 @@ export async function createWalkIn(formData: {
   revalidatePath("/pro/agenda");
   revalidatePath("/pro/today");
 
-  return { success: true, appointmentId: appointment.id };
+  return { success: true as const, appointmentId: appointment.id, patientId: patientId };
 }

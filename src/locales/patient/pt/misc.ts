@@ -29,6 +29,8 @@ export type MiscSection = {
     invalidLinkDescription: string
     alreadySubmitted: string
     alreadySubmittedDescription: string
+    tokenExpired: string
+    tokenExpiredDescription: string
     successTitle: string
     successDescription: string
     title: string
@@ -88,6 +90,8 @@ export const miscPt: MiscSection = {
     invalidLinkDescription: "Este link de avalia\u00e7\u00e3o expirou ou n\u00e3o \u00e9 v\u00e1lido.",
     alreadySubmitted: "Avalia\u00e7\u00e3o j\u00e1 enviada",
     alreadySubmittedDescription: "J\u00e1 submeteu uma avalia\u00e7\u00e3o para esta consulta. Obrigado!",
+    tokenExpired: "Link expirado",
+    tokenExpiredDescription: "Este link de avalia\u00e7\u00e3o expirou ap\u00f3s 7 dias. Contacte o seu profissional para solicitar um novo.",
     successTitle: "Obrigado pela sua avalia\u00e7\u00e3o!",
     successDescription: "A sua opini\u00e3o ajuda outros pacientes a encontrar os melhores profissionais.",
     title: "Avaliar consulta",

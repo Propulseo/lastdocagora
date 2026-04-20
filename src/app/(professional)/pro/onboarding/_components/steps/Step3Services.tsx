@@ -1,31 +1,13 @@
 "use client";
 
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { ServiceFormFields, type ServiceDraft } from "./ServiceFormFields";
 import type { StepHandle } from "./Step1Profile";
-
-interface ServiceDraft {
-  id: string;
-  name: string;
-  name_fr: string;
-  name_en: string;
-  description: string;
-  duration_minutes: number;
-  price: number;
-}
 
 interface ExistingService {
   id: string;
@@ -159,95 +141,26 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
             <Label className="text-sm font-medium">{ob.step3.newServices}</Label>
           )}
           {drafts.map((draft) => (
-            <Card key={draft.id}>
-              <CardContent className="space-y-3 pt-4">
-                <div className="space-y-1">
-                  <Label className="text-xs">{ob.step3.serviceName} *</Label>
-                  <Tabs defaultValue="pt" className="w-full">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="pt" className="flex-1">{sv.nameTabPt}</TabsTrigger>
-                      <TabsTrigger value="fr" className="flex-1">{sv.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-                      <TabsTrigger value="en" className="flex-1">{sv.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{sv.nameOptional}</span></TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="pt">
-                      <Input
-                        value={draft.name}
-                        onChange={(e) => updateDraft(draft.id, "name", e.target.value)}
-                        placeholder={ob.step3.serviceNamePlaceholder}
-                      />
-                    </TabsContent>
-                    <TabsContent value="fr">
-                      <Input
-                        value={draft.name_fr}
-                        onChange={(e) => updateDraft(draft.id, "name_fr", e.target.value)}
-                        placeholder={ob.step3.serviceNamePlaceholder}
-                      />
-                    </TabsContent>
-                    <TabsContent value="en">
-                      <Input
-                        value={draft.name_en}
-                        onChange={(e) => updateDraft(draft.id, "name_en", e.target.value)}
-                        placeholder={ob.step3.serviceNamePlaceholder}
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">{ob.step3.serviceDescription}</Label>
-                    <Input
-                      value={draft.description}
-                      onChange={(e) =>
-                        updateDraft(draft.id, "description", e.target.value)
-                      }
-                      placeholder={ob.step3.serviceDescriptionPlaceholder}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-end gap-3">
-                  <div className="flex-1 space-y-1">
-                    <Label className="text-xs">{ob.step3.serviceDuration}</Label>
-                    <Select
-                      value={String(draft.duration_minutes)}
-                      onValueChange={(v) =>
-                        updateDraft(draft.id, "duration_minutes", Number(v))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(durations).map(([val, label]) => (
-                          <SelectItem key={val} value={val}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <Label className="text-xs">{ob.step3.servicePrice}</Label>
-                    <Input
-                      type="number"
-                      value={draft.price || ""}
-                      onChange={(e) =>
-                        updateDraft(draft.id, "price", Number(e.target.value) || 0)
-                      }
-                      placeholder={ob.step3.servicePricePlaceholder}
-                      min={0}
-                    />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 text-destructive hover:text-destructive"
-                    onClick={() => removeDraft(draft.id)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ServiceFormFields
+              key={draft.id}
+              draft={draft}
+              onUpdate={updateDraft}
+              onRemove={removeDraft}
+              durations={durations}
+              labels={{
+                serviceName: ob.step3.serviceName,
+                serviceNamePlaceholder: ob.step3.serviceNamePlaceholder,
+                serviceDescription: ob.step3.serviceDescription,
+                serviceDescriptionPlaceholder: ob.step3.serviceDescriptionPlaceholder,
+                serviceDuration: ob.step3.serviceDuration,
+                servicePrice: ob.step3.servicePrice,
+                servicePricePlaceholder: ob.step3.servicePricePlaceholder,
+                nameTabPt: sv.nameTabPt,
+                nameTabFr: sv.nameTabFr,
+                nameTabEn: sv.nameTabEn,
+                nameOptional: sv.nameOptional,
+              }}
+            />
           ))}
         </div>
 

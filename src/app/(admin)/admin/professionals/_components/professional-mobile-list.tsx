@@ -17,7 +17,7 @@ import {
   SPECIALTY_COLORS,
   hashStr,
   type ProfessionalRow,
-} from "./professionals-table";
+} from "./professional-table-columns";
 
 interface ProfessionalMobileListProps {
   data: ProfessionalRow[];

@@ -32,6 +32,7 @@ export default async function ProfessionalDetailPage({
          users!professionals_user_id_fkey ( first_name, last_name, avatar_url, email, phone )`
       )
       .eq("id", id)
+      .eq("verification_status", "verified")
       .single(),
     supabase
       .from("services")

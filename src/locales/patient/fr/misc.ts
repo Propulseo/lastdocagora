@@ -31,6 +31,8 @@ export const miscFr: MiscSection = {
     invalidLinkDescription: "Ce lien d'\u00e9valuation a expir\u00e9 ou n'est pas valide.",
     alreadySubmitted: "\u00c9valuation d\u00e9j\u00e0 envoy\u00e9e",
     alreadySubmittedDescription: "Vous avez d\u00e9j\u00e0 soumis une \u00e9valuation pour cette consultation. Merci\u00a0!",
+    tokenExpired: "Lien expir\u00e9",
+    tokenExpiredDescription: "Ce lien d'\u00e9valuation a expir\u00e9 apr\u00e8s 7 jours. Veuillez contacter votre professionnel pour en demander un nouveau.",
     successTitle: "Merci pour votre \u00e9valuation\u00a0!",
     successDescription: "Votre avis aide d'autres patients \u00e0 trouver les meilleurs professionnels.",
     title: "\u00c9valuer la consultation",

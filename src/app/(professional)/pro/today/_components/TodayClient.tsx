@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { markAttendance } from "@/app/(professional)/_actions/attendance";
 import { PatientDrawer } from "@/app/(professional)/pro/patients/_components/patient-drawer";
-import { WalkInDialog } from "@/app/(professional)/pro/agenda/_components/WalkInDialog";
+import { WalkInDialog, type WalkInCreatedData } from "@/app/(professional)/pro/agenda/_components/WalkInDialog";
 import { useTodayData, type TodayFilter } from "../_hooks/useTodayData";
 import { RADIUS } from "@/lib/design-tokens";
 import { TodayAppointmentCard } from "./TodayAppointmentCard";
@@ -103,8 +103,8 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
       handleAttendanceChange(appointmentId, status, result.appointmentStatus);
       toast.success(attendanceT.updated);
 
-      // Open post-consultation modal for "present" or "late"
-      if (status === "present" || status === "late") {
+      // Open post-consultation modal only for "present"
+      if (status === "present") {
         const apt = appointments.find((a) => a.id === appointmentId);
         if (apt) {
           const name = [apt.patient_first_name, apt.patient_last_name]
@@ -207,7 +207,13 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
         open={walkInOpen}
         onOpenChange={setWalkInOpen}
         professionalId={professionalId}
-        onCreated={refresh}
+        onCreated={(data: WalkInCreatedData) => {
+          refresh();
+          setPostConsultAppointmentId(data.appointmentId);
+          setPostConsultPatientId(data.patientId ?? "");
+          setPostConsultPatientName(data.patientName);
+          setPostConsultOpen(true);
+        }}
       />
 
       <PatientDrawer

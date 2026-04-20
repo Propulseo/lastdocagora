@@ -21,5 +21,23 @@
   "close": "Fermer",
   "edit": "Modifier",
   "delete": "Supprimer",
-  "saving": "Enregistrement..."
+  "saving": "Enregistrement...",
+  "errors": {
+    "invalidTransition": "Transition de statut invalide",
+    "attendanceLocked": "Présence verrouillée après marquage présent",
+    "attendanceStatusInvalid": "Impossible de marquer la présence sur ce rendez-vous",
+    "professionalNotActive": "Le professionnel n'est pas actif",
+    "patientSuspended": "Le compte du patient est suspendu",
+    "slotConflict": "Conflit de créneau avec un rendez-vous existant",
+    "appointmentImmutable": "Impossible de modifier un rendez-vous terminé",
+    "appointmentCancelBlocked": "Impossible d'annuler ce rendez-vous",
+    "missingRegistrationNumber": "Numéro d'inscription requis pour la vérification",
+    "hasFutureAppointments": "Impossible de continuer — des rendez-vous futurs existent",
+    "lastAdmin": "Impossible de supprimer le dernier administrateur",
+    "emailAlreadyExists": "Cette adresse email est déjà utilisée",
+    "appointmentNotFound": "Rendez-vous associé introuvable",
+    "patientMismatch": "Le patient ne correspond pas au rendez-vous",
+    "invalidStatus": "Valeur de statut invalide",
+    "noReplySent": "Ticket fermé sans aucune réponse admin"
+  }
 }

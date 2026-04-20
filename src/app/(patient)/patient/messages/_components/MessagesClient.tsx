@@ -3,134 +3,15 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Bell,
-  Calendar,
-  Info,
-  AlertTriangle,
-  CheckCircle,
-  MessageSquare,
-} from "lucide-react"
+import { Bell } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { usePatientTranslations } from "@/locales/locale-context"
-import type { PatientTranslations } from "@/locales/patient/pt"
 import { EmptyState } from "@/components/shared/empty-state"
 import { PatientPageHeader } from "../../../_components/patient-page-header"
 import { MarkAllRead, MarkOneRead } from "./notification-actions"
-
-type Notification = {
-  id: string
-  title: string
-  message: string
-  type: string
-  is_read: boolean | null
-  created_at: string | null
-  related_id: string | null
-  params: Record<string, string> | null
-}
-
-function interpolate(template: string, params: Record<string, string>): string {
-  let result = template
-  for (const [k, v] of Object.entries(params)) {
-    result = result.replace(`{${k}}`, v)
-  }
-  return result
-}
-
-function resolveNotification(
-  notification: Notification,
-  t: PatientTranslations
-): { title: string; message: string } {
-  const params = notification.params ?? {}
-  const hasParams = Object.keys(params).length > 0
-  const hasReason = !!params.reason
-
-  const MAP: Record<string, { titleKey: keyof PatientTranslations["messages"]; messageKey: keyof PatientTranslations["messages"] }> = {
-    appointment_confirmed: {
-      titleKey: "notifConfirmedTitle",
-      messageKey: "notifConfirmedMessage",
-    },
-    cancellation: {
-      titleKey: "notifCancelledTitle",
-      messageKey: hasReason ? "notifCancelledWithReason" : "notifCancelledMessage",
-    },
-    appointment_rejected: {
-      titleKey: "notifRejectedTitle",
-      messageKey: hasReason ? "notifRejectedWithReason" : "notifRejectedMessage",
-    },
-    alternative_proposed: {
-      titleKey: "notifAlternativeTitle",
-      messageKey: "notifAlternativeMessage",
-    },
-    appointment_reminder: {
-      titleKey: "titleAppointmentReminder",
-      messageKey: "notifReminderMessage",
-    },
-    reminder: {
-      titleKey: "titleReminder",
-      messageKey: "notifReminderMessage",
-    },
-    ticket_updated: {
-      titleKey: "notifTicketUpdatedTitle",
-      messageKey: "notifTicketUpdatedMessage",
-    },
-    ticket_resolved: {
-      titleKey: "notifTicketUpdatedTitle",
-      messageKey: "notifTicketResolvedMessage",
-    },
-    ticket_reply: {
-      titleKey: "notifTicketReplyTitle",
-      messageKey: "notifTicketReplyMessage",
-    },
-  }
-
-  const entry = MAP[notification.type]
-  if (!entry) {
-    // Fallback: use existing i18n title lookup or raw DB values
-    const fallbackTitle = getStaticTitle(notification.type, t)
-    return {
-      title: fallbackTitle ?? notification.title,
-      message: notification.message,
-    }
-  }
-
-  // Always use i18n templates for mapped types, interpolate params if present
-  const titleTemplate = t.messages[entry.titleKey]
-  const messageTemplate = t.messages[entry.messageKey]
-  const title = hasParams ? interpolate(titleTemplate, params) : titleTemplate
-  const message = hasParams ? interpolate(messageTemplate, params) : messageTemplate
-  return { title, message }
-}
-
-function getStaticTitle(
-  type: string,
-  t: PatientTranslations,
-): string | null {
-  const titles: Record<string, string> = {
-    appointment_confirmed: t.messages.notifConfirmedTitle,
-    cancellation: t.messages.notifCancelledTitle,
-    appointment_rejected: t.messages.notifRejectedTitle,
-    alternative_proposed: t.messages.notifAlternativeTitle,
-    ticket_updated: t.messages.notifTicketUpdatedTitle,
-    ticket_resolved: t.messages.notifTicketUpdatedTitle,
-    ticket_reply: t.messages.notifTicketReplyTitle,
-    appointment_reminder: t.messages.titleAppointmentReminder,
-    new_booking: t.messages.titleNewBooking,
-    reminder: t.messages.titleReminder,
-    support_reply: t.messages.titleSupportReply,
-  }
-  return titles[type] ?? null
-}
-
-const APPOINTMENT_TYPES = new Set([
-  "appointment",
-  "appointment_confirmed",
-  "cancellation",
-  "appointment_rejected",
-  "alternative_proposed",
-  "appointment_reminder",
-  "new_booking",
-])
+import { resolveNotification, APPOINTMENT_TYPES } from "./notification-helpers"
+import type { Notification } from "./notification-helpers"
+import { NotificationIcon, NotificationTypeBadge } from "./NotificationIcons"
 
 export function MessagesClient({
   notifications,
@@ -239,63 +120,5 @@ export function MessagesClient({
         />
       )}
     </div>
-  )
-}
-
-function NotificationIcon({ type }: { type: string }) {
-  const iconClasses = "size-5"
-  switch (type) {
-    case "appointment":
-    case "appointment_confirmed":
-    case "new_booking":
-      return <Calendar className={`${iconClasses} text-primary`} />
-    case "reminder":
-    case "appointment_reminder":
-      return <Bell className={`${iconClasses} text-yellow-500`} />
-    case "alert":
-    case "cancellation":
-    case "appointment_rejected":
-      return <AlertTriangle className={`${iconClasses} text-red-500`} />
-    case "success":
-      return <CheckCircle className={`${iconClasses} text-green-500`} />
-    case "alternative_proposed":
-    case "info":
-      return <Info className={`${iconClasses} text-primary`} />
-    case "ticket_updated":
-    case "ticket_resolved":
-    case "ticket_reply":
-    case "support_reply":
-      return <MessageSquare className={`${iconClasses} text-primary`} />
-    default:
-      return (
-        <Bell className={`${iconClasses} text-muted-foreground`} />
-      )
-  }
-}
-
-function NotificationTypeBadge({ type }: { type: string }) {
-  const { t } = usePatientTranslations()
-  const labels: Record<string, string> = {
-    appointment: t.messages.typeAppointment,
-    appointment_confirmed: t.messages.typeAppointment,
-    reminder: t.messages.typeReminder,
-    alert: t.messages.typeAlert,
-    success: t.messages.typeSuccess,
-    info: t.messages.typeInfo,
-    system: t.messages.typeSystem,
-    new_booking: t.messages.typeNewBooking,
-    cancellation: t.messages.typeCancellation,
-    appointment_rejected: t.messages.typeCancellation,
-    alternative_proposed: t.messages.typeAppointment,
-    support_reply: t.messages.typeSupportReply,
-    ticket_updated: t.messages.typeSupportReply,
-    ticket_resolved: t.messages.typeSupportReply,
-    ticket_reply: t.messages.typeSupportReply,
-    appointment_reminder: t.messages.typeAppointmentReminder,
-  }
-  return (
-    <Badge variant="outline" className="text-xs">
-      {labels[type] ?? type}
-    </Badge>
   )
 }

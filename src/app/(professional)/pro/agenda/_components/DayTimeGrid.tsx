@@ -1,43 +1,28 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { Check, ClipboardPaste, Copy, Loader2, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { RADIUS } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
-import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, SLOT_MINUTES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
-import { AppointmentBlock } from "./AppointmentBlock";
-import { AvailabilityBlock } from "./AvailabilityBlock";
 import { DragActionSelector } from "./DragActionSelector";
-import { ExternalEventOverlay } from "./ExternalEventOverlay";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
-import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
-import { deleteAllDayAvailability } from "@/app/(professional)/_actions/availability";
+import { toLocalDateStr } from "../_lib/date-utils";
 import { PasteAvailabilityDialog } from "./PasteAvailabilityDialog";
+import { TimeGridToolbar } from "./TimeGridToolbar";
+import { TimeGridCanvas } from "./TimeGridCanvas";
 
 export type ClipboardData = {
   slots: { start_time: string; end_time: string }[];
   sourceDate: string;
 };
 
-const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
+function snapPixel(y: number): number {
+  const totalMinutes = (y / HOUR_HEIGHT) * 60;
+  const snapped = Math.round(totalMinutes / SLOT_MINUTES) * SLOT_MINUTES;
+  return (snapped / 60) * HOUR_HEIGHT;
+}
 
 function pixelToTime(y: number): string {
   const totalMinutes = (y / HOUR_HEIGHT) * 60;
@@ -45,12 +30,6 @@ function pixelToTime(y: number): string {
   const h = START_HOUR + Math.floor(snapped / 60);
   const m = snapped % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
-
-function snapPixel(y: number): number {
-  const totalMinutes = (y / HOUR_HEIGHT) * 60;
-  const snapped = Math.round(totalMinutes / SLOT_MINUTES) * SLOT_MINUTES;
-  return (snapped / 60) * HOUR_HEIGHT;
 }
 
 interface PendingDrag { startTime: string; endTime: string }
@@ -73,32 +52,18 @@ interface DayTimeGridProps {
 }
 
 export function DayTimeGrid({
-  appointments,
-  externalEvents,
-  availabilitySlots,
-  loading,
-  selectedDate,
-  professionalId,
-  onAttendanceChange,
-  onCreateAppointment,
-  onCreateAvailability,
-  onAvailabilityDeleted,
-  recentlyAddedSlotId,
-  highlightedAppointmentId,
-  clipboard,
-  onCopy,
+  appointments, externalEvents, availabilitySlots, loading,
+  selectedDate, professionalId, onAttendanceChange,
+  onCreateAppointment, onCreateAvailability, onAvailabilityDeleted,
+  recentlyAddedSlotId, highlightedAppointmentId, clipboard, onCopy,
 }: DayTimeGridProps) {
-  const { t } = useProfessionalI18n();
   const attendance = useAttendanceAction(onAttendanceChange);
-  const visible = appointments.filter(
-    (a) => !(HIDDEN_APPOINTMENT_STATUSES as readonly string[]).includes(a.status),
-  );
   const gridRef = useRef<HTMLDivElement>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
   const [pendingDrag, setPendingDrag] = useState<PendingDrag | null>(null);
-  const highlightRef = useRef<HTMLDivElement>(null);
   const todayStr = toLocalDateStr(new Date());
   const isToday = selectedDate === todayStr;
   const isPast = selectedDate < todayStr;
@@ -107,9 +72,6 @@ export function DayTimeGrid({
   const [justCopied, setJustCopied] = useState(false);
   const [pasteDialogOpen, setPasteDialogOpen] = useState(false);
 
-  const canPaste =
-    clipboard !== null && clipboard.sourceDate !== selectedDate;
-
   useEffect(() => {
     if (!isToday) return;
     const interval = setInterval(() => setTick((t) => t + 1), 60_000);
@@ -117,22 +79,17 @@ export function DayTimeGrid({
   }, [isToday]);
 
   useEffect(() => {
-    if (highlightedAppointmentId) return; // Skip auto-scroll when navigating to a specific appointment
+    if (highlightedAppointmentId) return;
     if (!gridRef.current?.parentElement) return;
     const now = new Date();
-    const currentHour = now.getHours();
-    const scrollTo = Math.max(0, (currentHour - START_HOUR - 1) * HOUR_HEIGHT);
+    const scrollTo = Math.max(0, (now.getHours() - START_HOUR - 1) * HOUR_HEIGHT);
     gridRef.current.parentElement.scrollTop = scrollTo;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Scroll to highlighted appointment
   useEffect(() => {
     if (!highlightedAppointmentId || !highlightRef.current) return;
     const timer = setTimeout(() => {
-      highlightRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      highlightRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 300);
     return () => clearTimeout(timer);
   }, [highlightedAppointmentId, appointments]);
@@ -143,52 +100,35 @@ export function DayTimeGrid({
     return Math.max(0, clientY - rect.top + gridRef.current.scrollTop);
   }, []);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (e.button !== 0) return;
-      const y = getGridY(e.clientY);
-      setIsDragging(true);
-      setDragStartY(snapPixel(y));
-      setDragCurrentY(snapPixel(y));
-    },
-    [getGridY],
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const y = getGridY(e.clientY);
+    setIsDragging(true);
+    setDragStartY(snapPixel(y));
+    setDragCurrentY(snapPixel(y));
+  }, [getGridY]);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!isDragging) return;
-      const y = getGridY(e.clientY);
-      setDragCurrentY(snapPixel(y));
-    },
-    [isDragging, getGridY],
-  );
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setDragCurrentY(snapPixel(getGridY(e.clientY)));
+  }, [isDragging, getGridY]);
 
-  const handleMouseUp = useCallback(
-    () => {
-      if (!isDragging || dragStartY == null || dragCurrentY == null) {
-        setIsDragging(false);
-        return;
-      }
-
-      const minY = Math.min(dragStartY, dragCurrentY);
-      const maxY = Math.max(dragStartY, dragCurrentY);
-
-      const minSlotHeight = (SLOT_MINUTES / 60) * HOUR_HEIGHT;
-      const finalMaxY = maxY - minY < minSlotHeight ? minY + minSlotHeight : maxY;
-
-      const startTime = pixelToTime(minY);
-      const endTime = pixelToTime(finalMaxY);
-
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging || dragStartY == null || dragCurrentY == null) {
       setIsDragging(false);
-      setDragStartY(null);
-      setDragCurrentY(null);
-
-      if (startTime < endTime) {
-        setPendingDrag({ startTime, endTime });
-      }
-    },
-    [isDragging, dragStartY, dragCurrentY],
-  );
+      return;
+    }
+    const minY = Math.min(dragStartY, dragCurrentY);
+    const maxY = Math.max(dragStartY, dragCurrentY);
+    const minSlotHeight = (SLOT_MINUTES / 60) * HOUR_HEIGHT;
+    const finalMaxY = maxY - minY < minSlotHeight ? minY + minSlotHeight : maxY;
+    const startTime = pixelToTime(minY);
+    const endTime = pixelToTime(finalMaxY);
+    setIsDragging(false);
+    setDragStartY(null);
+    setDragCurrentY(null);
+    if (startTime < endTime) setPendingDrag({ startTime, endTime });
+  }, [isDragging, dragStartY, dragCurrentY]);
 
   const handleMouseLeave = useCallback(() => {
     if (isDragging) {
@@ -210,271 +150,44 @@ export function DayTimeGrid({
     );
   }
 
-  const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
-  const hasDrag = dragStartY != null && dragCurrentY != null;
-  const selectionTop = hasDrag ? Math.min(dragStartY, dragCurrentY) : 0;
-  const selectionHeight = hasDrag ? Math.abs(dragCurrentY - dragStartY) : 0;
-  const now = new Date();
-  const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
-
-  const handleCopy = () => {
-    if (availabilitySlots.length === 0) return;
-    onCopy({
-      slots: availabilitySlots.map((s) => ({
-        start_time: s.start_time,
-        end_time: s.end_time,
-      })),
-      sourceDate: selectedDate,
-    });
-    setJustCopied(true);
-    setTimeout(() => setJustCopied(false), 2000);
-  };
-
-  const handleBatchDelete = async () => {
-    setIsBatchDeleting(true);
-    const d = parseLocalDate(selectedDate);
-    const result = await deleteAllDayAvailability(
-      professionalId,
-      d.getDay(),
-      selectedDate,
-    );
-    if (result.success) {
-      toast.success(t.agenda.clearDaySuccess);
-      onAvailabilityDeleted();
-    } else {
-      toast.error(result.error ?? t.agenda.deleteSlotError);
-    }
-    setIsBatchDeleting(false);
-  };
-
-  const dateForDisplay = (() => {
-    const d = parseLocalDate(selectedDate);
-    const dayName = t.agenda.daysFull[d.getDay()];
-    const day = d.getDate();
-    const month = t.agenda.months[d.getMonth()];
-    return `${dayName}, ${day} ${month}`;
-  })();
-
   return (
     <>
       <Card>
-        {/* Toolbar — copy/paste/clear when availability slots exist or clipboard has data */}
-        {(availabilitySlots.length > 0 || canPaste) && (
-          <div className="flex items-center justify-end gap-2 px-4 pt-3 pb-0 flex-wrap">
-            {/* Copy button */}
-            {availabilitySlots.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "gap-1.5",
-                  justCopied
-                    ? "text-emerald-600 border-emerald-300 dark:text-emerald-400 dark:border-emerald-600"
-                    : clipboard
-                      ? "border-primary/30"
-                      : "",
-                )}
-                onClick={handleCopy}
-              >
-                {justCopied ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" />
-                    {t.agenda.slotsCopied}
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    {t.agenda.copySlots}
-                    {clipboard && (
-                      <span className="ml-1 size-1.5 rounded-full bg-primary inline-block" />
-                    )}
-                  </>
-                )}
-              </Button>
-            )}
-
-            {/* Paste button */}
-            {canPaste && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 text-primary border-primary/30 hover:bg-primary/10 hover:border-primary"
-                onClick={() => setPasteDialogOpen(true)}
-              >
-                <ClipboardPaste className="h-3.5 w-3.5" />
-                {t.agenda.pasteSlots}
-              </Button>
-            )}
-
-            {/* Clear day button */}
-            {availabilitySlots.length > 0 && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    {t.agenda.clearDayButton}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className={RADIUS.card}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t.agenda.clearDayTitle}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {(t.agenda.clearDayDescription as string).replace(
-                        "{{date}}",
-                        dateForDisplay,
-                      )}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isBatchDeleting}>
-                      {t.common.cancel}
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleBatchDelete}
-                      disabled={isBatchDeleting}
-                      className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                    >
-                      {isBatchDeleting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        t.agenda.clearDayConfirm
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-        )}
-        <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
-          <div
-            ref={gridRef}
-            className="relative select-none"
-            style={{ height: `${totalHeight}px`, cursor: isDragging ? "ns-resize" : "crosshair" }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-          >
-            {OFF_HOURS_START > START_HOUR && (
-              <div
-                className="absolute left-[3.75rem] right-0 bg-muted/20 pointer-events-none"
-                style={{
-                  top: 0,
-                  height: `${(OFF_HOURS_START - START_HOUR) * HOUR_HEIGHT}px`,
-                }}
-              />
-            )}
-            {OFF_HOURS_END <= END_HOUR && (
-              <div
-                className="absolute left-[3.75rem] right-0 bg-muted/20 pointer-events-none"
-                style={{
-                  top: `${(OFF_HOURS_END - START_HOUR) * HOUR_HEIGHT}px`,
-                  height: `${(END_HOUR - OFF_HOURS_END + 1) * HOUR_HEIGHT}px`,
-                }}
-              />
-            )}
-
-            <div className="absolute top-0 bottom-0 left-[3.75rem] w-px bg-border pointer-events-none" />
-            {hours.map((hour) => {
-              const top = (hour - START_HOUR) * HOUR_HEIGHT;
-              return (
-                <Fragment key={hour}>
-                  <div
-                    className="absolute left-[3.75rem] right-0 border-t border-muted"
-                    style={{ top: `${top}px` }}
-                  >
-                    <span className="absolute -top-3 right-full mr-1.5 text-[11px] text-muted-foreground tabular-nums whitespace-nowrap">
-                      {hour.toString().padStart(2, "0")}:00
-                    </span>
-                  </div>
-                  <div
-                    className="absolute left-[3.75rem] right-0 border-t border-dashed border-muted/50"
-                    style={{ top: `${top + HOUR_HEIGHT / 2}px` }}
-                  />
-                </Fragment>
-              );
-            })}
-
-            {availabilitySlots
-              .filter((slot) => {
-                // Past days: hide all availability slots
-                if (isPast) return false;
-                // Today: hide slots whose end_time has passed
-                if (isToday) {
-                  const slotEnd = new Date(`${selectedDate}T${slot.end_time}`);
-                  return slotEnd > now;
-                }
-                // Future days: show all
-                return true;
-              })
-              .map((slot) => (
-                <AvailabilityBlock
-                  key={slot.id}
-                  slot={slot}
-                  onCreateAppointment={onCreateAppointment}
-                  onDeleted={onAvailabilityDeleted}
-                  isRecentlyAdded={slot.id === recentlyAddedSlotId}
-                />
-              ))}
-
-            {visible.map((apt) => (
-              <div
-                key={apt.id}
-                ref={apt.id === highlightedAppointmentId ? highlightRef : null}
-              >
-                <AppointmentBlock
-                  appointment={apt}
-                  onClick={attendance.setSelected}
-                  isHighlighted={apt.id === highlightedAppointmentId}
-                />
-              </div>
-            ))}
-
-            <ExternalEventOverlay
-              events={externalEvents}
-              selectedDate={selectedDate}
-            />
-
-            {isToday && currentTimeTop > 0 && currentTimeTop < totalHeight && (
-              <div className="absolute left-0 right-0 z-[30] pointer-events-none" style={{ top: `${currentTimeTop}px` }}>
-                <div className="relative flex items-center">
-                  <span className="absolute right-[calc(100%-3.5rem)] text-[10px] font-semibold text-red-500 tabular-nums whitespace-nowrap">
-                    {now.getHours().toString().padStart(2, "0")}:{now.getMinutes().toString().padStart(2, "0")}
-                  </span>
-                  <span className="absolute left-[3.5rem] size-2.5 -translate-y-px rounded-full bg-red-500 ring-2 ring-background" />
-                  <div className="absolute left-[3.75rem] right-0 h-[2px] bg-red-500/80" />
-                </div>
-              </div>
-            )}
-
-            {isDragging && selectionHeight > 0 && (
-              <div
-                className={`absolute left-16 right-2 ${RADIUS.sm} bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]`}
-                style={{
-                  top: `${selectionTop}px`,
-                  height: `${selectionHeight}px`,
-                }}
-              >
-                <span className="absolute top-1 left-2 text-xs font-medium text-primary">
-                  {pixelToTime(selectionTop)} - {pixelToTime(selectionTop + selectionHeight)}
-                </span>
-              </div>
-            )}
-
-            {visible.length === 0 && !isDragging && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="text-sm text-muted-foreground">
-                  {t.agenda.noAppointments}
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
+        <TimeGridToolbar
+          availabilitySlots={availabilitySlots}
+          clipboard={clipboard}
+          selectedDate={selectedDate}
+          professionalId={professionalId}
+          justCopied={justCopied}
+          isBatchDeleting={isBatchDeleting}
+          onCopy={onCopy}
+          onJustCopiedChange={setJustCopied}
+          onBatchDeletingChange={setIsBatchDeleting}
+          onAvailabilityDeleted={onAvailabilityDeleted}
+          onPasteOpen={() => setPasteDialogOpen(true)}
+        />
+        <TimeGridCanvas
+          gridRef={gridRef}
+          highlightRef={highlightRef}
+          appointments={appointments}
+          availabilitySlots={availabilitySlots}
+          externalEvents={externalEvents}
+          selectedDate={selectedDate}
+          isToday={isToday}
+          isPast={isPast}
+          isDragging={isDragging}
+          dragStartY={dragStartY}
+          dragCurrentY={dragCurrentY}
+          recentlyAddedSlotId={recentlyAddedSlotId}
+          highlightedAppointmentId={highlightedAppointmentId}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onCreateAppointment={onCreateAppointment}
+          onAvailabilityDeleted={onAvailabilityDeleted}
+          onAppointmentClick={attendance.setSelected}
+        />
       </Card>
 
       <DragActionSelector
@@ -482,15 +195,11 @@ export function DayTimeGrid({
         startTime={pendingDrag?.startTime ?? ""}
         endTime={pendingDrag?.endTime ?? ""}
         onCreateAppointment={() => {
-          if (pendingDrag) {
-            onCreateAppointment(pendingDrag.startTime, pendingDrag.endTime);
-          }
+          if (pendingDrag) onCreateAppointment(pendingDrag.startTime, pendingDrag.endTime);
           setPendingDrag(null);
         }}
         onCreateAvailability={() => {
-          if (pendingDrag) {
-            onCreateAvailability(pendingDrag.startTime, pendingDrag.endTime);
-          }
+          if (pendingDrag) onCreateAvailability(pendingDrag.startTime, pendingDrag.endTime);
           setPendingDrag(null);
         }}
         onClose={() => setPendingDrag(null)}

@@ -7,14 +7,13 @@ import { z } from "zod/v4"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { Loader2, Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { usePatientTranslations } from "@/locales/locale-context"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { RoleToggle } from "./RoleToggle"
 import { GoogleSsoButton } from "./GoogleSsoButton"
+import { LoginFormFields } from "./LoginFormFields"
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -120,7 +119,7 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
           }
         }
 
-        if (redirectTo && redirectTo.startsWith("/")) {
+        if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
           router.push(redirectTo)
         } else {
           if (userRole === "admin") router.push("/admin/dashboard")
@@ -145,8 +144,6 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
     const supabase = createClient()
     supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/api/auth/callback` } })
   }
-
-  const inputClasses = "h-11 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 focus:border-[#0891B2] focus:ring-[#0891B2]/20 text-sm transition-colors"
 
   return (
     <div className={shaking ? "auth-shake" : ""}>
@@ -177,99 +174,30 @@ export function LoginForm({ onSwitchToRegister, redirectTo }: LoginFormProps) {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        {/* Email */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="login-email"
-            className="text-xs font-medium text-muted-foreground tracking-wide"
-          >
-            {t.auth.email}
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="login-email"
-              type="email"
-              placeholder={t.auth.emailPlaceholder}
-              autoComplete="email"
-              disabled={loading}
-              className={cn(inputClasses, "pl-10", errors.email && "border-red-400")}
-              {...register("email", { onChange: () => setAuthError(null) })}
-            />
-          </div>
-        </div>
-
-        {/* Password */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="login-password"
-              className="text-xs font-medium text-muted-foreground tracking-wide"
-            >
-              {t.auth.password}
-            </label>
-            <button
-              type="button"
-              tabIndex={-1}
-              className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
-            >
-              {t.auth.forgotPassword}
-            </button>
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="login-password"
-              type={showPassword ? "text" : "password"}
-              placeholder={t.auth.passwordPlaceholder}
-              autoComplete="current-password"
-              disabled={loading}
-              className={cn(
-                inputClasses,
-                "pl-10 pr-10",
-                errors.password && "border-red-400"
-              )}
-              {...register("password", { onChange: () => setAuthError(null) })}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              tabIndex={-1}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground/80 transition-colors"
-              aria-label={showPassword ? t.auth.hidePassword : t.auth.showPassword}
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Auth error */}
-        {authError && (
-          <div className="flex flex-col gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>{authError}</span>
-            </div>
-            {wrongPortal && (
-              <button
-                type="button"
-                onClick={() => {
-                  setRole(wrongPortal)
-                  setWrongPortal(null)
-                  setAuthError(null)
-                }}
-                className="ml-6 text-xs font-medium text-[#0891B2] hover:underline text-left"
-              >
-                {t.auth.loginSwitchToTab.replace(
-                  "{role}",
-                  wrongPortal === "professional"
-                    ? t.auth.roleProfessional
-                    : t.auth.rolePatient
-                )}
-              </button>
-            )}
-          </div>
-        )}
+        <LoginFormFields
+          register={register}
+          errors={errors}
+          loading={loading}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          authError={authError}
+          setAuthError={setAuthError}
+          wrongPortal={wrongPortal}
+          setWrongPortal={setWrongPortal}
+          setRole={setRole}
+          t={{
+            email: t.auth.email,
+            emailPlaceholder: t.auth.emailPlaceholder,
+            password: t.auth.password,
+            passwordPlaceholder: t.auth.passwordPlaceholder,
+            forgotPassword: t.auth.forgotPassword,
+            showPassword: t.auth.showPassword,
+            hidePassword: t.auth.hidePassword,
+            loginSwitchToTab: t.auth.loginSwitchToTab,
+            rolePatient: t.auth.rolePatient,
+            roleProfessional: t.auth.roleProfessional,
+          }}
+        />
 
         {/* Submit */}
         <div className="pt-1">

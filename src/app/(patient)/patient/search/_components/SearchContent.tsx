@@ -2,20 +2,14 @@
 
 import { useState, useMemo, useCallback, useTransition } from "react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select"
 import { Search as SearchIcon, Loader2, MapPin } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
-import { getSpecialtyOptions } from "@/locales/patient/specialties"
 import { searchProfessionals } from "../_actions/search-professionals"
 import { SearchTabs } from "./search-tabs"
+import { SearchFilters } from "./SearchFilters"
 import { ProfessionalCard, type ProfessionalResult } from "./professional-card"
 import { MapView } from "./MapView"
 
@@ -123,70 +117,22 @@ export function SearchContent({
 
   // Search bar — shared above all tabs
   const searchBar = (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t.search.namePlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="rounded-xl pl-9"
-            />
-          </div>
-          <div className="w-full md:w-48">
-            <Select value={searchSpecialty} onValueChange={setSearchSpecialty}>
-              <SelectTrigger className="w-full rounded-xl">
-                <SelectValue placeholder={t.search.specialtyPlaceholder} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.search.specialtyAll}</SelectItem>
-                {getSpecialtyOptions(locale).map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-full md:w-48">
-            <Input
-              placeholder={t.search.cityPlaceholder}
-              value={searchCity}
-              onChange={(e) => setSearchCity(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="rounded-xl"
-            />
-          </div>
-          {insuranceProviders && insuranceProviders.length > 0 && (
-            <div className="w-full md:w-48">
-              <Select value={searchInsurance} onValueChange={setSearchInsurance}>
-                <SelectTrigger className="w-full rounded-xl">
-                  <SelectValue placeholder={t.search.insuranceFilter} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.search.insuranceAll}</SelectItem>
-                  {insuranceProviders.map((ins) => (
-                    <SelectItem key={ins.slug} value={ins.slug}>{ins.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <Button
-            className="min-h-[48px] gap-2 rounded-xl lg:min-h-0"
-            onClick={handleSearch}
-            disabled={isPending}
-          >
-            {isPending
-              ? <Loader2 className="size-4 animate-spin" />
-              : <SearchIcon className="size-4" />
-            }
-            {t.search.searchButton}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <SearchFilters
+      searchQuery={searchQuery}
+      onSearchQueryChange={setSearchQuery}
+      searchSpecialty={searchSpecialty}
+      onSearchSpecialtyChange={setSearchSpecialty}
+      searchCity={searchCity}
+      onSearchCityChange={setSearchCity}
+      searchInsurance={searchInsurance}
+      onSearchInsuranceChange={setSearchInsurance}
+      insuranceProviders={insuranceProviders}
+      isPending={isPending}
+      onSearch={handleSearch}
+      onKeyDown={handleKeyDown}
+      locale={locale}
+      t={t.search}
+    />
   )
 
   const classicContent = (

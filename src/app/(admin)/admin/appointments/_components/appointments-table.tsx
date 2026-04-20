@@ -1,26 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { DataTable, type ColumnDef } from "@/components/shared/data-table";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { DataTable } from "@/components/shared/data-table";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal, Pencil, Trash2, X as XIcon } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cancelAppointment } from "@/app/(admin)/_actions/admin-actions";
 import {
   updateAppointmentStatusAdmin,
@@ -32,6 +14,8 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { AppointmentMobileList } from "./appointment-mobile-list";
 import { AppointmentDetailModal } from "./appointment-detail-modal";
 import { AppointmentEditModal } from "./appointment-edit-modal";
+import { AppointmentKpiStrip, type StatusCounts } from "./AppointmentKpiStrip";
+import { buildAppointmentColumns } from "./appointment-table-columns";
 import type { AppointmentStatus, AttendanceStatus } from "@/types";
 
 export interface AppointmentRow {
@@ -59,59 +43,9 @@ export interface AppointmentRow {
   attendance_status: string | null;
 }
 
-interface StatusCounts {
-  total: number;
-  confirmed: number;
-  cancelled: number;
-  pending: number;
-}
-
 interface AppointmentsTableProps {
   data: AppointmentRow[];
   statusCounts: StatusCounts;
-}
-
-const AVATAR_COLORS = [
-  "#3b82f6", "#ef4444", "#10b981", "#f59e0b",
-  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
-];
-
-function hashStr(s: string): number {
-  let hash = 0;
-  for (const ch of s) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0;
-  return Math.abs(hash);
-}
-
-const APPOINTMENT_STATUSES: AppointmentStatus[] = [
-  "pending", "confirmed", "completed", "cancelled", "rejected", "no-show",
-];
-
-const ATTENDANCE_STATUSES: AttendanceStatus[] = [
-  "waiting", "present", "absent", "late", "cancelled",
-];
-
-function KpiStrip({ counts, t }: { counts: StatusCounts; t: Record<string, unknown> }) {
-  const items = [
-    { label: t.kpiTotal as string, value: counts.total, color: "#374151" },
-    { label: t.kpiConfirmed as string, value: counts.confirmed, color: "#15803d" },
-    { label: t.kpiCancelled as string, value: counts.cancelled, color: "#dc2626" },
-    { label: t.kpiPending as string, value: counts.pending, color: "#854d0e" },
-  ];
-  return (
-    <div className="flex items-center h-12 gap-6 px-4 rounded-lg border bg-[#f9fafb] overflow-x-auto">
-      <div className="flex items-center gap-6 flex-nowrap min-w-max">
-        {items.map((item, i) => (
-          <div key={item.label} className="flex items-center gap-2">
-            {i > 0 && <div className="w-px h-5 bg-[#e5e7eb]" />}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[13px] text-[#6b7280] whitespace-nowrap">{item.label}</span>
-              <span className="text-[15px] font-semibold" style={{ color: item.color }}>{item.value}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps) {
@@ -180,120 +114,36 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
   const statusLabels = t.statuses.appointment as Record<string, string>;
   const attendanceLabels = t.statuses.attendance as Record<string, string>;
 
-  const columns: ColumnDef<AppointmentRow>[] = [
+  const columns = buildAppointmentColumns(
     {
-      key: "patient",
-      header: t.appointments.tablePatient,
-      render: (row) => {
-        if (!row.patient_name) {
-          return <span className="text-[13px] italic text-[#9ca3af]">{t.appointments.deletedPatient}</span>;
-        }
-        return <span className="text-[13px] font-medium text-muted-foreground">{row.patient_name}</span>;
-      },
+      tablePatient: t.appointments.tablePatient,
+      tableProfessional: t.appointments.tableProfessional,
+      dateAndTime: t.appointments.dateAndTime,
+      changeAttendance: t.appointments.changeAttendance,
+      viewDetails: t.appointments.viewDetails,
+      editDateTime: t.appointments.editDateTime,
+      cancelAppointment: t.appointments.cancelAppointment,
+      deleteAppointment: t.appointments.deleteAppointment,
+      deletedPatient: t.appointments.deletedPatient,
+      commonStatus: t.common.status,
+      commonActions: t.common.actions,
+      dateLocale,
+      statusLabels,
+      attendanceLabels,
     },
     {
-      key: "professional",
-      header: t.appointments.tableProfessional,
-      render: (row) => {
-        if (row.professional_name === "\u2014") return "\u2014";
-        const bg = AVATAR_COLORS[hashStr(row.professional_name) % AVATAR_COLORS.length];
-        const initials = row.professional_name.split(" ").map((w) => w[0]).join("").slice(0, 2);
-        return (
-          <div className="flex items-center gap-2">
-            <Avatar className="size-[30px]">
-              {row.professional_avatar_url && <AvatarImage src={row.professional_avatar_url} alt={row.professional_name} />}
-              <AvatarFallback style={{ backgroundColor: bg, color: "white" }} className="text-[11px] font-semibold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-[13px]">{row.professional_name}</span>
-          </div>
-        );
-      },
+      onStatusChange: handleStatusChange,
+      onAttendanceChange: handleAttendanceChange,
+      onCancel: handleCancel,
+      onViewDetails: setDetailRow,
+      onEdit: setEditTarget,
+      onDelete: setConfirmDelete,
     },
-    {
-      key: "dateTime",
-      header: t.appointments.dateAndTime,
-      render: (row) => {
-        const formatted = new Intl.DateTimeFormat(dateLocale, {
-          day: "numeric", month: "long", year: "numeric",
-        }).format(new Date(row.date));
-        const duration = row.duration_minutes ? ` \u00b7 ${row.duration_minutes} min` : "";
-        return <span className="text-[13px]">{formatted} \u00b7 {row.time}{duration}</span>;
-      },
-    },
-    {
-      key: "status",
-      header: t.common.status,
-      render: (row) => (
-        <Select value={row.status} onValueChange={(v) => handleStatusChange(row.id, v)}>
-          <SelectTrigger className="h-8 w-[130px] text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {APPOINTMENT_STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>{statusLabels[s] ?? statusLabels[s.replace("-", "_")] ?? s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ),
-    },
-    {
-      key: "attendance",
-      header: t.appointments.changeAttendance,
-      render: (row) => (
-        <Select value={row.attendance_status ?? "waiting"} onValueChange={(v) => handleAttendanceChange(row.id, v)}>
-          <SelectTrigger className="h-8 w-[120px] text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ATTENDANCE_STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>{attendanceLabels[s] ?? s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ),
-    },
-    {
-      key: "actions",
-      header: "",
-      className: "w-10",
-      render: (row) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" aria-label={t.common.actions}>
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setDetailRow(row)}>
-              <Eye className="size-4 mr-2" />
-              {t.appointments.viewDetails}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setEditTarget({ id: row.id, date: row.date, time: row.time })}>
-              <Pencil className="size-4 mr-2" />
-              {t.appointments.editDateTime}
-            </DropdownMenuItem>
-            {row.status !== "completed" && row.status !== "cancelled" && (
-              <DropdownMenuItem onClick={() => handleCancel(row.id)} className="text-destructive">
-                <XIcon className="size-4 mr-2" />
-                {t.appointments.cancelAppointment}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setConfirmDelete(row.id)} className="text-destructive">
-              <Trash2 className="size-4 mr-2" />
-              {t.appointments.deleteAppointment}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
-  ];
+  );
 
   return (
     <div className="space-y-4">
-      <KpiStrip counts={statusCounts} t={t.appointments} />
+      <AppointmentKpiStrip counts={statusCounts} labels={t.appointments} />
 
       <AppointmentMobileList
         data={data}

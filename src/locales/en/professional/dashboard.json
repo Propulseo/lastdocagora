@@ -51,5 +51,10 @@
   "registerWalkIn": "Register walk-in",
   "noAvailableSlots": "No available slots",
   "reviews": "Reviews",
-  "reviewsCount": "{count} this month"
+  "reviewsCount": "{count} this month",
+  "suggestedFollowUps": "Suggested follow-ups",
+  "noFollowUps": "No pending follow-ups",
+  "followUpDue": "Due {date}",
+  "followUpOverdue": "Overdue",
+  "viewPatient": "View patient"
 }

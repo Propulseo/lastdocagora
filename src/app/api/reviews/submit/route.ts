@@ -49,13 +49,20 @@ export async function POST(req: NextRequest) {
 
     const { data: reviewRequest, error: tokenErr } = await supabaseAdmin
       .from("review_requests")
-      .select("id, appointment_id, patient_id")
+      .select("id, appointment_id, patient_id, created_at")
       .eq("token", token)
       .eq("declined", false)
       .single()
 
     if (tokenErr || !reviewRequest) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 404 })
+    }
+
+    // Check token expiry (7 days from creation)
+    const createdAt = new Date(reviewRequest.created_at)
+    const expiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+    if (new Date() > expiresAt) {
+      return NextResponse.json({ error: "Token expired" }, { status: 410 })
     }
 
     // Verify the authenticated patient matches the review request
@@ -113,6 +120,23 @@ export async function POST(req: NextRequest) {
       .update({ opened_at: new Date().toISOString() })
       .eq("id", reviewRequest.id)
       .is("opened_at", null)
+
+    // Notify all admins that a review is pending moderation
+    const { data: admins } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("role", "admin")
+    if (admins && admins.length > 0) {
+      await supabaseAdmin.from("notifications").insert(
+        admins.map((a) => ({
+          user_id: a.id,
+          title: "New review pending moderation",
+          message: `A patient submitted a ${rating}-star review awaiting approval.`,
+          type: "review_pending",
+          related_id: reviewRequest.appointment_id,
+        }))
+      )
+    }
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (err) {

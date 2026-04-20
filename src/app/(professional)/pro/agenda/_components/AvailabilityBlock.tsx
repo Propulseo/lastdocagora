@@ -87,7 +87,10 @@ export function AvailabilityBlock({
       setShowDeleteDialog(false);
       onDeleted?.();
     } else {
-      toast.error(result.error ?? t.agenda.deleteSlotError);
+      const errorMsg = result.error === "cannotDeleteWithAppointment"
+        ? (t.agenda as Record<string, unknown>).cannotDeleteWithAppointment as string
+        : (result.error ?? t.agenda.deleteSlotError);
+      toast.error(errorMsg);
     }
     setIsDeleting(false);
   };

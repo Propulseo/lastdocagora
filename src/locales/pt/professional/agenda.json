@@ -147,6 +147,7 @@
   "deleteSlotDescription": "O horário {{time}} será eliminado definitivamente. Os pacientes não poderão reservar nesta faixa.",
   "deleteSlotSuccess": "Horário eliminado",
   "deleteSlotError": "Erro ao eliminar horário",
+  "cannotDeleteWithAppointment": "Não é possível eliminar este horário: existem consultas pendentes ou confirmadas neste período.",
   "clearDayTitle": "Eliminar todas as disponibilidades?",
   "clearDayDescription": "Todos os horários disponíveis de {{date}} serão eliminados. Os pacientes não poderão reservar nesse dia. Esta ação é irreversível.",
   "clearDayButton": "Limpar disponibilidades do dia",
