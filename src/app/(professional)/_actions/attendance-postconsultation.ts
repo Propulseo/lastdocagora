@@ -1,6 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
+import { createNotification } from "@/lib/notifications";
 export async function cancelAppointment(
   appointmentId: string,
   reason: string,
@@ -67,20 +68,14 @@ export async function cancelAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
-      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: patientUserId,
-        title: "Appointment cancelled",
-        message: reason
-          ? `${proName} cancelled your appointment. Reason: ${reason}`
-          : `${proName} cancelled your appointment.`,
-        type: "cancellation",
-        related_id: appointmentId,
-        params: { proName, reason: reason || undefined },
-      });
-      if (notifError) {
-        console.error("[cancelAppointment] Failed to insert notification:", notifError.message);
-      }
+      // In-app notification to patient
+      createNotification({
+        userId: patientUserId,
+        type: "appointment",
+        title: "Consulta cancelada",
+        message: `${proName} cancelou a sua consulta.`,
+        link: "/patient/appointments",
+      })
 
       // Send email notification to patient
       try {
@@ -103,38 +98,6 @@ export async function cancelAppointment(
         }
       } catch (emailError) {
         console.error("[cancelAppointment] Failed to send email:", emailError);
-      }
-    }
-  }
-
-  // Check if a payment is associated — if so, notify admin
-  const { data: paymentRecord } = await supabase
-    .from("payments")
-    .select("id, amount, status")
-    .eq("appointment_id", appointmentId)
-    .maybeSingle()
-
-  if (paymentRecord) {
-    // Get all admin user IDs
-    const { data: admins } = await supabase
-      .from("users")
-      .select("id")
-      .eq("role", "admin")
-
-    if (admins && admins.length > 0) {
-      const adminNotifs = admins.map((admin) => ({
-        user_id: admin.id,
-        title: "Payment requires attention",
-        message: `Cancelled appointment has associated payment (${paymentRecord.amount}€, status: ${paymentRecord.status}).`,
-        type: "payment_requires_attention",
-        related_id: appointmentId,
-        params: { paymentId: paymentRecord.id, amount: paymentRecord.amount, paymentStatus: paymentRecord.status },
-      }))
-      const { error: adminNotifError } = await supabase
-        .from("notifications")
-        .insert(adminNotifs)
-      if (adminNotifError) {
-        console.error("[cancelAppointment] Failed to notify admins about payment:", adminNotifError.message)
       }
     }
   }
@@ -206,20 +169,14 @@ export async function rejectAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
-      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: patientUserId,
-        title: "Appointment rejected",
-        message: reason
-          ? `${proName} rejected your appointment request. Reason: ${reason}`
-          : `${proName} rejected your appointment request.`,
-        type: "appointment_rejected",
-        related_id: appointmentId,
-        params: { proName, reason: reason || undefined },
-      });
-      if (notifError) {
-        console.error("[rejectAppointment] Failed to insert notification:", notifError.message);
-      }
+      // In-app notification to patient
+      createNotification({
+        userId: patientUserId,
+        type: "appointment",
+        title: "Consulta recusada",
+        message: `${proName} recusou a sua consulta.`,
+        link: "/patient/appointments",
+      })
 
       // Send email notification to patient
       try {

@@ -37,13 +37,6 @@ export async function PATCH(
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Fetch professional_id before update (for notification)
-    const { data: reviewRecord } = await supabaseAdmin
-      .from("reviews")
-      .select("professional_id")
-      .eq("id", id)
-      .single()
-
     const { data: updated, error } = await supabaseAdmin
       .from("reviews")
       .update({
@@ -63,24 +56,6 @@ export async function PATCH(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    // Notify professional when review is approved
-    if (status === "approved" && reviewRecord?.professional_id) {
-      const { data: pro } = await supabaseAdmin
-        .from("professionals")
-        .select("user_id")
-        .eq("id", reviewRecord.professional_id)
-        .single()
-      if (pro?.user_id) {
-        await supabaseAdmin.from("notifications").insert({
-          user_id: pro.user_id,
-          title: "New review published",
-          message: "A patient review has been approved and is now visible on your profile.",
-          type: "review_approved",
-          related_id: id,
-        })
-      }
     }
 
     return NextResponse.json(updated)

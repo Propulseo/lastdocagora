@@ -68,18 +68,6 @@ export async function rescheduleAppointment(
       ? `${proUser.first_name ?? ""} ${proUser.last_name ?? ""}`.trim() || "Professional"
       : "Professional";
 
-    const { error: notifError } = await supabase.from("notifications").insert({
-      user_id: patientUserId,
-      title: "Appointment rescheduled",
-      message: `${proName} rescheduled your appointment to ${newDate} at ${newTime}. Please reconfirm.`,
-      type: "appointment_rescheduled",
-      related_id: appointmentId,
-      params: { proName, newDate, newTime },
-    });
-    if (notifError) {
-      console.error("[rescheduleAppointment] Failed to insert notification:", notifError.message);
-    }
-
     // Send email notification to patient
     try {
       const { data: patientUser } = await supabase

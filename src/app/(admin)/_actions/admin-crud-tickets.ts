@@ -23,13 +23,6 @@ export async function deleteTicket(ticketId: string) {
 
   const supabaseAdmin = getServiceRoleClient();
 
-  // Fetch ticket info for notification before deletion
-  const { data: ticket } = await supabaseAdmin
-    .from("support_tickets")
-    .select("user_id, subject")
-    .eq("id", ticketId)
-    .single();
-
   await supabaseAdmin
     .from("ticket_messages")
     .delete()
@@ -41,24 +34,6 @@ export async function deleteTicket(ticketId: string) {
     .eq("id", ticketId);
 
   if (error) return { success: false, error: error.message };
-
-  // Notify the ticket creator (skip if suspended)
-  if (ticket?.user_id) {
-    const { data: ticketUser } = await supabaseAdmin
-      .from("users")
-      .select("status")
-      .eq("id", ticket.user_id)
-      .single();
-    if (ticketUser?.status !== "suspended") {
-      await supabaseAdmin.from("notifications").insert({
-        user_id: ticket.user_id,
-        title: "Ticket deleted",
-        message: `Your ticket "${ticket.subject}" has been deleted by an administrator.`,
-        type: "ticket_updated",
-        params: { subject: ticket.subject },
-      });
-    }
-  }
 
   revalidatePath("/admin/support");
   return { success: true };

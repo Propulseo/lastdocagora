@@ -76,6 +76,19 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
     });
   }
 
+  const errorMap: Record<string, string> = {
+    INVALID_TRANSITION: t.appointments.errors?.invalidTransition ?? "Invalid transition",
+    ATTENDANCE_CANCELLED_BLOCKED: t.appointments.errors?.attendanceCancelledBlocked ?? "Attendance blocked",
+    APPOINTMENT_NOT_STARTED: t.appointments.errors?.appointmentNotStarted ?? "Appointment not started",
+    ATTENDANCE_LOCKED_PRESENT: t.appointments.errors?.attendanceLockedPresent ?? "Attendance locked",
+    DELETE_PRESENT_BLOCKED: t.appointments.errors?.deletePresentBlocked ?? "Delete blocked",
+    APPOINTMENT_IMMUTABLE: t.appointments.errors?.editBlockedAttendance ?? "Edit blocked",
+  };
+
+  function mapError(error?: string | null): string {
+    return (error && errorMap[error]) || error || t.common.errorUpdating;
+  }
+
   function executeDelete() {
     if (!confirmDelete) return;
     startTransition(async () => {
@@ -83,7 +96,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
       if (result.success) {
         toast.success(t.appointments.appointmentDeleted);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(mapError(result.error));
       }
       setConfirmDelete(null);
     });
@@ -95,7 +108,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
       if (result.success) {
         toast.success(t.appointments.appointmentUpdated);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(mapError(result.error));
       }
     });
   }
@@ -106,7 +119,7 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
       if (result.success) {
         toast.success(t.appointments.appointmentUpdated);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(mapError(result.error));
       }
     });
   }

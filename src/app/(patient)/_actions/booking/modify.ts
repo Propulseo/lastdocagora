@@ -97,25 +97,6 @@ export async function acceptAlternativeTime(
     .update({ is_read: true })
     .eq("id", notification.id)
 
-  // Notify professional that alternative was accepted
-  const { data: patientUser } = await supabase
-    .from("users")
-    .select("first_name, last_name")
-    .eq("id", user.id)
-    .single()
-  const patientName = patientUser
-    ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim() || "Patient"
-    : "Patient"
-
-  await supabase.from("notifications").insert({
-    user_id: appointment.professional_user_id,
-    title: "Alternative accepted",
-    message: `${patientName} accepted the proposed time: ${proposedDate} ${proposedTime}.`,
-    type: "alternative_accepted",
-    related_id: newId as string,
-    params: { patientName, proposedDate, proposedTime },
-  })
-
   revalidatePath("/patient/appointments")
   revalidatePath("/pro/agenda")
 
@@ -162,25 +143,6 @@ export async function declineAlternativeTime(
     .from("notifications")
     .update({ is_read: true })
     .eq("id", notification.id)
-
-  // Notify professional that alternative was declined
-  const { data: patientUser } = await supabase
-    .from("users")
-    .select("first_name, last_name")
-    .eq("id", user.id)
-    .single()
-  const patientName = patientUser
-    ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim() || "Patient"
-    : "Patient"
-
-  await supabase.from("notifications").insert({
-    user_id: appointment.professional_user_id,
-    title: "Alternative declined",
-    message: `${patientName} declined the proposed alternative time.`,
-    type: "alternative_declined",
-    related_id: appointmentId,
-    params: { patientName },
-  })
 
   revalidatePath("/patient/appointments")
 

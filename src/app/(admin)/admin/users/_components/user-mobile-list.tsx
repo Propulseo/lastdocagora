@@ -98,27 +98,28 @@ export function UserMobileList({
             </SheetTitle>
           </SheetHeader>
           <div className="mt-2 space-y-1">
-            {actionSheet && (actionSheet.status ?? "active") !== "active" && (
-              <button
-                onClick={() =>
-                  onAction(actionSheet.id, "active", t.users.activate)
-                }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
-              >
-                <UserCheck className="size-4" />
-                {t.users.activate}
-              </button>
-            )}
-            {actionSheet && actionSheet.id !== currentUserId && (actionSheet.status ?? "active") !== "suspended" && (
-              <button
-                onClick={() =>
-                  onAction(actionSheet.id, "suspended", t.users.suspend)
-                }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <Ban className="size-4" />
-                {t.users.suspend}
-              </button>
+            {actionSheet && actionSheet.id !== currentUserId && (
+              (actionSheet.status ?? "active") === "suspended" ? (
+                <button
+                  onClick={() =>
+                    onAction(actionSheet.id, "unban", t.users.unban)
+                  }
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+                >
+                  <UserCheck className="size-4" />
+                  {t.users.unban}
+                </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    onAction(actionSheet.id, "ban", t.users.ban)
+                  }
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <Ban className="size-4" />
+                  {t.users.ban}
+                </button>
+              )
             )}
             {actionSheet && actionSheet.id !== currentUserId && (
               <button

@@ -12,8 +12,8 @@ import { ProSidebar } from "./pro-sidebar";
 import { getProfessionalI18n } from "@/lib/i18n/pro/server";
 import { ProfessionalI18nProvider } from "@/lib/i18n/pro";
 import { ProLayoutHeaderTitle } from "./_components/pro-layout-header-title";
+import { ProHeaderUserMenu } from "./_components/pro-header-user-menu";
 import { RoleBodyClass } from "@/components/role-body-class";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ThemeSync } from "@/components/theme-sync";
 import { ProBottomNav } from "./_components/pro-bottom-nav";
 import { ProMobileHeader } from "./_components/pro-mobile-header";
@@ -93,23 +93,6 @@ export default async function ProfessionalLayout({
   const cookieStore = await cookies();
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
-  const nb = t.notificationBell as Record<string, string>;
-  const notifTranslations = {
-    title: nb.title,
-    markAllRead: nb.markAllRead,
-    empty: nb.empty,
-    markAsRead: nb.markAsRead,
-    markAsUnread: nb.markAsUnread,
-    justNow: nb.justNow,
-  };
-  const notifContent = {
-    new_booking: { title: nb.notifNewBookingTitle, message: nb.notifNewBookingMessage },
-    ticket_reply: { title: nb.notifTicketReplyTitle, message: nb.notifTicketReplyMessage },
-    ticket_resolved: { title: nb.notifTicketResolvedTitle, message: nb.notifTicketResolvedMessage },
-    ticket_updated: { title: nb.notifTicketUpdatedTitle, message: nb.notifTicketUpdatedMessage },
-    system: { title: nb.notifReopenedTitle, message: nb.notifReopenedMessage },
-  };
-
   // Minimal shell during onboarding — no sidebar, no bottom nav
   if (!onboardingCompleted) {
     return (
@@ -127,32 +110,39 @@ export default async function ProfessionalLayout({
       <RoleBodyClass role="role-professional" />
       <ThemeSync userId={user.id} target="professional_settings" />
       <ProfessionalI18nProvider translations={t} locale={locale}>
-        <ProRealtimeNotifier professionalUserId={user.id} />
-        <SidebarProvider defaultOpen={sidebarOpen}>
-          <ProSidebar user={sidebarUser} openTicketCount={unreadCount} userId={user.id} />
-          <SidebarInset>
-            <ProMobileHeader user={sidebarUser} userId={user.id} />
-            <header className="hidden lg:flex h-14 items-center border-b border-border/40 px-6">
-              <SidebarTrigger className="-ml-2" />
-              <Separator orientation="vertical" className="mx-3 h-4" />
-              <ProLayoutHeaderTitle />
-              <div className="ml-auto flex items-center gap-2">
-                <NotificationBell
-                  userId={user.id}
-                  translations={notifTranslations}
-                  contentTranslations={notifContent}
-                  locale={locale}
-                  role="professional"
-                />
-                <ThemeToggle lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
-              </div>
-            </header>
-            <main className="pro-dashboard w-full flex-1 overflow-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">
-              {children}
-            </main>
-          </SidebarInset>
-          <ProBottomNav />
-        </SidebarProvider>
+          <ProRealtimeNotifier professionalUserId={user.id} />
+          <SidebarProvider defaultOpen={sidebarOpen}>
+            <ProSidebar openTicketCount={unreadCount} />
+            <SidebarInset className="max-h-svh overflow-hidden">
+              <ProMobileHeader user={sidebarUser} userId={user.id} />
+              <header className="hidden lg:flex h-14 shrink-0 items-center border-b border-border/40 bg-background/95 backdrop-blur-sm px-6">
+                <SidebarTrigger className="-ml-2" />
+                <Separator orientation="vertical" className="mx-3 h-4" />
+                <ProLayoutHeaderTitle />
+                <div className="ml-auto flex items-center gap-3">
+                  <NotificationBell
+                    userId={user.id}
+                    translations={{
+                      title: (t.notificationBell as Record<string, string>).title,
+                      markAllRead: (t.notificationBell as Record<string, string>).markAllRead,
+                      empty: (t.notificationBell as Record<string, string>).empty,
+                      markAsRead: (t.notificationBell as Record<string, string>).markAsRead,
+                      markAsUnread: (t.notificationBell as Record<string, string>).markAsUnread,
+                      justNow: (t.notificationBell as Record<string, string>).justNow,
+                    }}
+                    locale={locale}
+                    role="professional"
+                  />
+                  <Separator orientation="vertical" className="h-6" />
+                  <ProHeaderUserMenu user={sidebarUser} />
+                </div>
+              </header>
+              <main className="pro-dashboard w-full flex-1 overflow-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">
+                {children}
+              </main>
+            </SidebarInset>
+            <ProBottomNav />
+          </SidebarProvider>
       </ProfessionalI18nProvider>
     </>
   );

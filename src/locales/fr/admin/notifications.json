@@ -4,5 +4,9 @@
   "empty": "Aucune notification",
   "markAsRead": "Marquer comme lu",
   "markAsUnread": "Marquer comme non lu",
-  "justNow": "À l'instant"
+  "justNow": "À l'instant",
+  "staleAppointment": {
+    "title": "No-show automatique",
+    "message": "{patientName} — {date} à {time} — sans présence après 24h."
+  }
 }

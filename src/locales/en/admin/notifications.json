@@ -4,5 +4,9 @@
   "empty": "No notifications",
   "markAsRead": "Mark as read",
   "markAsUnread": "Mark as unread",
-  "justNow": "Just now"
+  "justNow": "Just now",
+  "staleAppointment": {
+    "title": "Automatic no-show",
+    "message": "{patientName} — {date} at {time} — no attendance after 24h."
+  }
 }

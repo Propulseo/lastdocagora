@@ -143,6 +143,13 @@ export function AppointmentCreateModal({
 
   function handleCreate() {
     if (!patientId || !professionalId || !serviceId || !date || !time) return;
+
+    // Rule 10: client-side duration check
+    if (Number(duration) < 5) {
+      toast.error(t.appointments.errors?.durationTooShort ?? "Minimum duration is 5 minutes");
+      return;
+    }
+
     startTransition(async () => {
       const result = await createAppointmentAdmin({
         professionalId,
@@ -157,7 +164,23 @@ export function AppointmentCreateModal({
         toast.success(t.appointments.appointmentCreated);
         handleOpenChange(false);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        const createErrorMap: Record<string, string> = {
+          PROFESSIONAL_NOT_ACTIVE: t.appointments.errors?.proSuspended ?? "Professional suspended",
+          PATIENT_SUSPENDED: t.appointments.errors?.patientSuspended ?? "Patient suspended",
+          DURATION_TOO_SHORT: t.appointments.errors?.durationTooShort ?? "Duration too short",
+        };
+        if (result.error === "SLOT_CONFLICT") {
+          const freeSlots = (result as { freeSlots?: string[] }).freeSlots;
+          const slotsLabel = t.appointments.errors?.availableSlots ?? "Available slots";
+          const conflictMsg = t.appointments.errors?.slotConflictWithSlots ?? t.appointments.conflictWarning;
+          if (freeSlots && freeSlots.length > 0) {
+            toast.error(`${conflictMsg} — ${slotsLabel}: ${freeSlots.join(", ")}`);
+          } else {
+            toast.error(conflictMsg);
+          }
+        } else {
+          toast.error(createErrorMap[result.error ?? ""] ?? result.error ?? t.common.errorUpdating);
+        }
       }
     });
   }

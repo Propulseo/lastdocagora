@@ -51,27 +51,6 @@ export async function requestFieldChange(
 
   if (error) return { success: false, error: error.message };
 
-  // Notify admins
-  const { data: admins } = await supabase
-    .from("users")
-    .select("id")
-    .eq("role", "admin");
-
-  if (admins && admins.length > 0) {
-    const notifications = admins.map((admin) => ({
-      user_id: admin.id,
-      title: "New profile change request",
-      message: `Professional requested change of field "${input.fieldName}"`,
-      type: "system" as const,
-      read: false,
-    }));
-
-    const { error: notifError } = await supabase.from("notifications").insert(notifications);
-    if (notifError) {
-      console.error("[requestFieldChange] Failed to insert admin notifications:", notifError.message);
-    }
-  }
-
   revalidatePath("/pro/support");
   return { success: true };
 }

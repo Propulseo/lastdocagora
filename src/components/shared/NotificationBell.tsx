@@ -1,61 +1,79 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Bell, BellOff, Check, CheckCheck, CircleDot } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import Link from "next/link"
+import { formatDistanceToNow } from "date-fns"
+import { pt, enGB, fr, type Locale } from "date-fns/locale"
+import { Bell, BellOff, Check, CheckCheck, RotateCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotifications, type Notification } from "@/hooks/useNotifications";
-import { getNotificationHref } from "@/lib/notifications";
-import { dateFnsLocales, formatDate, getLocalizedContent } from "./notification-helpers";
+} from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { useNotifications, type Notification } from "@/hooks/useNotifications"
 
 export interface NotificationBellTranslations {
-  title: string;
-  markAllRead: string;
-  empty: string;
-  markAsRead: string;
-  markAsUnread: string;
-  justNow: string;
+  title: string
+  markAllRead: string
+  empty: string
+  markAsRead: string
+  markAsUnread: string
+  justNow: string
 }
 
-/** Maps notification type → { title template, message template } */
-export type NotificationContentMap = Record<
-  string,
-  { title: string; message: string; messageAlt?: string }
->;
-
 interface NotificationBellProps {
-  userId: string;
-  translations: NotificationBellTranslations;
-  contentTranslations?: NotificationContentMap;
-  locale?: string;
-  role?: "patient" | "professional" | "admin";
+  userId: string
+  translations: NotificationBellTranslations
+  locale?: string
+  role: "patient" | "professional" | "admin"
+}
+
+const dateLocales: Record<string, Locale> = { pt, en: enGB, fr }
+
+function getNotificationHref(
+  notif: Notification,
+  role: "patient" | "professional" | "admin",
+): string | null {
+  if (notif.link) return notif.link
+
+  switch (notif.type) {
+    case "appointment":
+      if (role === "professional") return "/pro/agenda"
+      if (role === "patient") return "/patient/appointments"
+      return "/admin/appointments"
+    case "support":
+      if (role === "professional") return "/pro/support"
+      if (role === "patient") return "/patient/support"
+      return "/admin/support"
+    case "walk_in":
+      if (role === "professional") return "/pro/today"
+      return null
+    case "reminder":
+    case "system":
+    default:
+      return null
+  }
+}
+
+function formatDate(date: string, locale: Locale, justNow: string): string {
+  const diff = Date.now() - new Date(date).getTime()
+  if (diff < 60_000) return justNow
+  return formatDistanceToNow(new Date(date), { addSuffix: true, locale })
 }
 
 export function NotificationBell({
   userId,
   translations: t,
-  contentTranslations,
   locale = "pt",
-  role = "patient",
+  role,
 }: NotificationBellProps) {
   const { notifications, unreadCount, markAsRead, markAsUnread, markAllAsRead } =
-    useNotifications(userId);
-  const [open, setOpen] = useState(false);
+    useNotifications(userId)
+  const [open, setOpen] = useState(false)
 
-  const dateLocale = dateFnsLocales[locale] ?? dateFnsLocales.pt;
-
-  const handleNotifClick = (notif: Notification) => {
-    if (!notif.read_at) {
-      markAsRead(notif.id);
-    }
-    setOpen(false);
-  };
+  const dateLocale = dateLocales[locale] ?? dateLocales.pt
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -67,7 +85,7 @@ export function NotificationBell({
         >
           <Bell className="size-5" strokeWidth={1.5} />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
@@ -80,7 +98,6 @@ export function NotificationBell({
         sideOffset={8}
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h4 className="text-sm font-semibold text-foreground">{t.title}</h4>
           <Button
@@ -88,8 +105,8 @@ export function NotificationBell({
             size="sm"
             className="h-auto gap-1 px-2 py-1 text-xs text-primary"
             onClick={(e) => {
-              e.stopPropagation();
-              markAllAsRead();
+              e.stopPropagation()
+              markAllAsRead()
             }}
             disabled={unreadCount === 0}
           >
@@ -98,7 +115,6 @@ export function NotificationBell({
           </Button>
         </div>
 
-        {/* Notification list */}
         <ScrollArea className="max-h-96">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center text-sm text-muted-foreground">
@@ -108,12 +124,8 @@ export function NotificationBell({
           ) : (
             <div className="divide-y divide-border">
               {notifications.map((notif) => {
-                const isUnread = !notif.read_at;
-                const href = getNotificationHref(notif, role);
-                const localized = getLocalizedContent(
-                  notif,
-                  contentTranslations
-                );
+                const isUnread = !notif.read_at
+                const href = getNotificationHref(notif, role)
 
                 const content = (
                   <>
@@ -122,7 +134,6 @@ export function NotificationBell({
                         isUnread ? "opacity-100" : "opacity-0"
                       }`}
                     />
-
                     <div className="min-w-0 flex-1">
                       <p
                         className={`truncate text-sm ${
@@ -131,48 +142,56 @@ export function NotificationBell({
                             : "font-normal text-muted-foreground"
                         }`}
                       >
-                        {localized.title}
+                        {notif.title}
                       </p>
                       <p className="line-clamp-2 text-xs text-muted-foreground">
-                        {localized.message}
+                        {notif.message}
                       </p>
-                      {notif.created_at && (
-                        <p className="mt-1 text-[11px] text-muted-foreground/70">
-                          {formatDate(notif.created_at, dateLocale, t.justNow)}
-                        </p>
+                      <p className="mt-1 text-[11px] text-muted-foreground/70">
+                        {formatDate(notif.created_at, dateLocale, t.justNow)}
+                      </p>
+                    </div>
+                    <div className="mt-0.5 ml-2 flex shrink-0 flex-col gap-0.5">
+                      {isUnread ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            markAsRead(notif.id)
+                          }}
+                          aria-label={t.markAsRead}
+                          title={t.markAsRead}
+                        >
+                          <Check className="size-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            markAsUnread(notif.id)
+                          }}
+                          aria-label={t.markAsUnread}
+                          title={t.markAsUnread}
+                        >
+                          <RotateCcw className="size-4" />
+                        </Button>
                       )}
                     </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="mt-0.5 size-7 shrink-0 text-muted-foreground hover:text-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        if (isUnread) {
-                          markAsRead(notif.id);
-                        } else {
-                          markAsUnread(notif.id);
-                        }
-                      }}
-                      aria-label={isUnread ? t.markAsRead : t.markAsUnread}
-                      title={isUnread ? t.markAsRead : t.markAsUnread}
-                    >
-                      {isUnread ? (
-                        <Check className="size-4" />
-                      ) : (
-                        <CircleDot className="size-4" />
-                      )}
-                    </Button>
                   </>
-                );
+                )
 
-                const baseClass = `flex w-full items-start gap-3 px-4 py-3 transition-colors ${
+                const baseClass = `flex w-full items-start gap-2 px-4 py-3 transition-colors ${
                   isUnread
                     ? "bg-primary/[0.06] hover:bg-primary/10"
                     : "hover:bg-muted"
-                }`;
+                }`
 
                 if (href) {
                   return (
@@ -180,23 +199,26 @@ export function NotificationBell({
                       key={notif.id}
                       href={href}
                       className={`${baseClass} cursor-pointer`}
-                      onClick={() => handleNotifClick(notif)}
+                      onClick={() => {
+                        if (isUnread) markAsRead(notif.id)
+                        setOpen(false)
+                      }}
                     >
                       {content}
                     </Link>
-                  );
+                  )
                 }
 
                 return (
                   <div key={notif.id} className={`${baseClass} cursor-default`}>
                     {content}
                   </div>
-                );
+                )
               })}
             </div>
           )}
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

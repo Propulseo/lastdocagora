@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 
 export function PublicSearchHeader() {
   return (
-    <header className="flex h-14 items-center border-b px-4">
+    <header className="sticky top-0 z-40 flex h-14 items-center border-b bg-background/95 backdrop-blur-sm px-4">
       <Link href="/" className="text-lg font-bold tracking-tight text-zinc-900">
         DOC<span className="text-[#0891B2]">AGORA</span>
       </Link>

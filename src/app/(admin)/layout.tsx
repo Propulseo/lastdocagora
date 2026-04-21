@@ -55,33 +55,33 @@ export default async function AdminLayout({
     <>
       <RoleBodyClass role="role-admin" />
       <AdminI18nProvider translations={t} locale={locale}>
-        <SidebarProvider>
-          <div className="hidden lg:contents">
-            <AdminSidebar
-              user={{
-                email: profile.email,
-                first_name: profile.first_name,
-                last_name: profile.last_name,
-              }}
-              openTicketCount={openTicketCount ?? 0}
-            />
-          </div>
-          <SidebarInset>
-            <AdminMobileShell
-              user={{
-                email: profile.email,
-                first_name: profile.first_name,
-                last_name: profile.last_name,
-              }}
-              userId={user.id}
-              openTicketCount={openTicketCount ?? 0}
-            />
-            <AdminTopbar userId={user.id} />
-            <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+          <SidebarProvider>
+            <div className="hidden lg:contents">
+              <AdminSidebar
+                user={{
+                  email: profile.email,
+                  first_name: profile.first_name,
+                  last_name: profile.last_name,
+                }}
+                openTicketCount={openTicketCount ?? 0}
+              />
+            </div>
+            <SidebarInset className="max-h-svh overflow-hidden">
+              <AdminMobileShell
+                user={{
+                  email: profile.email,
+                  first_name: profile.first_name,
+                  last_name: profile.last_name,
+                }}
+                userId={user.id}
+                openTicketCount={openTicketCount ?? 0}
+              />
+              <AdminTopbar userId={user.id} />
+              <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
       </AdminI18nProvider>
     </>
   );

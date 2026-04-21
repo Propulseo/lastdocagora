@@ -12,12 +12,20 @@ import { usePatientTranslations } from "@/locales/locale-context"
 export type Slot = { slot_start: string; slot_end: string }
 export type BookingStep = "loading" | "service" | "datetime" | "confirm"
 
-/** Keep only slots whose free window >= service duration */
+/** Keep only slots where enough consecutive 30-min blocks are free */
 function filterSlotsByDuration(slots: Slot[], mins: number): Slot[] {
+  if (mins <= 30) return slots
+  const available = new Set(slots.map((s) => s.slot_start.slice(0, 5)))
+  const needed = Math.ceil(mins / 30)
   return slots.filter((s) => {
-    const [sH, sM] = s.slot_start.split(":").map(Number)
-    const [eH, eM] = s.slot_end.split(":").map(Number)
-    return (eH * 60 + eM) - (sH * 60 + sM) >= mins
+    const [h, m] = s.slot_start.split(":").map(Number)
+    const start = h * 60 + m
+    for (let i = 1; i < needed; i++) {
+      const t = start + i * 30
+      const key = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`
+      if (!available.has(key)) return false
+    }
+    return true
   })
 }
 

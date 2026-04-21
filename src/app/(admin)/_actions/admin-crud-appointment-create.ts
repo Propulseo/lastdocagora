@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { MIN_DURATION_MINUTES } from "@/lib/appointments";
 import { getAdminClient } from "./admin-crud-helpers";
 
 export async function createAppointmentAdmin(data: {
@@ -14,6 +15,11 @@ export async function createAppointmentAdmin(data: {
 }) {
   const admin = await getAdminClient();
   if (!admin) return { success: false, error: "Nao autorizado" };
+
+  // Rule 10: minimum duration
+  if (data.durationMinutes < MIN_DURATION_MINUTES) {
+    return { success: false, error: "DURATION_TOO_SHORT" };
+  }
 
   // Get professional + verify active
   const { data: pro } = await admin.supabase
@@ -45,16 +51,32 @@ export async function createAppointmentAdmin(data: {
     return { success: false, error: "PATIENT_SUSPENDED" };
   }
 
-  // Check for time slot conflicts
+  // Check for time slot conflicts (Rule 6: return free slots)
   const { data: conflicts } = await admin.supabase
     .from("appointments")
-    .select("id")
+    .select("appointment_time, duration_minutes")
     .eq("professional_id", data.professionalId)
     .eq("appointment_date", data.date)
-    .not("status", "in", '("cancelled","rejected")')
-    .limit(1);
+    .not("status", "in", '("cancelled","rejected")');
   if (conflicts && conflicts.length > 0) {
-    return { success: false, error: "SLOT_CONFLICT" };
+    // Compute occupied intervals
+    const occupied = conflicts.map((c: { appointment_time: string; duration_minutes: number }) => {
+      const [h, m] = c.appointment_time.split(":").map(Number);
+      const start = h * 60 + m;
+      return { start, end: start + (c.duration_minutes || 30) };
+    });
+    // Generate free 30-min slots between 08:00-19:00
+    const freeSlots: string[] = [];
+    for (let t = 480; t <= 1110; t += 30) { // 480=08:00, 1110=18:30
+      const slotEnd = t + 30;
+      const hasConflict = occupied.some((o: { start: number; end: number }) => t < o.end && slotEnd > o.start);
+      if (!hasConflict) {
+        const hh = String(Math.floor(t / 60)).padStart(2, "0");
+        const mm = String(t % 60).padStart(2, "0");
+        freeSlots.push(`${hh}:${mm}`);
+      }
+    }
+    return { success: false, error: "SLOT_CONFLICT", freeSlots };
   }
 
   const { error } = await admin.supabase.from("appointments").insert({

@@ -29,6 +29,7 @@ export const bookingFr: BookingSection = {
     slotTooShort: "Le cr\u00e9neau s\u00e9lectionn\u00e9 est trop court pour ce service. Veuillez en choisir un autre.",
     patientSlotConflict: "Vous avez d\u00e9j\u00e0 un rendez-vous \u00e0 cet horaire.",
     professionalUnavailable: "Ce professionnel n'est pas disponible pour la prise de rendez-vous actuellement.",
+    patientBlocked: "Vous ne pouvez pas prendre rendez-vous avec ce professionnel.",
     alternativeAccept: "Accepter",
     alternativeDecline: "Refuser",
     alternativeAccepted: "Nouveau rendez-vous cr\u00e9\u00e9 avec succ\u00e8s.",

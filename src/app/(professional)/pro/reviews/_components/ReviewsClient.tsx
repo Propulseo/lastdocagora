@@ -21,7 +21,6 @@ interface ReviewsClientProps {
 
 export function ReviewsClient({ reviews }: ReviewsClientProps) {
   const { t } = useProfessionalI18n();
-  const reviewsT = t.reviews;
 
   const avgRating =
     reviews.length > 0
@@ -31,11 +30,8 @@ export function ReviewsClient({ reviews }: ReviewsClientProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={reviewsT?.title ?? "Avaliações"}
-        description={
-          reviewsT?.subtitle ??
-          "Veja as avaliações dos seus pacientes"
-        }
+        title={t.reviews.title}
+        description={t.reviews.subtitle}
       />
 
       {/* Summary bar */}
@@ -54,8 +50,7 @@ export function ReviewsClient({ reviews }: ReviewsClientProps) {
           </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          {reviews.length}{" "}
-          {reviewsT?.totalReviews ?? "avaliações no total"}
+          {reviews.length} {t.reviews.totalReviews}
         </p>
       </div>
 
@@ -69,7 +64,7 @@ export function ReviewsClient({ reviews }: ReviewsClientProps) {
         >
           <Star className="size-10 text-muted-foreground/30" />
           <p className="mt-3 text-sm text-muted-foreground">
-            {reviewsT?.noReviews ?? "Ainda não tem avaliações"}
+            {t.reviews.noReviews}
           </p>
         </div>
       ) : (

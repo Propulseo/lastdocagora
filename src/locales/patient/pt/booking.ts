@@ -27,6 +27,7 @@ export type BookingSection = {
     slotTooShort: string
     patientSlotConflict: string
     professionalUnavailable: string
+    patientBlocked: string
     alternativeAccept: string
     alternativeDecline: string
     alternativeAccepted: string
@@ -68,6 +69,7 @@ export const bookingPt: BookingSection = {
     slotTooShort: "O hor\u00e1rio selecionado n\u00e3o tem dura\u00e7\u00e3o suficiente para este servi\u00e7o. Por favor, escolha outro.",
     patientSlotConflict: "J\u00e1 tem uma consulta agendada neste hor\u00e1rio.",
     professionalUnavailable: "Este profissional n\u00e3o est\u00e1 dispon\u00edvel para agendamento de momento.",
+    patientBlocked: "N\u00e3o \u00e9 poss\u00edvel agendar com este profissional.",
     alternativeAccept: "Aceitar",
     alternativeDecline: "Recusar",
     alternativeAccepted: "Nova consulta criada com sucesso.",

@@ -12,6 +12,7 @@ import {
   HeadphonesIcon,
   Settings,
   BarChart2,
+  Star,
   LogOut,
 } from "lucide-react";
 import {
@@ -43,6 +44,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   HeadphonesIcon,
   Settings,
   BarChart2,
+  Star,
 };
 
 interface AdminSidebarProps {

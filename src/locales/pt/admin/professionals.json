@@ -39,5 +39,10 @@
   "allAvailabilityCleared": "Toda a disponibilidade eliminada",
   "editService": "Editar serviço",
   "serviceUpdated": "Serviço atualizado",
-  "professionalUpdated": "Profissional atualizado"
+  "professionalUpdated": "Profissional atualizado",
+  "bulkCancelDay": "Cancelar consultas do dia",
+  "bulkCancelTitle": "Cancelar todas as consultas deste dia?",
+  "bulkCancelDescription": "Todas as consultas pendentes e confirmadas deste profissional em {date} serão canceladas. Cada paciente será notificado.",
+  "bulkCancelSuccess": "{count} consulta(s) cancelada(s)",
+  "bulkCancelNone": "Nenhuma consulta para cancelar neste dia"
 }

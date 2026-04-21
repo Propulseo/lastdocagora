@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getAdminClient } from "./admin-actions-helpers";
+import { createNotification } from "@/lib/notifications";
 
 export async function updateTicketStatus(
   ticketId: string,
@@ -56,42 +57,6 @@ export async function updateTicketStatus(
     });
   }
 
-  // Notify the ticket owner about the status change
-  const { data: ticket } = await supabase
-    .from("support_tickets")
-    .select("user_id, subject")
-    .eq("id", ticketId)
-    .single();
-
-  if (ticket) {
-    // Skip notification if user is suspended
-    const { data: ticketUser } = await supabase
-      .from("users")
-      .select("status")
-      .eq("id", ticket.user_id)
-      .single();
-
-    if (ticketUser?.status !== "suspended") {
-      const isResolved = status === "awaiting_confirmation";
-      const notifType = isResolved ? "ticket_resolved" : "ticket_updated";
-      const notificationTitle = isResolved ? "Ticket resolved" : "Ticket updated";
-      const notificationMessage = isResolved
-        ? `Your ticket "${ticket.subject}" has been resolved. Please confirm.`
-        : `Your ticket "${ticket.subject}" has been updated to: ${status}`;
-
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: ticket.user_id,
-        title: notificationTitle,
-        message: notificationMessage,
-        type: notifType,
-        params: { subject: ticket.subject, status },
-      });
-      if (notifError) {
-        console.error("[updateTicketStatus] Failed to insert notification:", notifError.message);
-      }
-    }
-  }
-
   revalidatePath("/admin/support");
   return { success: true, ...(warning ? { warning } : {}) };
 }
@@ -116,7 +81,7 @@ export async function replyToTicket(ticketId: string, content: string) {
   // Update ticket status to in_progress if it's open or closed (reopen)
   const { data: currentTicket } = await supabase
     .from("support_tickets")
-    .select("user_id, subject, status")
+    .select("status")
     .eq("id", ticketId)
     .single();
 
@@ -127,26 +92,21 @@ export async function replyToTicket(ticketId: string, content: string) {
       .eq("id", ticketId);
   }
 
-  // Notify the ticket owner (skip if suspended)
-  if (currentTicket) {
-    const { data: ticketUser } = await supabase
-      .from("users")
-      .select("status")
-      .eq("id", currentTicket.user_id)
-      .single();
+  // In-app notification to ticket owner
+  const { data: ticket } = await supabase
+    .from("support_tickets")
+    .select("user_id")
+    .eq("id", ticketId)
+    .single()
 
-    if (ticketUser?.status !== "suspended") {
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: currentTicket.user_id,
-        title: "New ticket reply",
-        message: `Your ticket "${currentTicket.subject}" received a support reply.`,
-        type: "ticket_reply",
-        params: { subject: currentTicket.subject },
-      });
-      if (notifError) {
-        console.error("[replyToTicket] Failed to insert notification:", notifError.message);
-      }
-    }
+  if (ticket?.user_id) {
+    createNotification({
+      userId: ticket.user_id,
+      type: "support",
+      title: "Nova resposta ao seu ticket",
+      message: content.trim().slice(0, 120),
+      link: "/pro/support",
+    })
   }
 
   revalidatePath("/admin/support");

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { createNotification } from "@/lib/notifications"
 
 export const LOCKED_ATTENDANCE = ["present", "absent", "late"]
 
@@ -77,25 +78,6 @@ export async function cancelPatientAppointment(
     ? `${patientUser.first_name ?? ""} ${patientUser.last_name ?? ""}`.trim() || "Patient"
     : "Patient"
 
-  // Notify professional
-  try {
-    const { error: notifError } = await supabase.from("notifications").insert({
-      user_id: appointment.professional_user_id,
-      title: `Appointment cancelled by ${patientName}`,
-      message: reason
-        ? `${patientName} cancelled their appointment. Reason: ${reason}`
-        : `${patientName} cancelled their appointment.`,
-      type: "patient_cancelled",
-      related_id: appointmentId,
-      params: { patientName, reason: reason || null },
-    })
-    if (notifError) {
-      console.error("[booking] Failed to insert cancellation notification:", notifError.message)
-    }
-  } catch (notifErr) {
-    console.error("[booking] Notification insert error:", notifErr)
-  }
-
   // Send email to professional
   try {
     const { data: proUser } = await supabase
@@ -119,6 +101,15 @@ export async function cancelPatientAppointment(
   } catch (emailError) {
     console.error("[booking] Failed to send cancellation email to pro:", emailError)
   }
+
+  // In-app notification to professional
+  createNotification({
+    userId: appointment.professional_user_id,
+    type: "appointment",
+    title: "Consulta cancelada pelo paciente",
+    message: `${patientName} cancelou a sua consulta.`,
+    link: "/pro/agenda",
+  })
 
   revalidatePath("/patient/appointments")
   revalidatePath("/pro/agenda")

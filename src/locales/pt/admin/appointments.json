@@ -42,6 +42,20 @@
   "appointmentCreated": "Consulta criada",
   "forceConflict": "Forçar apesar do conflito de horário",
   "conflictWarning": "Este horário conflita com uma consulta existente",
+  "errors": {
+    "invalidTransition": "Transição de estado inválida",
+    "attendanceCancelledBlocked": "Não é possível alterar a presença de uma consulta cancelada",
+    "attendanceFutureBlocked": "Não é possível marcar presença antes do início da consulta",
+    "attendanceLockedPresent": "A presença marcada como presente é definitiva",
+    "deletePresentBlocked": "Não é possível eliminar uma consulta com paciente presente",
+    "editBlockedAttendance": "Não é possível editar a data quando a presença já foi registada",
+    "durationTooShort": "A duração mínima é de 5 minutos",
+    "proSuspended": "Este profissional está suspenso ou inativo",
+    "patientSuspended": "Este paciente está suspenso",
+    "availableSlots": "Horários disponíveis",
+    "slotConflictWithSlots": "Conflito de horário com consulta existente",
+    "appointmentNotStarted": "A consulta ainda não começou"
+  },
   "detail": {
     "title": "Detalhes da consulta",
     "dateTime": "Data e hora",

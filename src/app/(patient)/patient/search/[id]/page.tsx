@@ -22,7 +22,14 @@ export default async function ProfessionalDetailPage({
   const t = getPatientTranslations(locale)
   const dateLocale = getDateLocale(locale)
 
-  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, , { data: proInsurances }] = await Promise.all([
+  // Get patient record for blocked check
+  const { data: patientRecord } = await supabase
+    .from("patients")
+    .select("id")
+    .eq("user_id", user.id)
+    .single()
+
+  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, , { data: proInsurances }, { count: blockedCount }] = await Promise.all([
     supabase
       .from("professionals")
       .select(
@@ -66,9 +73,19 @@ export default async function ProfessionalDetailPage({
       .from("professional_insurances")
       .select("insurance_provider_id, insurance_providers(name)")
       .eq("professional_id", id),
+    patientRecord
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (supabase as any)
+          .from("professional_blocked_patients")
+          .select("id", { count: "exact", head: true })
+          .eq("professional_id", id)
+          .eq("patient_id", patientRecord.id)
+      : Promise.resolve({ count: 0 }),
   ])
 
   if (!professional) redirect("/patient/search")
+
+  const isBlocked = (blockedCount ?? 0) > 0
 
   const prof = professional as typeof professional & {
     users: { first_name: string; last_name: string; avatar_url: string | null }
@@ -97,15 +114,17 @@ export default async function ProfessionalDetailPage({
           <ProfessionalReviews professionalId={prof.id} />
         </div>
 
-        <div className="lg:sticky lg:top-6 lg:self-start">
-          <BookingForm
-            professionalId={prof.id}
-            professionalUserId={prof.user_id}
-            patientUserId={user.id}
-            services={services ?? []}
-            availability={availability ?? []}
-          />
-        </div>
+        {!isBlocked && (
+          <div className="lg:sticky lg:top-6 lg:self-start">
+            <BookingForm
+              professionalId={prof.id}
+              professionalUserId={prof.user_id}
+              patientUserId={user.id}
+              services={services ?? []}
+              availability={availability ?? []}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

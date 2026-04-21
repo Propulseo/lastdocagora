@@ -156,6 +156,9 @@ export function WalkInForm({
     setSaving(false);
 
     if (result.success) {
+      if (result.warning === "duplicate_same_day") {
+        toast.warning(walkInT.duplicateSameDay);
+      }
       toast.success(walkInT.success);
       onOpenChange(false);
       onCreated({

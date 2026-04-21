@@ -42,6 +42,20 @@
   "appointmentCreated": "Appointment created",
   "forceConflict": "Force despite scheduling conflict",
   "conflictWarning": "This time slot conflicts with an existing appointment",
+  "errors": {
+    "invalidTransition": "Invalid status transition",
+    "attendanceCancelledBlocked": "Cannot change attendance on a cancelled appointment",
+    "attendanceFutureBlocked": "Cannot mark attendance before the appointment starts",
+    "attendanceLockedPresent": "Attendance marked as present is definitive",
+    "deletePresentBlocked": "Cannot delete an appointment with a present patient",
+    "editBlockedAttendance": "Cannot edit date when attendance has been recorded",
+    "durationTooShort": "Minimum duration is 5 minutes",
+    "proSuspended": "This professional is suspended or inactive",
+    "patientSuspended": "This patient is suspended",
+    "availableSlots": "Available slots",
+    "slotConflictWithSlots": "Time slot conflict with existing appointment",
+    "appointmentNotStarted": "The appointment has not started yet"
+  },
   "detail": {
     "title": "Appointment details",
     "dateTime": "Date & time",

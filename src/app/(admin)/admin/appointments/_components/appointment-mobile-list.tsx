@@ -57,7 +57,7 @@ export function AppointmentMobileList({
                   />
                 </div>
                 <p className="text-xs text-muted-foreground truncate mt-0.5">
-                  {row.professional_name !== "\u2014" ? row.professional_name : ""} \u00b7 {shortDate} \u00b7 {row.time}
+                  {row.professional_name !== "\u2014" ? row.professional_name : ""} · {shortDate} · {row.time}
                 </p>
               </div>
               <Button
@@ -94,7 +94,9 @@ export function AppointmentMobileList({
             </button>
             {actionSheet &&
               actionSheet.status !== "completed" &&
-              actionSheet.status !== "cancelled" && (
+              actionSheet.status !== "cancelled" &&
+              actionSheet.status !== "rejected" &&
+              actionSheet.status !== "no-show" && (
                 <button
                   onClick={() => onCancel(actionSheet.id)}
                   className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"

@@ -50,7 +50,7 @@ export async function hasFutureAppointments(
 }
 
 /**
- * Cancel all future pending/confirmed appointments for an entity and notify affected parties.
+ * Cancel all future pending/confirmed appointments for an entity.
  * Returns the number of cancelled appointments.
  */
 export async function cancelFutureAppointments(
@@ -60,14 +60,13 @@ export async function cancelFutureAppointments(
   reason: string
 ): Promise<number> {
   const column = entityType === "professional" ? "professional_id" : "patient_id";
-  const notifyColumn = entityType === "professional" ? "patient_user_id" : "professional_user_id";
   const today = new Date().toISOString().split("T")[0];
   const now = new Date().toISOString();
 
   // Fetch future appointments to cancel
   const { data: appointments } = await supabase
     .from("appointments")
-    .select(`id, ${notifyColumn}`)
+    .select("id")
     .eq(column, entityId)
     .gte("appointment_date", today)
     .in("status", ["pending", "confirmed"]);
@@ -80,29 +79,6 @@ export async function cancelFutureAppointments(
     .from("appointments")
     .update({ status: "cancelled", cancelled_at: now, updated_at: now })
     .in("id", ids);
-
-  // Notify each affected user (skip duplicates)
-  const notifiedUsers = new Set<string>();
-  for (const appt of appointments) {
-    const userId = (appt as Record<string, string>)[notifyColumn];
-    if (!userId || notifiedUsers.has(userId)) continue;
-    notifiedUsers.add(userId);
-
-    // Skip notification if user is suspended
-    const { data: userRecord } = await supabase
-      .from("users")
-      .select("status")
-      .eq("id", userId)
-      .single();
-    if (userRecord?.status === "suspended") continue;
-
-    await supabase.from("notifications").insert({
-      user_id: userId,
-      title: "Appointment cancelled",
-      message: reason,
-      type: "cancellation",
-    });
-  }
 
   return appointments.length;
 }

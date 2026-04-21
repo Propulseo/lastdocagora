@@ -121,23 +121,6 @@ export async function POST(req: NextRequest) {
       .eq("id", reviewRequest.id)
       .is("opened_at", null)
 
-    // Notify all admins that a review is pending moderation
-    const { data: admins } = await supabaseAdmin
-      .from("users")
-      .select("id")
-      .eq("role", "admin")
-    if (admins && admins.length > 0) {
-      await supabaseAdmin.from("notifications").insert(
-        admins.map((a) => ({
-          user_id: a.id,
-          title: "New review pending moderation",
-          message: `A patient submitted a ${rating}-star review awaiting approval.`,
-          type: "review_pending",
-          related_id: reviewRequest.appointment_id,
-        }))
-      )
-    }
-
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (err) {
     console.error("[review-submit] Error:", err)

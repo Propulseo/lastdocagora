@@ -57,7 +57,7 @@ export async function getWalkInSlots(
 }
 
 type WalkInResult =
-  | { success: true; appointmentId: string; patientId: string | null }
+  | { success: true; appointmentId: string; patientId: string | null; warning?: string }
   | { success: false; error: string };
 
 export async function createWalkIn(formData: {
@@ -117,6 +117,32 @@ export async function createWalkIn(formData: {
   const todayStr = formData.scheduledDate ?? toLocalDateStr(new Date());
   const now = new Date().toISOString();
 
+  // Point 76: Check if an appointment already exists today between this pro and patient (warning, not blocking)
+  let warning: string | undefined;
+  if (patientId) {
+    const { count } = await supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("professional_id", professional.id)
+      .eq("patient_id", patientId)
+      .eq("appointment_date", todayStr)
+      .in("status", ["pending", "confirmed", "completed"]);
+
+    if (count && count > 0) {
+      warning = "duplicate_same_day";
+    }
+  }
+
+  // Build notes: include phone for walk-ins without patient record
+  const noteParts: string[] = [];
+  if (formData.phone?.trim()) {
+    noteParts.push(`Tel: ${formData.phone.trim()}`);
+  }
+  if (formData.notes?.trim()) {
+    noteParts.push(formData.notes.trim());
+  }
+  const combinedNotes = noteParts.length > 0 ? noteParts.join(" | ") : null;
+
   // Insert appointment
   const { data: appointment, error } = await supabase
     .from("appointments")
@@ -134,7 +160,7 @@ export async function createWalkIn(formData: {
       service_id: service.id,
       price: service.price ?? 0,
       consultation_type: service.consultation_type ?? "in-person",
-      notes: formData.notes?.trim() || null,
+      notes: combinedNotes,
       created_at: now,
       updated_at: now,
     })
@@ -149,5 +175,5 @@ export async function createWalkIn(formData: {
   revalidatePath("/pro/agenda");
   revalidatePath("/pro/today");
 
-  return { success: true as const, appointmentId: appointment.id, patientId: patientId };
+  return { success: true as const, appointmentId: appointment.id, patientId: patientId, warning };
 }

@@ -39,5 +39,10 @@
   "allAvailabilityCleared": "Toute la disponibilité supprimée",
   "editService": "Modifier le service",
   "serviceUpdated": "Service mis à jour",
-  "professionalUpdated": "Professionnel mis à jour"
+  "professionalUpdated": "Professionnel mis à jour",
+  "bulkCancelDay": "Annuler les RDV du jour",
+  "bulkCancelTitle": "Annuler tous les RDV de ce jour ?",
+  "bulkCancelDescription": "Tous les RDV en attente et confirmés de ce professionnel le {date} seront annulés. Chaque patient sera notifié.",
+  "bulkCancelSuccess": "{count} RDV annulé(s)",
+  "bulkCancelNone": "Aucun RDV à annuler ce jour"
 }

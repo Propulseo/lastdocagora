@@ -264,6 +264,7 @@
     "customTime": "Custom time",
     "backToSlots": "Back to available slots",
     "manualDate": "Date",
-    "manualTime": "Time"
+    "manualTime": "Time",
+    "duplicateSameDay": "This patient already has an appointment today with this professional."
   }
 }

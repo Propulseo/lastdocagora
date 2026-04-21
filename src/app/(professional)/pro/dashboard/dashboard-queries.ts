@@ -157,7 +157,7 @@ export async function fetchDashboardData(professionalId: string, userId: string)
   // No-show rate this month
   const month = monthAppts ?? [];
   const nonCancelled = month.filter((a) => a.status !== "cancelled");
-  const noShows = nonCancelled.filter((a) => a.status === "no_show");
+  const noShows = nonCancelled.filter((a) => a.status === "no-show");
   const noShowRate =
     nonCancelled.length > 0
       ? (noShows.length / nonCancelled.length) * 100

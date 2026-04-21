@@ -25,7 +25,7 @@ export async function cancelAppointment(appointmentId: string) {
   // Fetch current status
   const { data: appt } = await supabase
     .from("appointments")
-    .select("status, patient_user_id, professional_user_id")
+    .select("status")
     .eq("id", appointmentId)
     .single();
 
@@ -43,21 +43,6 @@ export async function cancelAppointment(appointmentId: string) {
     .eq("id", appointmentId);
 
   if (error) return { success: false, error: error.message };
-
-  // Notify both patient and professional
-  const usersToNotify = [appt.patient_user_id, appt.professional_user_id].filter(Boolean);
-  for (const uid of usersToNotify) {
-    if (!uid) continue;
-    const { data: u } = await supabase.from("users").select("status").eq("id", uid).single();
-    if (u?.status === "suspended") continue;
-    await supabase.from("notifications").insert({
-      user_id: uid,
-      title: "Appointment cancelled",
-      message: "An appointment has been cancelled by an administrator.",
-      type: "cancellation",
-      related_id: appointmentId,
-    });
-  }
 
   revalidatePath("/admin/appointments");
   return { success: true };

@@ -150,7 +150,7 @@ export async function reopenTicket(
   // Verify ownership
   const { data: ticket } = await supabase
     .from("support_tickets")
-    .select("id, status, user_id, subject")
+    .select("id, status, user_id")
     .eq("id", ticketId)
     .eq("user_id", userId)
     .single();
@@ -170,26 +170,6 @@ export async function reopenTicket(
     sender_id: userId,
     content: reason.trim(),
   });
-
-  // Notify all admins
-  const { data: admins } = await supabase
-    .from("users")
-    .select("id")
-    .eq("role", "admin");
-
-  if (admins && admins.length > 0) {
-    const { error: notifError } = await supabase.from("notifications").insert(
-      admins.map((admin) => ({
-        user_id: admin.id,
-        title: "Ticket reaberto",
-        message: `O ticket "${ticket.subject}" foi reaberto pelo utilizador.`,
-        type: "system",
-      }))
-    );
-    if (notifError) {
-      console.error("[reopenTicket] Failed to insert admin notifications:", notifError.message);
-    }
-  }
 
   revalidatePath("/pro/support");
   revalidatePath("/admin/support");

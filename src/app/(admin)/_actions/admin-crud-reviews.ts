@@ -85,24 +85,6 @@ export async function updateReviewStatus(
     await recalculateProfessionalRating(review.professional_id, admin.supabase);
   }
 
-  // Notify professional when review is approved
-  if (status === "approved" && review.professional_id) {
-    const { data: pro } = await admin.supabase
-      .from("professionals")
-      .select("user_id")
-      .eq("id", review.professional_id)
-      .single();
-    if (pro?.user_id) {
-      await admin.supabase.from("notifications").insert({
-        user_id: pro.user_id,
-        title: "New review published",
-        message: "A patient review has been approved and is now visible on your profile.",
-        type: "review_approved",
-        related_id: reviewId,
-      });
-    }
-  }
-
   revalidatePath("/admin/reviews");
   return { success: true };
 }

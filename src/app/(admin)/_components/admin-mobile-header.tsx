@@ -23,7 +23,7 @@ export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeade
     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center border-b border-border/60 bg-background px-4 lg:hidden">
+    <header className="flex h-14 shrink-0 items-center border-b border-border/60 bg-background/95 backdrop-blur-sm px-4 lg:hidden">
       <Button
         variant="ghost"
         size="icon"
@@ -41,7 +41,6 @@ export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeade
         </Badge>
       </div>
 
-      <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
       <NotificationBell
         userId={userId}
         translations={{
@@ -55,6 +54,7 @@ export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeade
         locale={locale}
         role="admin"
       />
+      <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
 
       <Avatar className="ml-1 size-8">
         <AvatarFallback className="text-xs">{initials}</AvatarFallback>

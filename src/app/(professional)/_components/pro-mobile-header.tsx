@@ -21,10 +21,8 @@ export function ProMobileHeader({ user, userId }: ProMobileHeaderProps) {
   const initials =
     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
-  const nb = t.notificationBell as Record<string, string>;
-
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center border-b border-border/60 bg-background px-4 lg:hidden">
+    <header className="flex h-14 shrink-0 items-center border-b border-border/60 bg-background/95 backdrop-blur-sm px-4 lg:hidden">
       <SidebarTrigger className="-ml-1 mr-2" />
       <span className="text-sm font-bold">DOCAGORA</span>
       <span className="mx-auto max-w-[200px] truncate text-center text-sm font-medium">
@@ -33,19 +31,12 @@ export function ProMobileHeader({ user, userId }: ProMobileHeaderProps) {
       <NotificationBell
         userId={userId}
         translations={{
-          title: nb.title,
-          markAllRead: nb.markAllRead,
-          empty: nb.empty,
-          markAsRead: nb.markAsRead,
-          markAsUnread: nb.markAsUnread,
-          justNow: nb.justNow,
-        }}
-        contentTranslations={{
-          new_booking: { title: nb.notifNewBookingTitle, message: nb.notifNewBookingMessage },
-          ticket_reply: { title: nb.notifTicketReplyTitle, message: nb.notifTicketReplyMessage },
-          ticket_resolved: { title: nb.notifTicketResolvedTitle, message: nb.notifTicketResolvedMessage },
-          ticket_updated: { title: nb.notifTicketUpdatedTitle, message: nb.notifTicketUpdatedMessage },
-          system: { title: nb.notifReopenedTitle, message: nb.notifReopenedMessage },
+          title: (t.notificationBell as Record<string, string>).title,
+          markAllRead: (t.notificationBell as Record<string, string>).markAllRead,
+          empty: (t.notificationBell as Record<string, string>).empty,
+          markAsRead: (t.notificationBell as Record<string, string>).markAsRead,
+          markAsUnread: (t.notificationBell as Record<string, string>).markAsUnread,
+          justNow: (t.notificationBell as Record<string, string>).justNow,
         }}
         locale={locale}
         role="professional"

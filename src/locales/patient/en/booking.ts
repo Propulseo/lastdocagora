@@ -29,6 +29,7 @@ export const bookingEn: BookingSection = {
     slotTooShort: "The selected slot is too short for this service. Please choose another one.",
     patientSlotConflict: "You already have an appointment at this time.",
     professionalUnavailable: "This professional is currently unavailable for booking.",
+    patientBlocked: "You cannot book with this professional.",
     alternativeAccept: "Accept",
     alternativeDecline: "Decline",
     alternativeAccepted: "New appointment created successfully.",

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { createNotification } from "@/lib/notifications"
 
 export async function createAppointment(input: {
   professionalId: string
@@ -42,6 +43,17 @@ export async function createAppointment(input: {
     return { success: false, error: "self_booking_not_allowed" }
   }
 
+  // Check if patient is blocked by this professional
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count: blockedCount } = await (supabase as any)
+    .from("professional_blocked_patients")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", input.professionalId)
+    .eq("patient_id", patient.id)
+  if (blockedCount && blockedCount > 0) {
+    return { success: false, error: "PATIENT_BLOCKED" }
+  }
+
   // Validate service belongs to this professional and is active
   const { data: service } = await supabase
     .from("services")
@@ -58,21 +70,30 @@ export async function createAppointment(input: {
     return { success: false, error: "SLOT_IN_PAST" }
   }
 
-  // Verify slot window is long enough for the service duration
+  // Verify enough consecutive 30-min slots are free for the service duration
   const [sH, sM] = input.appointmentTime.split(":").map(Number)
   const startMinutes = sH * 60 + sM
-  const neededEnd = startMinutes + service.duration_minutes
 
   const { data: availSlots } = await supabase.rpc("get_available_slots", {
     p_date: input.appointmentDate,
     p_professional_id: input.professionalId,
   })
 
-  const fitsWindow = (availSlots as { slot_start: string; slot_end: string }[] | null)?.some((s) => {
-    const [wSH, wSM] = s.slot_start.split(":").map(Number)
-    const [wEH, wEM] = s.slot_end.split(":").map(Number)
-    return wSH * 60 + wSM <= startMinutes && wEH * 60 + wEM >= neededEnd
-  })
+  const slotStarts = new Set(
+    (availSlots as { slot_start: string; slot_end: string }[] | null)?.map(
+      (s) => s.slot_start.slice(0, 5)
+    ) ?? []
+  )
+
+  const neededSlots = Math.ceil(service.duration_minutes / 30)
+  let fitsWindow = slotStarts.has(input.appointmentTime.slice(0, 5))
+  if (fitsWindow) {
+    for (let i = 1; i < neededSlots; i++) {
+      const t = startMinutes + i * 30
+      const key = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`
+      if (!slotStarts.has(key)) { fitsWindow = false; break }
+    }
+  }
 
   if (!fitsWindow) {
     return { success: false, error: "SLOT_TOO_SHORT" }
@@ -104,9 +125,7 @@ export async function createAppointment(input: {
     return { success: false, error: "insert_failed" }
   }
 
-  const appointmentId = newId as string
-
-  // Fetch names for notifications
+  // Fetch names for email notifications
   const [{ data: patientUser }, { data: serviceData }, { data: proUser }] = await Promise.all([
     supabase
       .from("users")
@@ -132,33 +151,6 @@ export async function createAppointment(input: {
   const proName = proUser
     ? `${proUser.first_name ?? ""} ${proUser.last_name ?? ""}`.trim() || "Professional"
     : "Professional"
-
-  // Insert notification for professional (persisted history)
-  // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
-  const { error: notifError } = await supabase.from("notifications").insert({
-    user_id: pro.user_id,
-    title: `New booking: ${patientName}`,
-    message: `${serviceName} - ${input.appointmentDate} at ${input.appointmentTime}`,
-    type: "new_booking",
-    related_id: appointmentId,
-    params: { patientName, serviceName, date: input.appointmentDate, time: input.appointmentTime },
-  })
-  if (notifError) {
-    console.error("[booking] Failed to insert pro notification:", notifError.message)
-  }
-
-  // Insert notification for patient (booking confirmation)
-  const { error: patientNotifError } = await supabase.from("notifications").insert({
-    user_id: user.id,
-    title: `Booking sent: ${serviceName}`,
-    message: `${serviceName} with ${proName} on ${input.appointmentDate} at ${input.appointmentTime}`,
-    type: "new_booking",
-    related_id: appointmentId,
-    params: { proName, serviceName, date: input.appointmentDate, time: input.appointmentTime },
-  })
-  if (patientNotifError) {
-    console.error("[booking] Failed to insert patient notification:", patientNotifError.message)
-  }
 
   // Send email notification to professional
   try {
@@ -195,6 +187,15 @@ export async function createAppointment(input: {
   } catch (emailError) {
     console.error("[booking] Failed to send patient email:", emailError)
   }
+
+  // In-app notification to professional
+  createNotification({
+    userId: pro.user_id,
+    type: "appointment",
+    title: "Nova marcação",
+    message: `${patientName} marcou ${serviceName} em ${input.appointmentDate} às ${input.appointmentTime}`,
+    link: "/pro/agenda",
+  })
 
   revalidatePath("/patient/appointments")
 

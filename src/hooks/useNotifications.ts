@@ -1,58 +1,68 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect, useCallback } from "react"
+import { createClient } from "@/lib/supabase/client"
+import {
+  markNotificationRead,
+  markNotificationUnread,
+  markAllNotificationsRead,
+} from "@/app/_actions/notification-actions"
 
 export type Notification = {
-  id: string;
-  user_id: string;
-  title: string;
-  message: string;
-  type: string;
-  is_read: boolean | null;
-  read_at: string | null;
-  related_id: string | null;
-  created_at: string | null;
-  params: Record<string, string> | null;
-};
+  id: string
+  user_id: string
+  type: string
+  title: string
+  message: string
+  link: string | null
+  read_at: string | null
+  created_at: string
+}
 
-export function useNotifications(userId: string) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+export type NotificationsState = {
+  notifications: Notification[]
+  unreadCount: number
+  loading: boolean
+  markAsRead: (id: string) => Promise<void>
+  markAsUnread: (id: string) => Promise<void>
+  markAllAsRead: () => Promise<void>
+}
 
-  const unreadCount = notifications.filter((n) => !n.read_at).length;
+export function useNotifications(userId: string): NotificationsState {
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const unreadCount = notifications.filter((n) => !n.read_at).length
 
   // Fetch initial notifications
   useEffect(() => {
-    let cancelled = false;
-    const supabase = createClient();
+    let cancelled = false
+    const supabase = createClient()
 
     supabase
       .from("notifications")
-      .select(
-        "id, user_id, title, message, type, is_read, read_at, related_id, created_at, params"
-      )
+      .select("id, user_id, type, title, message, link, read_at, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(30)
       .then(({ data }) => {
         if (!cancelled) {
-          setNotifications((data as Notification[]) ?? []);
-          setLoading(false);
+          setNotifications((data as Notification[]) ?? [])
+          setLoading(false)
         }
-      });
+      })
 
     return () => {
-      cancelled = true;
-    };
-  }, [userId]);
+      cancelled = true
+    }
+  }, [userId])
 
-  // Realtime subscription for INSERT and UPDATE
+  // Realtime subscription — INSERT only
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = createClient()
 
     const channel = supabase
-      .channel(`notif-bell-${userId}`)
+      .channel(`notif-${userId}`)
       .on(
         "postgres_changes",
         {
@@ -62,116 +72,78 @@ export function useNotifications(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          const newNotif = payload.new as Notification;
-          setNotifications((prev) => [newNotif, ...prev].slice(0, 30));
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "notifications",
-          filter: `user_id=eq.${userId}`,
+          const row = payload.new as Notification
+          setNotifications((prev) => [row, ...prev].slice(0, 30))
         },
-        (payload) => {
-          const updated = payload.new as Notification;
-          setNotifications((prev) =>
-            prev.map((n) => (n.id === updated.id ? updated : n))
-          );
-        }
       )
-      .subscribe();
+      .subscribe()
 
     return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId]);
+      supabase.removeChannel(channel)
+    }
+  }, [userId])
 
-  const markAsRead = useCallback(
-    async (id: string) => {
-      const now = new Date().toISOString();
+  const markAsRead = useCallback(async (id: string) => {
+    const now = new Date().toISOString()
 
-      // Optimistic update
+    // Optimistic
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read_at: now } : n)),
+    )
+
+    // Server action
+    const { success } = await markNotificationRead(id)
+    if (!success) {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read_at: null } : n)),
+      )
+    }
+  }, [])
+
+  const markAsUnread = useCallback(async (id: string) => {
+    let previousReadAt: string | null = null
+    setNotifications((prev) =>
+      prev.map((n) => {
+        if (n.id === id) {
+          previousReadAt = n.read_at
+          return { ...n, read_at: null }
+        }
+        return n
+      }),
+    )
+
+    const { success } = await markNotificationUnread(id)
+    if (!success) {
       setNotifications((prev) =>
         prev.map((n) =>
-          n.id === id ? { ...n, read_at: now, is_read: true } : n
-        )
-      );
-
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read_at: now, is_read: true })
-        .eq("id", id)
-        .eq("user_id", userId);
-
-      if (error) {
-        // Revert on failure
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === id ? { ...n, read_at: null, is_read: false } : n
-          )
-        );
-      }
-    },
-    [userId]
-  );
-
-  const markAsUnread = useCallback(
-    async (id: string) => {
-      // Optimistic update
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === id ? { ...n, read_at: null, is_read: false } : n
-        )
-      );
-
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read_at: null, is_read: false })
-        .eq("id", id)
-        .eq("user_id", userId);
-
-      if (error) {
-        // Revert on failure
-        const now = new Date().toISOString();
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === id ? { ...n, read_at: now, is_read: true } : n
-          )
-        );
-      }
-    },
-    [userId]
-  );
+          n.id === id ? { ...n, read_at: previousReadAt } : n,
+        ),
+      )
+    }
+  }, [])
 
   const markAllAsRead = useCallback(async () => {
-    const now = new Date().toISOString();
-    const previous = [...notifications];
+    const now = new Date().toISOString()
+    const snapshot = [...notifications]
 
-    // Optimistic update
+    // Optimistic
     setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read_at: n.read_at ?? now,
-        is_read: true,
-      }))
-    );
+      prev.map((n) => ({ ...n, read_at: n.read_at ?? now })),
+    )
 
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("notifications")
-      .update({ read_at: now, is_read: true })
-      .eq("user_id", userId)
-      .is("read_at", null);
-
-    if (error) {
-      // Revert on failure
-      setNotifications(previous);
+    // Server action
+    const { success } = await markAllNotificationsRead()
+    if (!success) {
+      setNotifications(snapshot)
     }
-  }, [userId, notifications]);
+  }, [notifications])
 
-  return { notifications, unreadCount, loading, markAsRead, markAsUnread, markAllAsRead };
+  return {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAsUnread,
+    markAllAsRead,
+  }
 }

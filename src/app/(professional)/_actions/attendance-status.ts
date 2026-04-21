@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
 import { ALLOWED_TRANSITIONS } from "./attendance-validation";
+import { createNotification } from "@/lib/notifications";
 
 /* ─── Confirm / Cancel appointment (pro action) ─── */
 
@@ -74,20 +75,17 @@ export async function updateAppointmentStatus(
 
     if (patientUserId) {
       const isConfirmed = newStatus === "confirmed";
-      // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: patientUserId,
-        title: isConfirmed ? "Appointment confirmed" : "Appointment cancelled",
+
+      // In-app notification to patient
+      createNotification({
+        userId: patientUserId,
+        type: "appointment",
+        title: isConfirmed ? "Consulta confirmada" : "Consulta cancelada",
         message: isConfirmed
-          ? `${proName} confirmed your appointment.`
-          : `${proName} cancelled your appointment.`,
-        type: isConfirmed ? "appointment_confirmed" : "cancellation",
-        related_id: appointmentId,
-        params: { proName },
-      });
-      if (notifError) {
-        console.error("[updateAppointmentStatus] Failed to insert notification:", notifError.message);
-      }
+          ? `${proName} confirmou a sua consulta.`
+          : `${proName} cancelou a sua consulta.`,
+        link: "/patient/appointments",
+      })
 
       // Send email notification to patient
       try {
@@ -194,19 +192,6 @@ export async function proposeAlternativeTime(
     const msg = message?.trim()
       ? `${proName} proposed a new time: ${dateTime}. ${message.trim()}`
       : `${proName} proposed a new time: ${dateTime}.`;
-
-    // Title/message are English fallbacks — frontend maps by `type` and interpolates `params`
-    const { error: notifError } = await supabase.from("notifications").insert({
-      user_id: patientUserId,
-      title: "New time proposed",
-      message: msg,
-      type: "alternative_proposed",
-      related_id: appointmentId,
-      params: { proName, proposedDate, proposedTime, dateTime },
-    });
-    if (notifError) {
-      console.error("[proposeAlternativeTime] Failed to insert notification:", notifError.message);
-    }
 
     // Send email notification to patient
     try {

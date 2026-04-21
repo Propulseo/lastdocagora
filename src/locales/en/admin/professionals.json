@@ -39,5 +39,10 @@
   "allAvailabilityCleared": "All availability cleared",
   "editService": "Edit service",
   "serviceUpdated": "Service updated",
-  "professionalUpdated": "Professional updated"
+  "professionalUpdated": "Professional updated",
+  "bulkCancelDay": "Cancel day appointments",
+  "bulkCancelTitle": "Cancel all appointments for this day?",
+  "bulkCancelDescription": "All pending and confirmed appointments for this professional on {date} will be cancelled. Each patient will be notified.",
+  "bulkCancelSuccess": "{count} appointment(s) cancelled",
+  "bulkCancelNone": "No appointments to cancel on this day"
 }

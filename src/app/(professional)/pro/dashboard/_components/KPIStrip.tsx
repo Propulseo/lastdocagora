@@ -106,9 +106,7 @@ export function KPIStrip({ data }: KPIStripProps) {
       : undefined;
 
   const dashboardT = t.dashboard as Record<string, string>;
-  const reviewsSubtitle = dashboardT.reviewsCount
-    ? dashboardT.reviewsCount.replace("{count}", String(reviewsThisMonth))
-    : `${reviewsThisMonth} este mes`;
+  const reviewsSubtitle = (dashboardT.reviewsCount ?? "").replace("{count}", String(reviewsThisMonth));
 
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -144,7 +142,7 @@ export function KPIStrip({ data }: KPIStripProps) {
       />
       <Metric
         icon={<Star className="size-4" />}
-        label={dashboardT.reviews ?? "Avaliações"}
+        label={dashboardT.reviews}
         value={reviewsAvgThisMonth > 0 ? reviewsAvgThisMonth.toFixed(1) : "\u2014"}
         delta={reviewsDelta}
         subtitle={reviewsSubtitle}

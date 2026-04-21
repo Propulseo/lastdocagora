@@ -264,6 +264,7 @@
     "customTime": "Horário personalizado",
     "backToSlots": "Voltar aos horários",
     "manualDate": "Data",
-    "manualTime": "Hora"
+    "manualTime": "Hora",
+    "duplicateSameDay": "Este paciente já tem uma consulta hoje com este profissional."
   }
 }

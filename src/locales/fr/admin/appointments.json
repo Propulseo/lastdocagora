@@ -42,6 +42,20 @@
   "appointmentCreated": "Rendez-vous créé",
   "forceConflict": "Forcer malgré le conflit d'horaire",
   "conflictWarning": "Ce créneau est en conflit avec un rendez-vous existant",
+  "errors": {
+    "invalidTransition": "Transition de statut invalide",
+    "attendanceCancelledBlocked": "Impossible de modifier la présence d'un rendez-vous annulé",
+    "attendanceFutureBlocked": "Impossible de marquer la présence avant le début du rendez-vous",
+    "attendanceLockedPresent": "La présence marquée comme présent est définitive",
+    "deletePresentBlocked": "Impossible de supprimer un rendez-vous avec un patient présent",
+    "editBlockedAttendance": "Impossible de modifier la date quand la présence a été enregistrée",
+    "durationTooShort": "La durée minimale est de 5 minutes",
+    "proSuspended": "Ce professionnel est suspendu ou inactif",
+    "patientSuspended": "Ce patient est suspendu",
+    "availableSlots": "Créneaux disponibles",
+    "slotConflictWithSlots": "Conflit d'horaire avec un rendez-vous existant",
+    "appointmentNotStarted": "Le rendez-vous n'a pas encore commencé"
+  },
   "detail": {
     "title": "Détails du rendez-vous",
     "dateTime": "Date et heure",

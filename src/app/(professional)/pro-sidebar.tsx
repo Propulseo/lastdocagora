@@ -30,8 +30,6 @@ import {
   SidebarSeparator,
   SidebarMenuBadge,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipTrigger,
@@ -42,6 +40,7 @@ import { professionalNav, navGroups } from "@/config/professional-nav";
 import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -59,17 +58,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWi
 };
 
 interface ProSidebarProps {
-  user: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl: string | null;
-  };
   openTicketCount?: number;
-  userId: string;
 }
 
-export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
+export function ProSidebar({ openTicketCount }: ProSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useProfessionalI18n();
@@ -81,9 +73,6 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
     router.push("/login");
     router.refresh();
   };
-
-  const initials =
-    (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
   return (
     <Sidebar collapsible="icon">
@@ -173,39 +162,17 @@ export function ProSidebar({ user, openTicketCount, userId }: ProSidebarProps) {
         })}
       </SidebarContent>
 
-      <SidebarSeparator />
-
-      <SidebarFooter className="p-4">
-        <div className="mx-2 flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-sidebar-accent">
-          <Avatar className="size-8 shrink-0 ring-2 ring-sidebar-border">
-            <AvatarImage
-              src={user.avatarUrl ?? undefined}
-              alt={user.firstName}
-            />
-            <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground">
-              {initials || "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-sm font-medium text-sidebar-foreground">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="truncate text-xs text-sidebar-foreground/50">
-              {user.email}
-            </p>
-          </div>
-          <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
-            <LanguageSwitcher locale={locale} />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 shrink-0 text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              onClick={handleLogout}
-              title={t.sidebar.logout}
-            >
-              <LogOut className="size-5" strokeWidth={1.5} />
-            </Button>
-          </div>
+      <SidebarFooter className="border-t px-4 py-3">
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher locale={locale} />
+          <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+          <button
+            onClick={handleLogout}
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={t.sidebar.logout}
+          >
+            <LogOut className="size-4" />
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>

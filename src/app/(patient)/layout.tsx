@@ -55,18 +55,13 @@ export default async function PatientLayout({
   // Authenticated patient layout
   const supabase = await createClient()
 
-  const [{ data: profile }, { count: notificationCount }, locale] = await Promise.all(
+  const [{ data: profile }, locale] = await Promise.all(
     [
       supabase
         .from("users")
         .select("first_name, last_name, email, avatar_url")
         .eq("id", user!.id)
         .single(),
-      supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id)
-        .is("read_at", null),
       getLocale(),
     ]
   )
@@ -84,25 +79,6 @@ export default async function PatientLayout({
       : "P",
   }
 
-  const notifTranslations = {
-    title: t.messages.title,
-    markAllRead: t.messages.markAllRead,
-    empty: t.messages.emptyTitle,
-    markAsRead: t.messages.markOneRead,
-    markAsUnread: t.messages.markOneUnread,
-    justNow: t.messages.justNow,
-  }
-  const notifContent = {
-    appointment_confirmed: { title: t.messages.notifConfirmedTitle, message: t.messages.notifConfirmedMessage },
-    cancellation: { title: t.messages.notifCancelledTitle, message: t.messages.notifCancelledMessage, messageAlt: t.messages.notifCancelledWithReason },
-    appointment_rejected: { title: t.messages.notifRejectedTitle, message: t.messages.notifRejectedMessage, messageAlt: t.messages.notifRejectedWithReason },
-    alternative_proposed: { title: t.messages.notifAlternativeTitle, message: t.messages.notifAlternativeMessage },
-    reminder: { title: t.messages.titleReminder, message: t.messages.notifReminderMessage },
-    ticket_reply: { title: t.messages.notifTicketReplyTitle, message: t.messages.notifTicketReplyMessage },
-    ticket_resolved: { title: t.messages.notifTicketUpdatedTitle, message: t.messages.notifTicketResolvedMessage },
-    ticket_updated: { title: t.messages.notifTicketUpdatedTitle, message: t.messages.notifTicketUpdatedMessage },
-  }
-
   return (
     <>
       <PatientRealtimeNotifier userId={user!.id} />
@@ -110,32 +86,38 @@ export default async function PatientLayout({
       <ThemeSync userId={user!.id} target="patient_settings" />
       <SidebarProvider>
         <PatientLocaleProvider locale={locale}>
-          <div className="hidden lg:contents">
-            <PatientSidebar user={userInfo} unreadCount={notificationCount ?? 0} locale={locale} />
-          </div>
-          <SidebarInset>
-            <header className="flex h-14 items-center border-b px-4">
-              <div className="hidden lg:flex lg:items-center">
-                <SidebarTrigger />
-                <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
-              </div>
-              <PatientLayoutHeader />
-              <div className="ml-auto flex items-center gap-2">
-                <NotificationBell
-                  userId={user!.id}
-                  translations={notifTranslations}
-                  contentTranslations={notifContent}
-                  locale={locale}
-                  role="patient"
-                />
-                <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
-              </div>
-            </header>
-            <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
-              {children}
+            <div className="hidden lg:contents">
+              <PatientSidebar user={userInfo} locale={locale} />
             </div>
-          </SidebarInset>
-          <PatientBottomNav />
+            <SidebarInset className="max-h-svh overflow-hidden">
+              <header className="flex h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur-sm px-4">
+                <div className="hidden lg:flex lg:items-center">
+                  <SidebarTrigger />
+                  <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
+                </div>
+                <PatientLayoutHeader />
+                <div className="ml-auto flex items-center gap-2">
+                  <NotificationBell
+                    userId={user!.id}
+                    translations={{
+                      title: t.messages.title,
+                      markAllRead: t.messages.markAllRead,
+                      empty: t.messages.emptyTitle,
+                      markAsRead: t.messages.markOneRead,
+                      markAsUnread: t.messages.markOneUnread,
+                      justNow: t.messages.justNow,
+                    }}
+                    locale={locale}
+                    role="patient"
+                  />
+                  <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+                </div>
+              </header>
+              <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">
+                {children}
+              </div>
+            </SidebarInset>
+            <PatientBottomNav />
         </PatientLocaleProvider>
       </SidebarProvider>
     </>

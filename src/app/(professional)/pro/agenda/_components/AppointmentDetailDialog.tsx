@@ -52,7 +52,7 @@ export function AppointmentDetailDialog({
 
   return (
     <ResponsiveDialog open={!!selected} onOpenChange={() => onClose()}>
-      <ResponsiveDialogContent className={`p-6 ${RADIUS.card}`}>
+      <ResponsiveDialogContent className={`p-6 ${RADIUS.card} max-h-[90vh] flex flex-col overflow-hidden`}>
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>{t.agenda.appointmentDetails}</ResponsiveDialogTitle>
         </ResponsiveDialogHeader>
