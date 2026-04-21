@@ -217,7 +217,8 @@
     "notifyPatient": "Notifier le patient",
     "confirm": "Confirmer l'annulation",
     "cancelled": "Consultation annulée",
-    "error": "Erreur lors de l'annulation"
+    "error": "Erreur lors de l'annulation",
+    "cannotCancelPast": "Impossible d'annuler une consultation passée"
   },
   "pendingBanner": {
     "confirmAll": "Tout accepter ({{count}})",

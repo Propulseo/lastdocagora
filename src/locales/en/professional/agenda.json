@@ -217,7 +217,8 @@
     "notifyPatient": "Notify patient",
     "confirm": "Confirm cancellation",
     "cancelled": "Appointment cancelled",
-    "error": "Error cancelling appointment"
+    "error": "Error cancelling appointment",
+    "cannotCancelPast": "Cannot cancel a past appointment"
   },
   "pendingBanner": {
     "confirmAll": "Accept all ({{count}})",

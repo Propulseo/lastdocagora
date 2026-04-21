@@ -57,3 +57,17 @@ export function canEditDateTime(
   if (["completed", "cancelled", "rejected", "no-show"].includes(apptStatus)) return false;
   return true;
 }
+
+export function canCancelFromAgenda(
+  status: string,
+  date: string,
+  time: string,
+): { allowed: boolean; reason?: "past" | "status" } {
+  if (!["pending", "confirmed"].includes(status)) {
+    return { allowed: false, reason: "status" };
+  }
+  if (!isAppointmentFuture(date, time)) {
+    return { allowed: false, reason: "past" };
+  }
+  return { allowed: true };
+}

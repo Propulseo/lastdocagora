@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { CheckCircle, XCircle, CalendarClock, Lock, UserCheck, UserMinus, UserX } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { canMarkNonPresent } from "../_lib/agenda-constants";
+import { canCancelFromAgenda } from "@/lib/appointments";
 import type { Appointment } from "../_types/agenda";
 import type { AttendanceStatus } from "@/types";
 
@@ -62,8 +63,14 @@ export function AppointmentDetailBody({
     selected.status !== "no-show" &&
     selected.status !== "no_show";
   const canConfirm = selected.status === "pending";
+  const cancelCheck = canCancelFromAgenda(
+    selected.status,
+    selected.appointment_date,
+    selected.appointment_time,
+  );
   const canCancel =
     selected.status === "pending" || selected.status === "confirmed";
+  const cancelDisabledPast = canCancel && !cancelCheck.allowed && cancelCheck.reason === "past";
 
   const attendanceActions = [
     {
@@ -171,16 +178,27 @@ export function AppointmentDetailBody({
 
         {!canConfirm && canCancel && (
           <div className="flex gap-2 border-t pt-4">
-            <Button
-              variant="destructive"
-              size="sm"
-              className="flex-1 gap-1.5 min-h-[48px]"
-              disabled={isUpdating}
-              onClick={() => onShowCancelDialog(true)}
-            >
-              <XCircle className="h-4 w-4" />
-              {t.agenda.cancellation.title}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex-1">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full gap-1.5 min-h-[48px]"
+                      disabled={isUpdating || cancelDisabledPast}
+                      onClick={() => onShowCancelDialog(true)}
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {t.agenda.cancellation.title}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {cancelDisabledPast && (
+                  <TooltipContent>{t.agenda.cancellation.cannotCancelPast}</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 

@@ -26,7 +26,7 @@ export async function cancelAppointment(
 
   const { data: appointment } = await supabase
     .from("appointments")
-    .select("id, status, professional_user_id")
+    .select("id, status, professional_user_id, appointment_date, appointment_time")
     .eq("id", appointmentId)
     .single();
 
@@ -37,6 +37,10 @@ export async function cancelAppointment(
 
   if (!["pending", "confirmed"].includes(appointment.status)) {
     return { success: false, error: `Cannot cancel from ${appointment.status}` };
+  }
+
+  if (new Date(`${appointment.appointment_date}T${appointment.appointment_time}`) <= new Date()) {
+    return { success: false, error: "CANNOT_CANCEL_PAST" };
   }
 
   const now = new Date().toISOString();
