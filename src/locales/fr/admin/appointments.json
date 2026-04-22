@@ -54,7 +54,13 @@
     "patientSuspended": "Ce patient est suspendu",
     "availableSlots": "Créneaux disponibles",
     "slotConflictWithSlots": "Conflit d'horaire avec un rendez-vous existant",
-    "appointmentNotStarted": "Le rendez-vous n'a pas encore commencé"
+    "appointmentNotStarted": "Le rendez-vous n'a pas encore commencé",
+    "noProfessionalAvailability": "Ce professionnel n'a aucune disponibilité configurée",
+    "noSlotsAvailable": "Aucun créneau disponible à cette date",
+    "availableDays": "Jours disponibles",
+    "selectProFirst": "Sélectionner un professionnel d'abord",
+    "selectDateFirst": "Sélectionner une date d'abord",
+    "loadingSlots": "Chargement des créneaux..."
   },
   "detail": {
     "title": "Détails du rendez-vous",

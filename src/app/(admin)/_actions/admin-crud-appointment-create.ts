@@ -51,32 +51,29 @@ export async function createAppointmentAdmin(data: {
     return { success: false, error: "PATIENT_SUSPENDED" };
   }
 
-  // Check for time slot conflicts (Rule 6: return free slots)
-  const { data: conflicts } = await admin.supabase
+  // Check for actual time slot overlap with existing appointments
+  const { data: existingAppts } = await admin.supabase
     .from("appointments")
     .select("appointment_time, duration_minutes")
     .eq("professional_id", data.professionalId)
     .eq("appointment_date", data.date)
     .not("status", "in", '("cancelled","rejected")');
-  if (conflicts && conflicts.length > 0) {
-    // Compute occupied intervals
-    const occupied = conflicts.map((c: { appointment_time: string; duration_minutes: number }) => {
+
+  if (existingAppts && existingAppts.length > 0) {
+    const [reqH, reqM] = data.time.split(":").map(Number);
+    const reqStart = reqH * 60 + reqM;
+    const reqEnd = reqStart + data.durationMinutes;
+
+    const hasOverlap = existingAppts.some((c: { appointment_time: string; duration_minutes: number }) => {
       const [h, m] = c.appointment_time.split(":").map(Number);
       const start = h * 60 + m;
-      return { start, end: start + (c.duration_minutes || 30) };
+      const end = start + (c.duration_minutes || 30);
+      return reqStart < end && reqEnd > start;
     });
-    // Generate free 30-min slots between 08:00-19:00
-    const freeSlots: string[] = [];
-    for (let t = 480; t <= 1110; t += 30) { // 480=08:00, 1110=18:30
-      const slotEnd = t + 30;
-      const hasConflict = occupied.some((o: { start: number; end: number }) => t < o.end && slotEnd > o.start);
-      if (!hasConflict) {
-        const hh = String(Math.floor(t / 60)).padStart(2, "0");
-        const mm = String(t % 60).padStart(2, "0");
-        freeSlots.push(`${hh}:${mm}`);
-      }
+
+    if (hasOverlap) {
+      return { success: false, error: "SLOT_CONFLICT" };
     }
-    return { success: false, error: "SLOT_CONFLICT", freeSlots };
   }
 
   const { error } = await admin.supabase.from("appointments").insert({

@@ -12,7 +12,7 @@ import { deleteReview, updateReviewStatus } from "@/app/(admin)/_actions/admin-c
 import { ReviewList, type ReviewRow } from "./review-columns";
 
 export function ReviewsClient({ reviews, pendingCount }: { reviews: ReviewRow[]; pendingCount: number }) {
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
   const rt = t.reviews;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -86,13 +86,13 @@ export function ReviewsClient({ reviews, pendingCount }: { reviews: ReviewRow[];
           <TabsTrigger value="rejected">{rt.tabs.rejected}</TabsTrigger>
         </TabsList>
         <TabsContent value="pending" className="mt-4">
-          <ReviewList items={pending} emptyMessage={rt.emptyPending} rt={rt} onModerate={handleModerate} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} showActions />
+          <ReviewList items={pending} emptyMessage={rt.emptyPending} rt={rt} locale={locale} onModerate={handleModerate} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} showActions />
         </TabsContent>
         <TabsContent value="approved" className="mt-4">
-          <ReviewList items={approved} emptyMessage={rt.emptyApproved} rt={rt} onDelete={setDeleteTarget} onRetract={handleRetract} moderatingId={moderatingId} isPending={isPending} showRetract />
+          <ReviewList items={approved} emptyMessage={rt.emptyApproved} rt={rt} locale={locale} onDelete={setDeleteTarget} onRetract={handleRetract} moderatingId={moderatingId} isPending={isPending} showRetract />
         </TabsContent>
         <TabsContent value="rejected" className="mt-4">
-          <ReviewList items={rejected} emptyMessage={rt.emptyRejected} rt={rt} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} />
+          <ReviewList items={rejected} emptyMessage={rt.emptyRejected} rt={rt} locale={locale} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} />
         </TabsContent>
       </Tabs>
 

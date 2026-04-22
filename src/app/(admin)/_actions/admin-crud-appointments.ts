@@ -4,15 +4,12 @@ import { revalidatePath } from "next/cache";
 import type { AppointmentStatus, AttendanceStatus } from "@/types";
 import { deriveAppointmentStatus } from "@/lib/admin-guards";
 import {
-  ADMIN_STATUS_TRANSITIONS,
   getValidStatusTransitions,
   getValidAttendanceTransitions,
   isAppointmentFuture,
   canEditDateTime,
 } from "@/lib/appointments";
 import { getServiceRoleClient, getAdminClient } from "./admin-crud-helpers";
-
-export const ADMIN_ALLOWED_TRANSITIONS = ADMIN_STATUS_TRANSITIONS;
 
 export async function updateAppointmentStatusAdmin(
   appointmentId: string,

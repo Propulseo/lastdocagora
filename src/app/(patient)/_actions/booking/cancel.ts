@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { createNotification } from "@/lib/notifications"
 
-export const LOCKED_ATTENDANCE = ["present", "absent", "late"]
+const LOCKED_ATTENDANCE = ["present", "absent", "late"]
 
 export async function cancelPatientAppointment(
   appointmentId: string,

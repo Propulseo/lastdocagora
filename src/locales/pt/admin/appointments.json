@@ -54,7 +54,13 @@
     "patientSuspended": "Este paciente está suspenso",
     "availableSlots": "Horários disponíveis",
     "slotConflictWithSlots": "Conflito de horário com consulta existente",
-    "appointmentNotStarted": "A consulta ainda não começou"
+    "appointmentNotStarted": "A consulta ainda não começou",
+    "noProfessionalAvailability": "Este profissional não tem disponibilidade configurada",
+    "noSlotsAvailable": "Nenhum horário disponível nesta data",
+    "availableDays": "Dias disponíveis",
+    "selectProFirst": "Selecionar profissional primeiro",
+    "selectDateFirst": "Selecionar data primeiro",
+    "loadingSlots": "A carregar horários..."
   },
   "detail": {
     "title": "Detalhes da consulta",

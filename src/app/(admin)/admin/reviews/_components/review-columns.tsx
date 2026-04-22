@@ -30,11 +30,14 @@ const STATUS_VARIANTS: Record<string, string> = {
   rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
 };
 
+const LOCALE_MAP: Record<string, string> = { pt: "pt-PT", fr: "fr-FR", en: "en-GB" };
+
 function ReviewCard({
-  review, rt, onModerate, onDelete, onRetract, moderatingId, isPending, showActions, showRetract,
+  review, rt, locale, onModerate, onDelete, onRetract, moderatingId, isPending, showActions, showRetract,
 }: {
   review: ReviewRow;
   rt: Record<string, string | Record<string, string>>;
+  locale?: string;
   onModerate?: (id: string, status: "approved" | "rejected") => void;
   onDelete?: (id: string) => void;
   onRetract?: (id: string) => void;
@@ -69,7 +72,7 @@ function ReviewCard({
               <span><span className="font-medium">{rt.patient as string}:</span> {review.patient_name}</span>
               <span><span className="font-medium">{rt.professional as string}:</span> {review.professional_name}</span>
               {review.created_at && (
-                <span>{new Intl.DateTimeFormat("pt-PT", { day: "numeric", month: "short", year: "numeric" }).format(new Date(review.created_at))}</span>
+                <span>{new Intl.DateTimeFormat(LOCALE_MAP[locale ?? "pt"] ?? "pt-PT", { day: "numeric", month: "short", year: "numeric" }).format(new Date(review.created_at))}</span>
               )}
             </div>
           </div>
@@ -125,6 +128,7 @@ interface ReviewListProps {
   items: ReviewRow[];
   emptyMessage: string;
   rt: Record<string, string | Record<string, string>>;
+  locale?: string;
   onModerate?: (id: string, status: "approved" | "rejected") => void;
   onDelete?: (id: string) => void;
   onRetract?: (id: string) => void;
@@ -134,7 +138,7 @@ interface ReviewListProps {
   showRetract?: boolean;
 }
 
-export function ReviewList({ items, emptyMessage, rt, onModerate, onDelete, onRetract, moderatingId, isPending, showActions, showRetract }: ReviewListProps) {
+export function ReviewList({ items, emptyMessage, rt, locale, onModerate, onDelete, onRetract, moderatingId, isPending, showActions, showRetract }: ReviewListProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -146,7 +150,7 @@ export function ReviewList({ items, emptyMessage, rt, onModerate, onDelete, onRe
   return (
     <div className="grid gap-3">
       {items.map((review) => (
-        <ReviewCard key={review.id} review={review} rt={rt} onModerate={onModerate} onDelete={onDelete} onRetract={onRetract} moderatingId={moderatingId} isPending={isPending} showActions={showActions} showRetract={showRetract} />
+        <ReviewCard key={review.id} review={review} rt={rt} locale={locale} onModerate={onModerate} onDelete={onDelete} onRetract={onRetract} moderatingId={moderatingId} isPending={isPending} showActions={showActions} showRetract={showRetract} />
       ))}
     </div>
   );

@@ -54,7 +54,13 @@
     "patientSuspended": "This patient is suspended",
     "availableSlots": "Available slots",
     "slotConflictWithSlots": "Time slot conflict with existing appointment",
-    "appointmentNotStarted": "The appointment has not started yet"
+    "appointmentNotStarted": "The appointment has not started yet",
+    "noProfessionalAvailability": "This professional has no availability configured",
+    "noSlotsAvailable": "No time slots available on this date",
+    "availableDays": "Available days",
+    "selectProFirst": "Select professional first",
+    "selectDateFirst": "Select date first",
+    "loadingSlots": "Loading slots..."
   },
   "detail": {
     "title": "Appointment details",
