@@ -163,7 +163,7 @@ export function ProSidebar({ openTicketCount }: ProSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t px-4 py-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-1 group-data-[collapsible=icon]:px-0">
           <LanguageSwitcher locale={locale} />
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button

@@ -69,9 +69,9 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-4 py-4">
-        <span className="text-lg font-bold tracking-tight">DOCAGORA</span>
+        <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">DOCAGORA</span>
       </SidebarHeader>
 
       <SidebarContent>
@@ -113,7 +113,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t px-4 py-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
           <Avatar size="sm">
             <AvatarFallback>
               {user.first_name[0]}
@@ -128,6 +128,17 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
               {user.email}
             </span>
           </div>
+          <LanguageSwitcher locale={locale} />
+          <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+          <button
+            onClick={handleLogout}
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={t.sidebar.logout}
+          >
+            <LogOut className="size-4" />
+          </button>
+        </div>
+        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1 px-0">
           <LanguageSwitcher locale={locale} />
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button

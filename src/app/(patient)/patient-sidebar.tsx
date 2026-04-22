@@ -120,7 +120,7 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
       </SidebarContent>
 
       <SidebarFooter className="border-t px-4 py-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
           <Avatar size="sm">
             {user.avatarUrl && (
               <AvatarImage src={user.avatarUrl} alt={user.name} />
@@ -135,6 +135,17 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
               {user.email}
             </span>
           </div>
+          <LanguageSwitcher locale={locale} />
+          <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+          <button
+            onClick={handleLogout}
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={t.common.logout}
+          >
+            <LogOut className="size-4" />
+          </button>
+        </div>
+        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1 px-0">
           <LanguageSwitcher locale={locale} />
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button

@@ -1,5 +1,3 @@
-"use server";
-
 export { updateUserAdmin, banUser, unbanUser, getAdminSearchResults } from "./admin-crud-users";
 export { ADMIN_ALLOWED_TRANSITIONS, updateAppointmentStatusAdmin, updateAttendanceAdmin, updateAppointmentDateTimeAdmin, deleteAppointmentAdmin } from "./admin-crud-appointments";
 export { createAppointmentAdmin } from "./admin-crud-appointment-create";
