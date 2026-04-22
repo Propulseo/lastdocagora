@@ -33,9 +33,9 @@ export function Pagination({ total, pageSize }: PaginationProps) {
   if (total <= pageSize) return null;
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <p className="text-muted-foreground text-sm">
-        Mostrando {from} a {to} de {total}
+    <div className="flex items-center justify-between gap-4 pt-2">
+      <p className="text-muted-foreground text-sm tabular-nums">
+        {from}–{to} / {total}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -57,7 +57,7 @@ export function Pagination({ total, pageSize }: PaginationProps) {
             </span>
           )}
         </Button>
-        <span className="text-sm tabular-nums">
+        <span className="text-sm font-medium tabular-nums text-muted-foreground">
           {currentPage} / {totalPages}
         </span>
         <Button

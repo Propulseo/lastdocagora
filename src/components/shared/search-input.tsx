@@ -49,13 +49,13 @@ export function SearchInput({
   }
 
   return (
-    <div className={className ?? "relative max-w-xs"}>
-      <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+    <div className={className ?? "relative max-w-xs group/search"}>
+      <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 transition-colors duration-150 group-focus-within/search:text-foreground" />
       <Input
         placeholder={placeholder}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
-        className="pl-9"
+        className="pl-9 transition-shadow duration-150"
         aria-label={placeholder}
       />
     </div>

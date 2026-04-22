@@ -35,7 +35,7 @@ export function PatientBottomNav() {
               href={item.href}
               className={cn(
                 "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
-                active ? "text-[#3da4ab] font-medium" : "text-muted-foreground"
+                active ? "text-primary font-medium" : "text-muted-foreground"
               )}
             >
               <Icon className="size-5" />

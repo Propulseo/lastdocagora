@@ -52,7 +52,7 @@ export function buildColumns(
                   </span>
                 )}
               </div>
-              <div className="text-[12px] text-[#6b7280] truncate">{row.email}</div>
+              <div className="text-[12px] text-muted-foreground truncate">{row.email}</div>
             </div>
           </div>
         );

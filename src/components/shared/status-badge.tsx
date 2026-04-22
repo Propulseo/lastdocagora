@@ -48,9 +48,35 @@ interface StatusBadgeProps {
   className?: string;
 }
 
+const DOT_COLOR_MAP: Record<string, string> = {
+  active: "bg-emerald-500",
+  verified: "bg-emerald-500",
+  confirmed: "bg-emerald-500",
+  completed: "bg-emerald-500",
+  resolved: "bg-emerald-500",
+  pending: "bg-amber-500",
+  scheduled: "bg-amber-500",
+  in_progress: "bg-amber-500",
+  awaiting_confirmation: "bg-blue-500",
+  suspended: "bg-red-500",
+  cancelled: "bg-red-500",
+  rejected: "bg-red-500",
+  closed: "bg-red-500",
+  inactive: "bg-red-500",
+  no_show: "bg-orange-500",
+  open: "bg-orange-500",
+  urgent: "bg-orange-500",
+  high: "bg-orange-500",
+  true: "bg-emerald-500",
+  patient: "bg-blue-500",
+  professional: "bg-violet-500",
+  admin: "bg-red-500",
+};
+
 export function StatusBadge({ type, value, labels, className }: StatusBadgeProps) {
   const strValue = String(value ?? "");
   const colorClasses = COLOR_MAP[strValue] ?? DEFAULT_COLOR;
+  const dotColor = DOT_COLOR_MAP[strValue];
   const label =
     labels?.[strValue] ??
     DEFAULT_LABELS[type]?.[strValue] ??
@@ -59,12 +85,15 @@ export function StatusBadge({ type, value, labels, className }: StatusBadgeProps
   return (
     <span
       className={cn(
-        "inline-block px-2.5 py-1 text-[11px] font-semibold leading-tight whitespace-nowrap",
+        "inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold leading-tight whitespace-nowrap",
         RADIUS.badge,
         colorClasses,
         className
       )}
     >
+      {dotColor && (
+        <span className={cn("size-1.5 shrink-0 rounded-full", dotColor)} />
+      )}
       {label}
     </span>
   );

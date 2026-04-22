@@ -149,7 +149,7 @@ export function getProfessionalColumns(
       render: (row) =>
         row.city ? (
           <div className="flex items-center gap-1 text-[13px]">
-            <MapPin className="size-3 text-[#6b7280]" />
+            <MapPin className="size-3 text-muted-foreground" />
             {row.city}
           </div>
         ) : (
@@ -162,12 +162,12 @@ export function getProfessionalColumns(
       render: (row) =>
         row.rating != null && row.rating > 0 ? (
           <div className="flex items-center gap-1 text-[13px]">
-            <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" />
-            <span className="font-medium text-[#92400e]">{row.rating.toFixed(1)}</span>
-            <span className="text-[#6b7280]">({row.total_reviews ?? 0})</span>
+            <Star className="size-3.5 fill-amber-500 text-amber-500" />
+            <span className="font-medium text-amber-800 dark:text-amber-300">{row.rating.toFixed(1)}</span>
+            <span className="text-muted-foreground">({row.total_reviews ?? 0})</span>
           </div>
         ) : (
-          <span className="text-[#9ca3af]">{"\u2014"}</span>
+          <span className="text-muted-foreground/50">{"\u2014"}</span>
         ),
     },
     {

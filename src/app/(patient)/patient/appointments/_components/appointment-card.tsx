@@ -69,15 +69,15 @@ function isWithinCancelCutoff(appt: Appointment): boolean {
 }
 
 const borderColors: Record<string, string> = {
-  cancelled: "border-l-[#ef4444]",
-  past: "border-l-[#9ca3af]",
-  upcoming: "border-l-[#3da4ab]",
+  cancelled: "border-l-destructive",
+  past: "border-l-muted-foreground/40",
+  upcoming: "border-l-primary",
 }
 
 const avatarColors: Record<string, string> = {
-  cancelled: "bg-red-50 text-red-600",
-  past: "bg-gray-100 text-gray-500",
-  upcoming: "bg-[#e8f6f7] text-[#3da4ab]",
+  cancelled: "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
+  past: "bg-muted text-muted-foreground",
+  upcoming: "bg-primary/10 text-primary",
 }
 
 interface AppointmentCardProps {
@@ -215,19 +215,19 @@ function StatusPill({
   labels: Record<string, string>
 }) {
   const styles: Record<string, string> = {
-    confirmed: "bg-[#e8f6f7] text-[#3da4ab]",
-    pending: "bg-amber-50 text-amber-700",
-    completed: "bg-gray-100 text-gray-600",
-    cancelled: "bg-red-50 text-red-600",
-    rejected: "bg-rose-50 text-rose-600",
-    no_show: "bg-red-50 text-red-600",
+    confirmed: "bg-primary/10 text-primary",
+    pending: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+    completed: "bg-muted text-muted-foreground",
+    cancelled: "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
+    rejected: "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400",
+    no_show: "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
   }
 
   return (
     <span
       className={cn(
         "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium",
-        styles[status] ?? "bg-gray-100 text-gray-600"
+        styles[status] ?? "bg-muted text-muted-foreground"
       )}
     >
       {labels[status] ?? status}

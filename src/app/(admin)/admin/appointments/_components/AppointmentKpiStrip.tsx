@@ -17,22 +17,27 @@ interface AppointmentKpiStripProps {
   labels: KpiLabels;
 }
 
+const items = [
+  { key: "kpiTotal" as const, valueColor: "text-foreground" },
+  { key: "kpiConfirmed" as const, valueColor: "text-emerald-700 dark:text-emerald-400" },
+  { key: "kpiCancelled" as const, valueColor: "text-red-600 dark:text-red-400" },
+  { key: "kpiPending" as const, valueColor: "text-amber-700 dark:text-amber-400" },
+] as const;
+
+const countKeys = ["total", "confirmed", "cancelled", "pending"] as const;
+
 export function AppointmentKpiStrip({ counts, labels }: AppointmentKpiStripProps) {
-  const items = [
-    { label: labels.kpiTotal, value: counts.total, color: "#374151" },
-    { label: labels.kpiConfirmed, value: counts.confirmed, color: "#15803d" },
-    { label: labels.kpiCancelled, value: counts.cancelled, color: "#dc2626" },
-    { label: labels.kpiPending, value: counts.pending, color: "#854d0e" },
-  ];
   return (
-    <div className="flex items-center h-12 gap-6 px-4 rounded-lg border bg-[#f9fafb] overflow-x-auto">
+    <div className="flex items-center h-12 gap-6 px-4 rounded-lg border border-border bg-muted/50 overflow-x-auto">
       <div className="flex items-center gap-6 flex-nowrap min-w-max">
         {items.map((item, i) => (
-          <div key={item.label} className="flex items-center gap-2">
-            {i > 0 && <div className="w-px h-5 bg-[#e5e7eb]" />}
+          <div key={item.key} className="flex items-center gap-2">
+            {i > 0 && <div className="w-px h-5 bg-border" />}
             <div className="flex items-center gap-1.5">
-              <span className="text-[13px] text-[#6b7280] whitespace-nowrap">{item.label}</span>
-              <span className="text-[15px] font-semibold" style={{ color: item.color }}>{item.value}</span>
+              <span className="text-[13px] text-muted-foreground whitespace-nowrap">{labels[item.key]}</span>
+              <span className={`text-[15px] font-semibold tabular-nums ${item.valueColor}`}>
+                {counts[countKeys[i]]}
+              </span>
             </div>
           </div>
         ))}

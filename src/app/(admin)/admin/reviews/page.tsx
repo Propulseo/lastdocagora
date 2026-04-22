@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { ReviewsClient } from "./_components/ReviewsClient";
+import { getAdminI18nServer } from "@/lib/i18n/admin/server";
 
 interface ReviewRow {
   id: string;
@@ -13,6 +14,8 @@ interface ReviewRow {
 }
 
 export default async function ReviewsPage() {
+  const { locale } = await getAdminI18nServer();
+
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -21,7 +24,7 @@ export default async function ReviewsPage() {
   const { data: rawReviews } = await supabaseAdmin
     .from("reviews")
     .select(`
-      id, rating, comment, status, created_at, would_recommend, patient_id,
+      id, rating, comment, comment_pt, comment_fr, comment_en, status, created_at, would_recommend, patient_id,
       patients(users!patients_user_id_fkey(first_name, last_name)),
       professionals(users!professionals_user_id_fkey(first_name, last_name))
     `)
@@ -33,10 +36,16 @@ export default async function ReviewsPage() {
     } | null;
     const proUser = proData?.users;
 
+    // Pick localized comment, fallback to original
+    const localizedComment =
+      (locale === "fr" ? r.comment_fr : locale === "en" ? r.comment_en : r.comment_pt)
+      ?? r.comment
+      ?? null;
+
     return {
       id: r.id,
       rating: r.rating,
-      comment: r.comment ?? null,
+      comment: localizedComment,
       status: (r as Record<string, unknown>).status as string ?? "pending",
       created_at: r.created_at,
       would_recommend: r.would_recommend ?? null,
@@ -59,7 +68,6 @@ export default async function ReviewsPage() {
     const orderA = statusOrder[a.status] ?? 1;
     const orderB = statusOrder[b.status] ?? 1;
     if (orderA !== orderB) return orderA - orderB;
-    // Within same status, newest first
     const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
     const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
     return dateB - dateA;

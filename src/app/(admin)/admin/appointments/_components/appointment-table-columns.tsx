@@ -88,7 +88,7 @@ export function buildAppointmentColumns(
       header: tablePatient,
       render: (row) => {
         if (!row.patient_name) {
-          return <span className="text-[13px] italic text-[#9ca3af]">{deletedPatient}</span>;
+          return <span className="text-[13px] italic text-muted-foreground/60">{deletedPatient}</span>;
         }
         return <span className="text-[13px] font-medium text-muted-foreground">{row.patient_name}</span>;
       },

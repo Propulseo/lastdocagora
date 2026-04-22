@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -51,7 +52,7 @@ export function DataTable<T>({
   const isAdmin = variant === "admin";
 
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -59,11 +60,11 @@ export function DataTable<T>({
               <TableHead
                 key={col.key}
                 scope="col"
-                className={
-                  isAdmin
-                    ? `text-[11px] uppercase tracking-wider text-[#6b7280] border-b-2 border-[#e5e7eb] bg-[#f9fafb] sticky top-0 ${col.className ?? ""}`
-                    : col.className
-                }
+                className={cn(
+                  isAdmin &&
+                    "text-[11px] uppercase tracking-wider text-muted-foreground border-b-2 border-border bg-muted/50 sticky top-0",
+                  col.className
+                )}
               >
                 {col.header}
               </TableHead>
@@ -74,15 +75,13 @@ export function DataTable<T>({
           {data.map((row, idx) => (
             <TableRow
               key={rowKey(row)}
-              className={[
-                onRowClick ? "cursor-pointer" : undefined,
-                isAdmin
-                  ? `h-[52px] hover:bg-[#f0f9ff] border-b border-[#f3f4f6] group/row ${idx % 2 === 1 ? "bg-[#fafafa]" : ""}`
-                  : undefined,
-                rowClassName?.(row),
-              ]
-                .filter(Boolean)
-                .join(" ") || undefined}
+              className={cn(
+                "transition-colors duration-150",
+                onRowClick && "cursor-pointer",
+                isAdmin && "h-[52px] border-b border-border/50 hover:bg-accent/50 group/row",
+                isAdmin && idx % 2 === 1 && "bg-muted/30",
+                rowClassName?.(row)
+              )}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
             >
               {columns.map((col) => (

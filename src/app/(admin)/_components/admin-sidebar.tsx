@@ -132,7 +132,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button
             onClick={handleLogout}
-            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
             aria-label={t.sidebar.logout}
           >
             <LogOut className="size-4" />
@@ -143,7 +143,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button
             onClick={handleLogout}
-            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
             aria-label={t.sidebar.logout}
           >
             <LogOut className="size-4" />

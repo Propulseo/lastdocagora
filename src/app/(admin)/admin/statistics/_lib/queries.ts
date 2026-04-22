@@ -95,18 +95,51 @@ export async function fetchStatisticsData(range: PeriodRange): Promise<Statistic
   const completedInPeriod = curAppts.filter(a => a.status === "completed").length;
   const completionRate = computeRate(completedInPeriod, periodAppointments);
 
-  // --- Growth chart ---
+  // --- Growth chart (cumulative) ---
+  // Count all users created BEFORE the period start (baseline)
+  const { data: allUsersForGrowth } = await supabase
+    .from("users")
+    .select("role, created_at")
+    .in("role", ["patient", "professional"])
+    .lte("created_at", endISO)
+    .order("created_at");
+
+  const allU = allUsersForGrowth ?? [];
+  const baselinePatients = allU.filter(u => u.created_at && new Date(u.created_at) < start && u.role === "patient").length;
+  const baselinePros = allU.filter(u => u.created_at && new Date(u.created_at) < start && u.role === "professional").length;
+
+  // Build bucket keys for the entire period (so there are no gaps)
+  const bucketKeys: string[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    bucketKeys.push(bucketDate(cursor.toISOString(), bucket));
+    if (bucket === "day") cursor.setDate(cursor.getDate() + 1);
+    else if (bucket === "week") cursor.setDate(cursor.getDate() + 7);
+    else cursor.setMonth(cursor.getMonth() + 1);
+  }
+  // Deduplicate keys while preserving order
+  const uniqueKeys = [...new Set(bucketKeys)];
+
+  // Count new registrations per bucket
   const growthMap = new Map<string, { patients: number; professionals: number }>();
+  for (const key of uniqueKeys) growthMap.set(key, { patients: 0, professionals: 0 });
   for (const u of curUsers) {
     if (!u.created_at) continue;
     const key = bucketDate(u.created_at, bucket);
-    const e = growthMap.get(key) ?? { patients: 0, professionals: 0 };
+    const e = growthMap.get(key);
+    if (!e) continue;
     if (u.role === "patient") e.patients++; else e.professionals++;
-    growthMap.set(key, e);
   }
-  const growth = [...growthMap.entries()]
-    .map(([date, c]) => ({ date, ...c }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Build cumulative growth array
+  let cumPatients = baselinePatients;
+  let cumPros = baselinePros;
+  const growth = uniqueKeys.map((key) => {
+    const e = growthMap.get(key)!;
+    cumPatients += e.patients;
+    cumPros += e.professionals;
+    return { date: key, patients: cumPatients, professionals: cumPros };
+  });
 
   // --- Activity chart ---
   const actMap = new Map<string, { confirmed: number; cancelled: number; noShow: number }>();

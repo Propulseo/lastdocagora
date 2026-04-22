@@ -73,9 +73,9 @@ export function TopProfessionalsTable({ data }: TopProfessionalsTableProps) {
         {mobileItems.map((pro, i) => (
           <div
             key={pro.id}
-            className="flex items-center gap-3 rounded-lg border p-3"
+            className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-colors duration-150 hover:bg-accent/30"
           >
-            <span className="text-lg font-bold text-muted-foreground w-6 text-center shrink-0">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">
@@ -102,7 +102,7 @@ export function TopProfessionalsTable({ data }: TopProfessionalsTableProps) {
         {data.length > 5 && (
           <Link
             href="/admin/professionals"
-            className="block text-center text-sm font-medium text-primary py-2"
+            className="block text-center text-sm font-medium text-primary py-2 transition-colors duration-150 hover:text-primary/80"
           >
             {t.mobile.viewMore} →
           </Link>

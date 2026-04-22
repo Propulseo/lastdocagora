@@ -120,30 +120,35 @@ export function DashboardClient({
 
   return (
     <div className="space-y-6">
+      {/* Header with date */}
       <div>
-        <h1 className="text-xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight">
           {t.dashboard.title}
         </h1>
-        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground capitalize">
+        <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground capitalize">
           {today}
         </p>
       </div>
 
+      {/* KPI grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {kpis.map((kpi) => (
           <KPICard key={kpi.label} {...kpi} />
         ))}
       </div>
 
+      {/* Alert banner */}
       {alerts.length > 0 && (
         <Card className="border-admin-warning/30 bg-admin-warning/5">
           <CardContent className="flex flex-wrap items-center gap-4 p-4">
-            <AlertCircle className="text-admin-warning size-5 shrink-0" />
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-admin-warning/10">
+              <AlertCircle className="text-admin-warning size-4" />
+            </div>
             {alerts.map((alert, i) => (
               <Link
                 key={alert.href}
                 href={alert.href}
-                className="text-foreground/80 hover:text-foreground flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors hover:underline"
+                className="text-foreground/80 hover:text-foreground flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors duration-150 hover:underline"
               >
                 <alert.icon className="size-4 shrink-0" />
                 {alert.text}
@@ -156,9 +161,10 @@ export function DashboardClient({
         </Card>
       )}
 
+      {/* Top professionals */}
       <Card>
         <CardHeader>
-          <CardTitle>{t.dashboard.topProfessionals}</CardTitle>
+          <CardTitle className="text-lg">{t.dashboard.topProfessionals}</CardTitle>
           <CardDescription>
             {t.dashboard.topProfessionalsDesc}
           </CardDescription>

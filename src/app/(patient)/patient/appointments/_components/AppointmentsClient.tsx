@@ -21,7 +21,7 @@ interface AppointmentsClientProps {
 }
 
 const tabTriggerClass =
-  "data-[state=active]:text-[#3da4ab] after:bg-[#3da4ab] gap-2 min-h-[44px]"
+  "data-[state=active]:text-primary after:bg-primary gap-2 min-h-[44px]"
 
 export function AppointmentsClient({
   active,

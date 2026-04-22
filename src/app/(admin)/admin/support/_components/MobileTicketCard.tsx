@@ -127,10 +127,10 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
   }
 
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-xl border border-border/60 transition-shadow duration-150 hover:shadow-sm">
       <button
         onClick={toggleExpand}
-        className="flex w-full items-start gap-3 p-3 text-left"
+        className="flex w-full items-start gap-3 p-3 text-left transition-colors duration-150 hover:bg-accent/30 rounded-t-xl"
       >
         <div className="mt-0.5 shrink-0">
           {expanded ? (
