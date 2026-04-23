@@ -25,6 +25,9 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
 
   const freeSlots = buildFreeSlots(classifiedAppointments, t.dashboard.freeSlot);
   const isLightDay = classifiedAppointments.length <= 2;
+  const firstCurrentIdx = classifiedAppointments.some((a) => a.isPast)
+    ? classifiedAppointments.findIndex((a) => !a.isPast)
+    : -1;
 
   const tomorrowLabel =
     tomorrowCount > 0
@@ -72,28 +75,9 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
           </div>
         ) : (
           <div className="relative space-y-0.5">
-            {/* Now indicator line */}
-            {classifiedAppointments.some((a) => !a.isPast) &&
-              classifiedAppointments.some((a) => a.isPast) && (
-                <div
-                  className="pointer-events-none absolute right-0 left-0 z-10 flex items-center gap-2"
-                  style={{
-                    top: `${
-                      (classifiedAppointments.filter((a) => a.isPast).length /
-                        classifiedAppointments.length) *
-                      100
-                    }%`,
-                  }}
-                >
-                  <div className="size-2 rounded-full bg-red-500 ring-2 ring-red-500/20" />
-                  <div className="h-px flex-1 bg-gradient-to-r from-red-500/60 to-transparent" />
-                  <span className="rounded-full bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">
-                    {t.dashboard.now}
-                  </span>
-                </div>
-              )}
 
-            {classifiedAppointments.map((apt) => {
+
+            {classifiedAppointments.map((apt, aptIndex) => {
               const patient = apt.patients;
               const status = apt.status ?? "pending";
               const statusLabel =
@@ -134,6 +118,11 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {aptIndex === firstCurrentIdx && (
+                      <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-500">
+                        {t.dashboard.now}
+                      </span>
+                    )}
                     {apt.duration_minutes && (
                       <span className="hidden rounded-full bg-muted/60 px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground sm:inline-flex">
                         {apt.duration_minutes} {t.common.min}

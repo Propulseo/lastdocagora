@@ -1,6 +1,13 @@
 {
   "title": "Painel de Administração",
   "description": "Visão geral da plataforma",
+  "greetingMorning": "Bom dia",
+  "greetingAfternoon": "Boa tarde",
+  "greetingEvening": "Boa noite",
+  "quickStatPending": "pendentes",
+  "quickStatTickets": "tickets",
+  "noAlerts": "Nenhum alerta ativo — tudo em ordem",
+  "viewAll": "Ver todos",
   "kpiTotalUsers": "Total de Utilizadores",
   "kpiTotalUsersDesc": "Utilizadores registados na plataforma",
   "kpiVerifiedPros": "Profissionais Verificados",

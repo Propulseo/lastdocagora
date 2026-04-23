@@ -47,7 +47,44 @@ export default async function SupportPage({ searchParams }: PageProps) {
     query = query.ilike("subject", `%${params.search}%`);
   }
 
-  const { data: tickets, count } = await query;
+  // Fetch data + status counts in parallel
+  const [
+    { data: tickets, count },
+    { count: openCount },
+    { count: inProgressCount },
+    { count: awaitingCount },
+    { count: resolvedCount },
+    { count: closedCount },
+  ] = await Promise.all([
+    query,
+    supabase
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open"),
+    supabase
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "in_progress"),
+    supabase
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "awaiting_confirmation"),
+    supabase
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "resolved"),
+    supabase
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "closed"),
+  ]);
+
+  const totalTickets =
+    (openCount ?? 0) +
+    (inProgressCount ?? 0) +
+    (awaitingCount ?? 0) +
+    (resolvedCount ?? 0) +
+    (closedCount ?? 0);
 
   const mapped = (tickets ?? []).map((t) => {
     const user = t.users as unknown as {
@@ -74,6 +111,12 @@ export default async function SupportPage({ searchParams }: PageProps) {
       tickets={mapped}
       count={count ?? 0}
       pageSize={PAGE_SIZE}
+      totalTickets={totalTickets}
+      openCount={openCount ?? 0}
+      inProgressCount={inProgressCount ?? 0}
+      awaitingCount={awaitingCount ?? 0}
+      resolvedCount={resolvedCount ?? 0}
+      closedCount={closedCount ?? 0}
     />
   );
 }

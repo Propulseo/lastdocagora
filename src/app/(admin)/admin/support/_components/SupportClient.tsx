@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
-import { AdminPageHeader } from "@/app/(admin)/_components/admin-page-header";
+import { SupportHeader } from "./support-header";
 import { SupportFilters } from "./support-filters";
 import { TicketRow } from "./ticket-row";
 import { MobileTicketCard } from "./MobileTicketCard";
@@ -31,20 +31,39 @@ interface SupportClientProps {
   tickets: MappedTicket[];
   count: number;
   pageSize: number;
+  totalTickets: number;
+  openCount: number;
+  inProgressCount: number;
+  awaitingCount: number;
+  resolvedCount: number;
+  closedCount: number;
 }
 
 export function SupportClient({
   tickets,
   count,
   pageSize,
+  totalTickets,
+  openCount,
+  inProgressCount,
+  awaitingCount,
+  resolvedCount,
+  closedCount,
 }: SupportClientProps) {
   const { t } = useAdminI18n();
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader section="support" />
+    <div className="space-y-5">
+      <SupportHeader
+        total={totalTickets}
+        open={openCount}
+        inProgress={inProgressCount}
+        awaitingConfirmation={awaitingCount}
+        resolved={resolvedCount}
+        closed={closedCount}
+      />
 
-      <SupportFilters />
+      <SupportFilters totalCount={count} />
 
       {tickets.length > 0 ? (
         <>
@@ -54,7 +73,10 @@ export function SupportClient({
             ))}
           </div>
 
-          <div className="hidden sm:block overflow-hidden rounded-xl border">
+          <div
+            className="hidden sm:block overflow-hidden rounded-lg border border-border bg-card"
+            style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "160ms" }}
+          >
             <Table>
               <TableHeader>
                 <TableRow>

@@ -65,7 +65,7 @@ export function ProfessionalsFilters({
       onValueChange={(value) => updateParam("status", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.common.filterByStatus}
       >
         <SelectValue placeholder={t.common.status} />
@@ -91,7 +91,7 @@ export function ProfessionalsFilters({
       onValueChange={(value) => updateParam("specialty", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[180px]"
+        className="w-full sm:w-[170px] h-9"
         aria-label={t.professionals.specialtyFilter}
       >
         <SelectValue placeholder={t.professionals.specialtyFilter} />
@@ -115,7 +115,7 @@ export function ProfessionalsFilters({
       onValueChange={(value) => updateParam("city", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.professionals.cityFilter}
       >
         <SelectValue placeholder={t.professionals.cityFilter} />
@@ -133,28 +133,36 @@ export function ProfessionalsFilters({
 
   return (
     <>
-      {/* Desktop filters */}
-      <div className="hidden sm:flex items-center gap-3 h-12">
+      {/* Desktop */}
+      <div
+        className="hidden sm:flex items-center gap-2"
+        style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "100ms" }}
+      >
         <SearchInput
           placeholder={t.professionals.searchPlaceholder}
-          className="relative w-[240px]"
+          className="relative w-[220px]"
         />
         {statusSelect}
         {specialtySelect}
         {citySelect}
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X className="size-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <X className="size-3.5 mr-1" />
             {t.common.clearFilters}
           </Button>
         )}
-        <span className="ml-auto text-[13px] text-muted-foreground">
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
           {t.professionals.totalCount.replace("{count}", String(totalCount))}
         </span>
       </div>
 
-      {/* Mobile filters */}
-      <div className="sm:hidden space-y-3">
+      {/* Mobile */}
+      <div className="sm:hidden space-y-2">
         <div className="flex items-center gap-2">
           <SearchInput
             placeholder={t.professionals.searchPlaceholder}
@@ -170,9 +178,19 @@ export function ProfessionalsFilters({
             {t.mobile.filterButton}
           </Button>
         </div>
-        <span className="block text-[13px] text-muted-foreground">
-          {t.professionals.totalCount.replace("{count}", String(totalCount))}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {t.professionals.totalCount.replace("{count}", String(totalCount))}
+          </span>
+          {hasFilters && (
+            <button
+              className="text-xs text-muted-foreground underline underline-offset-2"
+              onClick={clearFilters}
+            >
+              {t.common.clearFilters}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile filter sheet */}
@@ -185,12 +203,6 @@ export function ProfessionalsFilters({
             {statusSelect}
             {specialtySelect}
             {citySelect}
-            {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full">
-                <X className="size-4 mr-1.5" />
-                {t.common.clearFilters}
-              </Button>
-            )}
           </div>
         </SheetContent>
       </Sheet>

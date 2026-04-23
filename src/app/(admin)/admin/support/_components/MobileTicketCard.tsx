@@ -127,10 +127,10 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
   }
 
   return (
-    <div className="rounded-xl border border-border/60 transition-shadow duration-150 hover:shadow-sm">
+    <div className="rounded-lg border border-border bg-card">
       <button
         onClick={toggleExpand}
-        className="flex w-full items-start gap-3 p-3 text-left transition-colors duration-150 hover:bg-accent/30 rounded-t-xl"
+        className="flex w-full items-start gap-3 p-3.5 text-left transition-colors hover:bg-muted/30 rounded-t-lg"
       >
         <div className="mt-0.5 shrink-0">
           {expanded ? (
@@ -192,7 +192,7 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
                 </Select>
               </div>
               {pendingStatus === "awaiting_confirmation" && (
-                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30">
+                <div className="rounded-md border border-border bg-muted/30 p-3">
                   <Textarea
                     placeholder={(supportT.resolutionPlaceholder as string) ?? "Summary of what was done..."}
                     value={resolutionMessage}

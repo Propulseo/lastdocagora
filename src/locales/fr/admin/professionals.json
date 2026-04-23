@@ -16,6 +16,8 @@
   "emptyTitle": "Aucun professionnel trouvé",
   "searchPlaceholder": "Rechercher des professionnels...",
   "totalCount": "{count} professionnels",
+  "headerSpecialties": "Spécialités",
+  "headerCities": "Villes",
   "specialtyFilter": "Filtrer par spécialité",
   "allSpecialties": "Toutes les spécialités",
   "cityFilter": "Filtrer par ville",

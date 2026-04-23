@@ -22,6 +22,8 @@
   "kpiConfirmed": "Confirmadas",
   "kpiCancelled": "Canceladas",
   "kpiPending": "Pendentes",
+  "kpiCompleted": "Concluídas",
+  "kpiNoShow": "Ausências",
   "emptyTitle": "Nenhuma consulta encontrada",
   "changeStatus": "Alterar estado",
   "changeAttendance": "Alterar presença",

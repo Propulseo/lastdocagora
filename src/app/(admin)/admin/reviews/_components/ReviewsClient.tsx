@@ -3,15 +3,32 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
-import { PageHeader } from "@/components/shared/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { deleteReview, updateReviewStatus } from "@/app/(admin)/_actions/admin-crud-actions";
 import { ReviewList, type ReviewRow } from "./review-columns";
+import { ReviewsHeader } from "./reviews-header";
 
-export function ReviewsClient({ reviews, pendingCount }: { reviews: ReviewRow[]; pendingCount: number }) {
+interface ReviewsClientProps {
+  reviews: ReviewRow[];
+  pendingCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+  avgRating: number;
+  recommendPct: number;
+  ratingDistribution: number[];
+}
+
+export function ReviewsClient({
+  reviews,
+  pendingCount,
+  approvedCount,
+  rejectedCount,
+  avgRating,
+  recommendPct,
+  ratingDistribution,
+}: ReviewsClientProps) {
   const { t, locale } = useAdminI18n();
   const rt = t.reviews;
   const router = useRouter();
@@ -65,36 +82,84 @@ export function ReviewsClient({ reviews, pendingCount }: { reviews: ReviewRow[];
     });
   }
 
-  const pendingBadge = pendingCount > 0 ? (
-    <Badge variant="destructive" className="ml-2 text-xs">
-      {rt.pendingCount.replace("{count}", String(pendingCount))}
-    </Badge>
-  ) : null;
+  const total = pendingCount + approvedCount + rejectedCount;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={rt.title} description={rt.description} action={pendingBadge} />
-      <Tabs defaultValue="pending">
-        <TabsList>
-          <TabsTrigger value="pending">
-            {rt.tabs.pending}
-            {pendingCount > 0 && (
-              <Badge variant="destructive" className="ml-1.5 size-5 p-0 text-[10px] justify-center">{pendingCount}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="approved">{rt.tabs.approved}</TabsTrigger>
-          <TabsTrigger value="rejected">{rt.tabs.rejected}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="pending" className="mt-4">
-          <ReviewList items={pending} emptyMessage={rt.emptyPending} rt={rt} locale={locale} onModerate={handleModerate} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} showActions />
-        </TabsContent>
-        <TabsContent value="approved" className="mt-4">
-          <ReviewList items={approved} emptyMessage={rt.emptyApproved} rt={rt} locale={locale} onDelete={setDeleteTarget} onRetract={handleRetract} moderatingId={moderatingId} isPending={isPending} showRetract />
-        </TabsContent>
-        <TabsContent value="rejected" className="mt-4">
-          <ReviewList items={rejected} emptyMessage={rt.emptyRejected} rt={rt} locale={locale} onDelete={setDeleteTarget} moderatingId={moderatingId} isPending={isPending} />
-        </TabsContent>
-      </Tabs>
+    <div className="space-y-5">
+      <ReviewsHeader
+        total={total}
+        pending={pendingCount}
+        approved={approvedCount}
+        rejected={rejectedCount}
+        avgRating={avgRating}
+        recommendPct={recommendPct}
+        ratingDistribution={ratingDistribution}
+      />
+
+      <div
+        style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "100ms" }}
+      >
+        <Tabs defaultValue={pendingCount > 0 ? "pending" : "approved"}>
+          <TabsList>
+            <TabsTrigger value="pending" className="relative">
+              {rt.tabs.pending}
+              {pendingCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center size-5 rounded-full bg-foreground text-background text-[10px] font-semibold tabular-nums">
+                  {pendingCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="approved">
+              {rt.tabs.approved}
+              <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">{approvedCount}</span>
+            </TabsTrigger>
+            <TabsTrigger value="rejected">
+              {rt.tabs.rejected}
+              <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">{rejectedCount}</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="mt-3 overflow-hidden rounded-lg border border-border bg-card">
+            <TabsContent value="pending" className="mt-0">
+              <ReviewList
+                items={pending}
+                emptyMessage={rt.emptyPending}
+                rt={rt}
+                locale={locale}
+                onModerate={handleModerate}
+                onDelete={setDeleteTarget}
+                moderatingId={moderatingId}
+                isPending={isPending}
+                showActions
+              />
+            </TabsContent>
+            <TabsContent value="approved" className="mt-0">
+              <ReviewList
+                items={approved}
+                emptyMessage={rt.emptyApproved}
+                rt={rt}
+                locale={locale}
+                onDelete={setDeleteTarget}
+                onRetract={handleRetract}
+                moderatingId={moderatingId}
+                isPending={isPending}
+                showRetract
+              />
+            </TabsContent>
+            <TabsContent value="rejected" className="mt-0">
+              <ReviewList
+                items={rejected}
+                emptyMessage={rt.emptyRejected}
+                rt={rt}
+                locale={locale}
+                onDelete={setDeleteTarget}
+                moderatingId={moderatingId}
+                isPending={isPending}
+              />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
 
       <ConfirmDialog
         open={!!deleteTarget}

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/shared/pagination";
 import { UsersFilters } from "./_components/users-filters";
 import { UsersTable } from "./_components/users-table";
-import { AdminPageHeader } from "../../_components/admin-page-header";
+import { UsersHeader } from "./_components/users-header";
 
 const PAGE_SIZE = 20;
 
@@ -24,6 +24,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Main filtered query
   let query = supabase
     .from("users")
     .select("id, first_name, last_name, email, role, status, created_at, avatar_url, phone, language", {
@@ -44,7 +45,39 @@ export default async function UsersPage({ searchParams }: PageProps) {
     );
   }
 
-  const { data: users, count } = await query;
+  // Fetch data + breakdown counts in parallel
+  const [
+    { data: users, count },
+    { count: patientCount },
+    { count: proCount },
+    { count: adminCount },
+    { count: activeCount },
+    { count: suspendedCount },
+  ] = await Promise.all([
+    query,
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "patient"),
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "professional"),
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "admin"),
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active"),
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "suspended"),
+  ]);
+
+  const totalUsers = (patientCount ?? 0) + (proCount ?? 0) + (adminCount ?? 0);
 
   // For each user, fetch role-specific data
   const enrichedUsers = await Promise.all(
@@ -71,8 +104,15 @@ export default async function UsersPage({ searchParams }: PageProps) {
   );
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader section="users" />
+    <div className="space-y-5">
+      <UsersHeader
+        total={totalUsers}
+        patients={patientCount ?? 0}
+        professionals={proCount ?? 0}
+        admins={adminCount ?? 0}
+        active={activeCount ?? 0}
+        suspended={suspendedCount ?? 0}
+      />
 
       <UsersFilters totalCount={count ?? 0} />
       <UsersTable data={enrichedUsers as never[]} currentUserId={user?.id} />

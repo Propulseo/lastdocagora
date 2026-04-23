@@ -33,5 +33,7 @@
   "reviewDeleted": "Review deleted",
   "retract": "Retract approval",
   "retracted": "Review approval retracted",
-  "fullPatientName": "Patient (admin view)"
+  "fullPatientName": "Patient (admin view)",
+  "headerAvgRating": "Avg. rating",
+  "headerRecommend": "Recommend"
 }

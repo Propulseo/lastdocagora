@@ -127,7 +127,7 @@ export function AgendaControlBar({
       </div>
 
       {/* Status filter pills — colorful per status */}
-      <div className="inline-flex overflow-x-auto flex-nowrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {statusOptions.map((opt) => {
           const isActive = statusFilters.includes(opt.value);
           const colors = STATUS_COLORS[opt.value];
@@ -154,7 +154,7 @@ export function AgendaControlBar({
       <div className="flex-1" />
 
       {/* Date navigation */}
-      <div className="flex items-center justify-between gap-1 w-full sm:w-auto">
+      <div className="flex items-center gap-1 shrink-0">
         <Button
           variant="ghost"
           size="icon"

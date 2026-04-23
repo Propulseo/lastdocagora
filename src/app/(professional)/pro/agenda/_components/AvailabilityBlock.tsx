@@ -146,7 +146,9 @@ export function AvailabilityBlock({
               "text-emerald-600 hover:text-red-600",
               "hover:bg-red-50 dark:hover:bg-red-950/30",
               "opacity-0 group-hover:opacity-100",
-              "transition-all duration-150",
+              "pointer-events-none group-hover:pointer-events-auto",
+              "focus-visible:opacity-100 focus-visible:pointer-events-auto",
+              "transition-opacity duration-150",
             )}
             title={t.agenda.deleteSlotTitle}
           >

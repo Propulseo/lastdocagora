@@ -14,7 +14,6 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { AppointmentMobileList } from "./appointment-mobile-list";
 import { AppointmentDetailModal } from "./appointment-detail-modal";
 import { AppointmentEditModal } from "./appointment-edit-modal";
-import { AppointmentKpiStrip, type StatusCounts } from "./AppointmentKpiStrip";
 import { buildAppointmentColumns } from "./appointment-table-columns";
 import type { AppointmentStatus, AttendanceStatus } from "@/types";
 
@@ -45,10 +44,9 @@ export interface AppointmentRow {
 
 interface AppointmentsTableProps {
   data: AppointmentRow[];
-  statusCounts: StatusCounts;
 }
 
-export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps) {
+export function AppointmentsTable({ data }: AppointmentsTableProps) {
   const { t } = useAdminI18n();
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR";
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null);
@@ -156,8 +154,6 @@ export function AppointmentsTable({ data, statusCounts }: AppointmentsTableProps
 
   return (
     <div className="space-y-4">
-      <AppointmentKpiStrip counts={statusCounts} labels={t.appointments} />
-
       <AppointmentMobileList
         data={data}
         actionSheet={actionSheet}

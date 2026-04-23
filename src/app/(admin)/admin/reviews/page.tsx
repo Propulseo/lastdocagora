@@ -73,7 +73,39 @@ export default async function ReviewsPage() {
     return dateB - dateA;
   });
 
+  // Compute metrics
   const pendingCount = reviews.filter((r) => r.status === "pending").length;
+  const approvedCount = reviews.filter((r) => r.status === "approved").length;
+  const rejectedCount = reviews.filter((r) => r.status === "rejected").length;
 
-  return <ReviewsClient reviews={reviews} pendingCount={pendingCount} />;
+  const ratingsAll = reviews.map((r) => r.rating);
+  const avgRating = ratingsAll.length > 0
+    ? ratingsAll.reduce((sum, r) => sum + r, 0) / ratingsAll.length
+    : 0;
+
+  const withRecommendation = reviews.filter((r) => r.would_recommend !== null);
+  const recommendPct = withRecommendation.length > 0
+    ? Math.round(
+        (withRecommendation.filter((r) => r.would_recommend).length / withRecommendation.length) * 100
+      )
+    : 0;
+
+  // Rating distribution: [count of 1-star, 2-star, 3-star, 4-star, 5-star]
+  const ratingDistribution = [0, 0, 0, 0, 0];
+  for (const r of reviews) {
+    const bucket = Math.max(1, Math.min(5, Math.round(r.rating))) - 1;
+    ratingDistribution[bucket]++;
+  }
+
+  return (
+    <ReviewsClient
+      reviews={reviews}
+      pendingCount={pendingCount}
+      approvedCount={approvedCount}
+      rejectedCount={rejectedCount}
+      avgRating={avgRating}
+      recommendPct={recommendPct}
+      ratingDistribution={ratingDistribution}
+    />
+  );
 }

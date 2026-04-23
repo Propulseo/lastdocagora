@@ -99,7 +99,7 @@ export function TicketExpandedContent({
               </Select>
             </div>
             {pendingStatus === "awaiting_confirmation" && (
-              <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30" onClick={(e) => e.stopPropagation()}>
+              <div className="rounded-md border border-border bg-muted/30 p-3" onClick={(e) => e.stopPropagation()}>
                 <Textarea
                   placeholder={(supportT.resolutionPlaceholder as string) ?? "Summary of what was done..."}
                   value={resolutionMessage}

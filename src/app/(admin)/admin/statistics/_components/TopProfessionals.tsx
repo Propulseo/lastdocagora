@@ -1,9 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import type { TopPro } from "../_lib/types";
 
@@ -16,65 +13,58 @@ export function TopProfessionals({ data }: { data: TopPro[] }) {
   const s = t.statistics;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{s.topProsTitle}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">{s.noData}</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                <th className="pb-2 pr-2 font-medium">{s.rank}</th>
-                <th className="pb-2 pr-2 font-medium">{s.name}</th>
-                <th className="pb-2 pr-2 font-medium">{s.specialty}</th>
-                <th className="pb-2 pr-2 text-right font-medium">{s.appointments}</th>
-                <th className="pb-2 pr-2 text-right font-medium">{s.rating}</th>
-                <th className="pb-2 font-medium">{s.city}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((pro, i) => (
-                <tr key={i} className="border-b last:border-0">
-                  <td className="py-2.5 pr-2 font-medium text-muted-foreground">
-                    {i + 1}
-                  </td>
-                  <td className="py-2.5 pr-2">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-7">
-                        {pro.avatar_url && <AvatarImage src={pro.avatar_url} alt={pro.name} />}
-                        <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                          {getInitials(pro.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{pro.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-2.5 pr-2 text-muted-foreground">
-                    {pro.specialty}
-                  </td>
-                  <td className="py-2.5 pr-2 text-right font-medium tabular-nums">
-                    {pro.appointmentCount}
-                  </td>
-                  <td className="py-2.5 pr-2 text-right">
-                    <span className="inline-flex items-center gap-1">
-                      <Star className="size-3 fill-amber-400 text-amber-400" />
-                      <span className="tabular-nums">{pro.rating.toFixed(1)}</span>
-                    </span>
-                  </td>
-                  <td className="py-2.5">
-                    <Badge variant="outline" className="text-xs font-normal">
-                      {pro.city}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </CardContent>
-    </Card>
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="px-5 py-4 border-b border-border">
+        <h3 className="text-sm font-semibold">{s.topProsTitle}</h3>
+      </div>
+
+      {data.length === 0 ? (
+        <p className="py-10 text-center text-sm text-muted-foreground">{s.noData}</p>
+      ) : (
+        <div>
+          {/* Column headers */}
+          <div className="hidden sm:grid grid-cols-[24px_1fr_1fr_80px_60px_80px] items-center gap-3 px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50 border-b border-border">
+            <span>{s.rank}</span>
+            <span>{s.name}</span>
+            <span>{s.specialty}</span>
+            <span className="text-right">{s.appointments}</span>
+            <span className="text-right">{s.rating}</span>
+            <span>{s.city}</span>
+          </div>
+
+          {data.map((pro, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[24px_1fr_1fr_80px_60px_80px] items-center gap-3 px-5 py-2.5 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
+            >
+              <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                {i + 1}
+              </span>
+              <div className="flex items-center gap-2 min-w-0">
+                <Avatar className="size-6">
+                  {pro.avatar_url && <AvatarImage src={pro.avatar_url} alt={pro.name} />}
+                  <AvatarFallback className="bg-muted text-muted-foreground text-[10px] font-medium">
+                    {getInitials(pro.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm truncate">{pro.name}</span>
+              </div>
+              <span className="text-sm text-muted-foreground truncate">
+                {pro.specialty}
+              </span>
+              <span className="text-sm font-medium tabular-nums text-right">
+                {pro.appointmentCount}
+              </span>
+              <span className="text-sm tabular-nums text-right text-muted-foreground">
+                {pro.rating.toFixed(1)}
+              </span>
+              <span className="text-xs text-muted-foreground truncate">
+                {pro.city}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

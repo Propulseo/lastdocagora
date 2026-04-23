@@ -33,5 +33,7 @@
   "reviewDeleted": "Avis supprimé",
   "retract": "Révoquer l'approbation",
   "retracted": "Approbation de l'avis révoquée",
-  "fullPatientName": "Patient (vue admin)"
+  "fullPatientName": "Patient (vue admin)",
+  "headerAvgRating": "Note moyenne",
+  "headerRecommend": "Recommandent"
 }

@@ -2,32 +2,21 @@
 
 import Link from "next/link";
 import {
-  CheckCircle2, ShieldAlert, HeadphonesIcon, UserX, Stethoscope,
+  ShieldAlert, HeadphonesIcon, UserX, Stethoscope, ArrowRight,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
-import { cn } from "@/lib/utils";
 import type { StatisticsData } from "../_lib/types";
-
-const alertStyles = {
-  orange: "border-l-orange-500 bg-orange-50 dark:bg-orange-950/20",
-  red: "border-l-red-500 bg-red-50 dark:bg-red-950/20",
-  yellow: "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20",
-  blue: "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20",
-} as const;
 
 export function AlertsPanel({ alerts }: { alerts: StatisticsData["alerts"] }) {
   const { t } = useAdminI18n();
   const s = t.statistics;
 
-  const plural = (count: number, singular: string, plural: string) =>
-    (count === 1 ? singular : plural).replace("{count}", String(count));
+  const plural = (count: number, singular: string, pluralStr: string) =>
+    (count === 1 ? singular : pluralStr).replace("{count}", String(count));
 
   const items = [
     {
       show: alerts.pendingVerifications > 0,
-      color: "orange" as const,
       icon: ShieldAlert,
       text: plural(alerts.pendingVerifications, s.alertPendingProsSingular, s.alertPendingPros),
       href: "/admin/professionals?status=pending",
@@ -35,7 +24,6 @@ export function AlertsPanel({ alerts }: { alerts: StatisticsData["alerts"] }) {
     },
     {
       show: alerts.unresolvedTickets48h > 0,
-      color: "red" as const,
       icon: HeadphonesIcon,
       text: plural(alerts.unresolvedTickets48h, s.alertUnresolvedTicketsSingular, s.alertUnresolvedTickets),
       href: "/admin/support",
@@ -43,7 +31,6 @@ export function AlertsPanel({ alerts }: { alerts: StatisticsData["alerts"] }) {
     },
     {
       show: alerts.suspendedUsers > 0,
-      color: "yellow" as const,
       icon: UserX,
       text: plural(alerts.suspendedUsers, s.alertSuspendedUsersSingular, s.alertSuspendedUsers),
       href: "/admin/users?status=suspended",
@@ -51,47 +38,42 @@ export function AlertsPanel({ alerts }: { alerts: StatisticsData["alerts"] }) {
     },
     {
       show: alerts.prosWithNoAppointments > 0,
-      color: "blue" as const,
       icon: Stethoscope,
       text: plural(alerts.prosWithNoAppointments, s.alertInactiveProsSingular, s.alertInactivePros),
     },
   ].filter((a) => a.show);
 
+  if (items.length === 0) return null;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{s.alertsTitle}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <div className="flex items-center gap-2 text-emerald-600">
-            <CheckCircle2 className="size-5" />
-            <span className="text-sm font-medium">{s.allClear}</span>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {items.map((item, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "flex h-12 items-center justify-between rounded-lg border-l-4 px-4",
-                  alertStyles[item.color],
-                )}
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="px-5 py-4 border-b border-border">
+        <h3 className="text-sm font-semibold">{s.alertsTitle}</h3>
+      </div>
+      <div>
+        {items.map((item, i) => (
+          <div
+            key={i}
+            className={`flex items-center justify-between px-5 py-3 ${
+              i > 0 ? "border-t border-border" : ""
+            }`}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <item.icon className="size-4 shrink-0 text-muted-foreground" />
+              <span className="text-sm">{item.text}</span>
+            </div>
+            {"href" in item && item.href && "action" in item && item.action && (
+              <Link
+                href={item.href}
+                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0 ml-4"
               >
-                <div className="flex items-center gap-2">
-                  <item.icon className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="text-sm">{item.text}</span>
-                </div>
-                {"href" in item && item.href && "action" in item && item.action && (
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={item.href}>{item.action} &rarr;</Link>
-                  </Button>
-                )}
-              </div>
-            ))}
+                {item.action}
+                <ArrowRight className="size-3" />
+              </Link>
+            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -22,6 +22,8 @@
   "kpiConfirmed": "Confirmés",
   "kpiCancelled": "Annulés",
   "kpiPending": "En attente",
+  "kpiCompleted": "Terminés",
+  "kpiNoShow": "Absences",
   "emptyTitle": "Aucun rendez-vous trouvé",
   "changeStatus": "Changer le statut",
   "changeAttendance": "Changer la présence",

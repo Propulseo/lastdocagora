@@ -17,7 +17,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface UsersFiltersProps {
@@ -31,6 +31,11 @@ export function UsersFilters({ totalCount }: UsersFiltersProps) {
   const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const hasFilters =
+    searchParams.has("role") ||
+    searchParams.has("status") ||
+    searchParams.has("search");
+
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "all") {
@@ -42,12 +47,16 @@ export function UsersFilters({ totalCount }: UsersFiltersProps) {
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  function clearFilters() {
+    router.push(pathname);
+  }
+
   const roleSelect = (
     <Select
       defaultValue={searchParams.get("role") ?? "all"}
       onValueChange={(value) => updateParam("role", value)}
     >
-      <SelectTrigger className="w-full sm:w-[160px]" aria-label={t.users.roleFilter}>
+      <SelectTrigger className="w-full sm:w-[150px] h-9" aria-label={t.users.roleFilter}>
         <SelectValue placeholder={t.users.roleFilter} />
       </SelectTrigger>
       <SelectContent>
@@ -67,7 +76,7 @@ export function UsersFilters({ totalCount }: UsersFiltersProps) {
       onValueChange={(value) => updateParam("status", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.common.filterByStatus}
       >
         <SelectValue placeholder={t.common.status} />
@@ -89,21 +98,35 @@ export function UsersFilters({ totalCount }: UsersFiltersProps) {
 
   return (
     <>
-      {/* Desktop filters */}
-      <div className="hidden sm:flex items-center gap-3 h-12">
+      {/* Desktop */}
+      <div
+        className="hidden sm:flex items-center gap-2"
+        style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "100ms" }}
+      >
         <SearchInput
           placeholder={t.users.searchPlaceholder}
-          className="relative w-[240px]"
+          className="relative w-[220px]"
         />
         {roleSelect}
         {statusSelect}
-        <span className="ml-auto text-[13px] text-muted-foreground">
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <X className="size-3.5 mr-1" />
+            {t.common.clearFilters}
+          </Button>
+        )}
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
           {t.users.totalCount.replace("{count}", String(totalCount))}
         </span>
       </div>
 
-      {/* Mobile filters */}
-      <div className="sm:hidden space-y-3">
+      {/* Mobile */}
+      <div className="sm:hidden space-y-2">
         <div className="flex items-center gap-2">
           <SearchInput
             placeholder={t.users.searchPlaceholder}
@@ -119,9 +142,19 @@ export function UsersFilters({ totalCount }: UsersFiltersProps) {
             {t.mobile.filterButton}
           </Button>
         </div>
-        <span className="block text-[13px] text-muted-foreground">
-          {t.users.totalCount.replace("{count}", String(totalCount))}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {t.users.totalCount.replace("{count}", String(totalCount))}
+          </span>
+          {hasFilters && (
+            <button
+              className="text-xs text-muted-foreground underline underline-offset-2"
+              onClick={clearFilters}
+            >
+              {t.common.clearFilters}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile filter sheet */}

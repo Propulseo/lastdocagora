@@ -88,7 +88,7 @@ export function AppointmentBlock({
           : "border-l-[3px]",
         isHighlighted && "ring-2 ring-primary ring-offset-2 shadow-md z-[15]",
       )}
-      style={{ top: `${topOffset}px`, height: `${blockHeight}px` }}
+      style={{ top: `${topOffset}px`, height: `${blockHeight - 2}px` }}
       onClick={() => onClick(appointment)}
       onMouseDown={(e) => e.stopPropagation()}
     >

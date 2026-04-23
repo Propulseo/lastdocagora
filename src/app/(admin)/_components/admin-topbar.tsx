@@ -25,14 +25,19 @@ export function AdminTopbar({ userId }: AdminTopbarProps) {
     : t.topbar.fallbackTitle;
 
   return (
-    <header className="hidden lg:flex h-14 shrink-0 items-center gap-3 border-b border-border/60 bg-background/95 backdrop-blur-sm px-6">
-      <SidebarTrigger className="-ml-2" aria-label={t.topbar.toggleSidebar} />
-      <Separator orientation="vertical" className="h-5" />
+    <header className="hidden lg:flex h-12 shrink-0 items-center gap-3 border-b border-border bg-background px-6">
+      <SidebarTrigger
+        className="-ml-2 size-7 text-muted-foreground/60 transition-colors duration-100 hover:text-foreground"
+        aria-label={t.topbar.toggleSidebar}
+      />
+      <Separator orientation="vertical" className="h-4" />
       <h2 className="text-sm font-medium">{title}</h2>
-      <div className="ml-4 flex-1 max-w-md">
+
+      <div className="ml-6 flex-1 max-w-sm">
         <AdminGlobalSearch />
       </div>
-      <div className="ml-auto flex items-center gap-2">
+
+      <div className="ml-auto flex items-center gap-0.5">
         <NotificationBell
           userId={userId}
           translations={{
@@ -46,7 +51,10 @@ export function AdminTopbar({ userId }: AdminTopbarProps) {
           locale={locale}
           role="admin"
         />
-        <ThemeToggle lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+        <ThemeToggle
+          lightLabel={t.common.lightMode}
+          darkLabel={t.common.darkMode}
+        />
       </div>
     </header>
   );

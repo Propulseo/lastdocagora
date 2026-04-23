@@ -1,6 +1,13 @@
 {
   "title": "Tableau de bord",
   "description": "Vue d'ensemble de la plateforme",
+  "greetingMorning": "Bonjour",
+  "greetingAfternoon": "Bon après-midi",
+  "greetingEvening": "Bonsoir",
+  "quickStatPending": "en attente",
+  "quickStatTickets": "tickets",
+  "noAlerts": "Aucune alerte active — tout est en ordre",
+  "viewAll": "Voir tous",
   "kpiTotalUsers": "Total Utilisateurs",
   "kpiTotalUsersDesc": "Utilisateurs inscrits sur la plateforme",
   "kpiVerifiedPros": "Professionnels Vérifiés",

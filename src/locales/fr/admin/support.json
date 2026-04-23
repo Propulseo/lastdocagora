@@ -29,5 +29,6 @@
   "deleteTicket": "Supprimer le ticket",
   "deleteConfirmTitle": "Supprimer ce ticket ?",
   "deleteConfirmDesc": "Ce ticket et tous ses messages seront supprimés définitivement.",
-  "ticketDeleted": "Ticket supprimé"
+  "ticketDeleted": "Ticket supprimé",
+  "totalCount": "{count} tickets"
 }

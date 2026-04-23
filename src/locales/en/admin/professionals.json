@@ -16,6 +16,8 @@
   "emptyTitle": "No professionals found",
   "searchPlaceholder": "Search professionals...",
   "totalCount": "{count} professionals",
+  "headerSpecialties": "Specialties",
+  "headerCities": "Cities",
   "specialtyFilter": "Filter by specialty",
   "allSpecialties": "All specialties",
   "cityFilter": "Filter by city",

@@ -1,8 +1,6 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -17,13 +15,15 @@ interface AdminMobileHeaderProps {
   onMenuOpen: () => void;
 }
 
-export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeaderProps) {
+export function AdminMobileHeader({
+  user,
+  userId,
+  onMenuOpen,
+}: AdminMobileHeaderProps) {
   const { t, locale } = useAdminI18n();
-  const initials =
-    (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
   return (
-    <header className="flex h-14 shrink-0 items-center border-b border-border/60 bg-background/95 backdrop-blur-sm px-4 lg:hidden">
+    <header className="flex h-12 shrink-0 items-center border-b border-border bg-background px-3 lg:hidden">
       <Button
         variant="ghost"
         size="icon"
@@ -35,30 +35,32 @@ export function AdminMobileHeader({ user, userId, onMenuOpen }: AdminMobileHeade
       </Button>
 
       <div className="flex flex-1 items-center justify-center gap-1.5">
-        <span className="text-sm font-bold tracking-tight">DOCAGORA</span>
-        <Badge variant="secondary" className="text-[10px]">
+        <span className="text-sm font-semibold tracking-tight">DOCAGORA</span>
+        <span className="text-[10px] font-medium text-muted-foreground">
           Admin
-        </Badge>
+        </span>
       </div>
 
-      <NotificationBell
-        userId={userId}
-        translations={{
-          title: t.notifications.title,
-          markAllRead: t.notifications.markAllRead,
-          empty: t.notifications.empty,
-          markAsRead: t.notifications.markAsRead,
-          markAsUnread: t.notifications.markAsUnread,
-          justNow: t.notifications.justNow,
-        }}
-        locale={locale}
-        role="admin"
-      />
-      <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
-
-      <Avatar className="ml-1 size-8">
-        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-      </Avatar>
+      <div className="flex items-center gap-0.5">
+        <NotificationBell
+          userId={userId}
+          translations={{
+            title: t.notifications.title,
+            markAllRead: t.notifications.markAllRead,
+            empty: t.notifications.empty,
+            markAsRead: t.notifications.markAsRead,
+            markAsUnread: t.notifications.markAsUnread,
+            justNow: t.notifications.justNow,
+          }}
+          locale={locale}
+          role="admin"
+        />
+        <ThemeToggle
+          size="sm"
+          lightLabel={t.common.lightMode}
+          darkLabel={t.common.darkMode}
+        />
+      </div>
     </header>
   );
 }

@@ -17,15 +17,25 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
-export function SupportFilters() {
+interface SupportFiltersProps {
+  totalCount: number;
+}
+
+export function SupportFilters({ totalCount }: SupportFiltersProps) {
   const { t } = useAdminI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
+
+  const hasFilters =
+    searchParams.has("status") ||
+    searchParams.has("priority") ||
+    searchParams.has("type") ||
+    searchParams.has("search");
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -38,13 +48,17 @@ export function SupportFilters() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  function clearFilters() {
+    router.push(pathname);
+  }
+
   const statusSelect = (
     <Select
       defaultValue={searchParams.get("status") ?? "all"}
       onValueChange={(value) => updateParam("status", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.common.filterByStatus}
       >
         <SelectValue placeholder={t.common.status} />
@@ -72,7 +86,7 @@ export function SupportFilters() {
       onValueChange={(value) => updateParam("priority", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.support.priorityFilter}
       >
         <SelectValue placeholder={t.support.priorityFilter} />
@@ -97,7 +111,7 @@ export function SupportFilters() {
       onValueChange={(value) => updateParam("type", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[200px]"
+        className="w-full sm:w-[170px] h-9"
         aria-label={t.support.typeFilter}
       >
         <SelectValue placeholder={t.support.typeFilter} />
@@ -111,21 +125,41 @@ export function SupportFilters() {
   );
 
   return (
-    <div className="rounded-xl border bg-card p-3 shadow-[var(--shadow-card)]">
-      {/* Desktop filters */}
-      <div className="hidden sm:flex flex-wrap items-center gap-3">
-        <SearchInput placeholder={t.support.searchPlaceholder} />
+    <>
+      {/* Desktop */}
+      <div
+        className="hidden sm:flex items-center gap-2"
+        style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "100ms" }}
+      >
+        <SearchInput
+          placeholder={t.support.searchPlaceholder}
+          className="relative w-[220px]"
+        />
         {statusSelect}
         {prioritySelect}
         {typeSelect}
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <X className="size-3.5 mr-1" />
+            {t.common.clearFilters}
+          </Button>
+        )}
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
+          {t.support.totalCount?.replace("{count}", String(totalCount)) ?? `${totalCount} tickets`}
+        </span>
       </div>
 
-      {/* Mobile filters */}
-      <div className="sm:hidden space-y-3">
+      {/* Mobile */}
+      <div className="sm:hidden space-y-2">
         <div className="flex items-center gap-2">
           <SearchInput
             placeholder={t.support.searchPlaceholder}
-            className="flex-1"
+            className="relative flex-1"
           />
           <Button
             variant="outline"
@@ -136,6 +170,19 @@ export function SupportFilters() {
             <SlidersHorizontal className="size-4 mr-1.5" />
             {t.mobile.filterButton}
           </Button>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {t.support.totalCount?.replace("{count}", String(totalCount)) ?? `${totalCount} tickets`}
+          </span>
+          {hasFilters && (
+            <button
+              className="text-xs text-muted-foreground underline underline-offset-2"
+              onClick={clearFilters}
+            >
+              {t.common.clearFilters}
+            </button>
+          )}
         </div>
       </div>
 
@@ -152,6 +199,6 @@ export function SupportFilters() {
           </div>
         </SheetContent>
       </Sheet>
-    </div>
+    </>
   );
 }

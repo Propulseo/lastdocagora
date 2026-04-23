@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { CalendarDays, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, SlidersHorizontal, X } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface AppointmentsFiltersProps {
@@ -38,6 +38,12 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const hasFilters =
+    searchParams.has("status") ||
+    searchParams.has("from") ||
+    searchParams.has("to") ||
+    searchParams.has("search");
+
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "all") {
@@ -47,6 +53,10 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
     }
     params.delete("page");
     router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function clearFilters() {
+    router.push(pathname);
   }
 
   function setQuickPeriod(period: "today" | "week" | "month") {
@@ -78,7 +88,7 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
       onValueChange={(value) => updateParam("status", value)}
     >
       <SelectTrigger
-        className="w-full sm:w-[160px]"
+        className="w-full sm:w-[150px] h-9"
         aria-label={t.common.filterByStatus}
       >
         <SelectValue placeholder={t.common.status} />
@@ -105,11 +115,11 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
   );
 
   const quickPeriodButtons = (
-    <div className="flex gap-1 overflow-x-auto">
+    <div className="flex gap-1">
       <Button
         variant="outline"
         size="sm"
-        className="min-h-[44px] sm:min-h-0 whitespace-nowrap"
+        className="h-9 min-h-[44px] sm:min-h-0 whitespace-nowrap"
         onClick={() => setQuickPeriod("today")}
       >
         {t.appointments.today}
@@ -117,7 +127,7 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
       <Button
         variant="outline"
         size="sm"
-        className="min-h-[44px] sm:min-h-0 whitespace-nowrap"
+        className="h-9 min-h-[44px] sm:min-h-0 whitespace-nowrap"
         onClick={() => setQuickPeriod("week")}
       >
         {t.appointments.thisWeek}
@@ -125,7 +135,7 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
       <Button
         variant="outline"
         size="sm"
-        className="min-h-[44px] sm:min-h-0 whitespace-nowrap"
+        className="h-9 min-h-[44px] sm:min-h-0 whitespace-nowrap"
         onClick={() => setQuickPeriod("month")}
       >
         {t.appointments.thisMonth}
@@ -135,8 +145,11 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
 
   return (
     <>
-      {/* Desktop filters */}
-      <div className="hidden sm:flex items-center gap-3 h-12">
+      {/* Desktop */}
+      <div
+        className="hidden sm:flex items-center gap-2"
+        style={{ animation: "admin-fade-up 0.4s ease-out both", animationDelay: "100ms" }}
+      >
         <SearchInput
           placeholder={t.appointments.searchPlaceholder}
           className="relative w-[200px]"
@@ -145,8 +158,8 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
         {quickPeriodButtons}
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm">
-              <CalendarDays className="size-4 mr-1" />
+            <Button variant="outline" size="sm" className="h-9">
+              <CalendarDays className="size-3.5 mr-1" />
               {t.appointments.customPeriod}
             </Button>
           </PopoverTrigger>
@@ -175,13 +188,24 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
             </div>
           </PopoverContent>
         </Popover>
-        <span className="ml-auto text-[13px] text-muted-foreground">
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <X className="size-3.5 mr-1" />
+            {t.common.clearFilters}
+          </Button>
+        )}
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
           {t.appointments.totalCount.replace("{count}", String(totalCount))}
         </span>
       </div>
 
-      {/* Mobile filters */}
-      <div className="sm:hidden space-y-3">
+      {/* Mobile */}
+      <div className="sm:hidden space-y-2">
         <div className="flex items-center gap-2">
           <SearchInput
             placeholder={t.appointments.searchPlaceholder}
@@ -197,10 +221,22 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
             {t.mobile.filterButton}
           </Button>
         </div>
-        {quickPeriodButtons}
-        <span className="block text-[13px] text-muted-foreground">
-          {t.appointments.totalCount.replace("{count}", String(totalCount))}
-        </span>
+        <div className="overflow-x-auto">
+          {quickPeriodButtons}
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {t.appointments.totalCount.replace("{count}", String(totalCount))}
+          </span>
+          {hasFilters && (
+            <button
+              className="text-xs text-muted-foreground underline underline-offset-2"
+              onClick={clearFilters}
+            >
+              {t.common.clearFilters}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile filter sheet */}

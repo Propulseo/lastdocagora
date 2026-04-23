@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/shared/pagination";
 import { ProfessionalsFilters } from "./_components/professionals-filters";
 import { ProfessionalsTable } from "./_components/professionals-table";
-import { AdminPageHeader } from "../../_components/admin-page-header";
+import { ProfessionalsHeader } from "./_components/professionals-header";
 
 const PAGE_SIZE = 20;
 
@@ -48,10 +48,28 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
     );
   }
 
-  const { data: professionals, count } = await query;
-
-  // Get distinct specialties and cities for filter options
-  const [{ data: specialtyRows }, { data: cityRows }] = await Promise.all([
+  // Fetch data + breakdown counts + filter options in parallel
+  const [
+    { data: professionals, count },
+    { count: verifiedCount },
+    { count: pendingCount },
+    { count: rejectedCount },
+    { data: specialtyRows },
+    { data: cityRows },
+  ] = await Promise.all([
+    query,
+    supabase
+      .from("professionals")
+      .select("id", { count: "exact", head: true })
+      .eq("verification_status", "verified"),
+    supabase
+      .from("professionals")
+      .select("id", { count: "exact", head: true })
+      .eq("verification_status", "pending"),
+    supabase
+      .from("professionals")
+      .select("id", { count: "exact", head: true })
+      .eq("verification_status", "rejected"),
     supabase.from("professionals").select("specialty").order("specialty"),
     supabase
       .from("professionals")
@@ -59,6 +77,8 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
       .not("city", "is", null)
       .order("city"),
   ]);
+
+  const totalPros = (verifiedCount ?? 0) + (pendingCount ?? 0) + (rejectedCount ?? 0);
 
   const specialties = [
     ...new Set((specialtyRows ?? []).map((r) => r.specialty)),
@@ -95,8 +115,15 @@ export default async function ProfessionalsPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader section="professionals" />
+    <div className="space-y-5">
+      <ProfessionalsHeader
+        total={totalPros}
+        verified={verifiedCount ?? 0}
+        pending={pendingCount ?? 0}
+        rejected={rejectedCount ?? 0}
+        specialtyCount={specialties.length}
+        cityCount={cities.length}
+      />
 
       <ProfessionalsFilters specialties={specialties} cities={cities} totalCount={count ?? 0} />
       <ProfessionalsTable data={mapped} />

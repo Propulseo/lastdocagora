@@ -4,8 +4,7 @@ import { getServiceName } from "@/lib/get-service-name";
 import { Pagination } from "@/components/shared/pagination";
 import { AppointmentsFilters } from "./_components/appointments-filters";
 import { AppointmentsTable } from "./_components/appointments-table";
-import { AdminPageHeader } from "../../_components/admin-page-header";
-import { AppointmentsHeaderAction } from "./_components/appointments-header-action";
+import { AppointmentsHeader } from "./_components/appointments-header";
 
 const PAGE_SIZE = 20;
 
@@ -64,7 +63,44 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     query = query.lte("appointment_date", dateTo);
   }
 
-  const { data: appointments, count } = await query;
+  // Fetch data + global status counts in parallel
+  const [
+    { data: appointments, count },
+    { count: confirmedCount },
+    { count: pendingCount },
+    { count: completedCount },
+    { count: cancelledCount },
+    { count: noShowCount },
+  ] = await Promise.all([
+    query,
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "confirmed"),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "completed"),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "cancelled"),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "no-show"),
+  ]);
+
+  const totalAppointments =
+    (confirmedCount ?? 0) +
+    (pendingCount ?? 0) +
+    (completedCount ?? 0) +
+    (cancelledCount ?? 0) +
+    (noShowCount ?? 0);
 
   const mapped = (appointments ?? []).map((apt) => {
     const proData = apt.professionals as unknown as {
@@ -109,21 +145,19 @@ export default async function AppointmentsPage({ searchParams }: PageProps) {
     };
   });
 
-  const statusCounts = {
-    total: mapped.length,
-    confirmed: mapped.filter((r) => r.status === "confirmed").length,
-    cancelled: mapped.filter((r) => r.status === "cancelled").length,
-    pending: mapped.filter(
-      (r) => r.status === "pending" || r.status === "scheduled"
-    ).length,
-  };
-
   return (
-    <div className="space-y-6">
-      <AdminPageHeader section="appointments" action={<AppointmentsHeaderAction />} />
+    <div className="space-y-5">
+      <AppointmentsHeader
+        total={totalAppointments}
+        confirmed={confirmedCount ?? 0}
+        pending={pendingCount ?? 0}
+        completed={completedCount ?? 0}
+        cancelled={cancelledCount ?? 0}
+        noShow={noShowCount ?? 0}
+      />
 
       <AppointmentsFilters totalCount={count ?? 0} />
-      <AppointmentsTable data={mapped} statusCounts={statusCounts} />
+      <AppointmentsTable data={mapped} />
       <Pagination total={count ?? 0} pageSize={PAGE_SIZE} />
     </div>
   );

@@ -144,7 +144,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
           <div className="flex items-center gap-2">
             <Avatar className="size-6">
               {ticket.user_avatar_url && <AvatarImage src={ticket.user_avatar_url} alt={ticket.user_name} />}
-              <AvatarFallback className="text-[10px] font-semibold">
+              <AvatarFallback className="bg-muted text-muted-foreground text-[10px] font-medium">
                 {ticket.user_name.split(" ").map(w => w[0]).join("").slice(0, 2)}
               </AvatarFallback>
             </Avatar>

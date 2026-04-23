@@ -11,6 +11,7 @@ import {
   HeadphonesIcon,
   Settings,
   BarChart2,
+  Star,
   LogOut,
   X,
 } from "lucide-react";
@@ -22,8 +23,6 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { adminNavGroups } from "@/config/admin-nav";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
@@ -40,6 +39,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   HeadphonesIcon,
   Settings,
   BarChart2,
+  Star,
 };
 
 interface AdminMobileNavProps {
@@ -75,14 +75,11 @@ export function AdminMobileNav({
     onOpenChange(false);
   }
 
-  const initials =
-    (user.first_name?.[0] ?? "") + (user.last_name?.[0] ?? "");
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[280px] p-0 flex flex-col">
-        <SheetHeader className="flex flex-row items-center justify-between border-b px-4 py-4">
-          <SheetTitle className="text-lg font-bold tracking-tight">
+      <SheetContent side="left" className="w-[272px] p-0 flex flex-col">
+        <SheetHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3">
+          <SheetTitle className="text-sm font-semibold tracking-tight">
             DOCAGORA
           </SheetTitle>
           <Button
@@ -97,11 +94,11 @@ export function AdminMobileNav({
         </SheetHeader>
 
         <ScrollArea className="flex-1">
-          <nav className="py-2">
+          <nav className="px-2 py-2">
             {adminNavGroups.map((group, groupIdx) => (
-              <div key={group.labelKey}>
-                {groupIdx > 0 && <Separator className="my-2" />}
-                <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <div key={group.labelKey} className="mb-1">
+                {groupIdx > 0 && <Separator className="mx-2 my-2" />}
+                <p className="mb-0.5 px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
                   {t.sidebar.groups[group.labelKey]}
                 </p>
                 {group.items.map((item) => {
@@ -113,20 +110,29 @@ export function AdminMobileNav({
                       key={item.href}
                       onClick={() => navigate(item.href)}
                       className={cn(
-                        "flex h-12 w-full items-center gap-3 px-4 text-sm transition-colors",
+                        "flex h-10 w-full items-center gap-3 rounded-md px-3 text-sm transition-colors duration-100",
                         isActive
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-foreground hover:bg-accent"
+                          ? "bg-accent font-medium"
+                          : "text-foreground hover:bg-accent/50"
                       )}
                     >
-                      {Icon && <Icon className="size-4 shrink-0" />}
+                      {Icon && (
+                        <Icon
+                          className={cn(
+                            "size-4 shrink-0",
+                            isActive
+                              ? "text-foreground"
+                              : "text-muted-foreground/60"
+                          )}
+                        />
+                      )}
                       <span className="flex-1 text-left">
                         {t.sidebar.items[item.titleKey]}
                       </span>
                       {isSupport && openTicketCount > 0 && (
-                        <Badge variant="destructive" className="text-[10px]">
+                        <span className="flex size-5 items-center justify-center rounded-md bg-foreground text-[10px] font-medium text-background">
                           {openTicketCount}
-                        </Badge>
+                        </span>
                       )}
                     </button>
                   );
@@ -136,27 +142,28 @@ export function AdminMobileNav({
           </nav>
         </ScrollArea>
 
-        <div className="mt-auto border-t px-4 py-3 space-y-3">
-          <div className="flex items-center gap-3">
-            <Avatar className="size-8">
-              <AvatarFallback className="text-xs font-semibold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1 text-sm leading-tight">
-              <span className="truncate font-medium block">
-                {user.first_name} {user.last_name}
-              </span>
-              <span className="text-muted-foreground truncate text-xs block">
-                {user.email}
-              </span>
-            </div>
-            <LanguageSwitcher locale={locale} />
+        <div className="border-t border-border p-3 space-y-2">
+          <div className="px-1">
+            <p className="truncate text-sm font-medium leading-tight">
+              {user.first_name} {user.last_name}
+            </p>
+            <p className="truncate text-xs text-muted-foreground leading-tight mt-0.5">
+              {user.email}
+            </p>
           </div>
-          <ThemeToggle variant="pill" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+
+          <div className="flex items-center gap-1 px-0.5">
+            <LanguageSwitcher locale={locale} />
+            <ThemeToggle
+              size="sm"
+              lightLabel={t.common.lightMode}
+              darkLabel={t.common.darkMode}
+            />
+          </div>
+
           <button
             onClick={handleLogout}
-            className="flex h-10 w-full items-center gap-3 rounded-md px-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+            className="flex h-10 w-full items-center gap-3 rounded-md px-3 text-sm text-muted-foreground transition-colors duration-100 hover:text-foreground"
           >
             <LogOut className="size-4" />
             <span>{t.sidebar.logout}</span>
