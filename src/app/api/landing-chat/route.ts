@@ -3,6 +3,9 @@ import { hashIP, MAX_FREE_MESSAGES, fetchOrCreateSession, updateSession } from "
 import { runAISearch } from "./ai"
 import { queryProfessionals, mapResults } from "./query"
 
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

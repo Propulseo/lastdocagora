@@ -5,7 +5,7 @@ import {
   aiOutputSchema,
   type AIOutput,
 } from "@/lib/ai/schemas"
-import { supabaseAdmin } from "./session"
+import { getSupabaseAdmin } from "./session"
 
 // Cache context (specialties, cities, neighborhoods) -- 5 min TTL
 let contextCache: {
@@ -20,6 +20,7 @@ export async function getCachedContext() {
   if (contextCache && Date.now() - contextCache.ts < CACHE_TTL) {
     return contextCache
   }
+  const supabaseAdmin = getSupabaseAdmin()
   const [specialtiesRes, citiesRes, neighborhoodsRes] = await Promise.all([
     supabaseAdmin
       .from("professionals")

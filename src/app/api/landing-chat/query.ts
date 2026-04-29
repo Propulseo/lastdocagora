@@ -1,5 +1,5 @@
 import type { AISearchFilters } from "@/lib/ai/schemas"
-import { supabaseAdmin } from "./session"
+import { getSupabaseAdmin } from "./session"
 import { normalizeLangCodes } from "./ai"
 
 export const CITY_ALIASES: Record<string, string> = {
@@ -21,7 +21,7 @@ export const LANDING_SELECT = `id, specialty, city, consultation_fee, rating,
   users ( first_name, last_name, avatar_url )`
 
 export function baseQuery() {
-  return supabaseAdmin
+  return getSupabaseAdmin()
     .from("professionals")
     .select(LANDING_SELECT)
     .eq("verification_status", "verified")
