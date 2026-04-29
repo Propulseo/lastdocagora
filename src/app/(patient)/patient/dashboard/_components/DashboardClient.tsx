@@ -51,13 +51,13 @@ export function DashboardClient({
           {t.dashboard.description}
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button size="lg" asChild>
+          <Button size="lg" className="w-full sm:w-auto" asChild>
             <Link href="/patient/search">
               <Search className="size-4" />
               {t.dashboard.searchProfessional}
             </Link>
           </Button>
-          <Button variant="outline" size="lg" asChild>
+          <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
             <Link href="/patient/appointments">
               <Calendar className="size-4" />
               {t.dashboard.viewAppointments}
@@ -137,7 +137,7 @@ export function DashboardClient({
                 <p className="mt-4 text-sm text-muted-foreground">
                   {t.dashboard.noAppointments}
                 </p>
-                <Button className="mt-4" asChild>
+                <Button className="mt-4 w-full sm:w-auto" asChild>
                   <Link href="/patient/search">
                     <Search className="size-4" />
                     {t.dashboard.bookAppointment}
@@ -168,7 +168,7 @@ export function DashboardClient({
                   <Link
                     key={appt.id}
                     href="/patient/appointments"
-                    className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition-colors hover:bg-muted/30"
+                    className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition-all hover:bg-muted/30 active:scale-[0.98]"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-border/40">

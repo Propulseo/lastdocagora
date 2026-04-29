@@ -78,7 +78,7 @@ export function FollowUpWidget({ data }: FollowUpWidgetProps) {
             <Link
               key={item.noteId}
               href="/pro/patients"
-              className="group flex items-center gap-3 rounded-xl px-1.5 py-1.5 transition-all duration-150 hover:bg-accent/50"
+              className="group flex items-center gap-3 rounded-xl px-1.5 py-1.5 transition-all duration-150 hover:bg-accent/50 active:scale-[0.98]"
             >
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/10">
                 {(item.patientFirstName?.[0] ?? "") +

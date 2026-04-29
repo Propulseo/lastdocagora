@@ -1,5 +1,6 @@
 {
   "roleLabel": "Professionnel",
   "logout": "Se déconnecter",
-  "pendingBadgeTooltip": "{count} consultations en attente"
+  "pendingBadgeTooltip": "{count} consultations en attente",
+  "myProfile": "Mon Profil"
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,9 +36,7 @@ export function PublicHeader() {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            DOC<span className="text-[#0891B2]">AGORA</span>
-          </span>
+          <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-20 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}
@@ -72,11 +71,8 @@ export function PublicHeader() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <div className="flex flex-col gap-6 pt-8">
-                <Link
-                  href="/"
-                  className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50"
-                >
-                  DOC<span className="text-[#0891B2]">AGORA</span>
+                <Link href="/">
+                  <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-16 w-auto" />
                 </Link>
 
                 <nav className="flex flex-col gap-4">

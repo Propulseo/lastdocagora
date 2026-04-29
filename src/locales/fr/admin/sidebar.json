@@ -15,5 +15,6 @@
     "support": "Support",
     "settings": "Paramètres"
   },
-  "logout": "Se déconnecter"
+  "logout": "Se déconnecter",
+  "myProfile": "Mon Profil"
 }

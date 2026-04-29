@@ -65,7 +65,7 @@ export function HistoryTable({
   return (
     <Card className={`${RADIUS.card} ${SHADOW.card}`}>
       <CardContent className="p-0">
-        <div className={`${RADIUS.sm} border`}>
+        <div className={`${RADIUS.sm} border overflow-x-auto`}>
           <Table>
             <TableHeader>
               <TableRow>

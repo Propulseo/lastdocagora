@@ -28,9 +28,10 @@ interface MetricProps {
   borderAccent?: string;
   href?: string;
   subtitle?: string;
+  className?: string;
 }
 
-function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10 text-primary", borderAccent = "border-t-primary", href, subtitle }: MetricProps) {
+function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10 text-primary", borderAccent = "border-t-primary", href, subtitle, className }: MetricProps) {
   const hasDelta = delta !== undefined && delta !== 0;
 
   const content = (
@@ -39,7 +40,7 @@ function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10
       <div className={cn("absolute inset-x-0 top-0 h-[2px]", borderAccent)} />
 
       <div className="flex items-center justify-between">
-        <div className={cn("flex size-9 items-center justify-center", accent, RADIUS.element)}>{icon}</div>
+        <div className={cn("flex size-7 sm:size-9 items-center justify-center", accent, RADIUS.element)}>{icon}</div>
         {hasDelta && (
           <span
             className={cn(
@@ -62,25 +63,26 @@ function Metric({ icon, label, value, delta, deltaLabel, accent = "bg-primary/10
         )}
       </div>
       <div className="min-w-0">
-        <span className={cn(TYPE.kpi_number, "leading-none tabular-nums")}>
+        <span className={cn(TYPE.kpi_number, "leading-none tabular-nums text-2xl sm:text-3xl")}>
           {value}
         </span>
-        <p className={cn(TYPE.label, "mt-1.5")}>
+        <p className={cn(TYPE.label, "text-xs sm:text-sm mt-1 sm:mt-1.5")}>
           {label}
         </p>
         {subtitle && (
-          <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 hidden sm:block">{subtitle}</p>
         )}
       </div>
     </>
   );
 
   const wrapperClass = cn(
-    "group relative flex flex-col gap-3.5 overflow-hidden bg-card border border-border/40",
+    "group relative flex flex-col gap-2 sm:gap-3.5 overflow-hidden bg-card border border-border/40",
     RADIUS.card,
     SHADOW.card,
-    "p-4 transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:border-border/60",
+    "p-3 sm:p-4 transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:border-border/60 active:scale-[0.98]",
     href && "cursor-pointer",
+    className,
   );
 
   if (href) {
@@ -109,7 +111,7 @@ export function KPIStrip({ data }: KPIStripProps) {
   const reviewsSubtitle = (dashboardT.reviewsCount ?? "").replace("{count}", String(reviewsThisMonth));
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
       <Metric
         icon={<CalendarCheck className="size-4" />}
         label={t.dashboard.appointmentsToday}
@@ -118,6 +120,7 @@ export function KPIStrip({ data }: KPIStripProps) {
         deltaLabel={t.dashboard.vsYesterday}
         accent="bg-blue-500/10 text-blue-600 dark:text-blue-400"
         borderAccent="bg-blue-500/70"
+        className="col-span-2 sm:col-span-1"
       />
       <Metric
         icon={<Users className="size-4" />}

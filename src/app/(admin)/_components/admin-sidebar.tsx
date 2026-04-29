@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -70,25 +71,21 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
-        <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-          <span className="text-sm font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-            DOCAGORA
-          </span>
-          <span className="text-[10px] font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
-            Admin
-          </span>
-          <span className="hidden text-sm font-semibold group-data-[collapsible=icon]:block">
-            D
-          </span>
+      <SidebarHeader className="px-0 py-0 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3">
+        <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
+          <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-[5.5rem] w-auto object-contain mx-auto -my-4" />
+          <span className="text-[10px] font-medium text-muted-foreground">Admin</span>
+        </div>
+        <div className="hidden group-data-[collapsible=icon]:flex justify-center">
+          <Image src="/logo-icon.png" alt="DocAgora" width={160} height={160} className="size-8 object-contain" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 py-2">
+      <SidebarContent className="px-2 py-1 group-data-[collapsible=icon]:pt-2">
         {adminNavGroups.map((group, groupIdx) => (
-          <SidebarGroup key={group.labelKey} className="py-1">
-            {groupIdx > 0 && <SidebarSeparator className="mx-2 mb-2" />}
-            <SidebarGroupLabel className="mb-0.5 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
+          <SidebarGroup key={group.labelKey} className="py-0">
+            {groupIdx > 0 && <SidebarSeparator className="mx-2 mb-1" />}
+            <SidebarGroupLabel className="mb-0 px-3 pt-1 pb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
               {t.sidebar.groups[group.labelKey]}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -170,8 +167,8 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
         </div>
 
         {/* Collapsed */}
-        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1.5">
-          <LanguageSwitcher locale={locale} />
+        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1">
+          <LanguageSwitcher locale={locale} iconOnly />
           <ThemeToggle
             size="sm"
             lightLabel={t.common.lightMode}
@@ -179,7 +176,7 @@ export function AdminSidebar({ user, openTicketCount }: AdminSidebarProps) {
           />
           <button
             onClick={handleLogout}
-            className="flex size-8 items-center justify-center rounded-md text-muted-foreground/60 transition-colors duration-100 hover:text-foreground"
+            className="h-10 w-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t.sidebar.logout}
           >
             <LogOut className="size-4" />

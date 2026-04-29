@@ -89,7 +89,7 @@ export function TodayAppointmentCard({
       onKeyDown={handleKeyDown}
       className={cn(
         `group ${RADIUS.card} ${SHADOW.card} border-2 p-4 transition-all`,
-        isClickable && "cursor-pointer hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm",
+        isClickable && "cursor-pointer hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm active:scale-[0.98]",
         isCurrent && "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20",
         past && !isCurrent && "opacity-60"
       )}
@@ -159,7 +159,7 @@ export function TodayAppointmentCard({
               <Button
                 size="sm"
                 variant="outline"
-                className={`${cls} h-8 min-h-[44px] text-xs`}
+                className={`${cls} min-h-[44px] text-xs`}
                 onClick={(e) => { e.stopPropagation(); onMarkAttendance(apt.id, status); }}
                 disabled={isActive || isLocked || isTooEarly}
               >

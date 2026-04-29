@@ -15,7 +15,7 @@ export function PatientMobileCard({ patient, absenceWarning, onClick }: PatientM
   return (
     <button
       onClick={() => onClick(patient.patient_id)}
-      className={cn("flex w-full items-center gap-3 border p-3 text-left transition-colors hover:bg-accent/50", RADIUS.sm)}
+      className={cn("flex w-full items-center gap-3 rounded-2xl border border-border bg-card shadow-sm p-3 text-left transition-all hover:bg-accent/50 active:scale-[0.98]")}
     >
       <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
         {(patient.first_name?.[0] ?? "") + (patient.last_name?.[0] ?? "")}

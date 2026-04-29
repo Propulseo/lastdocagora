@@ -70,7 +70,7 @@ export function TemplatesTab({
             {t.reminders.templates.subtitle}
           </p>
         </div>
-        <Button onClick={handleNewTemplate} className="gap-1.5">
+        <Button onClick={handleNewTemplate} className="gap-1.5 w-full sm:w-auto">
           <Plus className="size-4" />
           {t.reminders.templates.newTemplate}
         </Button>
@@ -88,7 +88,7 @@ export function TemplatesTab({
           />
         </div>
         <Select value={channelFilter} onValueChange={setChannelFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full sm:w-[150px]">
             <SelectValue
               placeholder={t.reminders.templates.filterChannel}
             />
@@ -105,7 +105,7 @@ export function TemplatesTab({
           </SelectContent>
         </Select>
         <Select value={timingFilter} onValueChange={setTimingFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue
               placeholder={t.reminders.templates.filterTiming}
             />

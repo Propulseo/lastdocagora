@@ -149,8 +149,8 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="size-8">
-                                <MoreHorizontal className="size-4" />
+                              <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]">
+                                <MoreHorizontal className="size-5" />
                                 <span className="sr-only">{sv.actions}</span>
                               </Button>
                             </DropdownMenuTrigger>

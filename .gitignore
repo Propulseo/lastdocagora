@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local editor/agent settings (do not commit)
 .claude/settings.local.json
+
+# logo source files (copies live in public/)
+/Logo/

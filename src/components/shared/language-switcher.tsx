@@ -23,9 +23,10 @@ const localeLabels: Record<SupportedLocale, { short: string; full: string }> = {
 
 interface LanguageSwitcherProps {
   locale: string
+  iconOnly?: boolean
 }
 
-export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ locale, iconOnly }: LanguageSwitcherProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -45,12 +46,16 @@ export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 px-2 text-xs font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          size={iconOnly ? "icon" : "sm"}
+          className={cn(
+            iconOnly
+              ? "h-10 w-10 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              : "h-8 gap-1.5 px-2 text-xs font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          )}
           disabled={isPending}
         >
           <Languages className="size-4" />
-          <span>{current.short}</span>
+          {!iconOnly && <span>{current.short}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[140px]">

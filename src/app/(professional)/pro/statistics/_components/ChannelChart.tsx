@@ -61,7 +61,7 @@ export function ChannelChart({ data }: { data: ChannelStat[] }) {
             description={t.statistics.emptyState.description}
           />
         ) : (
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col items-center gap-6 sm:flex-row">
             <div className="h-[180px] w-[180px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

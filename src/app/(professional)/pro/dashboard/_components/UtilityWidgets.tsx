@@ -157,7 +157,7 @@ export function UtilityWidgets({ data }: UtilityWidgetsProps) {
             {t.dashboard.noRecentPatients}
           </p>
         ) : (
-          <div className="mt-3 space-y-1">
+          <div className="mt-3 divide-y divide-border">
             {recentPatients.map((p) => {
               const initial =
                 (p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "");

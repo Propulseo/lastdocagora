@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     locale: "pt_PT",
     type: "website",
     siteName: "DOCAGORA",
+    images: [{ url: "/logo-icon.png", width: 512, height: 512 }],
   },
 }
 

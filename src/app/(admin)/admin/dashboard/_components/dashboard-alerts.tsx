@@ -55,11 +55,11 @@ export function DashboardAlerts({
           key={alert.href}
           href={alert.href}
           className={cn(
-            "group flex items-center gap-3 px-5 py-3 transition-colors duration-150 hover:bg-accent/30",
+            "group flex items-center gap-3 px-5 py-3 transition-all duration-150 hover:bg-accent/30 active:scale-[0.98] min-h-[44px]",
             i > 0 && "border-t border-border"
           )}
         >
-          <alert.icon className="size-4 shrink-0 text-muted-foreground" />
+          <alert.icon className="size-5 shrink-0 text-muted-foreground" />
           <span className="flex-1 text-sm">{alert.text}</span>
           <ArrowRight className="size-3.5 text-muted-foreground/40 transition-transform duration-150 group-hover:translate-x-0.5" />
         </Link>

@@ -1,18 +1,21 @@
-"use client";
+"use client"
 
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { NotificationBell } from "@/components/shared/NotificationBell";
+import { usePathname } from "next/navigation"
+import { Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { MobileHeader } from "@/components/shared/mobile-header"
+import { NotificationBell } from "@/components/shared/NotificationBell"
+import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
+import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n"
 
 interface AdminMobileHeaderProps {
   user: {
-    firstName: string;
-    lastName: string;
-  };
-  userId: string;
-  onMenuOpen: () => void;
+    firstName: string
+    lastName: string
+    avatarUrl: string | null
+  }
+  userId: string
+  onMenuOpen: () => void
 }
 
 export function AdminMobileHeader({
@@ -20,47 +23,52 @@ export function AdminMobileHeader({
   userId,
   onMenuOpen,
 }: AdminMobileHeaderProps) {
-  const { t, locale } = useAdminI18n();
+  const { t, locale } = useAdminI18n()
+  const pathname = usePathname()
+
+  const segment = pathname.split("/")[2] ?? ""
+  const itemsMap = t.sidebar.items as Record<string, string>
+  const title = itemsMap[segment] ?? ""
+
+  const initials =
+    (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
 
   return (
-    <header className="flex h-12 shrink-0 items-center border-b border-border bg-background px-3 lg:hidden">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="min-h-[44px] min-w-[44px]"
-        onClick={onMenuOpen}
-        aria-label={t.mobile.openMenu}
-      >
-        <Menu className="size-5" />
-      </Button>
-
-      <div className="flex flex-1 items-center justify-center gap-1.5">
-        <span className="text-sm font-semibold tracking-tight">DOCAGORA</span>
-        <span className="text-[10px] font-medium text-muted-foreground">
-          Admin
-        </span>
-      </div>
-
-      <div className="flex items-center gap-0.5">
-        <NotificationBell
-          userId={userId}
-          translations={{
-            title: t.notifications.title,
-            markAllRead: t.notifications.markAllRead,
-            empty: t.notifications.empty,
-            markAsRead: t.notifications.markAsRead,
-            markAsUnread: t.notifications.markAsUnread,
-            justNow: t.notifications.justNow,
-          }}
-          locale={locale}
-          role="admin"
-        />
-        <ThemeToggle
-          size="sm"
-          lightLabel={t.common.lightMode}
-          darkLabel={t.common.darkMode}
-        />
-      </div>
-    </header>
-  );
+    <MobileHeader
+      title={title}
+      leftAction={
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-9 min-h-[44px] min-w-[44px]"
+          onClick={onMenuOpen}
+          aria-label={t.mobile.openMenu}
+        >
+          <Menu className="size-5" />
+        </Button>
+      }
+    >
+      <NotificationBell
+        userId={userId}
+        translations={{
+          title: t.notifications.title,
+          markAllRead: t.notifications.markAllRead,
+          empty: t.notifications.empty,
+          markAsRead: t.notifications.markAsRead,
+          markAsUnread: t.notifications.markAsUnread,
+          justNow: t.notifications.justNow,
+        }}
+        locale={locale}
+        role="admin"
+      />
+      <UserAvatarMenu
+        user={{ avatarUrl: user.avatarUrl, initials }}
+        profileHref="/admin/settings"
+        translations={{
+          myProfile: t.sidebar.myProfile,
+          logout: t.sidebar.logout,
+        }}
+      />
+    </MobileHeader>
+  )
 }

@@ -126,7 +126,7 @@ export function TicketList({
                 key={ticket.id}
                 onClick={() => onSelect(ticket.id)}
                 className={cn(
-                  "flex w-full items-start gap-3 border-b border-border/20 px-4 py-3 text-left transition-colors hover:bg-accent/40",
+                  "flex w-full items-start gap-3 border-b border-border/20 px-4 py-3 text-left transition-all hover:bg-accent/40 active:scale-[0.98]",
                   isSelected && "bg-accent/60 border-l-2 border-l-primary"
                 )}
               >

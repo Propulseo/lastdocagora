@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePatientTranslations } from "@/locales/locale-context"
@@ -84,8 +85,7 @@ function AuthPageInner() {
         <div className="flex items-center justify-between p-6 pb-0">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="size-4 text-muted-foreground" />
-            <div className="h-2 w-2 rounded-full bg-[#0891B2]" />
-            <span className="text-lg font-bold tracking-wide">DOCAGORA</span>
+            <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-16 w-auto" />
           </Link>
           <LanguageSwitcher locale={locale} />
         </div>

@@ -1,5 +1,6 @@
 {
   "roleLabel": "Professional",
   "logout": "Log out",
-  "pendingBadgeTooltip": "{count} appointments pending"
+  "pendingBadgeTooltip": "{count} appointments pending",
+  "myProfile": "My Profile"
 }

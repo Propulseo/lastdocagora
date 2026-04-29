@@ -1,5 +1,6 @@
 {
   "roleLabel": "Profissional",
   "logout": "Terminar sessão",
-  "pendingBadgeTooltip": "{count} consultas em espera"
+  "pendingBadgeTooltip": "{count} consultas em espera",
+  "myProfile": "Meu Perfil"
 }

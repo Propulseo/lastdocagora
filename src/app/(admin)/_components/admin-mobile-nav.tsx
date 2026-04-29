@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -79,8 +80,8 @@ export function AdminMobileNav({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[272px] p-0 flex flex-col">
         <SheetHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3">
-          <SheetTitle className="text-sm font-semibold tracking-tight">
-            DOCAGORA
+          <SheetTitle>
+            <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-14 w-auto" />
           </SheetTitle>
           <Button
             variant="ghost"
@@ -110,7 +111,7 @@ export function AdminMobileNav({
                       key={item.href}
                       onClick={() => navigate(item.href)}
                       className={cn(
-                        "flex h-10 w-full items-center gap-3 rounded-md px-3 text-sm transition-colors duration-100",
+                        "flex min-h-[44px] w-full items-center gap-3 rounded-md px-3 text-sm transition-all duration-100 active:scale-[0.98]",
                         isActive
                           ? "bg-accent font-medium"
                           : "text-foreground hover:bg-accent/50"
@@ -119,7 +120,7 @@ export function AdminMobileNav({
                       {Icon && (
                         <Icon
                           className={cn(
-                            "size-4 shrink-0",
+                            "size-5 shrink-0",
                             isActive
                               ? "text-foreground"
                               : "text-muted-foreground/60"
@@ -163,9 +164,9 @@ export function AdminMobileNav({
 
           <button
             onClick={handleLogout}
-            className="flex h-10 w-full items-center gap-3 rounded-md px-3 text-sm text-muted-foreground transition-colors duration-100 hover:text-foreground"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-md px-3 text-sm text-muted-foreground transition-all duration-100 hover:text-foreground active:scale-[0.98]"
           >
-            <LogOut className="size-4" />
+            <LogOut className="size-5" />
             <span>{t.sidebar.logout}</span>
           </button>
         </div>

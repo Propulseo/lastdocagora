@@ -64,14 +64,14 @@ export function SupportClient({
             </p>
           </div>
         </div>
-        <Button size="sm" className="gap-1.5" onClick={() => setDialogOpen(true)}>
+        <Button size="sm" className="gap-1.5 w-full sm:w-auto min-h-[44px]" onClick={() => setDialogOpen(true)}>
           <Plus className="size-3.5" />
           {s.newTicket as string}
         </Button>
       </div>
 
       {/* KPI Strip — same style as dashboard */}
-      <div className={`flex h-16 items-stretch overflow-x-auto ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50`}>
+      <div className={`flex flex-wrap items-stretch ${RADIUS.card} ${SHADOW.card} border border-border/40 bg-card/50`}>
         <KpiMetric
           icon={<Ticket className="size-4" />}
           label={kpiT.total}

@@ -55,7 +55,7 @@ export function StatisticsClient({ data }: { data: StatisticsData }) {
                   key={opt}
                   onClick={() => setRange(opt)}
                   className={cn(
-                    "rounded-sm px-2.5 py-1 text-xs font-medium transition-colors min-h-[44px] sm:min-h-0 whitespace-nowrap",
+                    "rounded-sm px-2.5 py-1 text-xs font-medium transition-all min-h-[44px] sm:min-h-0 whitespace-nowrap active:scale-95",
                     data.range === opt
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground",

@@ -114,7 +114,7 @@ export function AppointmentCard({
   return (
     <div
       className={cn(
-        "rounded-lg border border-l-[3px] bg-card p-4 transition-shadow hover:shadow-md cursor-pointer",
+        "rounded-lg border border-l-[3px] bg-card p-4 transition-all hover:shadow-md cursor-pointer active:scale-[0.98]",
         borderColors[type]
       )}
     >

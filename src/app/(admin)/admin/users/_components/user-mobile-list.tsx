@@ -41,7 +41,7 @@ export function UserMobileList({
           return (
             <div
               key={row.id}
-              className="flex items-center gap-3 rounded-lg border p-3"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card shadow-sm p-3"
             >
               <Avatar className="size-10 shrink-0">
                 {row.avatar_url && <AvatarImage src={row.avatar_url} alt={fullName} />}
@@ -104,9 +104,9 @@ export function UserMobileList({
                   onClick={() =>
                     onAction(actionSheet.id, "unban", t.users.unban)
                   }
-                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-all active:scale-[0.98]"
                 >
-                  <UserCheck className="size-4" />
+                  <UserCheck className="size-5" />
                   {t.users.unban}
                 </button>
               ) : (
@@ -114,9 +114,9 @@ export function UserMobileList({
                   onClick={() =>
                     onAction(actionSheet.id, "ban", t.users.ban)
                   }
-                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
                 >
-                  <Ban className="size-4" />
+                  <Ban className="size-5" />
                   {t.users.ban}
                 </button>
               )
@@ -126,9 +126,9 @@ export function UserMobileList({
                 onClick={() =>
                   onAction(actionSheet.id, "delete", t.users.delete)
                 }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
               >
-                <Trash2 className="size-4" />
+                <Trash2 className="size-5" />
                 {t.users.delete}
               </button>
             )}

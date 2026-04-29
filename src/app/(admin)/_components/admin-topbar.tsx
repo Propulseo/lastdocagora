@@ -8,14 +8,23 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AdminGlobalSearch } from "./admin-global-search";
 import { NotificationBell } from "@/components/shared/NotificationBell";
+import { UserAvatarMenu } from "@/components/shared/user-avatar-menu";
 
 interface AdminTopbarProps {
   userId: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    avatarUrl: string | null;
+  };
 }
 
-export function AdminTopbar({ userId }: AdminTopbarProps) {
+export function AdminTopbar({ userId, user }: AdminTopbarProps) {
   const pathname = usePathname();
   const { t, locale } = useAdminI18n();
+
+  const initials =
+    (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
 
   const matchedItem = adminNav.find((item) =>
     pathname.startsWith(item.href),
@@ -54,6 +63,14 @@ export function AdminTopbar({ userId }: AdminTopbarProps) {
         <ThemeToggle
           lightLabel={t.common.lightMode}
           darkLabel={t.common.darkMode}
+        />
+        <UserAvatarMenu
+          user={{ avatarUrl: user.avatarUrl, initials }}
+          profileHref="/admin/settings"
+          translations={{
+            myProfile: t.sidebar.myProfile,
+            logout: t.sidebar.logout,
+          }}
         />
       </div>
     </header>

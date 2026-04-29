@@ -137,7 +137,7 @@ export default async function ProfessionalLayout({
                   <ProHeaderUserMenu user={sidebarUser} />
                 </div>
               </header>
-              <main className="pro-dashboard w-full flex-1 overflow-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">
+              <main className="pro-dashboard w-full flex-1 overflow-x-hidden overflow-y-auto bg-muted/30 px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-8">
                 {children}
               </main>
             </SidebarInset>

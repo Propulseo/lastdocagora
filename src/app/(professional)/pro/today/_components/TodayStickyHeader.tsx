@@ -103,7 +103,7 @@ export function TodayStickyHeader({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2"
+                    className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2 min-h-[44px] w-full sm:w-auto"
                     onClick={onWalkInClick}
                     disabled={!isToday}
                   >
@@ -144,7 +144,7 @@ export function TodayStickyHeader({
               key={key}
               onClick={() => onFilterChange(key)}
               className={cn(
-                "shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-colors",
+                "shrink-0 rounded-full px-3 py-2 text-xs font-medium border transition-all min-h-[44px] flex items-center active:scale-95",
                 filter === key
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-background border-border text-muted-foreground hover:bg-accent"

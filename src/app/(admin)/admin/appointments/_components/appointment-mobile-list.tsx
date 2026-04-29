@@ -43,7 +43,7 @@ export function AppointmentMobileList({
           return (
             <div
               key={row.id}
-              className="flex items-center gap-3 rounded-lg border p-3"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card shadow-sm p-3"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -87,9 +87,9 @@ export function AppointmentMobileList({
           <div className="mt-2 space-y-1">
             <button
               onClick={() => onViewDetails(actionSheet!)}
-              className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+              className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-all active:scale-[0.98]"
             >
-              <Eye className="size-4" />
+              <Eye className="size-5" />
               {t.appointments.viewDetails}
             </button>
             {actionSheet &&
@@ -99,9 +99,9 @@ export function AppointmentMobileList({
               actionSheet.status !== "no-show" && (
                 <button
                   onClick={() => onCancel(actionSheet.id)}
-                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
                 >
-                  <XIcon className="size-4" />
+                  <XIcon className="size-5" />
                   {t.appointments.cancelAppointment}
                 </button>
               )}

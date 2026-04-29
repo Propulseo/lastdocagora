@@ -31,7 +31,7 @@ export function NextSlotsWidget({ data }: NextSlotsWidgetProps) {
           <Button
             size="sm"
             variant="secondary"
-            className="gap-1.5 text-xs"
+            className="gap-1.5 text-xs min-h-[44px] w-full sm:w-auto"
             asChild
           >
             <Link href="/pro/agenda">

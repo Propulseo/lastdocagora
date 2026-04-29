@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -76,26 +77,20 @@ export function ProSidebar({ openTicketCount }: ProSidebarProps) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-4">
-        <div className="flex items-center gap-3 px-2">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">D</span>
-          </div>
-          <span className="text-lg font-bold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-            DOCAGORA
-          </span>
-        </div>
+      <SidebarHeader className="px-0 py-0 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3">
+        <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-[5.5rem] w-auto object-contain mx-auto -my-4 group-data-[collapsible=icon]:hidden" />
+        <Image src="/logo-icon.png" alt="DocAgora" width={160} height={160} className="hidden size-8 object-contain mx-auto group-data-[collapsible=icon]:block" />
       </SidebarHeader>
 
       <SidebarSeparator />
 
-      <SidebarContent>
+      <SidebarContent className="group-data-[collapsible=icon]:pt-2">
         {navGroups.map((group, groupIndex) => {
           const items = professionalNav.filter((n) => n.group === group.key);
           if (items.length === 0) return null;
           return (
-            <SidebarGroup key={group.key}>
-              <SidebarGroupLabel className="px-5 pt-5 pb-2 text-[10px] uppercase tracking-widest text-sidebar-foreground/40">
+            <SidebarGroup key={group.key} className="py-0">
+              <SidebarGroupLabel className="px-5 pt-2 pb-1 text-[10px] uppercase tracking-widest text-sidebar-foreground/40">
                 {t.navGroups[group.translationKey as keyof typeof t.navGroups] ?? group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -113,7 +108,7 @@ export function ProSidebar({ openTicketCount }: ProSidebarProps) {
                           isActive={isActive}
                           tooltip={label}
                           className={cn(
-                            "mx-2 rounded-xl px-4 py-2.5 transition-all duration-150",
+                            "mx-2 rounded-xl px-4 py-1.5 transition-all duration-150",
                             isActive && "border-l-2 border-l-primary shadow-sm"
                           )}
                         >
@@ -156,19 +151,30 @@ export function ProSidebar({ openTicketCount }: ProSidebarProps) {
                   })}
                 </SidebarMenu>
               </SidebarGroupContent>
-              {groupIndex < navGroups.length - 1 && <SidebarSeparator className="my-1" />}
+              {groupIndex < navGroups.length - 1 && <SidebarSeparator className="my-0.5" />}
             </SidebarGroup>
           );
         })}
       </SidebarContent>
 
       <SidebarFooter className="border-t px-4 py-3">
-        <div className="flex items-center gap-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-1 group-data-[collapsible=icon]:px-0">
+        <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
           <LanguageSwitcher locale={locale} />
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button
             onClick={handleLogout}
             className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={t.sidebar.logout}
+          >
+            <LogOut className="size-4" />
+          </button>
+        </div>
+        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1">
+          <LanguageSwitcher locale={locale} iconOnly />
+          <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+          <button
+            onClick={handleLogout}
+            className="h-10 w-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t.sidebar.logout}
           >
             <LogOut className="size-4" />

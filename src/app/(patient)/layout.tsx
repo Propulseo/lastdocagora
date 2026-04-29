@@ -15,10 +15,12 @@ import { RoleBodyClass } from "@/components/role-body-class"
 import { ThemeSync } from "@/components/theme-sync"
 import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { PatientLayoutHeader } from "./_components/patient-layout-header"
+import { PatientMobileHeader } from "./_components/patient-mobile-header"
 import { PatientBottomNav } from "./_components/patient-bottom-nav"
 import { PatientRealtimeNotifier } from "./_components/patient-realtime-notifier"
 import { PublicSearchHeader } from "./_components/public-search-header"
 import { NotificationBell } from "@/components/shared/NotificationBell"
+import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
 
 export default async function PatientLayout({
   children,
@@ -90,11 +92,14 @@ export default async function PatientLayout({
               <PatientSidebar user={userInfo} locale={locale} />
             </div>
             <SidebarInset className="max-h-svh overflow-hidden">
-              <header className="flex h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur-sm px-4">
-                <div className="hidden lg:flex lg:items-center">
-                  <SidebarTrigger />
-                  <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
-                </div>
+              <PatientMobileHeader
+                userId={user!.id}
+                user={{ avatarUrl: userInfo.avatarUrl, initials: userInfo.initials }}
+                locale={locale}
+              />
+              <header className="hidden h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur-sm px-4 lg:flex">
+                <SidebarTrigger />
+                <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
                 <PatientLayoutHeader />
                 <div className="ml-auto flex items-center gap-2">
                   <NotificationBell
@@ -111,6 +116,14 @@ export default async function PatientLayout({
                     role="patient"
                   />
                   <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
+                  <UserAvatarMenu
+                    user={{ avatarUrl: userInfo.avatarUrl, initials: userInfo.initials }}
+                    profileHref="/patient/profile"
+                    translations={{
+                      myProfile: t.common.myProfile,
+                      logout: t.common.logout,
+                    }}
+                  />
                 </div>
               </header>
               <div className="w-full flex-1 overflow-auto px-4 pt-6 pb-20 md:px-10 lg:px-12 lg:pb-6">

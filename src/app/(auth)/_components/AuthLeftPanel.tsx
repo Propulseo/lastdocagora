@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Users, Calendar, ShieldCheck } from "lucide-react"
 import { getPatientTranslations, type Locale } from "@/locales/patient"
 
@@ -19,12 +20,7 @@ export function AuthLeftPanel({ locale }: { locale: Locale }) {
 
       {/* Top: Logo */}
       <div className="relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-[#0891B2]" />
-          <span className="text-lg font-bold tracking-wide text-white">
-            DOCAGORA
-          </span>
-        </div>
+        <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-16 w-auto" />
         <p className="mt-1.5 text-sm text-white/40">
           {t.auth.leftPanelSubtitle}
         </p>

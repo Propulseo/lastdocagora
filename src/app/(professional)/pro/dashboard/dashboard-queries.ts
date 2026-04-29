@@ -13,7 +13,12 @@ import {
 
 export async function fetchDashboardData(professionalId: string, userId: string) {
   const supabase = await createClient();
-  const now = new Date();
+  // Use Portugal timezone so date calculations match professionals' local day.
+  // On Vercel (UTC), new Date() can lag behind Lisbon by up to 1 hour (WEST),
+  // shifting todayStr and weekStart to the wrong day after midnight PT.
+  const now = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon" })
+  );
   const todayStr = format(now, "yyyy-MM-dd");
   const yesterdayStr = format(subDays(now, 1), "yyyy-MM-dd");
   const sevenDaysAgoStr = format(subDays(now, 6), "yyyy-MM-dd");

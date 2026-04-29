@@ -32,7 +32,7 @@ export default async function AdminLayout({
     await Promise.all([
       supabase
         .from("users")
-        .select("first_name, last_name, email, language")
+        .select("first_name, last_name, email, language, avatar_url")
         .eq("id", user.id)
         .single(),
       supabase
@@ -72,11 +72,19 @@ export default async function AdminLayout({
                   email: profile.email,
                   first_name: profile.first_name,
                   last_name: profile.last_name,
+                  avatar_url: profile.avatar_url,
                 }}
                 userId={user.id}
                 openTicketCount={openTicketCount ?? 0}
               />
-              <AdminTopbar userId={user.id} />
+              <AdminTopbar
+                userId={user.id}
+                user={{
+                  firstName: profile.first_name,
+                  lastName: profile.last_name,
+                  avatarUrl: profile.avatar_url,
+                }}
+              />
               <main className="w-full flex-1 overflow-auto px-4 pt-6 pb-6 md:px-10 lg:px-12">
                 {children}
               </main>

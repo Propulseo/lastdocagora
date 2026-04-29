@@ -15,5 +15,6 @@
     "support": "Support",
     "settings": "Settings"
   },
-  "logout": "Log out"
+  "logout": "Log out",
+  "myProfile": "My Profile"
 }

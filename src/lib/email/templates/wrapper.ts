@@ -20,7 +20,7 @@ export const wrapper = (content: string, lang: Lang = "pt") => {
 <tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
 <tr><td style="background:#0d9488;padding:24px 32px">
-<h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600">DocAgora</h1>
+<img src="${process.env.NEXT_PUBLIC_APP_URL || ""}/logo.png" alt="DocAgora" height="32" style="height:32px;width:auto;display:block" />
 </td></tr>
 <tr><td style="padding:32px">
 ${content}

@@ -52,7 +52,7 @@ export function DataTable<T>({
   const isAdmin = variant === "admin";
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-xl border border-border bg-card">
       <Table>
         <TableHeader>
           <TableRow>

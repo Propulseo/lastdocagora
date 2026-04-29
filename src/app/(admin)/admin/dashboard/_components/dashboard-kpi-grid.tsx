@@ -133,18 +133,13 @@ export function DashboardKpiGrid({ kpis }: DashboardKpiGridProps) {
       {/* ── Mobile: stacked rows ── */}
       <div className="sm:hidden">
         {/* Primary — prominent */}
-        <div className="px-5 py-5">
-          <p className="text-3xl font-semibold tabular-nums tracking-tight">
+        <div className="px-4 py-3">
+          <p className="text-2xl font-semibold tabular-nums tracking-tight">
             <AnimatedValue value={primary.value} />
           </p>
-          <p className="mt-1 text-sm font-medium">
+          <p className="mt-1 text-xs font-medium">
             {primary.label}
           </p>
-          {primary.description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {primary.description}
-            </p>
-          )}
         </div>
 
         {/* Secondary — compact 2-col grid */}
@@ -152,11 +147,11 @@ export function DashboardKpiGrid({ kpis }: DashboardKpiGridProps) {
           {secondary.map((kpi, i) => (
             <div
               key={kpi.label}
-              className={`px-5 py-4 ${i % 2 !== 0 ? "border-l border-border" : ""} ${
+              className={`px-4 py-3 ${i % 2 !== 0 ? "border-l border-border" : ""} ${
                 i >= 2 ? "border-t border-border" : ""
               }`}
             >
-              <p className="text-xl font-semibold tabular-nums tracking-tight">
+              <p className="text-lg font-semibold tabular-nums tracking-tight">
                 <AnimatedValue value={kpi.value} />
               </p>
               <p className="mt-0.5 text-xs font-medium text-muted-foreground">

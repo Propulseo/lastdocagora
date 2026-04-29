@@ -9,6 +9,7 @@ interface AdminMobileShellProps {
     email: string;
     first_name: string;
     last_name: string;
+    avatar_url: string | null;
   };
   userId: string;
   openTicketCount: number;
@@ -20,7 +21,11 @@ export function AdminMobileShell({ user, userId, openTicketCount }: AdminMobileS
   return (
     <>
       <AdminMobileHeader
-        user={{ firstName: user.first_name, lastName: user.last_name }}
+        user={{
+          firstName: user.first_name,
+          lastName: user.last_name,
+          avatarUrl: user.avatar_url,
+        }}
         userId={userId}
         onMenuOpen={() => setMenuOpen(true)}
       />

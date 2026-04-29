@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
@@ -75,14 +76,13 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="border-b p-4">
-        <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-          DOCAGORA
-        </span>
+      <SidebarHeader className="px-0 py-0 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3">
+        <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-[5.5rem] w-auto object-contain mx-auto -my-4 group-data-[collapsible=icon]:hidden" />
+        <Image src="/logo-icon.png" alt="DocAgora" width={160} height={160} className="hidden size-8 object-contain mx-auto group-data-[collapsible=icon]:block" />
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent className="group-data-[collapsible=icon]:pt-2">
+        <SidebarGroup className="py-0">
           <SidebarGroupContent>
             <SidebarMenu>
               {patientNav.map((item) => {
@@ -145,12 +145,12 @@ export function PatientSidebar({ user, unreadCount = 0, locale }: PatientSidebar
             <LogOut className="size-4" />
           </button>
         </div>
-        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1 px-0">
-          <LanguageSwitcher locale={locale} />
+        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-1">
+          <LanguageSwitcher locale={locale} iconOnly />
           <ThemeToggle size="sm" lightLabel={t.common.lightMode} darkLabel={t.common.darkMode} />
           <button
             onClick={handleLogout}
-            className="size-8 shrink-0 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="h-10 w-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t.common.logout}
           >
             <LogOut className="size-4" />

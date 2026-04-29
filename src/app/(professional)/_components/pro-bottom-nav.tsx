@@ -16,10 +16,13 @@ import {
   User,
   Settings,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { useProNotificationsStore } from "@/stores/pro-notifications-store";
+import { createClient } from "@/lib/supabase/client";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -50,6 +53,14 @@ export function ProBottomNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const pendingCount = useProNotificationsStore((s) => s.pendingCount);
 
+  const handleLogout = async () => {
+    setMoreOpen(false);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
+
   const isActive = (href: string) => {
     if (href === "/pro/dashboard") return pathname === href;
     return pathname.startsWith(href);
@@ -77,12 +88,13 @@ export function ProBottomNav() {
                     active ? "text-primary font-medium" : "text-muted-foreground"
                   )}
                 >
-                  <Link href={tab.href} className="flex flex-col items-center">
-                    <Icon className="size-5" />
+                  <Link href={tab.href} prefetch={true} className="flex flex-col items-center active:scale-90 transition-transform">
+                    <Icon className="size-6" />
                     <span className="text-[10px]">{t.mobileNav[tab.key]}</span>
                   </Link>
                   <Link
                     href="/pro/agenda?status=pending&view=day"
+                    prefetch={true}
                     className={cn(
                       "absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full text-[9px] font-bold text-white",
                       pendingCount >= 4 ? "bg-red-500 active:bg-red-600" : "bg-amber-500 active:bg-amber-600"
@@ -98,12 +110,13 @@ export function ProBottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
+                prefetch={true}
                 className={cn(
-                  "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
+                  "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform",
                   active ? "text-primary font-medium" : "text-muted-foreground"
                 )}
               >
-                <Icon className="size-5" />
+                <Icon className="size-6" />
                 <span className="text-[10px]">{t.mobileNav[tab.key]}</span>
               </Link>
             );
@@ -113,20 +126,20 @@ export function ProBottomNav() {
           <button
             onClick={() => setMoreOpen(true)}
             className={cn(
-              "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5",
+              "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform",
               isMoreActive || moreOpen
                 ? "text-primary font-medium"
                 : "text-muted-foreground"
             )}
           >
-            <MoreHorizontal className="size-5" />
+            <MoreHorizontal className="size-6" />
             <span className="text-[10px]">{t.mobileNav.more}</span>
           </button>
         </div>
       </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="max-h-[60vh] px-0">
+        <SheetContent side="bottom" className="max-h-[60vh] px-0 pb-safe">
           <SheetHeader className="px-4 pb-2">
             <SheetTitle>{t.mobileNav.more}</SheetTitle>
           </SheetHeader>
@@ -140,7 +153,7 @@ export function ProBottomNav() {
                     setMoreOpen(false);
                     router.push(item.href);
                   }}
-                  className="flex h-14 items-center gap-3 px-4 transition-colors hover:bg-accent/50"
+                  className="flex h-14 items-center gap-3 px-4 transition-all hover:bg-accent/50 active:scale-[0.98]"
                 >
                   <Icon className="size-5 text-muted-foreground" />
                   <span className="flex-1 text-left text-sm font-medium">
@@ -150,6 +163,16 @@ export function ProBottomNav() {
                 </button>
               );
             })}
+            <Separator className="my-1" />
+            <button
+              onClick={handleLogout}
+              className="flex h-14 items-center gap-3 px-4 text-destructive transition-all hover:bg-destructive/10 active:scale-[0.98]"
+            >
+              <LogOut className="size-5" />
+              <span className="flex-1 text-left text-sm font-medium">
+                {t.sidebar.logout}
+              </span>
+            </button>
           </div>
         </SheetContent>
       </Sheet>

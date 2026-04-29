@@ -51,9 +51,9 @@ export function ProfessionalMobileList({
           return (
             <div
               key={row.id}
-              className={`flex items-center gap-3 rounded-lg border p-3 ${
+              className={`flex items-center gap-3 rounded-2xl border border-border bg-card shadow-sm p-3 ${
                 row.verification_status === "pending"
-                  ? "border-l-[3px] border-l-[#f97316]"
+                  ? "border-l-[3px] border-l-orange-500"
                   : ""
               }`}
             >
@@ -70,7 +70,7 @@ export function ProfessionalMobileList({
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-semibold truncate">{row.name}</p>
                   {row.verification_status === "verified" && (
-                    <ShieldCheck className="text-primary size-3.5 shrink-0" />
+                    <ShieldCheck className="text-primary size-4 shrink-0" />
                   )}
                 </div>
                 <span
@@ -130,9 +130,9 @@ export function ProfessionalMobileList({
                     t.professionals.verify
                   )
                 }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-colors"
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm hover:bg-accent transition-all active:scale-[0.98]"
               >
-                <CheckCircle className="size-4" />
+                <CheckCircle className="size-5" />
                 {t.professionals.verify}
               </button>
             )}
@@ -145,9 +145,9 @@ export function ProfessionalMobileList({
                     t.professionals.reject
                   )
                 }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
               >
-                <XCircle className="size-4" />
+                <XCircle className="size-5" />
                 {t.professionals.reject}
               </button>
             )}
@@ -161,9 +161,9 @@ export function ProfessionalMobileList({
                     actionSheet.user_id
                   )
                 }
-                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                className="flex h-14 w-full items-center gap-3 rounded-md px-4 text-sm text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
               >
-                <Trash2 className="size-4" />
+                <Trash2 className="size-5" />
                 {t.professionals.delete}
               </button>
             )}

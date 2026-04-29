@@ -25,6 +25,13 @@ export const RADIUS = {
   sm: "rounded-lg",
 } as const;
 
+export const INTERACTION = {
+  press: "active:scale-95 transition-transform duration-150",
+  press_subtle: "active:scale-[0.98] transition-transform duration-150",
+  touch_target: "min-h-[44px] min-w-[44px]",
+  cta_mobile: "w-full sm:w-auto",
+} as const;
+
 export const TYPE = {
   page_title: "text-2xl font-bold tracking-tight",
   section_title: "text-lg font-semibold",

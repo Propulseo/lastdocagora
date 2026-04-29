@@ -131,13 +131,13 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
     <div className="rounded-lg border border-border bg-card">
       <button
         onClick={toggleExpand}
-        className="flex w-full items-start gap-3 p-3.5 text-left transition-colors hover:bg-muted/30 rounded-t-lg"
+        className="flex w-full items-start gap-3 p-3.5 text-left transition-all hover:bg-muted/30 rounded-t-lg active:scale-[0.98] min-h-[44px]"
       >
         <div className="mt-0.5 shrink-0">
           {expanded ? (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="size-5 text-muted-foreground" />
           ) : (
-            <ChevronRight className="size-4 text-muted-foreground" />
+            <ChevronRight className="size-5 text-muted-foreground" />
           )}
         </div>
         <div className="min-w-0 flex-1">

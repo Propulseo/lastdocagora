@@ -131,10 +131,10 @@ export function RulesCard({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
+                      className="min-h-[44px] min-w-[44px]"
                       onClick={() => onEditRule(rule)}
                     >
-                      <Settings2 className="size-4" />
+                      <Settings2 className="size-5" />
                       <span className="sr-only">
                         {t.reminders.dialog.editTitle}
                       </span>

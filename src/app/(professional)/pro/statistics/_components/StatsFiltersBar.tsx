@@ -67,7 +67,7 @@ export function StatsFiltersBar({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3 overflow-x-auto whitespace-nowrap">
+    <div className="flex flex-wrap items-center gap-3">
       {/* Period toggle */}
       <div className={`inline-flex items-center ${RADIUS.sm} bg-muted p-0.5`}>
         {RANGES.map((range) => (
@@ -75,7 +75,7 @@ export function StatsFiltersBar({
             key={range}
             onClick={() => updateParam("range", range)}
             className={cn(
-              `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-colors min-h-[44px]`,
+              `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-all min-h-[44px] active:scale-95`,
               currentRange === range
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
@@ -92,7 +92,7 @@ export function StatsFiltersBar({
           value={currentService || "all"}
           onValueChange={(v) => updateParam("service", v)}
         >
-          <SelectTrigger className="h-9 w-auto min-w-[140px]">
+          <SelectTrigger className="h-9 w-auto min-w-[140px] min-h-[44px] sm:min-h-0">
             <SelectValue placeholder={t.statistics.filters.allServices} />
           </SelectTrigger>
           <SelectContent>
@@ -113,7 +113,7 @@ export function StatsFiltersBar({
         value={currentChannel || "all"}
         onValueChange={(v) => updateParam("channel", v)}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[120px]">
+        <SelectTrigger className="h-9 w-auto min-w-[120px] min-h-[44px] sm:min-h-0">
           <SelectValue placeholder={t.statistics.filters.allChannels} />
         </SelectTrigger>
         <SelectContent>

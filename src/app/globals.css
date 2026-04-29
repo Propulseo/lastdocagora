@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -562,6 +567,10 @@ html.dark .pro-dashboard :where(.rounded-lg):is([data-slot="card"]) {
 
 /* ─── Safe area iPhone ─── */
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
 /* ─── Empêcher zoom iOS sur focus input ─── */
 @media (max-width: 768px) {

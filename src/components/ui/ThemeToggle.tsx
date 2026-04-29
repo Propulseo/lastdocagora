@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes"
 import { Moon, Sun } from "lucide-react"
 import { useSyncExternalStore, useCallback } from "react"
+import { flushSync } from "react-dom"
 
 const subscribe = () => () => {}
 const getSnapshot = () => true
@@ -45,7 +46,7 @@ function useToggleTheme() {
       )
 
       const transition = document.startViewTransition(() => {
-        setTheme(newTheme)
+        flushSync(() => setTheme(newTheme))
       })
 
       transition.ready.then(() => {

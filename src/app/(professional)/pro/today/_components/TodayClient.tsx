@@ -192,7 +192,7 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
       </div>
 
       {isToday && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 px-4 pb-2 lg:hidden">
+        <div className="fixed bottom-16 left-0 right-0 z-40 px-4 pb-2 pb-safe lg:hidden">
           <Button
             className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2"
             onClick={() => setWalkInOpen(true)}
