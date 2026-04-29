@@ -1,21 +1,26 @@
 import type { NextConfig } from "next";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: *.supabase.co *.tile.openstreetmap.org",
+  "img-src 'self' data: blob: *.supabase.co *.tile.openstreetmap.org mt1.google.com mt2.google.com mt3.google.com",
   "font-src 'self'",
-  "connect-src 'self' *.supabase.co",
+  "connect-src 'self' *.supabase.co wss://*.supabase.co",
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  "form-action 'self' *.supabase.co",
   "frame-ancestors 'none'",
 ].join("; ");
 
 const securityHeaders = [
-  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
+  // HSTS only in production — breaks local mobile testing over HTTP
+  ...(isProduction
+    ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" }]
+    : []),
   { key: "Content-Security-Policy", value: cspDirectives },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
