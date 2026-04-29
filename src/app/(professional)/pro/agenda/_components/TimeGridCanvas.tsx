@@ -195,13 +195,7 @@ export function TimeGridCanvas({
           </div>
         )}
 
-        {visible.length === 0 && !isDragging && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-sm text-muted-foreground">
-              {t.agenda.noAppointments}
-            </p>
-          </div>
-        )}
+
       </div>
     </CardContent>
   );
