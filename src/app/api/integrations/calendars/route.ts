@@ -40,7 +40,8 @@ export async function GET() {
     .order("is_primary", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[calendars]", error.code);
+    return NextResponse.json({ error: "operation_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ calendars });
@@ -81,7 +82,8 @@ export async function PATCH(request: Request) {
     .eq("professional_user_id", user.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[calendars]", error.code);
+    return NextResponse.json({ error: "operation_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

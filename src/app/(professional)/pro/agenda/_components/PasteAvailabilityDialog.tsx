@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -95,7 +96,7 @@ export function PasteAvailabilityDialog({
       onPasted();
       onOpenChange(false);
     } else {
-      toast.error(result.error ?? t.agenda.deleteSlotError);
+      toast.error(resolveErrorMessage(result.error, t.agenda.deleteSlotError));
     }
 
     setIsPasting(false);

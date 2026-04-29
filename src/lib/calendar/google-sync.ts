@@ -161,20 +161,20 @@ export async function syncGoogleCalendar(
 
     return { upserted, deleted };
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : "Unknown error";
-    console.error(`Sync error for calendar ${calendarId}:`, errorMsg);
+    const errorCode = err instanceof Error ? err.message : "sync_failed";
+    console.error(`Sync error for calendar ${calendarId}:`, errorCode);
 
     await supabase.from("calendar_sync_state").upsert(
       {
         calendar_id: calendarId,
         professional_user_id: calendar.professional_user_id,
         provider: "google",
-        last_error: errorMsg,
+        last_error: "sync_failed",
       },
       { onConflict: "calendar_id" }
     );
 
-    return { upserted, deleted, error: errorMsg };
+    return { upserted, deleted, error: "sync_failed" };
   }
 }
 

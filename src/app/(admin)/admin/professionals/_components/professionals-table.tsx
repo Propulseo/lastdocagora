@@ -6,6 +6,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { updateVerificationStatus, deleteUser } from "@/app/(admin)/_actions/admin-actions";
 import { suspendProfessional, unsuspendProfessional } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ProfessionalMobileList } from "./professional-mobile-list";
 import { ProfessionalEditModal } from "./professional-edit-modal";
@@ -65,28 +66,28 @@ export function ProfessionalsTable({ data }: ProfessionalsTableProps) {
         if (result.success) {
           toast.success(t.professionals.professionalDeleted);
         } else {
-          toast.error(result.error ?? t.common.errorUpdating);
+          toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
         }
       } else if (confirm.action === "suspend") {
         const result = await suspendProfessional(confirm.id);
         if (result.success) {
           toast.success(t.professionals.suspended);
         } else {
-          toast.error(result.error ?? t.common.errorUpdating);
+          toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
         }
       } else if (confirm.action === "unsuspend") {
         const result = await unsuspendProfessional(confirm.id);
         if (result.success) {
           toast.success(t.professionals.unsuspended);
         } else {
-          toast.error(result.error ?? t.common.errorUpdating);
+          toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
         }
       } else {
         const result = await updateVerificationStatus(confirm.id, confirm.status);
         if (result.success) {
           toast.success(t.professionals.statusUpdated);
         } else {
-          toast.error(result.error ?? t.common.errorUpdating);
+          toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
         }
       }
       setConfirm(null);

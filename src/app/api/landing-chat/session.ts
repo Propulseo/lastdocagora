@@ -5,7 +5,7 @@ export { getSupabaseAdmin }
 export const MAX_FREE_MESSAGES = 3
 
 export function hashIP(ip: string): string {
-  const salt = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback"
+  const salt = "docagora-landing-chat-ip-salt-v1"
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 64)
 }
 

@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateUserAdmin } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import type { UserRow } from "./users-table";
 
@@ -78,7 +79,7 @@ export function UserEditModal({ user, open, onOpenChange }: UserEditModalProps) 
         onOpenChange(false);
         setForm({});
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }

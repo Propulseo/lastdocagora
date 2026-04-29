@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { MobileTicketMessages, type TicketMessage } from "./MobileTicketMessages";
 
@@ -75,7 +76,7 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
       setReplyText("");
       toast.success(t.support.replySent);
     } else {
-      toast.error(result.error ?? t.support.replyError);
+      toast.error(resolveErrorMessage(result.error, t.support.replyError));
     }
   }
 
@@ -104,7 +105,7 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
       if (result.success) {
         toast.success(t.support.statusUpdated);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }
@@ -121,7 +122,7 @@ export function MobileTicketCard({ ticket }: MobileTicketCardProps) {
         setPendingStatus(null);
         setResolutionMessage("");
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }

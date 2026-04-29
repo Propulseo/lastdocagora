@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { sanitizeDbError } from "@/lib/errors";
 
 export async function deleteAvailabilitySlot(availabilityId: string) {
   const supabase = await createClient();
@@ -60,7 +61,7 @@ export async function deleteAvailabilitySlot(availabilityId: string) {
     .delete()
     .eq("id", availabilityId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-availability") };
 
   revalidatePath("/pro/agenda");
   return { success: true };
@@ -181,7 +182,7 @@ export async function deleteAllDayAvailability(
   }
 
   const { error } = await query;
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-availability") };
 
   revalidatePath("/pro/agenda");
   return { success: true };

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { AppointmentStatus } from "@/types";
 import { hasFutureAppointments } from "@/lib/admin-guards";
+import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-crud-helpers";
 
 export async function updateProfessionalAdmin(
@@ -39,7 +40,7 @@ export async function updateProfessionalAdmin(
     .update(fields)
     .eq("id", professionalId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }
@@ -53,7 +54,7 @@ export async function suspendProfessional(professionalId: string) {
     .update({ verification_status: "suspended" })
     .eq("id", professionalId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
 
   // Cascade: cancel all future confirmed/pending appointments and notify each patient
   const today = new Date().toISOString().split("T")[0];
@@ -149,7 +150,7 @@ export async function unsuspendProfessional(professionalId: string) {
     .update({ verification_status: "verified" })
     .eq("id", professionalId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }
@@ -163,7 +164,7 @@ export async function deleteAvailabilityAdmin(availabilityId: string) {
     .delete()
     .eq("id", availabilityId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }
@@ -183,7 +184,7 @@ export async function clearAvailabilityAdmin(professionalId: string) {
     .delete()
     .eq("professional_id", professionalId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }
@@ -205,7 +206,7 @@ export async function updateServiceAdmin(
     .update(fields)
     .eq("id", serviceId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }

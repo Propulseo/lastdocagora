@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sanitizeDbError } from "@/lib/errors";
 
 interface RequestFieldChangeInput {
   professionalId: string;
@@ -49,7 +50,7 @@ export async function requestFieldChange(
     },
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "profile-change-request") };
 
   revalidatePath("/pro/support");
   return { success: true };

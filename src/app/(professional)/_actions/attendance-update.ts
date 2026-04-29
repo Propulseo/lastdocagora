@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { AttendanceStatus } from "@/types";
 import type { MarkAttendanceResult, SaveNotesResult } from "./attendance-validation";
 import { VALID_STATUSES, deriveAppointmentStatus } from "./attendance-validation";
+import { sanitizeDbError } from "@/lib/errors";
 
 export async function markAttendance(
   appointmentId: string,
@@ -93,7 +94,7 @@ export async function markAttendance(
     .select("id, status, marked_at")
     .single();
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-attendance-update") };
 
   // Sync appointment status based on attendance
   const newAppointmentStatus = deriveAppointmentStatus(status, appointment.status);
@@ -167,7 +168,7 @@ export async function saveAppointmentNotes(
     .update({ notes: notes.trim() || null, updated_at: new Date().toISOString() })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-attendance-update") };
 
   return { success: true };
 }

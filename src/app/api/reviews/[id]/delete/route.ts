@@ -33,7 +33,8 @@ export async function DELETE(
       .eq("patient_id", patient.id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error("[review-delete]", error.code)
+      return NextResponse.json({ error: "operation_failed" }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { reviewRequestEmail } from "@/lib/email/templates"
 
@@ -7,6 +8,21 @@ export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify caller is an authenticated professional
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    const { data: callerPro } = await supabase
+      .from("professionals")
+      .select("id")
+      .eq("user_id", user.id)
+      .single()
+    if (!callerPro) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     const supabaseAdmin = getSupabaseAdmin()
     const { appointment_id } = await req.json()
     if (!appointment_id) {
@@ -17,7 +33,7 @@ export async function POST(req: NextRequest) {
     const { data: appointment, error: aptErr } = await supabaseAdmin
       .from("appointments")
       .select(`
-        id, appointment_date, patient_id,
+        id, appointment_date, patient_id, professional_id,
         appointment_attendance(status),
         patients(id, user_id, users!patients_user_id_fkey(email, first_name, preferred_language)),
         professionals(id, specialty, users!professionals_user_id_fkey(first_name, last_name))
@@ -27,6 +43,12 @@ export async function POST(req: NextRequest) {
 
     if (aptErr || !appointment) {
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 })
+    }
+
+    // Verify caller owns this appointment
+    const appointmentProId = (appointment as unknown as { professional_id: string }).professional_id
+    if (appointmentProId !== callerPro.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     // Verify attendance is "present" or "late"
@@ -73,7 +95,8 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (insertErr) {
-      return NextResponse.json({ error: insertErr.message }, { status: 500 })
+      console.error("[review-request] insert error:", insertErr.code)
+      return NextResponse.json({ error: "operation_failed" }, { status: 500 })
     }
 
     // Send email with 24h delay via Resend scheduledAt

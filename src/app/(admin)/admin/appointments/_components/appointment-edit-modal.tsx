@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateAppointmentDateTimeAdmin } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface AppointmentEditModalProps {
@@ -57,7 +58,7 @@ export function AppointmentEditModal({
       } else if (result.error === "conflict") {
         toast.error(t.appointments.conflictWarning);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }

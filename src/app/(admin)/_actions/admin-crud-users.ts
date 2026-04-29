@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cancelFutureAppointments } from "@/lib/admin-guards";
+import { sanitizeDbError } from "@/lib/errors";
 import { getServiceRoleClient, getAdminClient } from "./admin-crud-helpers";
 
 export async function updateUserAdmin(
@@ -54,7 +55,7 @@ export async function updateUserAdmin(
       .from("users")
       .update(userFields)
       .eq("id", userId);
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "admin-users") };
   }
 
   // Check role for role-specific updates
@@ -83,7 +84,7 @@ export async function updateUserAdmin(
         .from("professionals")
         .update(proFields)
         .eq("user_id", userId);
-      if (error) return { success: false, error: error.message };
+      if (error) return { success: false, error: sanitizeDbError(error, "admin-users") };
     }
   }
 
@@ -100,7 +101,7 @@ export async function updateUserAdmin(
         .from("patients")
         .update(patientFields)
         .eq("user_id", userId);
-      if (error) return { success: false, error: error.message };
+      if (error) return { success: false, error: sanitizeDbError(error, "admin-users") };
     }
   }
 
@@ -121,13 +122,13 @@ export async function banUser(userId: string) {
     userId,
     { ban_duration: "876600h" }
   );
-  if (authError) return { success: false, error: authError.message };
+  if (authError) return { success: false, error: sanitizeDbError(authError, "admin-users-auth") };
 
   const { error } = await supabaseAdmin
     .from("users")
     .update({ status: "suspended" })
     .eq("id", userId);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-users") };
 
   // Cascade: cancel future appointments for this user
   const { data: patientRecord } = await supabaseAdmin
@@ -167,13 +168,13 @@ export async function unbanUser(userId: string) {
     userId,
     { ban_duration: "none" }
   );
-  if (authError) return { success: false, error: authError.message };
+  if (authError) return { success: false, error: sanitizeDbError(authError, "admin-users-auth") };
 
   const { error } = await supabaseAdmin
     .from("users")
     .update({ status: "active" })
     .eq("id", userId);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-users") };
 
   revalidatePath("/admin/users");
   return { success: true };
@@ -197,6 +198,6 @@ export async function getAdminSearchResults(query: string) {
     .order("first_name")
     .limit(10);
 
-  if (error) return { success: false, error: error.message, data: [] };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-search"), data: [] };
   return { success: true, data: data ?? [] };
 }

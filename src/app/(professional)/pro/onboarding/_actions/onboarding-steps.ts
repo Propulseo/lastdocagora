@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { geocodeAddress } from "@/app/_actions/geocode";
+import { sanitizeDbError } from "@/lib/errors";
 import {
   step1Schema,
   step2Schema,
@@ -89,7 +90,7 @@ export async function handleStep2(
       onboarding_step: 3,
     })
     .eq("id", proId);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "onboarding") };
 
   // Update junction table
   await supabase
@@ -211,7 +212,7 @@ export async function handleStep5(
     .from("professionals")
     .update(updatePayload)
     .eq("id", proId);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "onboarding") };
 
   return { success: true, geocoded };
 }
@@ -224,7 +225,7 @@ export async function handleStep6(
     .from("professionals")
     .update({ onboarding_step: 7 })
     .eq("id", proId);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "onboarding") };
 
   return { success: true };
 }

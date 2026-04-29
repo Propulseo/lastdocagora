@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
     .eq("token", token)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[review-decline]", error.code)
+    return NextResponse.json({ error: "operation_failed" }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

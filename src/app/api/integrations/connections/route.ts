@@ -22,7 +22,8 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[connections]", error.code);
+    return NextResponse.json({ error: "operation_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ connections });
@@ -61,7 +62,8 @@ export async function DELETE(request: Request) {
     .eq("professional_user_id", user.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[connections]", error.code);
+    return NextResponse.json({ error: "operation_failed" }, { status: 500 });
   }
 
   // Delete associated external events

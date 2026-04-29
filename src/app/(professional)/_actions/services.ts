@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeDbError } from "@/lib/errors";
 
 type ActionResult =
   | { success: true; data?: Record<string, unknown> }
@@ -55,7 +56,7 @@ export async function createService(formData: {
     professional_user_id: user.id,
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-services") };
 
   revalidatePath("/pro/services");
   return { success: true };
@@ -106,7 +107,7 @@ export async function updateService(
     .eq("id", serviceId)
     .eq("professional_user_id", user.id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-services") };
 
   revalidatePath("/pro/services");
   return { success: true };
@@ -135,7 +136,7 @@ export async function deleteService(serviceId: string): Promise<ActionResult> {
     .select("*", { count: "exact", head: true })
     .eq("service_id", serviceId);
 
-  if (countError) return { success: false, error: countError.message };
+  if (countError) return { success: false, error: sanitizeDbError(countError, "pro-services") };
 
   if (count && count > 0) {
     return {
@@ -151,7 +152,7 @@ export async function deleteService(serviceId: string): Promise<ActionResult> {
     .eq("id", serviceId)
     .eq("professional_user_id", user.id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-services") };
 
   revalidatePath("/pro/services");
   return { success: true };
@@ -172,7 +173,7 @@ export async function deactivateService(
     .eq("id", serviceId)
     .eq("professional_user_id", user.id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-services") };
 
   revalidatePath("/pro/services");
   return { success: true };

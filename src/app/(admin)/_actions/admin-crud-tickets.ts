@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { sanitizeDbError } from "@/lib/errors";
 import { getServiceRoleClient, getAdminClient } from "./admin-crud-helpers";
 
 export async function assignTicketToSelf(ticketId: string) {
@@ -12,7 +13,7 @@ export async function assignTicketToSelf(ticketId: string) {
     .update({ status: "in_progress" })
     .eq("id", ticketId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-tickets") };
   revalidatePath("/admin/support");
   return { success: true };
 }
@@ -33,7 +34,7 @@ export async function deleteTicket(ticketId: string) {
     .delete()
     .eq("id", ticketId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-tickets") };
 
   revalidatePath("/admin/support");
   return { success: true };

@@ -9,6 +9,7 @@ import {
   isAppointmentFuture,
   canEditDateTime,
 } from "@/lib/appointments";
+import { sanitizeDbError } from "@/lib/errors";
 import { getServiceRoleClient, getAdminClient } from "./admin-crud-helpers";
 
 export async function updateAppointmentStatusAdmin(
@@ -38,11 +39,11 @@ export async function updateAppointmentStatusAdmin(
       .update({ status })
       .eq("id", appointmentId);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     revalidatePath("/admin/appointments");
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return { success: false, error: "operation_failed" };
   }
 }
 
@@ -99,7 +100,7 @@ export async function updateAttendanceAdmin(
           marked_by: admin.user.id,
         })
         .eq("id", existing.id);
-      if (error) return { success: false, error: error.message };
+      if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     } else {
       const { error } = await admin.supabase
         .from("appointment_attendance")
@@ -111,7 +112,7 @@ export async function updateAttendanceAdmin(
           marked_at: new Date().toISOString(),
           marked_by: admin.user.id,
         });
-      if (error) return { success: false, error: error.message };
+      if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     }
 
     const newApptStatus = deriveAppointmentStatus(attendanceStatus, appt.status);
@@ -120,13 +121,13 @@ export async function updateAttendanceAdmin(
         .from("appointments")
         .update({ status: newApptStatus, updated_at: new Date().toISOString() })
         .eq("id", appointmentId);
-      if (error) return { success: false, error: error.message };
+      if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     }
 
     revalidatePath("/admin/appointments");
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return { success: false, error: "operation_failed" };
   }
 }
 
@@ -178,11 +179,11 @@ export async function updateAppointmentDateTimeAdmin(
       .update({ appointment_date: date, appointment_time: time })
       .eq("id", appointmentId);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     revalidatePath("/admin/appointments");
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return { success: false, error: "operation_failed" };
   }
 }
 
@@ -233,10 +234,10 @@ export async function deleteAppointmentAdmin(appointmentId: string) {
       .delete()
       .eq("id", appointmentId);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "admin-appointments") };
     revalidatePath("/admin/appointments");
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return { success: false, error: "operation_failed" };
   }
 }

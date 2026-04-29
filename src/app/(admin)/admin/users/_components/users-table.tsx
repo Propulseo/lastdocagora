@@ -5,6 +5,7 @@ import { DataTable } from "@/components/shared/data-table";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { banUser, unbanUser } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { UserMobileList } from "./user-mobile-list";
 import { UserEditModal } from "./user-edit-modal";
@@ -105,7 +106,7 @@ export function UsersTable({ data, currentUserId }: UsersTableProps) {
       } else if (result.error === "cannot_ban_self") {
         toast.error(t.users.cannotDeleteSelf);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setBanConfirm(null);
     });

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { recalculateProfessionalRating } from "@/lib/admin-guards";
+import { sanitizeDbError } from "@/lib/errors";
 import { getServiceRoleClient, getAdminClient } from "./admin-crud-helpers";
 
 export async function deleteReview(reviewId: string) {
@@ -29,7 +30,7 @@ export async function deleteReview(reviewId: string) {
     .delete()
     .eq("id", reviewId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-reviews") };
 
   // Recalculate professional rating
   if (review?.professional_id) {
@@ -78,7 +79,7 @@ export async function updateReviewStatus(
     })
     .eq("id", reviewId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-reviews") };
 
   // Recalculate professional rating after status change
   if (review.professional_id) {

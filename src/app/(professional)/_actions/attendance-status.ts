@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
 import { ALLOWED_TRANSITIONS } from "./attendance-validation";
 import { createNotification } from "@/lib/notifications";
+import { sanitizeDbError } from "@/lib/errors";
 
 /* ─── Confirm / Cancel appointment (pro action) ─── */
 
@@ -59,7 +60,7 @@ export async function updateAppointmentStatus(
     .update(updateFields)
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-attendance-status") };
 
   // Notify patient about status change
   if (newStatus === "confirmed" || newStatus === "cancelled") {
@@ -174,7 +175,7 @@ export async function proposeAlternativeTime(
     })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-attendance-status") };
 
   // Always notify patient for alternative proposals
   const { data: apptDetails } = await supabase

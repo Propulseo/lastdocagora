@@ -55,7 +55,8 @@ export async function PATCH(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error("[admin-moderate-review]", error.code)
+      return NextResponse.json({ error: "operation_failed" }, { status: 500 })
     }
 
     return NextResponse.json(updated)

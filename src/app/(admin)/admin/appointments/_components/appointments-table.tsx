@@ -10,6 +10,7 @@ import {
   deleteAppointmentAdmin,
 } from "@/app/(admin)/_actions/admin-crud-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { AppointmentMobileList } from "./appointment-mobile-list";
 import { AppointmentDetailModal } from "./appointment-detail-modal";
@@ -68,7 +69,7 @@ export function AppointmentsTable({ data }: AppointmentsTableProps) {
       if (result.success) {
         toast.success(t.appointments.appointmentCancelled);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setConfirmCancel(null);
     });

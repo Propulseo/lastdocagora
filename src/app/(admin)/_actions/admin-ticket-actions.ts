@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-actions-helpers";
 import { createNotification } from "@/lib/notifications";
 
@@ -46,7 +47,7 @@ export async function updateTicketStatus(
     .update(updateData)
     .eq("id", ticketId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-ticket-actions") };
 
   // If admin sends a resolution message when setting awaiting_confirmation
   if (status === "awaiting_confirmation" && adminMessage?.trim()) {
@@ -76,7 +77,7 @@ export async function replyToTicket(ticketId: string, content: string) {
     content: content.trim(),
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-ticket-actions") };
 
   // Update ticket status to in_progress if it's open or closed (reopen)
   const { data: currentTicket } = await supabase

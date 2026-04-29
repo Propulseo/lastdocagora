@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { markAttendance } from "./attendance";
 import { toLocalDateStr } from "../pro/agenda/_lib/date-utils";
 import { format } from "date-fns";
+import { sanitizeDbError } from "@/lib/errors";
 
 export type SlotInfo = { slot_start: string; slot_end: string };
 type WalkInSlotsResult =
@@ -167,7 +168,7 @@ export async function createWalkIn(formData: {
     .select("id")
     .single();
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-walkins") };
 
   // Auto-mark attendance as "present"
   await markAttendance(appointment.id, "present");

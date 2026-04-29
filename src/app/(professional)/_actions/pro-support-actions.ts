@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeDbError } from "@/lib/errors";
 
 type ActionResult =
   | { success: true; data?: Record<string, unknown> }
@@ -125,7 +126,7 @@ export async function confirmTicketResolved(
     })
     .eq("id", ticketId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-support") };
 
   // Insert confirmation message
   await supabase.from("ticket_messages").insert({
@@ -162,7 +163,7 @@ export async function reopenTicket(
     .update({ status: "open" })
     .eq("id", ticketId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-support") };
 
   // Insert reopen message with reason
   await supabase.from("ticket_messages").insert({

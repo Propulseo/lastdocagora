@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
+import { sanitizeDbError } from "@/lib/errors";
 import {
   handleStep1,
   handleStep2,
@@ -55,11 +56,8 @@ export async function saveOnboardingStep(
 
     revalidatePath("/pro/onboarding");
     return result;
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
+  } catch {
+    return { success: false, error: "operation_failed" };
   }
 }
 
@@ -77,7 +75,7 @@ export async function completeOnboarding(): Promise<ActionResult> {
     })
     .eq("id", pro.id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "onboarding") };
 
   revalidatePath("/pro");
   return { success: true };

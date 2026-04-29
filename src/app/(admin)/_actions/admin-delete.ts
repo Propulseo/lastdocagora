@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { hasFutureAppointments } from "@/lib/admin-guards";
+import { sanitizeDbError } from "@/lib/errors";
 import { getServiceRoleClient, getAdminClient } from "./admin-actions-helpers";
 
 export async function updateSystemSetting(settingId: string, value: string) {
@@ -13,7 +14,7 @@ export async function updateSystemSetting(settingId: string, value: string) {
     .update({ setting_value: value })
     .eq("id", settingId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-delete") };
   revalidatePath("/admin/settings");
   return { success: true };
 }
@@ -42,7 +43,7 @@ export async function cancelAppointment(appointmentId: string) {
     .update({ status: "cancelled", cancelled_at: now, updated_at: now })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-delete") };
 
   revalidatePath("/admin/appointments");
   return { success: true };
@@ -62,7 +63,7 @@ export async function toggleContentPublished(
     .update({ is_published: published })
     .eq("id", id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-delete") };
   revalidatePath("/admin/content");
   return { success: true };
 }
@@ -202,16 +203,13 @@ export async function deleteUser(
     // Delete from auth.users
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (authError) {
-      return { success: false, error: authError.message };
+      return { success: false, error: sanitizeDbError(authError, "admin-delete-auth") };
     }
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/professionals");
     return { success: true };
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
+  } catch {
+    return { success: false, error: "operation_failed" };
   }
 }

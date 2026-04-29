@@ -2,6 +2,7 @@
 
 import { Check, ClipboardPaste, Copy, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -79,7 +80,7 @@ export function TimeGridToolbar({
       toast.success(t.agenda.clearDaySuccess);
       onAvailabilityDeleted();
     } else {
-      toast.error(result.error ?? t.agenda.deleteSlotError);
+      toast.error(resolveErrorMessage(result.error, t.agenda.deleteSlotError));
     }
     onBatchDeletingChange(false);
   };

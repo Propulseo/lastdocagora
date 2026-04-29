@@ -19,6 +19,7 @@ import {
 } from "@/app/(admin)/_actions/admin-crud-actions";
 import { bulkCancelProfessionalDay } from "@/app/(admin)/_actions/admin-bulk-cancel";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { format } from "date-fns";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import {
@@ -85,7 +86,7 @@ export function ProfessionalDetailModal({
         setSlots((prev) => prev.filter((s) => s.id !== slotId));
         toast.success(t.professionals.availabilityDeleted);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }
@@ -98,7 +99,7 @@ export function ProfessionalDetailModal({
         setSlots([]);
         toast.success(t.professionals.allAvailabilityCleared);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setClearConfirm(false);
     });
@@ -115,7 +116,7 @@ export function ProfessionalDetailModal({
           toast.success(t.professionals.bulkCancelSuccess.replace("{count}", String(result.cancelledCount)));
         }
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setBulkCancelConfirm(false);
     });
@@ -144,7 +145,7 @@ export function ProfessionalDetailModal({
         toast.success(t.professionals.serviceUpdated);
         setEditingService(null);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }

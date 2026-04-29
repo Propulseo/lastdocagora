@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
+import { sanitizeDbError } from "@/lib/errors";
 import type { ActionResult } from "./types";
 
 export async function createPatient(formData: {
@@ -24,7 +25,7 @@ export async function createPatient(formData: {
     p_phone: formData.phone?.trim() || undefined,
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-patients-create") };
 
   const result = data as { patient_id: string; user_id: string; already_exists: boolean };
 
@@ -64,7 +65,7 @@ export async function updatePatient(
     })
     .eq("id", patientId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-patients-update") };
 
   // Also update the users table to keep names in sync
   const { data: patient } = await supabase
@@ -115,7 +116,7 @@ export async function removePatient(patientId: string): Promise<ActionResult> {
   if (error) {
     if (error.code === "23503") return { success: false, error: "linked_data" };
     if (error.code === "42501") return { success: false, error: "permission_denied" };
-    return { success: false, error: error.message };
+    return { success: false, error: sanitizeDbError(error, "pro-patients-remove") };
   }
 
   revalidatePath("/pro/patients");

@@ -2,6 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
 import { createNotification } from "@/lib/notifications";
+import { sanitizeDbError } from "@/lib/errors";
 export async function cancelAppointment(
   appointmentId: string,
   reason: string,
@@ -57,7 +58,7 @@ export async function cancelAppointment(
     })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-postconsultation") };
 
   if (notifyPatient) {
     // Fetch patient user_id and professional name for notification
@@ -159,7 +160,7 @@ export async function rejectAppointment(
     })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-postconsultation") };
 
   if (notifyPatient) {
     const { data: apptDetails } = await supabase

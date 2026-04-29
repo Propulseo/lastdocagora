@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
+import { sanitizeDbError } from "@/lib/errors";
 
 /* ─── Reschedule appointment (pro action) ─── */
 
@@ -54,7 +55,7 @@ export async function rescheduleAppointment(
     })
     .eq("id", appointmentId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "pro-reschedule") };
 
   // Notify patient about reschedule
   const patientUserId = appointment.patient_user_id;

@@ -6,6 +6,7 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { deleteReview, updateReviewStatus } from "@/app/(admin)/_actions/admin-crud-actions";
 import { ReviewList, type ReviewRow } from "./review-columns";
 import { ReviewsHeader } from "./reviews-header";
@@ -76,7 +77,7 @@ export function ReviewsClient({
         toast.success(rt.reviewDeleted);
         router.refresh();
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setDeleteTarget(null);
     });

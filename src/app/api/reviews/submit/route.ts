@@ -111,7 +111,8 @@ export async function POST(req: NextRequest) {
       })
 
     if (insertErr) {
-      return NextResponse.json({ error: insertErr.message }, { status: 500 })
+      console.error("[review-submit] insert error:", insertErr.code)
+      return NextResponse.json({ error: "operation_failed" }, { status: 500 })
     }
 
     // Update opened_at if not set

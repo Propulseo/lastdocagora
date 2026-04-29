@@ -10,6 +10,7 @@ import { updateTicketStatus, replyToTicket } from "@/app/(admin)/_actions/admin-
 import { deleteTicket } from "@/app/(admin)/_actions/admin-crud-actions";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { TicketExpandedContent } from "./TicketExpandedContent";
 
@@ -83,7 +84,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
       if (result.success) {
         toast.success(t.support.statusUpdated);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }
@@ -100,7 +101,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
         setPendingStatus(null);
         setResolutionMessage("");
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }
@@ -123,7 +124,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
       setReplyText("");
       toast.success(t.support.replySent);
     } else {
-      toast.error(result.error ?? t.support.replyError);
+      toast.error(resolveErrorMessage(result.error, t.support.replyError));
     }
   }
 
@@ -211,7 +212,7 @@ export function TicketRow({ ticket }: TicketRowProps) {
             toast.success(t.support.ticketDeleted);
             setShowDeleteConfirm(false);
           } else {
-            toast.error(result.error ?? t.common.errorUpdating);
+            toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
           }
         }}
       />

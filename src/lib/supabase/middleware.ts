@@ -72,7 +72,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/patient/search") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/health") ||
-    pathname.startsWith("/api/landing-chat");
+    pathname.startsWith("/api/landing-chat") ||
+    pathname.startsWith("/api/reviews/decline");
 
   // If not authenticated and trying to access protected route
   if (!user && !isPublicRoute) {

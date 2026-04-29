@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { VerificationStatus } from "@/types";
+import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-actions-helpers";
 
 export async function updateUserStatus(userId: string, status: string) {
@@ -13,7 +14,7 @@ export async function updateUserStatus(userId: string, status: string) {
     .update({ status })
     .eq("id", userId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-user-status") };
   revalidatePath("/admin/users");
   return { success: true };
 }
@@ -49,7 +50,7 @@ export async function updateVerificationStatus(
     .update({ verification_status: status })
     .eq("id", professionalId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-user-status") };
   revalidatePath("/admin/professionals");
   return { success: true };
 }

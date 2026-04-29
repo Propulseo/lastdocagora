@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { geocodeAddress } from "@/app/_actions/geocode";
+import { sanitizeDbError } from "@/lib/errors";
 
 // ---------------------------------------------------------------------------
 // Schemas per section
@@ -95,7 +96,7 @@ export async function updateProfile(
       })
       .eq("id", user.id);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "pro-profile") };
   }
 
   if (data.section === "professional") {
@@ -116,7 +117,7 @@ export async function updateProfile(
       })
       .eq("id", pro.id);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "pro-profile") };
   }
 
   if (data.section === "location") {
@@ -141,7 +142,7 @@ export async function updateProfile(
       .update(updatePayload)
       .eq("id", pro.id);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "pro-profile") };
 
     revalidatePath("/pro/profile");
     return { success: true, geocoded };
@@ -157,7 +158,7 @@ export async function updateProfile(
       })
       .eq("id", pro.id);
 
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: sanitizeDbError(error, "pro-profile") };
   }
 
   revalidatePath("/pro/profile");

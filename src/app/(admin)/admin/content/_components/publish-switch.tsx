@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { Switch } from "@/components/ui/switch";
 import { toggleContentPublished } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface PublishSwitchProps {
@@ -22,7 +23,7 @@ export function PublishSwitch({ type, id, published }: PublishSwitchProps) {
       if (result.success) {
         toast.success(checked ? t.content.published : t.content.unpublished);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }

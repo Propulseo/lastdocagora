@@ -11,7 +11,7 @@ export async function GET() {
 
     if (error) {
       return NextResponse.json(
-        { status: "error", error: error.message },
+        { status: "error", error: "database_check_failed" },
         { status: 500 }
       )
     }
@@ -21,9 +21,9 @@ export async function GET() {
       verified_professionals_count: count ?? 0,
       timestamp: new Date().toISOString(),
     })
-  } catch (err) {
+  } catch {
     return NextResponse.json(
-      { status: "error", error: err instanceof Error ? err.message : "Unknown error" },
+      { status: "error", error: "health_check_failed" },
       { status: 500 }
     )
   }

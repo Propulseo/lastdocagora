@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { updateSystemSetting } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { Pencil, Check, X } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
@@ -40,7 +41,7 @@ function SettingRow({ setting }: { setting: Setting }) {
         toast.success(t.settings.updated);
         setEditing(false);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
       setConfirm(false);
     });

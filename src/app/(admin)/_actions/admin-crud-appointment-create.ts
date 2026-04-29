@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { MIN_DURATION_MINUTES } from "@/lib/appointments";
+import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-crud-helpers";
 
 export async function createAppointmentAdmin(data: {
@@ -92,7 +93,7 @@ export async function createAppointmentAdmin(data: {
     consultation_type: "in-person",
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: sanitizeDbError(error, "admin-appointment-create") };
   revalidatePath("/admin/appointments");
   return { success: true };
 }

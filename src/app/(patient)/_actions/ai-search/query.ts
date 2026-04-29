@@ -124,7 +124,7 @@ export async function queryProfessionals(
     const { data, error } = await sortOrder(q).limit(limit)
     if (error) {
       console.error("[ai-search] Supabase query error (L1):", error)
-      return { results: [], error: `DB: ${error.message} (${error.code})`, level: 1 }
+      return { results: [], error: "search_failed", level: 1 }
     }
     let results = mapResults(data ?? [])
     if (filters.name) results = filterByName(results, filters.name)
@@ -167,7 +167,7 @@ export async function queryProfessionals(
 
     if (error) {
       console.error("[ai-search] Supabase query error (L4):", error)
-      return { results: [], error: `DB: ${error.message} (${error.code})`, level: 4 }
+      return { results: [], error: "search_failed", level: 4 }
     }
     return { results: mapResults(data ?? []), level: 4 }
   }

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { deleteUser } from "@/app/(admin)/_actions/admin-actions";
 import { toast } from "sonner";
+import { resolveErrorMessage } from "@/lib/error-messages";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 
 interface UserDeleteDialogProps {
@@ -58,7 +59,7 @@ export function UserDeleteDialog({
       } else if (result.error === "self_deletion") {
         toast.error(t.users.cannotDeleteSelf);
       } else {
-        toast.error(result.error ?? t.common.errorUpdating);
+        toast.error(resolveErrorMessage(result.error, t.common.errorUpdating));
       }
     });
   }
