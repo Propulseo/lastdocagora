@@ -5,6 +5,7 @@ import { usePatientTranslations } from "@/locales/locale-context"
 import { MobileHeader } from "@/components/shared/mobile-header"
 import { NotificationBell } from "@/components/shared/NotificationBell"
 import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 
 interface PatientMobileHeaderProps {
   userId: string
@@ -25,6 +26,7 @@ export function PatientMobileHeader({ userId, user, locale }: PatientMobileHeade
 
   return (
     <MobileHeader title={title}>
+      <ThemeToggle size="sm" />
       <NotificationBell
         userId={userId}
         translations={{

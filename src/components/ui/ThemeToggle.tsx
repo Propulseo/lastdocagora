@@ -45,24 +45,39 @@ function useToggleTheme() {
         Math.max(y, window.innerHeight - y),
       )
 
+      const isMobile = window.innerWidth < 640
+
       const transition = document.startViewTransition(() => {
         flushSync(() => setTheme(newTheme))
       })
 
       transition.ready.then(() => {
-        document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${maxRadius}px at ${x}px ${y}px)`,
-            ],
-          },
-          {
-            duration: 500,
-            easing: "ease-in-out",
-            pseudoElement: "::view-transition-new(root)",
-          },
-        )
+        if (isMobile) {
+          // Smooth crossfade on mobile
+          document.documentElement.animate(
+            { opacity: [0, 1] },
+            {
+              duration: 400,
+              easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+              pseudoElement: "::view-transition-new(root)",
+            },
+          )
+        } else {
+          // Circle wipe on desktop
+          document.documentElement.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${maxRadius}px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: 500,
+              easing: "ease-in-out",
+              pseudoElement: "::view-transition-new(root)",
+            },
+          )
+        }
       })
     },
     [isDark, setTheme],

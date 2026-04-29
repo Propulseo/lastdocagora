@@ -2,7 +2,11 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { createNotification } from "@/lib/notifications"
+import {
+  createNotification,
+  getRecipientLocale,
+  getNotificationMessages,
+} from "@/lib/notifications"
 
 const LOCKED_ATTENDANCE = ["present", "absent", "late"]
 
@@ -102,12 +106,14 @@ export async function cancelPatientAppointment(
     console.error("[booking] Failed to send cancellation email to pro:", emailError)
   }
 
-  // In-app notification to professional
+  // In-app notification to professional (in their preferred language)
+  const proLocale = await getRecipientLocale(appointment.professional_user_id)
+  const proMsg = getNotificationMessages(proLocale)
   createNotification({
     userId: appointment.professional_user_id,
     type: "appointment",
-    title: "Consulta cancelada pelo paciente",
-    message: `${patientName} cancelou a sua consulta.`,
+    title: proMsg.cancelledByPatient.title,
+    message: proMsg.cancelledByPatient.body.replace("{patientName}", patientName),
     link: "/pro/agenda",
   })
 

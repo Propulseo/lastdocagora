@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-actions-helpers";
-import { createNotification } from "@/lib/notifications";
+import {
+  createNotification,
+  getRecipientLocale,
+  getNotificationMessages,
+} from "@/lib/notifications";
 
 export async function updateTicketStatus(
   ticketId: string,
@@ -101,10 +105,12 @@ export async function replyToTicket(ticketId: string, content: string) {
     .single()
 
   if (ticket?.user_id) {
+    const recipientLocale = await getRecipientLocale(ticket.user_id)
+    const msg = getNotificationMessages(recipientLocale)
     createNotification({
       userId: ticket.user_id,
       type: "support",
-      title: "Nova resposta ao seu ticket",
+      title: msg.ticketReply.title,
       message: content.trim().slice(0, 120),
       link: "/pro/support",
     })

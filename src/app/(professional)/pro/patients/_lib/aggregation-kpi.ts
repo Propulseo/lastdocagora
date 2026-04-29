@@ -8,6 +8,7 @@ import type { PatientMapEntry } from "./aggregation-map";
 export function buildPatientsKpi(
   patientMap: Map<string, PatientMapEntry>,
   now: Date,
+  reviewData?: { averageRating: number | null; totalReviews: number },
 ): PatientsKpi {
   const entries = Array.from(patientMap.values());
   const totalPatients = entries.length;
@@ -74,5 +75,7 @@ export function buildPatientsKpi(
     avgAppointmentsPerPatient,
     attendanceRate,
     attendanceTotal: attendTotal,
+    averageRating: reviewData?.averageRating ?? null,
+    totalReviews: reviewData?.totalReviews ?? 0,
   };
 }

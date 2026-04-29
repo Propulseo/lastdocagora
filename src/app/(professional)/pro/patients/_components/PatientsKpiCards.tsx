@@ -7,6 +7,7 @@ import {
   UserCheck,
   RefreshCw,
   ClipboardCheck,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPACING, SHADOW, RADIUS, TYPE } from "@/lib/design-tokens";
@@ -117,6 +118,10 @@ export function PatientsKpiCards({ kpi }: PatientsKpiCardsProps) {
   const attendanceVariant: Variant =
     !hasAttendance ? "muted" : kpi.attendanceRate >= 80 ? "green" : "red";
 
+  const hasReviews = kpi.totalReviews > 0;
+  const ratingVariant: Variant =
+    !hasReviews ? "muted" : (kpi.averageRating ?? 0) >= 4 ? "amber" : "red";
+
   return (
     <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <KpiTile
@@ -142,6 +147,7 @@ export function PatientsKpiCards({ kpi }: PatientsKpiCardsProps) {
         label={pt.retentionRate}
         value={`${kpi.retentionRate}%`}
         variant="amber"
+        className="hidden lg:block"
       />
       <KpiTile
         icon={ClipboardCheck}
@@ -149,6 +155,14 @@ export function PatientsKpiCards({ kpi }: PatientsKpiCardsProps) {
         value={hasAttendance ? `${kpi.attendanceRate}%` : "-"}
         sub={!hasAttendance ? pt.noAttendanceData : undefined}
         variant={attendanceVariant}
+      />
+      <KpiTile
+        icon={Star}
+        label={pt.averageRating}
+        value={hasReviews ? `${kpi.averageRating!.toFixed(1)}/5` : "-"}
+        className="hidden lg:block"
+        sub={hasReviews ? pt.reviewCount.replace("{count}", String(kpi.totalReviews)) : pt.noReviewData}
+        variant={ratingVariant}
       />
     </div>
   );

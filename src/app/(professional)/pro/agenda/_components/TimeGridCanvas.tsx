@@ -79,7 +79,7 @@ export function TimeGridCanvas({
   const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
 
   return (
-    <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
+    <CardContent className="overflow-visible sm:overflow-auto sm:min-h-[520px] sm:max-h-[calc(100vh-260px)]">
       <div
         ref={gridRef}
         className="relative select-none"
@@ -91,7 +91,7 @@ export function TimeGridCanvas({
       >
         {OFF_HOURS_START > START_HOUR && (
           <div
-            className="absolute left-[3.75rem] right-0 bg-muted/20 pointer-events-none"
+            className="absolute left-10 right-0 bg-muted/20 pointer-events-none sm:left-[3.75rem]"
             style={{
               top: 0,
               height: `${(OFF_HOURS_START - START_HOUR) * HOUR_HEIGHT}px`,
@@ -100,7 +100,7 @@ export function TimeGridCanvas({
         )}
         {OFF_HOURS_END <= END_HOUR && (
           <div
-            className="absolute left-[3.75rem] right-0 bg-muted/20 pointer-events-none"
+            className="absolute left-10 right-0 bg-muted/20 pointer-events-none sm:left-[3.75rem]"
             style={{
               top: `${(OFF_HOURS_END - START_HOUR) * HOUR_HEIGHT}px`,
               height: `${(END_HOUR - OFF_HOURS_END + 1) * HOUR_HEIGHT}px`,
@@ -108,21 +108,21 @@ export function TimeGridCanvas({
           />
         )}
 
-        <div className="absolute top-0 bottom-0 left-[3.75rem] w-px bg-border pointer-events-none" />
+        <div className="absolute top-0 bottom-0 left-10 w-px bg-border pointer-events-none sm:left-[3.75rem]" />
         {hours.map((hour) => {
           const top = (hour - START_HOUR) * HOUR_HEIGHT;
           return (
             <Fragment key={hour}>
               <div
-                className="absolute left-[3.75rem] right-0 border-t border-muted"
+                className="absolute left-10 right-0 border-t border-muted sm:left-[3.75rem]"
                 style={{ top: `${top}px` }}
               >
-                <span className="absolute -top-3 right-full mr-1.5 text-[11px] text-muted-foreground tabular-nums whitespace-nowrap">
+                <span className="absolute -top-3 right-full mr-1 text-[10px] text-muted-foreground tabular-nums whitespace-nowrap sm:mr-1.5 sm:text-[11px]">
                   {hour.toString().padStart(2, "0")}:00
                 </span>
               </div>
               <div
-                className="absolute left-[3.75rem] right-0 border-t border-dashed border-muted/50"
+                className="absolute left-10 right-0 border-t border-dashed border-muted/50 sm:left-[3.75rem]"
                 style={{ top: `${top + HOUR_HEIGHT / 2}px` }}
               />
             </Fragment>
@@ -172,18 +172,18 @@ export function TimeGridCanvas({
         {isToday && currentTimeTop > 0 && currentTimeTop < totalHeight && (
           <div className="absolute left-0 right-0 z-[30] pointer-events-none" style={{ top: `${currentTimeTop}px` }}>
             <div className="relative flex items-center">
-              <span className="absolute right-[calc(100%-3.5rem)] text-[10px] font-semibold text-red-500 tabular-nums whitespace-nowrap">
+              <span className="absolute right-[calc(100%-2.25rem)] text-[10px] font-semibold text-red-500 tabular-nums whitespace-nowrap sm:right-[calc(100%-3.5rem)]">
                 {now.getHours().toString().padStart(2, "0")}:{now.getMinutes().toString().padStart(2, "0")}
               </span>
-              <span className="absolute left-[3.5rem] size-2.5 -translate-y-px rounded-full bg-red-500 ring-2 ring-background" />
-              <div className="absolute left-[3.75rem] right-0 h-[2px] bg-red-500/80" />
+              <span className="absolute left-[2.25rem] size-2.5 -translate-y-px rounded-full bg-red-500 ring-2 ring-background sm:left-[3.5rem]" />
+              <div className="absolute left-10 right-0 h-[2px] bg-red-500/80 sm:left-[3.75rem]" />
             </div>
           </div>
         )}
 
         {isDragging && selectionHeight > 0 && (
           <div
-            className={`absolute left-16 right-2 ${RADIUS.sm} bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]`}
+            className={`absolute left-10 right-1 sm:left-16 sm:right-2 ${RADIUS.sm} bg-primary/20 border-2 border-primary border-dashed pointer-events-none z-[30]`}
             style={{
               top: `${selectionTop}px`,
               height: `${selectionHeight}px`,

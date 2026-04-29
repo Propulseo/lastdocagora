@@ -36,7 +36,7 @@ export default async function PatientsPage({
   const insuranceLabels = t.patients.insuranceLabels as Record<string, string>;
 
   // Parallel queries
-  const [{ data: ownedPatients }, { data: appointments }, { data: hiddenRows }] = await Promise.all([
+  const [{ data: ownedPatients }, { data: appointments }, { data: hiddenRows }, { data: proRow }] = await Promise.all([
     supabase
       .from("patients")
       .select(
@@ -54,6 +54,11 @@ export default async function PatientsPage({
       .eq("professional_id", professionalId)
       .order("appointment_date", { ascending: false }),
     (supabase.rpc as unknown as (fn: string, params: Record<string, string>) => Promise<{ data: unknown }>)("get_hidden_patient_ids", { p_professional_id: professionalId }),
+    supabase
+      .from("professionals")
+      .select("rating, total_reviews")
+      .eq("id", professionalId)
+      .single(),
   ]);
 
   // Build set of hidden patient IDs
@@ -89,7 +94,11 @@ export default async function PatientsPage({
   }
 
   // Aggregation
-  const kpi = buildPatientsKpi(patientMap, now);
+  const proData = proRow as { rating: number | null; total_reviews: number | null } | null;
+  const kpi = buildPatientsKpi(patientMap, now, {
+    averageRating: proData?.rating ?? null,
+    totalReviews: proData?.total_reviews ?? 0,
+  });
   const acquisitionTrends = buildAcquisitionTrends(patientMap);
   const insuranceBreakdown = buildInsuranceBreakdown(patientMap, insuranceLabels);
   const frequencyDistribution = buildFrequencyDistribution(patientMap);

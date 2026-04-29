@@ -3,7 +3,11 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
 import { ALLOWED_TRANSITIONS } from "./attendance-validation";
-import { createNotification } from "@/lib/notifications";
+import {
+  createNotification,
+  getRecipientLocale,
+  getNotificationMessages,
+} from "@/lib/notifications";
 import { sanitizeDbError } from "@/lib/errors";
 
 /* ─── Confirm / Cancel appointment (pro action) ─── */
@@ -77,14 +81,15 @@ export async function updateAppointmentStatus(
     if (patientUserId) {
       const isConfirmed = newStatus === "confirmed";
 
-      // In-app notification to patient
+      // In-app notification to patient (in their preferred language)
+      const patientLocale = await getRecipientLocale(patientUserId);
+      const patientMsg = getNotificationMessages(patientLocale);
+      const tpl = isConfirmed ? patientMsg.bookingConfirmed : patientMsg.bookingCancelled;
       createNotification({
         userId: patientUserId,
         type: "appointment",
-        title: isConfirmed ? "Consulta confirmada" : "Consulta cancelada",
-        message: isConfirmed
-          ? `${proName} confirmou a sua consulta.`
-          : `${proName} cancelou a sua consulta.`,
+        title: tpl.title,
+        message: tpl.body.replace("{proName}", proName),
         link: "/patient/appointments",
       })
 

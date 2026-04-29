@@ -51,20 +51,20 @@ export function DashboardHeader({ data }: DashboardHeaderProps) {
       )}
 
       {/* Header row */}
-      <div className="flex items-end justify-between gap-4 pb-1">
-        <div>
+      <div className="flex items-end justify-between gap-3 pb-1 sm:gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h1 className={cn(TYPE.page_title, "text-[26px]")}>{greeting}</h1>
-            <Sparkles className="size-5 text-amber-400/70" />
+            <h1 className={cn(TYPE.page_title, "text-lg sm:text-[26px]")}>{greeting}</h1>
+            <Sparkles className="size-5 shrink-0 text-amber-400/70" />
           </div>
           <p className="mt-1 text-sm capitalize text-muted-foreground/80">
             {formattedDate}
           </p>
         </div>
-        <Button size="sm" asChild className="gap-1.5 shadow-sm">
+        <Button size="sm" asChild className="shrink-0 gap-1.5 shadow-sm">
           <Link href="/pro/agenda">
             <CalendarPlus className="size-3.5" />
-            {t.dashboard.newAppointment}
+            <span className="hidden sm:inline">{t.dashboard.newAppointment}</span>
           </Link>
         </Button>
       </div>

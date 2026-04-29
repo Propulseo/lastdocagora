@@ -16,9 +16,9 @@ export function MobileHeader({ title, leftAction, children }: MobileHeaderProps)
         <Image
           src="/logo-icon.png"
           alt="DocAgora"
-          width={28}
-          height={28}
-          className="size-7"
+          width={40}
+          height={40}
+          className="size-10 object-contain"
         />
       </div>
 

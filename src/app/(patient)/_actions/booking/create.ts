@@ -2,7 +2,12 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { createNotification } from "@/lib/notifications"
+import {
+  createNotification,
+  getRecipientLocale,
+  getNotificationMessages,
+  interpolate,
+} from "@/lib/notifications"
 
 export async function createAppointment(input: {
   professionalId: string
@@ -188,12 +193,19 @@ export async function createAppointment(input: {
     console.error("[booking] Failed to send patient email:", emailError)
   }
 
-  // In-app notification to professional
+  // In-app notification to professional (in their preferred language)
+  const proLocale = await getRecipientLocale(pro.user_id)
+  const proMsg = getNotificationMessages(proLocale)
   createNotification({
     userId: pro.user_id,
     type: "appointment",
-    title: "Nova marcação",
-    message: `${patientName} marcou ${serviceName} em ${input.appointmentDate} às ${input.appointmentTime}`,
+    title: proMsg.newBooking.title,
+    message: interpolate(proMsg.newBooking.body, {
+      patientName,
+      serviceName,
+      date: input.appointmentDate,
+      time: input.appointmentTime,
+    }),
     link: "/pro/agenda",
   })
 

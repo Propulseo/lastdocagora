@@ -29,13 +29,15 @@ interface MiniKpiProps {
 function MiniKpi({ label, value, icon: Icon, color, bg }: MiniKpiProps) {
   return (
     <Card className={`${RADIUS.card} ${SHADOW.card}`}>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className={`${RADIUS.element} p-2 ${bg}`}>
-          <Icon className={`size-5 ${color}`} />
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="text-xl font-bold tracking-tight">{value}</p>
+      <CardContent className="p-2 sm:p-4">
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
+          <div className={`${RADIUS.element} p-1 sm:p-2 ${bg}`}>
+            <Icon className={`size-3 sm:size-5 ${color}`} />
+          </div>
+          <div className="flex min-w-0 flex-col">
+            <p className="text-lg font-bold leading-tight tracking-tight sm:order-2 sm:text-xl">{value}</p>
+            <p className="line-clamp-2 text-[10px] leading-tight text-muted-foreground sm:order-1 sm:text-xs">{label}</p>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -81,7 +83,7 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
         <div className="hidden sm:block">
           <TrendsChart data={trends} />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           <MiniKpi
             label={t.statistics.kpi.totalAppointments}
             value={String(kpi.totalAppointments)}
@@ -125,7 +127,7 @@ export function AnalyzeMode({ kpi, trends, heatmap, serviceBreakdown, channels, 
           description={t.statistics.analyze?.revenueDesc ?? "Receitas diárias no período"}
           locale={locale}
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
           <MiniKpi
             label={t.statistics.analyze?.totalRevenue ?? "Receitas totais"}
             value={formatCurrency(totalRevenue, locale)}

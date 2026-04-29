@@ -103,9 +103,61 @@ export function AgendaControlBar({
         : `${month} ${year}`;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-3 bg-card px-4 py-3", RADIUS.card, SHADOW.card)}>
-      {/* Segmented period toggle */}
-      <div className={cn("hidden sm:inline-flex", RADIUS.element, "bg-muted p-1 gap-1")}>
+    <div className={cn("flex flex-col gap-2 bg-card px-3 py-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 sm:px-4 sm:py-3", RADIUS.card, SHADOW.card)}>
+      {/* Row 1 on mobile: Date navigation */}
+      <div className="flex items-center justify-between sm:order-3 sm:ml-auto">
+        <div className="flex items-center gap-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("size-8 min-h-[44px] min-w-[44px]", RADIUS.sm)}
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <span className="px-1 text-sm font-semibold tabular-nums">
+            {dateLabel}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("size-8 min-h-[44px] min-w-[44px]", RADIUS.sm)}
+            onClick={() => navigate(1)}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+        <Button variant="outline" size="sm" className={cn("h-8 text-xs", RADIUS.element)} onClick={goToday}>
+          {t.common.today}
+        </Button>
+      </div>
+
+      {/* Row 2 on mobile: Status filter pills */}
+      <div className="flex gap-1.5 overflow-x-auto sm:order-2 sm:flex-wrap sm:gap-2">
+        {statusOptions.map((opt) => {
+          const isActive = statusFilters.includes(opt.value);
+          const colors = STATUS_COLORS[opt.value];
+          return (
+            <button
+              key={opt.value}
+              onClick={() => toggleStatus(opt.value)}
+              className={cn(
+                RADIUS.badge,
+                "inline-flex items-center gap-1 px-2 py-1 text-[11px] font-semibold transition-all whitespace-nowrap sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
+                isActive
+                  ? colors.active
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <span className={cn("size-1.5 rounded-full shrink-0 sm:size-2", isActive ? colors.dot : "bg-muted-foreground/40")} />
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Segmented period toggle — desktop only */}
+      <div className={cn("hidden sm:inline-flex sm:order-1", RADIUS.element, "bg-muted p-1 gap-1")}>
         {periodOptions.map((opt) => {
           const Icon = PERIOD_ICONS[opt.value];
           return (
@@ -124,59 +176,6 @@ export function AgendaControlBar({
             </button>
           );
         })}
-      </div>
-
-      {/* Status filter pills — colorful per status */}
-      <div className="flex flex-wrap gap-2">
-        {statusOptions.map((opt) => {
-          const isActive = statusFilters.includes(opt.value);
-          const colors = STATUS_COLORS[opt.value];
-          return (
-            <button
-              key={opt.value}
-              onClick={() => toggleStatus(opt.value)}
-              className={cn(
-                RADIUS.badge,
-                "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all whitespace-nowrap",
-                isActive
-                  ? colors.active
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted",
-              )}
-            >
-              <span className={cn("size-2 rounded-full shrink-0", isActive ? colors.dot : "bg-muted-foreground/40")} />
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Date navigation */}
-      <div className="flex items-center gap-1 shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn("size-7 sm:size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
-          onClick={() => navigate(-1)}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn("size-7 sm:size-7 min-h-[44px] min-w-[44px]", RADIUS.sm)}
-          onClick={() => navigate(1)}
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-        <span className="px-1 text-sm font-medium tabular-nums">
-          {dateLabel}
-        </span>
-        <Button variant="outline" size="sm" className={cn("h-7 min-h-[44px] text-xs", RADIUS.element)} onClick={goToday}>
-          {t.common.today}
-        </Button>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import { MobileHeader } from "@/components/shared/mobile-header"
 import { NotificationBell } from "@/components/shared/NotificationBell"
 import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { useProfessionalI18n } from "@/lib/i18n/pro"
 
 interface ProMobileHeaderProps {
@@ -28,6 +29,7 @@ export function ProMobileHeader({ user, userId }: ProMobileHeaderProps) {
 
   return (
     <MobileHeader title={title}>
+      <ThemeToggle size="sm" />
       <NotificationBell
         userId={userId}
         translations={{

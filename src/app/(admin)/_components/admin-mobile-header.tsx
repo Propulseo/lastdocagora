@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { MobileHeader } from "@/components/shared/mobile-header"
 import { NotificationBell } from "@/components/shared/NotificationBell"
 import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n"
 
 interface AdminMobileHeaderProps {
@@ -48,6 +49,7 @@ export function AdminMobileHeader({
         </Button>
       }
     >
+      <ThemeToggle size="sm" />
       <NotificationBell
         userId={userId}
         translations={{

@@ -36,7 +36,7 @@ export function PublicHeader() {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-20 w-auto" priority />
+          <Image src="/logo.png" alt="DocAgora" width={480} height={320} className="h-12 sm:h-20 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}

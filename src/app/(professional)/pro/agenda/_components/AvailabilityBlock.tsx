@@ -99,7 +99,7 @@ export function AvailabilityBlock({
     <>
       <div
         className={cn(
-          "absolute left-16 right-2 z-[1] overflow-hidden",
+          "absolute left-10 right-1 z-[1] overflow-hidden sm:left-16 sm:right-2",
           // Shape
           "rounded-xl border border-emerald-200/80 dark:border-emerald-700/50",
           "bg-emerald-50/70 dark:bg-emerald-950/30",

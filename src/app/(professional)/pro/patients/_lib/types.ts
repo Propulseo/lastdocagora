@@ -26,6 +26,8 @@ export interface PatientsKpi {
   avgAppointmentsPerPatient: number;
   attendanceRate: number; // 0-100
   attendanceTotal: number;
+  averageRating: number | null; // 1-5 or null if no reviews
+  totalReviews: number;
 }
 
 export interface AcquisitionPoint {

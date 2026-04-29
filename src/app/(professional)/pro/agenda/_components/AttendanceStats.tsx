@@ -26,13 +26,13 @@ export function AttendanceStats({ stats }: AttendanceStatsProps) {
   ];
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center overflow-x-auto border border-border/60 sm:divide-x divide-border/60 ${RADIUS.card} ${SHADOW.card}`}>
+    <div className={`flex items-center overflow-x-auto border border-border/60 divide-x divide-border/60 ${RADIUS.card} ${SHADOW.card}`}>
       {items.map((item) => (
-        <div key={item.key} className="flex items-center gap-2 px-4 py-2 whitespace-nowrap">
-          <span className={`text-lg font-bold tabular-nums ${STAT_COLORS[item.key]}`}>
+        <div key={item.key} className="flex flex-col items-center px-3 py-2 whitespace-nowrap sm:flex-row sm:gap-2 sm:px-4">
+          <span className={`text-base font-bold tabular-nums sm:text-lg ${STAT_COLORS[item.key]}`}>
             {stats[item.key]}
           </span>
-          <span className="text-[11px] text-muted-foreground">{item.label}</span>
+          <span className="text-[10px] text-muted-foreground sm:text-[11px]">{item.label}</span>
         </div>
       ))}
     </div>

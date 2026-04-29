@@ -27,18 +27,18 @@ export function AttendanceRate({ stats }: AttendanceRateProps) {
   const a = t.agenda;
 
   return (
-    <div className={`border border-border/60 px-4 py-3 ${RADIUS.card} ${SHADOW.card}`}>
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">{a.attendanceRate}</p>
-        <p className={`text-sm font-bold ${textColor}`}>{rate}%</p>
+    <div className={`border border-border/60 px-3 py-2 sm:px-4 sm:py-3 ${RADIUS.card} ${SHADOW.card}`}>
+      <div className="flex items-center gap-3">
+        <p className="hidden text-sm font-medium sm:block">{a.attendanceRate}</p>
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted sm:mt-0">
+          <div
+            className={`h-full rounded-full ${barColor} transition-all duration-300`}
+            style={{ width: `${rate}%` }}
+          />
+        </div>
+        <p className={`shrink-0 text-sm font-bold ${textColor}`}>{rate}%</p>
       </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className={`h-full rounded-full ${barColor} transition-all duration-300`}
-          style={{ width: `${rate}%` }}
-        />
-      </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">
+      <p className="mt-1 hidden text-[11px] text-muted-foreground sm:block">
         {stats.present + stats.late} {stats.present + stats.late !== 1 ? a.presentPlural : a.presentSingular} {a.inWord}{" "}
         {checked} {checked !== 1 ? a.pastRDVPlural : a.pastRDVSingular}
         {stats.waiting > 0 && ` (${stats.waiting} ${stats.waiting !== 1 ? a.pendingPlural : a.pendingSingular})`}

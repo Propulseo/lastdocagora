@@ -37,27 +37,27 @@ export function YearNavigator({
   const canGoForward = selectedYear < maxYear;
 
   return (
-    <div className={`inline-flex items-center gap-1 ${RADIUS.sm} bg-muted p-0.5`}>
+    <div className={`inline-flex shrink-0 items-center gap-0.5 sm:gap-1 sm:${RADIUS.sm} sm:bg-muted sm:p-0.5`}>
       <Button
         variant="ghost"
         size="icon"
-        className="size-8"
+        className="size-6 sm:size-8"
         disabled={!canGoBack}
         onClick={() => navigate(selectedYear - 1)}
       >
-        <ChevronLeft className="size-4" />
+        <ChevronLeft className="size-3 sm:size-4" />
       </Button>
-      <span className="min-w-[4ch] text-center text-sm font-semibold tabular-nums">
+      <span className="min-w-[4ch] text-center text-xs font-semibold tabular-nums sm:text-sm">
         {selectedYear}
       </span>
       <Button
         variant="ghost"
         size="icon"
-        className="size-8"
+        className="size-6 sm:size-8"
         disabled={!canGoForward}
         onClick={() => navigate(selectedYear + 1)}
       >
-        <ChevronRight className="size-4" />
+        <ChevronRight className="size-3 sm:size-4" />
       </Button>
     </div>
   );

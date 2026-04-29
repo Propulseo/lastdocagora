@@ -2,8 +2,6 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -13,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
-import { RADIUS } from "@/lib/design-tokens";
 
 const RANGES = ["7d", "30d", "90d", "1y"] as const;
 type StatsRange = (typeof RANGES)[number];
@@ -24,6 +21,7 @@ interface ServiceOption {
 }
 
 interface StatsFiltersBarProps {
+  yearNavigator?: React.ReactNode;
   services: ServiceOption[];
   currentRange: string;
   currentService: string;
@@ -31,6 +29,7 @@ interface StatsFiltersBarProps {
 }
 
 export function StatsFiltersBar({
+  yearNavigator,
   services,
   currentRange,
   currentService,
@@ -60,78 +59,76 @@ export function StatsFiltersBar({
     [router, searchParams],
   );
 
-  const handleExport = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (!params.has("range")) params.set("range", "30d");
-    window.open(`/pro/statistics/export?${params.toString()}`, "_blank");
-  };
-
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      {/* Period toggle */}
-      <div className={`inline-flex items-center ${RADIUS.sm} bg-muted p-0.5`}>
-        {RANGES.map((range) => (
-          <button
-            key={range}
-            onClick={() => updateParam("range", range)}
-            className={cn(
-              `${RADIUS.sm} px-3 py-1.5 text-sm font-medium transition-all min-h-[44px] active:scale-95`,
-              currentRange === range
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {rangeLabels[range]}
-          </button>
-        ))}
+    <div className="space-y-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3 sm:space-y-0">
+      {/* Year nav + Period pills — one scrollable row on mobile */}
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:gap-3 sm:overflow-visible">
+        {yearNavigator}
+        <div className="contents sm:inline-flex sm:items-center sm:rounded-lg sm:bg-muted sm:p-0.5">
+          {RANGES.map((range) => (
+            <button
+              key={range}
+              onClick={() => updateParam("range", range)}
+              className={cn(
+                "shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-all active:scale-95",
+                "sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-sm",
+                currentRange === range
+                  ? "bg-primary text-primary-foreground sm:bg-background sm:text-foreground sm:shadow-sm"
+                  : "bg-muted text-muted-foreground hover:text-foreground sm:bg-transparent",
+              )}
+            >
+              {rangeLabels[range]}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Service filter */}
-      {services.length > 0 && (
+      {/* Selects — grid 2 cols on mobile, inline on desktop */}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+        {services.length > 0 && (
+          <Select
+            value={currentService || "all"}
+            onValueChange={(v) => updateParam("service", v)}
+          >
+            <SelectTrigger className="h-8 text-xs sm:h-9 sm:w-auto sm:min-w-[140px] sm:text-sm">
+              <SelectValue placeholder={t.statistics.filters.allServices} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                {t.statistics.filters.allServices}
+              </SelectItem>
+              {services.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
         <Select
-          value={currentService || "all"}
-          onValueChange={(v) => updateParam("service", v)}
+          value={currentChannel || "all"}
+          onValueChange={(v) => updateParam("channel", v)}
         >
-          <SelectTrigger className="h-9 w-auto min-w-[140px] min-h-[44px] sm:min-h-0">
-            <SelectValue placeholder={t.statistics.filters.allServices} />
+          <SelectTrigger className="h-8 text-xs sm:h-9 sm:w-auto sm:min-w-[120px] sm:text-sm">
+            <SelectValue placeholder={t.statistics.filters.allChannels} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">
-              {t.statistics.filters.allServices}
+              {t.statistics.filters.allChannels}
             </SelectItem>
-            {services.map((s) => (
-              <SelectItem key={s.id} value={s.id}>
-                {s.name}
-              </SelectItem>
-            ))}
+            <SelectItem value="patient_booking">
+              {t.statistics.filters.channelPatient}
+            </SelectItem>
+            <SelectItem value="manual">
+              {t.statistics.filters.channelManual}
+            </SelectItem>
+            <SelectItem value="walk_in">
+              {(t.statistics.filters as Record<string, string>).channelWalkIn ?? "Walk-in"}
+            </SelectItem>
           </SelectContent>
         </Select>
-      )}
-
-      {/* Channel filter */}
-      <Select
-        value={currentChannel || "all"}
-        onValueChange={(v) => updateParam("channel", v)}
-      >
-        <SelectTrigger className="h-9 w-auto min-w-[120px] min-h-[44px] sm:min-h-0">
-          <SelectValue placeholder={t.statistics.filters.allChannels} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            {t.statistics.filters.allChannels}
-          </SelectItem>
-          <SelectItem value="patient_booking">
-            {t.statistics.filters.channelPatient}
-          </SelectItem>
-          <SelectItem value="manual">
-            {t.statistics.filters.channelManual}
-          </SelectItem>
-          <SelectItem value="walk_in">
-            {(t.statistics.filters as Record<string, string>).channelWalkIn ?? "Walk-in"}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-
+      </div>
     </div>
   );
 }

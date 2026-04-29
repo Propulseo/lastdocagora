@@ -66,7 +66,10 @@
     "retentionRate": "Taux de Rétention",
     "avgAppointments": "Consultations/Patient",
     "attendanceRate": "Taux de Présence",
-    "noAttendanceData": "Pas de données de présence"
+    "noAttendanceData": "Pas de données de présence",
+    "averageRating": "Note Moyenne",
+    "reviewCount": "{count} avis",
+    "noReviewData": "Aucun avis"
   },
   "filters": {
     "statusLabel": "Statut",

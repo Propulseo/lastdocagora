@@ -1,7 +1,11 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import type { AppointmentActionResult } from "./attendance-validation";
-import { createNotification } from "@/lib/notifications";
+import {
+  createNotification,
+  getRecipientLocale,
+  getNotificationMessages,
+} from "@/lib/notifications";
 import { sanitizeDbError } from "@/lib/errors";
 export async function cancelAppointment(
   appointmentId: string,
@@ -73,12 +77,14 @@ export async function cancelAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
-      // In-app notification to patient
+      // In-app notification to patient (in their preferred language)
+      const patientLocale = await getRecipientLocale(patientUserId);
+      const patientMsg = getNotificationMessages(patientLocale);
       createNotification({
         userId: patientUserId,
         type: "appointment",
-        title: "Consulta cancelada",
-        message: `${proName} cancelou a sua consulta.`,
+        title: patientMsg.bookingCancelled.title,
+        message: patientMsg.bookingCancelled.body.replace("{proName}", proName),
         link: "/patient/appointments",
       })
 
@@ -174,12 +180,14 @@ export async function rejectAppointment(
     const proName = pro ? `${pro.first_name ?? ""} ${pro.last_name ?? ""}`.trim() || "Professional" : "Professional";
 
     if (patientUserId) {
-      // In-app notification to patient
+      // In-app notification to patient (in their preferred language)
+      const patientLocale = await getRecipientLocale(patientUserId);
+      const patientMsg = getNotificationMessages(patientLocale);
       createNotification({
         userId: patientUserId,
         type: "appointment",
-        title: "Consulta recusada",
-        message: `${proName} recusou a sua consulta.`,
+        title: patientMsg.bookingRejected.title,
+        message: patientMsg.bookingRejected.body.replace("{proName}", proName),
         link: "/patient/appointments",
       })
 

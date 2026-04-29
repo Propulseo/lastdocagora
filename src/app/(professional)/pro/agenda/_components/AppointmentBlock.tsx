@@ -80,7 +80,7 @@ export function AppointmentBlock({
     <button
       type="button"
       className={cn(
-        "absolute left-16 right-2 z-[10] text-left shadow-sm transition-all hover:shadow-md hover:brightness-95", RADIUS.sm,
+        "absolute left-10 right-1 z-[10] text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 sm:left-16 sm:right-2", RADIUS.sm,
         isCompact ? "overflow-hidden px-2 py-0.5" : "overflow-hidden px-3 py-1.5",
         isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn

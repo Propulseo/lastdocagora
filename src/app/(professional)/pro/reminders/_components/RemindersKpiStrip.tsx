@@ -21,7 +21,7 @@ interface RemindersKpiStripProps {
   t: ReturnType<typeof useProfessionalI18n>["t"];
 }
 
-const cardClass = "min-h-24 p-4";
+const cardClass = "min-h-24 min-w-[160px] shrink-0 snap-start p-4 sm:min-w-0 sm:shrink";
 
 export function RemindersKpiStrip({
   kpiData,
@@ -40,7 +40,7 @@ export function RemindersKpiStrip({
   );
 
   return (
-    <div className="flex gap-4 overflow-x-auto flex-nowrap pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3 xl:grid-cols-5">
       <KPICard
         icon={Send}
         label={kpiLabels.sentThisMonth}
@@ -52,13 +52,13 @@ export function RemindersKpiStrip({
       {deliverabilityRate === "\u2014" ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="h-full">
+            <div className="min-w-[160px] shrink-0 snap-start sm:min-w-0 sm:shrink">
               <KPICard
                 icon={CheckCircle2}
                 label={kpiLabels.deliverability}
                 value={deliverabilityRate}
                 iconVariant="green"
-                className={`${cardClass} h-full`}
+                className="min-h-24 h-full p-4"
               />
             </div>
           </TooltipTrigger>
@@ -95,13 +95,13 @@ export function RemindersKpiStrip({
       {/* Placeholder 6th card - avg delivery time not available yet */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="h-full">
+          <div className="min-w-[160px] shrink-0 sm:min-w-0 sm:shrink">
             <KPICard
               icon={Send}
               label={kpiLabels.avgDeliveryTime}
               value={"\u2014"}
               iconVariant="default"
-              className={`${cardClass} h-full`}
+              className="min-h-24 h-full p-4"
             />
           </div>
         </TooltipTrigger>

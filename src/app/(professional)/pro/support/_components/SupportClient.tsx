@@ -64,7 +64,7 @@ export function SupportClient({
             </p>
           </div>
         </div>
-        <Button size="sm" className="gap-1.5 w-full sm:w-auto min-h-[44px]" onClick={() => setDialogOpen(true)}>
+        <Button size="sm" className="shrink-0 gap-1.5" onClick={() => setDialogOpen(true)}>
           <Plus className="size-3.5" />
           {s.newTicket as string}
         </Button>

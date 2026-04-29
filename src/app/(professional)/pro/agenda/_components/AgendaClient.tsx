@@ -39,12 +39,12 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   }, [isMobile, agenda.periodFilter]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3 sm:space-y-5">
       <PageHeader
         title={agenda.t.agenda.title}
         description={agenda.t.agenda.description}
         action={
-          <div className="flex gap-2">
+          <div className="hidden gap-2 sm:flex">
             <Button
               variant="outline"
               className="border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950 gap-2"

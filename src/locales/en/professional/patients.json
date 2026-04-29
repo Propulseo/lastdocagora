@@ -66,7 +66,10 @@
     "retentionRate": "Retention Rate",
     "avgAppointments": "Appointments/Patient",
     "attendanceRate": "Attendance Rate",
-    "noAttendanceData": "No attendance data"
+    "noAttendanceData": "No attendance data",
+    "averageRating": "Average Rating",
+    "reviewCount": "{count} reviews",
+    "noReviewData": "No reviews yet"
   },
   "filters": {
     "statusLabel": "Status",
