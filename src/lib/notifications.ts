@@ -1,11 +1,6 @@
-import { createClient } from "@supabase/supabase-js"
+import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 type NotificationType = "appointment" | "support" | "reminder" | "system" | "walk_in"
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
 
 export async function createNotification({
   userId,
@@ -21,7 +16,7 @@ export async function createNotification({
   link?: string
 }): Promise<void> {
   try {
-    await supabaseAdmin.from("notifications").insert({
+    await getSupabaseAdmin().from("notifications").insert({
       user_id: userId,
       type,
       title,

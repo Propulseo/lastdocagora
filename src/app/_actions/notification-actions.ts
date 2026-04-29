@@ -1,12 +1,7 @@
 "use server"
 
 import { createClient as createServerClient } from "@/lib/supabase/server"
-import { createClient } from "@supabase/supabase-js"
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
+import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 /** Get authenticated user id via cookies — returns null if not logged in */
 async function getAuthUserId(): Promise<string | null> {
@@ -21,7 +16,7 @@ export async function markNotificationRead(notificationId: string) {
   const userId = await getAuthUserId()
   if (!userId) return { success: false }
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("id", notificationId)
@@ -34,7 +29,7 @@ export async function markNotificationUnread(notificationId: string) {
   const userId = await getAuthUserId()
   if (!userId) return { success: false }
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from("notifications")
     .update({ read_at: null })
     .eq("id", notificationId)
@@ -47,7 +42,7 @@ export async function markAllNotificationsRead() {
   const userId = await getAuthUserId()
   if (!userId) return { success: false }
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("user_id", userId)
