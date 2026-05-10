@@ -134,7 +134,13 @@ export function WeekTimeGrid({
                       {dayNum}
                     </span>
                     {dayCount > 0 && (
-                      <span className="ml-1 inline-flex h-4 items-center rounded-full bg-primary/15 px-1.5 text-[10px] font-medium text-primary">
+                      <span className={`ml-1 inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${
+                        dayCount >= 9
+                          ? "bg-orange-500/15 text-orange-600 dark:text-orange-400"
+                          : dayCount >= 5
+                            ? "bg-primary/15 text-primary"
+                            : "bg-muted text-muted-foreground"
+                      }`}>
                         {dayCount}
                       </span>
                     )}
