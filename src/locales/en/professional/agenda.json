@@ -6,6 +6,8 @@
   "periodDay": "Day",
   "periodWeek": "Week",
   "periodMonth": "Month",
+  "hideWeekend": "Hide weekend",
+  "showWeekend": "Show weekend",
   "statusLabel": "Status",
   "attendanceOfDay": "Attendance of the day",
   "totalRDV": "Total Appointments",

@@ -6,6 +6,8 @@
   "periodDay": "Jour",
   "periodWeek": "Semaine",
   "periodMonth": "Mois",
+  "hideWeekend": "Masquer week-end",
+  "showWeekend": "Afficher week-end",
   "statusLabel": "Statut",
   "attendanceOfDay": "Présences du jour",
   "totalRDV": "Total RDV",

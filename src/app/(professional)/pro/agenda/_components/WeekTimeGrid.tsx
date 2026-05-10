@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RADIUS } from "@/lib/design-tokens";
@@ -69,6 +69,24 @@ export function WeekTimeGrid({
   const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
   const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
 
+  // Weekend toggle — persisted in localStorage
+  const [hideWeekend, setHideWeekend] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return localStorage.getItem("agenda_hide_weekend") === "true"; } catch { return false; }
+  });
+  const toggleWeekend = useCallback(() => {
+    setHideWeekend((prev) => {
+      const next = !prev;
+      try { localStorage.setItem("agenda_hide_weekend", String(next)); } catch { /* noop */ }
+      return next;
+    });
+  }, []);
+
+  const visibleDates = hideWeekend ? weekDates.slice(0, 5) : weekDates;
+  const visibleIndices = hideWeekend ? DAY_INDICES.slice(0, 5) : DAY_INDICES;
+  const colCount = visibleDates.length;
+  const weekendToggleTitle = (t.agenda as unknown as Record<string, string>)[hideWeekend ? "showWeekend" : "hideWeekend"] ?? "";
+
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();
     for (const date of weekDates) map.set(date, []);
@@ -110,12 +128,22 @@ export function WeekTimeGrid({
         <CardContent className="overflow-x-auto overflow-y-visible">
           <div className="min-w-[700px]">
             {/* Header: day names + dates + RDV count — sticky */}
-            <div className="sticky top-0 z-20 grid grid-cols-[3.5rem_repeat(7,1fr)] border-b bg-card pb-2 mb-2">
-              <div />
-              {weekDates.map((date, i) => {
+            <div
+              className="sticky top-0 z-20 grid border-b bg-card pb-2 mb-2"
+              style={{ gridTemplateColumns: `3.5rem repeat(${colCount}, 1fr)` }}
+            >
+              <button
+                type="button"
+                onClick={toggleWeekend}
+                className="flex items-end justify-center pb-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                title={weekendToggleTitle}
+              >
+                {hideWeekend ? "7j" : "5j"}
+              </button>
+              {visibleDates.map((date, i) => {
                 const d = new Date(date + "T00:00:00");
                 const dayNum = d.getDate();
-                const dayName = t.agenda.days[DAY_INDICES[i]].slice(0, 3);
+                const dayName = t.agenda.days[visibleIndices[i]].slice(0, 3);
                 const isToday = date === todayStr;
                 const dayCount = (appointmentsByDate.get(date) ?? []).length;
                 return (
@@ -151,8 +179,8 @@ export function WeekTimeGrid({
 
             {/* Time grid */}
             <div
-              className="grid grid-cols-[3.5rem_repeat(7,1fr)]"
-              style={{ height: `${totalHeight}px` }}
+              className="grid"
+              style={{ gridTemplateColumns: `3.5rem repeat(${colCount}, 1fr)`, height: `${totalHeight}px` }}
             >
               {/* Time labels */}
               <div className="relative">
@@ -168,7 +196,7 @@ export function WeekTimeGrid({
               </div>
 
               {/* Day columns */}
-              {weekDates.map((date) => {
+              {visibleDates.map((date) => {
                 const dayApts = appointmentsByDate.get(date) ?? [];
                 const dayExternal = externalByDate.get(date) ?? [];
                 const isToday = date === todayStr;

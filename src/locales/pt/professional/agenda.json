@@ -6,6 +6,8 @@
   "periodDay": "Dia",
   "periodWeek": "Semana",
   "periodMonth": "Mês",
+  "hideWeekend": "Ocultar fim de semana",
+  "showWeekend": "Mostrar fim de semana",
   "statusLabel": "Estado",
   "attendanceOfDay": "Presenças do dia",
   "totalRDV": "Total Consultas",
