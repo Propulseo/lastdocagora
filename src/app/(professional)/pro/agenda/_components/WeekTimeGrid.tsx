@@ -1,17 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR, END_HOUR, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
-import { todayInLisbon } from "@/lib/timezone";
+import { todayInLisbon, nowInLisbon } from "@/lib/timezone";
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
@@ -55,6 +55,19 @@ export function WeekTimeGrid({
 
   const weekDates = useMemo(() => getWeekDates(selectedDate), [selectedDate]);
   const todayStr = todayInLisbon();
+  const weekHasToday = weekDates.includes(todayStr);
+
+  // Tick every 60s to update the "now" line
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!weekHasToday) return;
+    const interval = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(interval);
+  }, [weekHasToday]);
+
+  const now = nowInLisbon();
+  const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
+  const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
 
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();
@@ -91,15 +104,13 @@ export function WeekTimeGrid({
     );
   }
 
-  const totalHeight = (END_HOUR - START_HOUR + 1) * HOUR_HEIGHT;
-
   return (
     <>
       <Card>
-        <CardContent className="overflow-auto min-h-[520px] max-h-[calc(100vh-260px)]">
+        <CardContent className="overflow-x-auto overflow-y-visible">
           <div className="min-w-[700px]">
-            {/* Header: day names + dates + RDV count */}
-            <div className="grid grid-cols-[3.5rem_repeat(7,1fr)] border-b pb-2 mb-2">
+            {/* Header: day names + dates + RDV count — sticky */}
+            <div className="sticky top-0 z-20 grid grid-cols-[3.5rem_repeat(7,1fr)] border-b bg-card pb-2 mb-2">
               <div />
               {weekDates.map((date, i) => {
                 const d = new Date(date + "T00:00:00");
@@ -161,6 +172,23 @@ export function WeekTimeGrid({
                     key={date}
                     className={`relative border-l ${isToday ? "bg-primary/5" : ""}`}
                   >
+                    {/* Off-hours shading */}
+                    {OFF_HOURS_START > START_HOUR && (
+                      <div
+                        className="absolute left-0 right-0 bg-muted/20 pointer-events-none"
+                        style={{ top: 0, height: `${(OFF_HOURS_START - START_HOUR) * HOUR_HEIGHT}px` }}
+                      />
+                    )}
+                    {OFF_HOURS_END <= END_HOUR && (
+                      <div
+                        className="absolute left-0 right-0 bg-muted/20 pointer-events-none"
+                        style={{
+                          top: `${(OFF_HOURS_END - START_HOUR) * HOUR_HEIGHT}px`,
+                          height: `${(END_HOUR - OFF_HOURS_END + 1) * HOUR_HEIGHT}px`,
+                        }}
+                      />
+                    )}
+
                     {hours.map((hour) => (
                       <div
                         key={hour}
@@ -212,6 +240,19 @@ export function WeekTimeGrid({
                         </div>
                       );
                     })}
+
+                    {/* Now line — today only */}
+                    {isToday && currentTimeTop > 0 && currentTimeTop < totalHeight && (
+                      <div
+                        className="absolute left-0 right-0 z-[30] pointer-events-none"
+                        style={{ top: `${currentTimeTop}px` }}
+                      >
+                        <div className="relative flex items-center">
+                          <span className="absolute -left-0.5 size-2 -translate-y-px rounded-full bg-red-500 ring-2 ring-background" />
+                          <div className="absolute left-0 right-0 h-[2px] bg-red-500/80" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
