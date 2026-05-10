@@ -13,6 +13,7 @@ import { CancelDialog } from "./cancel-dialog"
 import { RatingDialog } from "./rating-dialog"
 import { AlternativeResponse } from "./alternative-response"
 import { translateSpecialty } from "@/locales/patient/specialties"
+import { getServiceName } from "@/lib/get-service-name"
 import type { PatientTranslations, DateFnsLocale } from "@/locales/patient"
 
 export type Appointment = {
@@ -137,7 +138,7 @@ export function AppointmentCard({
             </div>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {translateSpecialty(appt.professionals?.specialty, locale)}
-              {appt.services?.name && ` · ${(appt.services as Record<string, unknown>)[`name_${locale}`] as string ?? appt.services.name_pt ?? appt.services.name}`}
+              {appt.services?.name && ` · ${getServiceName(appt.services, locale)}`}
             </p>
           </div>
         </div>

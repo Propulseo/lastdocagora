@@ -13,6 +13,9 @@ import { ProfileAvatarHeader } from "./ProfileAvatarHeader";
 import { ProfileRatingsSection } from "./ProfileRatingsSection";
 import { useProfileEditing } from "./useProfileEditing";
 import { DisplayField, EditField, SectionCardHeader, SectionCardFooter } from "./ProfileFieldHelpers";
+import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
+import { languageLabel, languageFlag } from "@/lib/languages";
+import type { LanguageCode } from "@/lib/languages";
 import { LockedField } from "./LockedField";
 import { ApprovalField } from "./ApprovalField";
 import type { ProfileClientProps } from "./profile-types";
@@ -148,11 +151,29 @@ export function ProfileClient({ userId, userProfile, professional, recentRatings
         <CardContent>
           {editing.editingSection === "languages" ? (
             <div className="space-y-3">
-              <EditField label={t.profile.spokenLanguages} value={editing.formValues.languages_spoken ?? ""} onChange={(v) => editing.updateField("languages_spoken", v)} placeholder={t.profile.languagesHint} />
+              <LanguageMultiSelect
+                label={t.profile.spokenLanguages}
+                value={editing.selectedLanguages as LanguageCode[]}
+                onChange={(v) => editing.setSelectedLanguages(v)}
+              />
               <SectionCardFooter {...footerProps} />
             </div>
           ) : (
-            <DisplayField label={t.profile.spokenLanguages} value={professional.languages_spoken?.join(", ")} fallback={t.profile.notDefined} />
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+              <span className="shrink-0 text-sm text-muted-foreground sm:w-40">{t.profile.spokenLanguages}</span>
+              {professional.languages_spoken?.length ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {professional.languages_spoken.map((code) => (
+                    <span key={code} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-sm text-primary">
+                      <span>{languageFlag(code)}</span>
+                      <span>{languageLabel(code)}</span>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">{t.profile.notDefined}</span>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { adminNav } from "@/config/admin-nav";
@@ -9,6 +10,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AdminGlobalSearch } from "./admin-global-search";
 import { NotificationBell } from "@/components/shared/NotificationBell";
 import { UserAvatarMenu } from "@/components/shared/user-avatar-menu";
+import { LisbonClock } from "@/components/shared/lisbon-clock";
 
 interface AdminTopbarProps {
   userId: string;
@@ -34,7 +36,7 @@ export function AdminTopbar({ userId, user }: AdminTopbarProps) {
     : t.topbar.fallbackTitle;
 
   return (
-    <header className="hidden lg:flex h-12 shrink-0 items-center gap-3 border-b border-border bg-background px-6">
+    <header className="hidden lg:flex h-12 shrink-0 items-center gap-3 border-b border-border bg-background px-6 relative">
       <SidebarTrigger
         className="-ml-2 size-7 text-muted-foreground/60 transition-colors duration-100 hover:text-foreground"
         aria-label={t.topbar.toggleSidebar}
@@ -46,7 +48,13 @@ export function AdminTopbar({ userId, user }: AdminTopbarProps) {
         <AdminGlobalSearch />
       </div>
 
-      <div className="ml-auto flex items-center gap-0.5">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        <Image src="/logo-icon.png" alt="DocAgora" width={28} height={28} className="size-7 object-contain opacity-60" />
+      </div>
+
+      <div className="ml-auto flex items-center gap-2">
+        <LisbonClock />
+        <Separator orientation="vertical" className="h-4" />
         <NotificationBell
           userId={userId}
           translations={{

@@ -16,6 +16,7 @@ import { AvailabilityGrid } from "./AvailabilityGrid"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { translateSpecialty } from "@/locales/patient/specialties"
 import type { PatientTranslations } from "@/locales/patient"
+import { languageLabel, languageFlag } from "@/lib/languages"
 
 export type ProfessionalResult = {
   id: string
@@ -45,15 +46,6 @@ export type ProfessionalResult = {
   users: { first_name: string | null; last_name: string | null; avatar_url?: string | null } | null
   available_slots?: string[]
   requested_date?: string
-}
-
-const LANG_CODE_TO_LABEL: Record<string, string> = {
-  pt: "Português",
-  en: "English",
-  fr: "Français",
-  es: "Español",
-  de: "Deutsch",
-  it: "Italiano",
 }
 
 export function ProfessionalCard({
@@ -141,7 +133,7 @@ export function ProfessionalCard({
             {prof.languages_spoken && prof.languages_spoken.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Globe className="size-4 shrink-0 text-primary/60" />
-                <span>{prof.languages_spoken.map((l) => LANG_CODE_TO_LABEL[l] ?? l).join(", ")}</span>
+                <span>{prof.languages_spoken.map((l) => `${languageFlag(l)} ${languageLabel(l)}`).join(", ")}</span>
               </div>
             )}
             {prof.years_experience != null && (

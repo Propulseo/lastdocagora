@@ -39,12 +39,8 @@ export function DeletePatientDialog({
     if (result.success) {
       toast.success(pt.patientRemoved);
       onOpenChange(false);
-    } else if (result.error === "linked_data") {
-      toast.error(pt.removeErrorLinkedData);
     } else if (result.error === "permission_denied") {
       toast.error(pt.removeErrorPermission);
-    } else if (result.error === "not_owned") {
-      toast.error(pt.removeErrorNotOwned);
     } else {
       toast.error(pt.errorRemoving);
     }

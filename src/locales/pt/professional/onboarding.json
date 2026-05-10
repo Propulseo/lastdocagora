@@ -30,8 +30,7 @@
     "registrationNumber": "Número de Ordem",
     "registrationNumberPlaceholder": "Ex: 12345",
     "languages": "Idiomas falados",
-    "languagesPlaceholder": "Português, Inglês, Francês...",
-    "languagesHint": "Separe com vírgulas",
+    "languagesPlaceholder": "Selecione os idiomas",
     "photo": "Foto de perfil",
     "photoHint": "JPG, PNG ou WebP — máx. 2 MB"
   },

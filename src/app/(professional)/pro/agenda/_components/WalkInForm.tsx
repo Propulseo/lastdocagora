@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { ResponsiveDialogFooter } from "@/components/shared/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Loader2, Zap, Clock } from "lucide-react";
@@ -18,6 +18,7 @@ import type { WalkInCreatedData } from "./WalkInDialog";
 
 interface WalkInFormProps {
   walkInT: Record<string, string>;
+  locale: string;
   professionalId: string;
   preselectedTime?: string;
   onOpenChange: (open: boolean) => void;
@@ -26,6 +27,7 @@ interface WalkInFormProps {
 
 export function WalkInForm({
   walkInT,
+  locale,
   professionalId,
   preselectedTime,
   onOpenChange,
@@ -33,13 +35,15 @@ export function WalkInForm({
 }: WalkInFormProps) {
   const supabase = useMemo(() => createClient(), []);
 
-  const [services, setServices] = useState<{ id: string; name: string }[]>([]);
+  const [services, setServices] = useState<
+    { id: string; name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null }[]
+  >([]);
   const [patientName, setPatientName] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const [todaySlots, setTodaySlots] = useState<SlotInfo[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(true);
@@ -59,7 +63,7 @@ export function WalkInForm({
     async function loadServices() {
       const { data } = await supabase
         .from("services")
-        .select("id, name")
+        .select("id, name, name_pt, name_fr, name_en")
         .eq("professional_id", professionalId)
         .eq("is_active", true)
         .order("name");
@@ -139,42 +143,42 @@ export function WalkInForm({
   const finalDate = manualMode ? manualDate : selectedDate;
   const finalTime = manualMode ? manualTime + ":00" : selectedTime;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!patientName.trim() || !serviceId || !finalTime) return;
 
-    setSaving(true);
-    const result = await createWalkIn({
-      patientName: patientName.trim(),
-      serviceId,
-      scheduledTime: finalTime,
-      scheduledDate: finalDate || undefined,
-      phone: phone.trim() || undefined,
-      email: email.trim() || undefined,
-      notes: notes.trim() || undefined,
-    });
-    setSaving(false);
-
-    if (result.success) {
-      if (result.warning === "duplicate_same_day") {
-        toast.warning(walkInT.duplicateSameDay);
-      }
-      toast.success(walkInT.success);
-      onOpenChange(false);
-      onCreated({
-        appointmentId: result.appointmentId,
-        patientId: result.patientId,
+    startTransition(async () => {
+      const result = await createWalkIn({
         patientName: patientName.trim(),
+        serviceId,
+        scheduledTime: finalTime,
+        scheduledDate: finalDate || undefined,
+        phone: phone.trim() || undefined,
+        email: email.trim() || undefined,
+        notes: notes.trim() || undefined,
       });
-    } else {
-      const errorKey = `error_${result.error}` as keyof typeof walkInT;
-      const msg = walkInT[errorKey] ?? walkInT.error;
-      toast.error(msg);
-    }
+
+      if (result.success) {
+        if (result.warning === "duplicate_same_day") {
+          toast.warning(walkInT.duplicateSameDay);
+        }
+        toast.success(walkInT.success);
+        onCreated({
+          appointmentId: result.appointmentId,
+          patientId: result.patientId,
+          patientName: patientName.trim(),
+        });
+        onOpenChange(false);
+      } else {
+        const errorKey = `error_${result.error}` as keyof typeof walkInT;
+        const msg = walkInT[errorKey] ?? walkInT.error;
+        toast.error(msg);
+      }
+    });
   }
 
   const canSubmit =
-    patientName.trim() && serviceId && finalTime && !saving;
+    patientName.trim() && serviceId && finalTime && !isPending;
 
   function recapLabel(): string {
     const time = finalTime.slice(0, 5);
@@ -206,6 +210,7 @@ export function WalkInForm({
 
       <WalkInPatientFields
         walkInT={walkInT}
+        locale={locale}
         services={services}
         patientName={patientName}
         serviceId={serviceId}
@@ -241,7 +246,7 @@ export function WalkInForm({
           disabled={!canSubmit}
           className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2"
         >
-          {saving ? (
+          {isPending ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <UserPlus className="size-4" />

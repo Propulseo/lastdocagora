@@ -7,6 +7,7 @@ import {
   StatisticsClient,
   type DashboardData,
 } from "./_components/StatisticsClient";
+import { getServiceName } from "@/lib/get-service-name";
 import type { KpiData } from "./_components/KpiCards";
 import {
   getDateRange,
@@ -191,14 +192,10 @@ export default async function StatisticsPage({
   kpiData.occupancyRate = computeOccupancyRate(chartRows, availabilityRows, from, to);
   kpiData.walkInCount = chartRows.filter((r) => r.created_via === "walk_in").length;
 
-  const servicesList = (servicesResult.data ?? []).map((s) => {
-    const svc = s as { id: string; name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null };
-    const locKey = `name_${locale}` as "name_pt" | "name_fr" | "name_en";
-    return {
-      id: svc.id,
-      name: svc[locKey] || svc.name_pt || svc.name,
-    };
-  });
+  const servicesList = (servicesResult.data ?? []).map((s) => ({
+    id: s.id,
+    name: getServiceName(s, locale),
+  }));
 
   const dashboardData: DashboardData = {
     kpi: kpiData,

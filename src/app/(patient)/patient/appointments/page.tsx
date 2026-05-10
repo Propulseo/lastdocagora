@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
+import { getLocale } from "@/locales/patient"
+import { getServiceName } from "@/lib/get-service-name"
 import { AppointmentsClient } from "./_components/AppointmentsClient"
 import type { VisitedDoctor, PastAppointmentDetail } from "./_components/visited-doctors-types"
 
@@ -22,6 +24,7 @@ export default async function AppointmentsPage() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
+  const locale = await getLocale()
   const supabase = await createClient()
 
   const [activeRes, cancelledRes, pastRes] = await Promise.all([
@@ -90,7 +93,7 @@ export default async function AppointmentsPage() {
     }
 
     const svc = row.services
-    const serviceName = svc?.name_pt ?? svc?.name ?? null
+    const serviceName = svc ? getServiceName(svc, locale) || null : null
 
     if (!detailMap.has(pid)) detailMap.set(pid, [])
     detailMap.get(pid)!.push({

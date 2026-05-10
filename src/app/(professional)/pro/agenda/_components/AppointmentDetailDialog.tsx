@@ -51,44 +51,46 @@ export function AppointmentDetailDialog({
   const { t } = useProfessionalI18n();
 
   return (
-    <ResponsiveDialog open={!!selected} onOpenChange={() => onClose()}>
-      <ResponsiveDialogContent className={`p-6 ${RADIUS.card} max-h-[90vh] flex flex-col overflow-hidden`}>
-        <ResponsiveDialogHeader>
-          <ResponsiveDialogTitle>{t.agenda.appointmentDetails}</ResponsiveDialogTitle>
-        </ResponsiveDialogHeader>
-        {selected && (
-          <AppointmentDetailBody
-            selected={selected}
-            onMarkAttendance={onMarkAttendance}
-            onStatusChange={onStatusChange}
-            isUpdating={isUpdating}
-            onShowCancelDialog={onShowCancelDialog}
-            onShowRejectDialog={onShowRejectDialog}
-            onShowProposeDialog={onShowProposeDialog}
-          />
-        )}
+    <>
+      <ResponsiveDialog open={!!selected} onOpenChange={() => onClose()}>
+        <ResponsiveDialogContent className={`p-6 ${RADIUS.card} max-h-[90vh] flex flex-col`}>
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>{t.agenda.appointmentDetails}</ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          {selected && (
+            <AppointmentDetailBody
+              selected={selected}
+              onMarkAttendance={onMarkAttendance}
+              onStatusChange={onStatusChange}
+              isUpdating={isUpdating}
+              onShowCancelDialog={onShowCancelDialog}
+              onShowRejectDialog={onShowRejectDialog}
+              onShowProposeDialog={onShowProposeDialog}
+            />
+          )}
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
-        <CancelAppointmentDialog
-          open={showCancelDialog}
-          onOpenChange={onShowCancelDialog}
-          onConfirm={onCancelAppointment}
-          isUpdating={isUpdating}
-        />
+      <CancelAppointmentDialog
+        open={showCancelDialog}
+        onOpenChange={onShowCancelDialog}
+        onConfirm={onCancelAppointment}
+        isUpdating={isUpdating}
+      />
 
-        <RejectAppointmentDialog
-          open={showRejectDialog}
-          onOpenChange={onShowRejectDialog}
-          onConfirm={onRejectAppointment}
-          isUpdating={isUpdating}
-        />
+      <RejectAppointmentDialog
+        open={showRejectDialog}
+        onOpenChange={onShowRejectDialog}
+        onConfirm={onRejectAppointment}
+        isUpdating={isUpdating}
+      />
 
-        <ProposeAlternativeDialog
-          open={showProposeDialog}
-          onOpenChange={onShowProposeDialog}
-          onConfirm={onProposeAlternative}
-          isUpdating={isUpdating}
-        />
-      </ResponsiveDialogContent>
-    </ResponsiveDialog>
+      <ProposeAlternativeDialog
+        open={showProposeDialog}
+        onOpenChange={onShowProposeDialog}
+        onConfirm={onProposeAlternative}
+        isUpdating={isUpdating}
+      />
+    </>
   );
 }

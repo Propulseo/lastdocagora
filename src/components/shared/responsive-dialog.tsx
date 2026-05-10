@@ -61,8 +61,8 @@ function ResponsiveDialogContent({
 
   if (isMobile) {
     return (
-      <SheetContent side="bottom" className="max-h-[90vh] p-0">
-        <ScrollArea className="max-h-[90vh]">
+      <SheetContent side="bottom" className="max-h-[calc(100vh-5rem)] p-0">
+        <ScrollArea className="max-h-[calc(100vh-5rem)]">
           <div className={className}>{children}</div>
         </ScrollArea>
       </SheetContent>

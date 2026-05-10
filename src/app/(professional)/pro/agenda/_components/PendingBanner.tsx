@@ -72,7 +72,7 @@ export function PendingBanner({
   onStatusChanged,
   onAppointmentUpdate,
 }: PendingBannerProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const [expanded, setExpanded] = useState(false);
 
   const {
@@ -159,6 +159,7 @@ export function PendingBanner({
                           formatDate={formatDate}
                           onConfirm={handleConfirm}
                           onReject={setRejectTarget}
+                          locale={locale}
                           t={t}
                         />
                       ))}

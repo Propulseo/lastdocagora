@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -19,6 +20,7 @@ import { ProBottomNav } from "./_components/pro-bottom-nav";
 import { ProMobileHeader } from "./_components/pro-mobile-header";
 import { ProRealtimeNotifier } from "./_components/pro-realtime-notifier";
 import { NotificationBell } from "@/components/shared/NotificationBell";
+import { LisbonClock } from "@/components/shared/lisbon-clock";
 
 export const metadata = {
   title: "DOCAGORA - Painel Profissional",
@@ -115,11 +117,16 @@ export default async function ProfessionalLayout({
             <ProSidebar openTicketCount={unreadCount} />
             <SidebarInset className="max-h-svh overflow-hidden">
               <ProMobileHeader user={sidebarUser} userId={user.id} />
-              <header className="hidden lg:flex h-14 shrink-0 items-center border-b border-border/40 bg-background/95 backdrop-blur-sm px-6">
+              <header className="hidden lg:flex h-14 shrink-0 items-center border-b border-border/40 bg-background/95 backdrop-blur-sm px-6 relative">
                 <SidebarTrigger className="-ml-2" />
                 <Separator orientation="vertical" className="mx-3 h-4" />
                 <ProLayoutHeaderTitle />
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                  <Image src="/logo-icon.png" alt="DocAgora" width={32} height={32} className="size-8 object-contain opacity-60" />
+                </div>
                 <div className="ml-auto flex items-center gap-3">
+                  <LisbonClock />
+                  <Separator orientation="vertical" className="h-4" />
                   <NotificationBell
                     userId={user.id}
                     translations={{

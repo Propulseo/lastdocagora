@@ -199,7 +199,7 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
             onClick={() => setWalkInOpen(true)}
           >
             <UserPlus className="size-4" />
-            Walk-in
+            {(t.agenda.walkIn as Record<string, string>).button}
           </Button>
         </div>
       )}

@@ -24,6 +24,7 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
   const [editingSection, setEditingSection] = useState<SectionKey | null>(null);
   const [isPending, startTransition] = useTransition();
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedInsuranceIds, setSelectedInsuranceIds] = useState<string[]>(professionalInsuranceIds);
 
   function startEditing(section: SectionKey) {
@@ -48,7 +49,7 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
       values.city = professional.city ?? "";
       values.postal_code = professional.postal_code ?? "";
     } else if (section === "languages") {
-      values.languages_spoken = professional.languages_spoken?.join(", ") ?? "";
+      setSelectedLanguages(professional.languages_spoken ?? ["pt"]);
     } else if (section === "insurances") {
       setSelectedInsuranceIds(professionalInsuranceIds);
     }
@@ -91,7 +92,7 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
     } else if (editingSection === "location") {
       input = { section: "location", address: formValues.address ?? "", city: formValues.city ?? "", postal_code: formValues.postal_code ?? "" };
     } else {
-      input = { section: "languages", languages_spoken: formValues.languages_spoken ?? "" };
+      input = { section: "languages", languages_spoken: selectedLanguages };
     }
 
     startTransition(async () => {
@@ -111,5 +112,5 @@ export function useProfileEditing({ userProfile, professional, professionalInsur
     });
   }
 
-  return { editingSection, isPending, formValues, selectedInsuranceIds, setSelectedInsuranceIds, startEditing, cancelEditing, updateField, handleSave };
+  return { editingSection, isPending, formValues, selectedLanguages, setSelectedLanguages, selectedInsuranceIds, setSelectedInsuranceIds, startEditing, cancelEditing, updateField, handleSave };
 }

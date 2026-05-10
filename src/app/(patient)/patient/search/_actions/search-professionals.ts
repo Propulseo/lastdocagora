@@ -8,6 +8,7 @@ export type SearchProfessionalsParams = {
   specialty?: string
   city?: string
   insurance?: string
+  language?: string
 }
 
 export type SearchProfessionalRow = {
@@ -106,6 +107,11 @@ export async function searchProfessionals(
     q = q.in("id", insuranceProIds)
   } else if (insuranceProIds !== null && insuranceProIds.length === 0) {
     return []
+  }
+
+  // Language filter — uses Postgres array contains operator
+  if (params.language?.trim()) {
+    q = q.contains("languages_spoken", [params.language.trim()])
   }
 
   const { data, error } = await q

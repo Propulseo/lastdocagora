@@ -113,6 +113,15 @@ export async function updateService(
   return { success: true };
 }
 
+export async function getServiceLinkedCount(serviceId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("appointments")
+    .select("*", { count: "exact", head: true })
+    .eq("service_id", serviceId);
+  return count ?? 0;
+}
+
 export async function deleteService(serviceId: string): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -130,20 +139,11 @@ export async function deleteService(serviceId: string): Promise<ActionResult> {
 
   if (!service) return { success: false, error: "Service not found" };
 
-  // 2. Check if service has linked appointments (FK constraint blocks deletion)
-  const { count, error: countError } = await supabase
+  // 2. Unlink appointments that reference this service
+  await supabase
     .from("appointments")
-    .select("*", { count: "exact", head: true })
+    .update({ service_id: null })
     .eq("service_id", serviceId);
-
-  if (countError) return { success: false, error: sanitizeDbError(countError, "pro-services") };
-
-  if (count && count > 0) {
-    return {
-      success: false,
-      error: `APPOINTMENTS_LINKED:${count}`,
-    };
-  }
 
   // 3. Delete
   const { error } = await supabase

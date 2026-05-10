@@ -8,7 +8,7 @@ export const step1Schema = z.object({
   bio_fr: z.string().max(500).optional().or(z.literal("")),
   bio_en: z.string().max(500).optional().or(z.literal("")),
   registration_number: z.string().min(1).max(50),
-  languages_spoken: z.string().max(500).optional().or(z.literal("")),
+  languages_spoken: z.array(z.string().max(5)).max(10).optional(),
 });
 
 export const step2Schema = z.object({

@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Clock, Building2, Globe, Shield } from "lucide-react"
 import { translateSpecialty } from "@/locales/patient/specialties"
+import { languageLabel, languageFlag } from "@/lib/languages"
+import { getServiceName } from "@/lib/get-service-name"
 import { ProLocationMapWrapper } from "./ProLocationMapWrapper"
 
 interface ProfessionalUser { first_name: string; last_name: string; avatar_url: string | null }
@@ -61,10 +63,6 @@ interface ProfessionalDetailContentProps {
   dateLocale: Locale
 }
 
-function resolveServiceName(svc: Service, locale: string): string {
-  const key = `name_${locale}` as keyof Service;
-  return (svc[key] as string | null | undefined) ?? svc.name_pt ?? svc.name;
-}
 
 export function ProfessionalDetailContent({
   prof,
@@ -146,8 +144,8 @@ export function ProfessionalDetailContent({
               {prof.languages_spoken && prof.languages_spoken.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   <Globe className="size-4 text-primary/60" />
-                  {prof.languages_spoken.map((lang) => (
-                    <Badge key={lang} variant="outline">{lang}</Badge>
+                  {prof.languages_spoken.map((code) => (
+                    <Badge key={code} variant="outline">{languageFlag(code)} {languageLabel(code)}</Badge>
                   ))}
                 </div>
               )}
@@ -192,7 +190,7 @@ export function ProfessionalDetailContent({
               {services.map((svc) => (
                 <div key={svc.id} className="flex items-start justify-between rounded-lg border p-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.02]">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">{resolveServiceName(svc, locale)}</p>
+                    <p className="font-medium">{getServiceName(svc, locale)}</p>
                     {svc.description && <p className="mt-1 text-sm text-muted-foreground">{svc.description}</p>}
                     <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1"><Clock className="size-3.5" />{svc.duration_minutes} {t.professionalDetail.min}</span>

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { markAttendance } from "./attendance";
 import { nowInLisbon, todayInLisbon, formatInLisbon } from "@/lib/timezone";
 
 export type SlotInfo = { slot_start: string; slot_end: string };
@@ -180,15 +179,26 @@ export async function createWalkIn(formData: {
     .single();
 
   if (error) {
-    console.error("[pro-walkins] INSERT failed:", error.code, error.message, error);
     if (error.code === "23505") {
       return { success: false, error: "slot_already_taken" };
     }
     return { success: false, error: "operation_failed" };
   }
 
-  // Auto-mark attendance as "present"
-  await markAttendance(appointment.id, "present");
+  // Auto-mark attendance as "present" — insert directly to avoid
+  // silent failures from the full markAttendance flow (re-auth, checks…)
+  await supabase.from("appointment_attendance").upsert(
+    {
+      appointment_id: appointment.id,
+      professional_id: professional.id,
+      professional_user_id: user.id,
+      status: "present",
+      marked_at: now,
+      marked_by: user.id,
+      updated_at: now,
+    },
+    { onConflict: "appointment_id" },
+  );
 
   revalidatePath("/pro/agenda");
   revalidatePath("/pro/today");

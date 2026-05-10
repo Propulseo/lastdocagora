@@ -43,9 +43,7 @@ export async function handleStep1(
       bio_fr: d.bio_fr || null,
       bio_en: d.bio_en || null,
       registration_number: d.registration_number,
-      languages_spoken: d.languages_spoken
-        ? d.languages_spoken.split(",").map((s) => s.trim()).filter(Boolean)
-        : null,
+      languages_spoken: d.languages_spoken?.length ? d.languages_spoken : null,
       onboarding_step: 2,
     })
     .eq("id", proId);

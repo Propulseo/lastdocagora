@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Clock, Loader2 } from "lucide-react"
 import type { PatientTranslations } from "@/locales/patient"
+import { getServiceName } from "@/lib/get-service-name"
 
 export type Service = {
   id: string; name: string; name_pt?: string | null; name_fr?: string | null; name_en?: string | null; description: string | null
@@ -18,15 +19,6 @@ interface ServiceSelectorProps {
   onSelect: (service: Service) => void
   locale?: string
   t: PatientTranslations
-}
-
-function resolveServiceName(svc: Service, locale?: string): string {
-  if (locale) {
-    const key = `name_${locale}` as keyof Service
-    const val = svc[key]
-    if (typeof val === "string" && val) return val
-  }
-  return svc.name_pt ?? svc.name
 }
 
 export function ServiceSelector({ services, selectedServiceId, onSelect, locale, t }: ServiceSelectorProps) {
@@ -52,7 +44,7 @@ export function ServiceSelector({ services, selectedServiceId, onSelect, locale,
               )}
             >
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium">{resolveServiceName(svc, locale)}</p>
+                <p className="text-sm font-medium">{getServiceName(svc, locale ?? "pt")}</p>
                 <p className="shrink-0 text-xs font-semibold">
                   {svc.price > 0 ? `${svc.price} \u20ac` : t.booking.priceOnRequest}
                 </p>

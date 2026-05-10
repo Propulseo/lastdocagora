@@ -26,6 +26,7 @@ import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { createClient } from "@/lib/supabase/client";
 import { generateSlots, filterPastSlots, type AvailabilityRange, type ExistingAppointment } from "@/lib/slots";
 import { todayInLisbon } from "@/lib/timezone";
+import { getServiceName } from "@/lib/get-service-name";
 
 interface SimpleRecord {
   id: string;
@@ -48,7 +49,7 @@ export function AppointmentCreateModal({
   open,
   onOpenChange,
 }: AppointmentCreateModalProps) {
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
   const [isPending, startTransition] = useTransition();
 
   const [patients, setPatients] = useState<SimpleRecord[]>([]);
@@ -121,7 +122,7 @@ export function AppointmentCreateModal({
 
     supabase
       .from("services")
-      .select("id, name, professional_id, duration_minutes")
+      .select("id, name, name_pt, name_fr, name_en, professional_id, duration_minutes")
       .eq("is_active", true)
       .order("name")
       .limit(500)
@@ -129,7 +130,7 @@ export function AppointmentCreateModal({
         setServices(
           (data ?? []).map((s) => ({
             id: s.id,
-            label: s.name,
+            label: getServiceName(s, locale),
             professional_id: s.professional_id,
             duration_minutes: s.duration_minutes,
           }))

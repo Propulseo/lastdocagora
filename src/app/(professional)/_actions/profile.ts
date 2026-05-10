@@ -41,7 +41,7 @@ const locationSchema = z.object({
 
 const languagesSchema = z.object({
   section: z.literal("languages"),
-  languages_spoken: z.string().max(500).optional().or(z.literal("")),
+  languages_spoken: z.array(z.string().max(5)).max(10).optional(),
 });
 
 const updateProfileSchema = z.discriminatedUnion("section", [
@@ -152,9 +152,7 @@ export async function updateProfile(
     const { error } = await supabase
       .from("professionals")
       .update({
-        languages_spoken: data.languages_spoken
-          ? data.languages_spoken.split(",").map((s) => s.trim()).filter(Boolean)
-          : null,
+        languages_spoken: data.languages_spoken?.length ? data.languages_spoken : null,
       })
       .eq("id", pro.id);
 

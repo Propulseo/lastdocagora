@@ -32,7 +32,7 @@ export function WalkInDialog({
   onCreated,
   preselectedTime,
 }: WalkInDialogProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const walkInT = t.agenda.walkIn as Record<string, string>;
 
   return (
@@ -48,6 +48,7 @@ export function WalkInDialog({
         {open && (
           <WalkInForm
             walkInT={walkInT}
+            locale={locale}
             professionalId={professionalId}
             preselectedTime={preselectedTime}
             onOpenChange={onOpenChange}

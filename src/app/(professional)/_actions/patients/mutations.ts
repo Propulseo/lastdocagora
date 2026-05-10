@@ -93,7 +93,7 @@ export async function removePatient(patientId: string): Promise<ActionResult> {
   const professionalId = await getProfessionalId();
   const supabase = await createClient();
 
-  // Verify the patient exists and belongs to this professional
+  // Verify the patient exists
   const { data: patient } = await supabase
     .from("patients")
     .select("id, created_by_professional_id")
@@ -102,19 +102,22 @@ export async function removePatient(patientId: string): Promise<ActionResult> {
 
   if (!patient) return { success: false, error: "patient_not_found" };
 
-  if (patient.created_by_professional_id !== professionalId) {
-    return { success: false, error: "not_owned" };
+  // If the pro owns this patient, also clear the ownership link
+  if (patient.created_by_professional_id === professionalId) {
+    await supabase
+      .from("patients")
+      .update({ created_by_professional_id: null })
+      .eq("id", patientId)
+      .eq("created_by_professional_id", professionalId);
   }
 
-  // Remove ownership link — patient record stays intact for other professionals
-  const { error } = await supabase
-    .from("patients")
-    .update({ created_by_professional_id: null })
-    .eq("id", patientId)
-    .eq("created_by_professional_id", professionalId);
+  // Hide the patient from this professional's interface
+  const { error } = await supabase.rpc("hide_patient_for_pro", {
+    p_patient_id: patientId,
+    p_professional_id: professionalId,
+  });
 
   if (error) {
-    if (error.code === "23503") return { success: false, error: "linked_data" };
     if (error.code === "42501") return { success: false, error: "permission_denied" };
     return { success: false, error: sanitizeDbError(error, "pro-patients-remove") };
   }

@@ -15,7 +15,8 @@ import {
 import type { Appointment } from "../_types/agenda";
 
 const MIN_BLOCK_HEIGHT = 32;
-const OVERFLOW_THRESHOLD = 48;
+const COMPACT_THRESHOLD = 48;
+const FULL_THRESHOLD = 80;
 
 interface AppointmentBlockProps {
   appointment: Appointment;
@@ -51,7 +52,8 @@ export function AppointmentBlock({
   const topOffset = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
   const calculatedHeight = (appointment.duration_minutes / 60) * HOUR_HEIGHT;
   const blockHeight = Math.max(calculatedHeight, MIN_BLOCK_HEIGHT);
-  const isCompact = blockHeight < OVERFLOW_THRESHOLD;
+  const isCompact = blockHeight < COMPACT_THRESHOLD;
+  const isFull = blockHeight >= FULL_THRESHOLD;
 
   // Compute end time
   const totalEndMinutes = hours * 60 + minutes + appointment.duration_minutes;
@@ -80,8 +82,8 @@ export function AppointmentBlock({
     <button
       type="button"
       className={cn(
-        "absolute left-10 right-1 z-[10] text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 sm:left-16 sm:right-2", RADIUS.sm,
-        isCompact ? "overflow-hidden px-2 py-0.5" : "overflow-hidden px-3 py-1.5",
+        "absolute left-5 right-1 z-[10] text-left shadow-sm transition-all hover:shadow-md hover:brightness-95 sm:left-16 sm:right-2", RADIUS.sm,
+        isFull ? "overflow-hidden px-3 py-1.5" : "overflow-hidden px-2 py-0.5",
         isWalkIn ? "bg-amber-50 dark:bg-amber-900/20 border-l-amber-400" : colors,
         isManual && !patient?.first_name && !isWalkIn
           ? "border-l-[3px] border-dashed"
@@ -93,7 +95,7 @@ export function AppointmentBlock({
       onMouseDown={(e) => e.stopPropagation()}
     >
       {isCompact ? (
-        /* ── Compact: single-line time + name ── */
+        /* ── Compact (< 48px): single-line time + name ── */
         <div className="flex h-full items-center justify-between gap-1 min-w-0">
           <p className="truncate text-sm min-w-0">
             <span className="font-medium text-muted-foreground">{startTime}–{endTime}</span>
@@ -109,8 +111,32 @@ export function AppointmentBlock({
             </span>
           </div>
         </div>
+      ) : !isFull ? (
+        /* ── Medium (48–79px): 2-line layout — name + time ── */
+        <div className="min-w-0">
+          <div className="flex items-center justify-between gap-1">
+            <p className="truncate text-sm font-semibold min-w-0">
+              {isWalkIn && <span className="mr-1 text-[10px] font-bold text-amber-600 align-middle">W</span>}
+              {displayName}
+            </p>
+            <div className="flex items-center gap-1 shrink-0">
+              {canShowAttendance && (
+                <span className={cn("inline-block size-2 rounded-full", ATTENDANCE_DOT_COLORS[currentAttendance] ?? "bg-gray-400")} />
+              )}
+              <span className={cn("rounded-full border px-1.5 text-[10px] leading-4", pillColors)}>
+                {statusLabel[appointment.status] ?? appointment.status}
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            {startTime} → {endTime}
+            {service?.name && (
+              <span className="ml-1.5 italic">– {getServiceName(service, locale)}</span>
+            )}
+          </p>
+        </div>
       ) : (
-        /* ── Full: multi-line layout ── */
+        /* ── Full (≥ 80px): multi-line with attendance ── */
         <div className="flex h-full flex-col justify-between">
           <div className="min-w-0">
             {isWalkIn && (
@@ -124,14 +150,12 @@ export function AppointmentBlock({
                 {statusLabel[appointment.status] ?? appointment.status}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               {startTime} → {endTime}
+              {service?.name && (
+                <span className="ml-1.5 italic">– {getServiceName(service, locale)}</span>
+              )}
             </p>
-            {service?.name && (
-              <p className="truncate text-[11px] italic opacity-75">
-                {getServiceName(service, locale)}
-              </p>
-            )}
           </div>
 
           {canShowAttendance && (

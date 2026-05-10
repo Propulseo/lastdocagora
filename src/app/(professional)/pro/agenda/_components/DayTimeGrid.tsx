@@ -81,10 +81,17 @@ export function DayTimeGrid({
 
   useEffect(() => {
     if (highlightedAppointmentId) return;
-    if (!gridRef.current?.parentElement) return;
+    if (!gridRef.current) return;
+    // Find the closest scrollable ancestor (<main> with overflow-y-auto)
+    let scroller: HTMLElement | null = gridRef.current.parentElement;
+    while (scroller && getComputedStyle(scroller).overflowY !== "auto" && getComputedStyle(scroller).overflowY !== "scroll") {
+      scroller = scroller.parentElement;
+    }
+    if (!scroller) return;
     const now = nowInLisbon();
-    const scrollTo = Math.max(0, (now.getHours() - START_HOUR - 1) * HOUR_HEIGHT);
-    gridRef.current.parentElement.scrollTop = scrollTo;
+    const gridTop = gridRef.current.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+    const offsetInGrid = Math.max(0, (now.getHours() - START_HOUR - 1) * HOUR_HEIGHT);
+    scroller.scrollTop = gridTop + offsetInGrid;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

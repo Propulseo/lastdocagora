@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useTransition, Suspense } from "react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -24,13 +25,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Briefcase, PackageOpen, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Briefcase, PackageOpen, MoreHorizontal, Pencil, Trash2, EyeOff } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { cn } from "@/lib/utils";
 import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { EditServiceDialog } from "./edit-service-dialog";
 import { DeleteServiceDialog } from "./delete-service-dialog";
+import { deactivateService } from "@/app/(professional)/_actions/services";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { getServiceName, getServiceDescription } from "@/lib/get-service-name";
 import type { ServiceDashboardRow } from "../_lib/types";
@@ -48,7 +50,19 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
   const sv = t.services;
 
   const [editService, setEditService] = useState<ServiceDashboardRow | null>(null);
-  const [deleteService, setDeleteService] = useState<ServiceDashboardRow | null>(null);
+  const [deleteServiceRow, setDeleteServiceRow] = useState<ServiceDashboardRow | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleDeactivate = (serviceId: string) => {
+    startTransition(async () => {
+      const result = await deactivateService(serviceId);
+      if (result.success) {
+        toast.success(sv.serviceDeactivated);
+      } else {
+        toast.error(sv.errorDeactivating);
+      }
+    });
+  };
 
   const consultationTypeLabel: Record<string, string> = {
     "in-person": sv.consultationType["in-person"],
@@ -161,9 +175,18 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
                                 <Pencil className="mr-2 size-4" />
                                 {sv.editService}
                               </DropdownMenuItem>
+                              {service.is_active && (
+                                <DropdownMenuItem
+                                  disabled={isPending}
+                                  onClick={() => handleDeactivate(service.id)}
+                                >
+                                  <EyeOff className="mr-2 size-4" />
+                                  {sv.deactivateService}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 variant="destructive"
-                                onClick={() => setDeleteService(service)}
+                                onClick={() => setDeleteServiceRow(service)}
                               >
                                 <Trash2 className="mr-2 size-4" />
                                 {sv.deleteService}
@@ -197,12 +220,12 @@ export function ServicesTable({ services, totalFiltered }: ServicesTableProps) {
         />
       )}
 
-      {deleteService && (
+      {deleteServiceRow && (
         <DeleteServiceDialog
-          open={!!deleteService}
-          onOpenChange={(open) => !open && setDeleteService(null)}
-          serviceId={deleteService.id}
-          serviceName={deleteService.name}
+          open={!!deleteServiceRow}
+          onOpenChange={(open) => !open && setDeleteServiceRow(null)}
+          serviceId={deleteServiceRow.id}
+          serviceName={deleteServiceRow.name}
         />
       )}
     </>

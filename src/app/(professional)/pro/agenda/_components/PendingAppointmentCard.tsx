@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RADIUS } from "@/lib/design-tokens";
+import { getServiceName } from "@/lib/get-service-name";
 
 /* ─── Types ─── */
 
@@ -31,6 +32,7 @@ interface PendingAppointmentCardProps {
   formatDate: (dateStr: string) => string;
   onConfirm: (id: string) => void;
   onReject: (id: string) => void;
+  locale?: string;
   t: {
     agenda: {
       manualAppointment: string;
@@ -132,6 +134,7 @@ export function PendingAppointmentCard({
   formatDate,
   onConfirm,
   onReject,
+  locale = "pt",
   t,
 }: PendingAppointmentCardProps) {
   const patientName = apt.patients?.first_name
@@ -186,7 +189,7 @@ export function PendingAppointmentCard({
           {apt.services?.name && (
             <span className="inline-flex items-center gap-1 truncate max-w-[160px]">
               <Stethoscope className="size-3 shrink-0" />
-              {apt.services.name}
+              {getServiceName(apt.services, locale)}
             </span>
           )}
         </div>

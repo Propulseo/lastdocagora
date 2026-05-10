@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pencil, Loader2 } from "lucide-react";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { useAvatarUpload } from "@/app/(professional)/pro/profile/_hooks/useAvatarUpload";
+import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
+import type { LanguageCode } from "@/lib/languages";
 
 export interface StepHandle {
   submit: () => boolean;
@@ -35,7 +37,7 @@ interface Step1Props {
     bio_fr: string;
     bio_en: string;
     registration_number: string;
-    languages_spoken: string;
+    languages_spoken: LanguageCode[];
   }) => void;
 }
 
@@ -52,8 +54,10 @@ export const Step1Profile = forwardRef<StepHandle, Step1Props>(
     const [bioFr, setBioFr] = useState(initialData.bio_fr ?? "");
     const [bioEn, setBioEn] = useState(initialData.bio_en ?? "");
     const [regNumber, setRegNumber] = useState(initialData.registration_number ?? "");
-    const [languages, setLanguages] = useState(
-      initialData.languages_spoken?.join(", ") ?? "",
+    const [languages, setLanguages] = useState<LanguageCode[]>(
+      (initialData.languages_spoken?.filter((c): c is LanguageCode =>
+        ["pt", "en", "fr", "es"].includes(c),
+      )) ?? ["pt"],
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -226,15 +230,12 @@ export const Step1Profile = forwardRef<StepHandle, Step1Props>(
           </Tabs>
         </div>
 
-        <div className="space-y-2">
-          <Label>{ob.step1.languages}</Label>
-          <Input
-            value={languages}
-            onChange={(e) => setLanguages(e.target.value)}
-            placeholder={ob.step1.languagesPlaceholder}
-          />
-          <p className="text-xs text-muted-foreground">{ob.step1.languagesHint}</p>
-        </div>
+        <LanguageMultiSelect
+          label={ob.step1.languages}
+          value={languages}
+          onChange={setLanguages}
+          placeholder={ob.step1.languagesPlaceholder}
+        />
       </div>
     );
   },

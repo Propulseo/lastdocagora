@@ -94,8 +94,7 @@ export function AppointmentDetailBody({
   ];
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      <div className="overflow-y-auto flex-1 min-h-0 space-y-4">
+    <div className="overflow-y-auto flex-1 min-h-0 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <p className="font-medium min-w-0 truncate">
             {selected.patients?.first_name
@@ -142,9 +141,7 @@ export function AppointmentDetailBody({
             <p>{selected.notes}</p>
           </div>
         )}
-      </div>
 
-      <div className="flex-shrink-0 space-y-4">
         {canConfirm && (
           <div className="flex flex-col sm:flex-row gap-2 border-t pt-4 w-full">
             <Button
@@ -260,7 +257,6 @@ export function AppointmentDetailBody({
             </TooltipProvider>
           </div>
         )}
-      </div>
     </div>
   );
 }

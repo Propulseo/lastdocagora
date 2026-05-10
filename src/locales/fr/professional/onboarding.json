@@ -30,8 +30,7 @@
     "registrationNumber": "Numéro d'inscription",
     "registrationNumberPlaceholder": "Ex : 12345",
     "languages": "Langues parlées",
-    "languagesPlaceholder": "Portugais, Anglais, Français...",
-    "languagesHint": "Séparez par des virgules",
+    "languagesPlaceholder": "Sélectionnez les langues",
     "photo": "Photo de profil",
     "photoHint": "JPG, PNG ou WebP — max 2 Mo"
   },

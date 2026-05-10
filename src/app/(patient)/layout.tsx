@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
 import { PatientSidebar } from "./patient-sidebar"
@@ -21,6 +22,7 @@ import { PatientRealtimeNotifier } from "./_components/patient-realtime-notifier
 import { PublicSearchHeader } from "./_components/public-search-header"
 import { NotificationBell } from "@/components/shared/NotificationBell"
 import { UserAvatarMenu } from "@/components/shared/user-avatar-menu"
+import { LisbonClock } from "@/components/shared/lisbon-clock"
 
 export default async function PatientLayout({
   children,
@@ -97,11 +99,16 @@ export default async function PatientLayout({
                 user={{ avatarUrl: userInfo.avatarUrl, initials: userInfo.initials }}
                 locale={locale}
               />
-              <header className="hidden h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur-sm px-4 lg:flex">
+              <header className="hidden h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur-sm px-4 lg:flex relative">
                 <SidebarTrigger />
                 <Separator orientation="vertical" className="mr-2 ml-2 h-4" />
                 <PatientLayoutHeader />
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                  <Image src="/logo-icon.png" alt="DocAgora" width={32} height={32} className="size-8 object-contain opacity-60" />
+                </div>
                 <div className="ml-auto flex items-center gap-2">
+                  <LisbonClock />
+                  <Separator orientation="vertical" className="h-4" />
                   <NotificationBell
                     userId={user!.id}
                     translations={{

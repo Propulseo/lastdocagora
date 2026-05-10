@@ -2,6 +2,7 @@
 
 import { Clock } from "lucide-react"
 import type { BookingService } from "@/app/(patient)/_actions/booking"
+import { getServiceName } from "@/lib/get-service-name"
 
 interface BookingServiceStepProps {
   services: BookingService[]
@@ -15,15 +16,6 @@ interface BookingServiceStepProps {
     online: string
     inPerson: string
   }
-}
-
-function resolveServiceName(svc: BookingService, locale?: string): string {
-  if (locale) {
-    const key = `name_${locale}` as keyof BookingService
-    const val = svc[key]
-    if (typeof val === "string" && val) return val
-  }
-  return svc.name_pt ?? svc.name
 }
 
 export function BookingServiceStep({
@@ -48,7 +40,7 @@ export function BookingServiceStep({
             className="w-full rounded-xl border p-4 text-left transition-all hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm"
           >
             <div className="flex items-start justify-between gap-2">
-              <p className="font-medium">{resolveServiceName(svc, locale)}</p>
+              <p className="font-medium">{getServiceName(svc, locale ?? "pt")}</p>
               <p className="shrink-0 text-sm font-semibold">
                 {svc.price > 0 ? `${svc.price} \u20ac` : t.priceOnRequest}
               </p>

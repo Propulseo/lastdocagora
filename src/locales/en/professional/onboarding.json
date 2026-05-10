@@ -30,8 +30,7 @@
     "registrationNumber": "Registration number",
     "registrationNumberPlaceholder": "E.g. 12345",
     "languages": "Spoken languages",
-    "languagesPlaceholder": "Portuguese, English, French...",
-    "languagesHint": "Separate with commas",
+    "languagesPlaceholder": "Select languages",
     "photo": "Profile photo",
     "photoHint": "JPG, PNG or WebP — max 2 MB"
   },

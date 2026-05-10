@@ -10,14 +10,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getServiceName } from "@/lib/get-service-name";
 
 interface ServiceOption {
   id: string;
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
 }
 
 export interface WalkInPatientFieldsProps {
   walkInT: Record<string, string>;
+  locale: string;
   services: ServiceOption[];
   patientName: string;
   serviceId: string;
@@ -33,6 +38,7 @@ export interface WalkInPatientFieldsProps {
 
 export function WalkInPatientFields({
   walkInT,
+  locale,
   services,
   patientName,
   serviceId,
@@ -68,7 +74,7 @@ export function WalkInPatientFields({
           <SelectContent>
             {services.map((s) => (
               <SelectItem key={s.id} value={s.id}>
-                {s.name}
+                {getServiceName(s, locale)}
               </SelectItem>
             ))}
           </SelectContent>

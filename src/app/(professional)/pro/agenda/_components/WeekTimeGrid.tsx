@@ -183,7 +183,7 @@ export function WeekTimeGrid({
             {/* Header: day names + dates + RDV count — sticky */}
             <div
               className="sticky top-0 z-20 grid border-b bg-card pb-2 mb-2"
-              style={{ gridTemplateColumns: `3.5rem repeat(${colCount}, 1fr)` }}
+              style={{ gridTemplateColumns: `2.75rem repeat(${colCount}, 1fr)` }}
             >
               <button
                 type="button"
@@ -233,7 +233,7 @@ export function WeekTimeGrid({
             {/* Time grid */}
             <div
               className="grid"
-              style={{ gridTemplateColumns: `3.5rem repeat(${colCount}, 1fr)`, height: `${totalHeight}px` }}
+              style={{ gridTemplateColumns: `2.75rem repeat(${colCount}, 1fr)`, height: `${totalHeight}px` }}
             >
               {/* Time labels */}
               <div className="relative">

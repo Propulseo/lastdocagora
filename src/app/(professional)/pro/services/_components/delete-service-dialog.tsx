@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TriangleAlert } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   deleteService,
-  deactivateService,
+  getServiceLinkedCount,
 } from "@/app/(professional)/_actions/services";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
@@ -35,6 +36,14 @@ export function DeleteServiceDialog({
   const { t } = useProfessionalI18n();
   const sv = t.services;
   const [isDeleting, setIsDeleting] = useState(false);
+  const [linkedCount, setLinkedCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setLinkedCount(null);
+      getServiceLinkedCount(serviceId).then(setLinkedCount);
+    }
+  }, [open, serviceId]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -42,23 +51,6 @@ export function DeleteServiceDialog({
     setIsDeleting(false);
     if (result.success) {
       toast.success(sv.serviceDeleted);
-      onOpenChange(false);
-    } else if (result.error?.startsWith("APPOINTMENTS_LINKED:")) {
-      const count = result.error.split(":")[1];
-      toast.error(sv.cannotDeleteLinked.replace("{count}", count), {
-        duration: 6000,
-        action: {
-          label: sv.deactivateInstead,
-          onClick: async () => {
-            const res = await deactivateService(serviceId);
-            if (res.success) {
-              toast.success(sv.serviceDeactivated);
-            } else {
-              toast.error(sv.errorDeleting);
-            }
-          },
-        },
-      });
       onOpenChange(false);
     } else {
       toast.error(sv.errorDeleting);
@@ -72,12 +64,22 @@ export function DeleteServiceDialog({
           <AlertDialogTitle>
             {sv.deleteService}: {serviceName}
           </AlertDialogTitle>
-          <AlertDialogDescription>
-            {sv.deleteServiceConfirm}
-            <br />
-            <span className="mt-1 block text-xs text-muted-foreground">
-              {sv.deleteServiceWarning}
-            </span>
+          <AlertDialogDescription asChild>
+            <div>
+              {sv.deleteServiceConfirm}
+              {linkedCount !== null && linkedCount > 0 && (
+                <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+                  <span className="text-xs">
+                    {sv.cannotDeleteLinked.replace("{count}", String(linkedCount))}
+                    {" "}{sv.deleteServiceLinkedInfo}
+                  </span>
+                </div>
+              )}
+              <span className="mt-2 block text-xs text-muted-foreground">
+                {sv.deleteServiceWarning}
+              </span>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

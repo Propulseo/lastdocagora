@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Pencil } from "lucide-react";
+import { getServiceName } from "@/lib/get-service-name";
 
 interface AvailabilitySlot {
   id: string;
@@ -13,6 +14,9 @@ interface AvailabilitySlot {
 interface ServiceItem {
   id: string;
   name: string;
+  name_pt?: string | null;
+  name_fr?: string | null;
+  name_en?: string | null;
   duration_minutes: number;
   price: number;
 }
@@ -86,6 +90,7 @@ interface ServicesListProps {
   services: ServiceItem[];
   loading: boolean;
   isPending: boolean;
+  locale: string;
   editingService: string | null;
   editValues: { duration: string; price: string };
   onEditValuesChange: (values: { duration: string; price: string }) => void;
@@ -99,6 +104,7 @@ export function ServicesList({
   services,
   loading,
   isPending,
+  locale,
   editingService,
   editValues,
   onEditValuesChange,
@@ -146,7 +152,7 @@ export function ServicesList({
           ) : (
             <>
               <div className="text-sm">
-                <span className="font-medium">{svc.name}</span>
+                <span className="font-medium">{getServiceName(svc, locale)}</span>
                 <span className="ml-2 text-muted-foreground">
                   {svc.duration_minutes} min &middot; {svc.price}&euro;
                 </span>

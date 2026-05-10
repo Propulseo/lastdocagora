@@ -43,7 +43,7 @@ export function ProfessionalDetailModal({
   open,
   onOpenChange,
 }: ProfessionalDetailModalProps) {
-  const { t } = useAdminI18n();
+  const { t, locale } = useAdminI18n();
   const [isPending, startTransition] = useTransition();
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [services, setServices] = useState<ServiceItem[]>([]);
@@ -67,7 +67,7 @@ export function ProfessionalDetailModal({
         .order("day_of_week"),
       supabase
         .from("services")
-        .select("id, name, duration_minutes, price")
+        .select("id, name, name_pt, name_fr, name_en, duration_minutes, price")
         .eq("professional_id", professionalId)
         .order("name"),
     ]).then(([avail, svc]) => {
@@ -187,6 +187,7 @@ export function ProfessionalDetailModal({
                 services={services}
                 loading={loading}
                 isPending={isPending}
+                locale={locale}
                 editingService={editingService}
                 editValues={editValues}
                 onEditValuesChange={setEditValues}
