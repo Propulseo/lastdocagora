@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
@@ -31,6 +31,12 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
   const isMobile = useIsMobileLg();
   const [walkInDialogOpen, setWalkInDialogOpen] = useState(false);
   const [clipboard, setClipboard] = useState<ClipboardData | null>(null);
+
+  // Week view: click on available slot → set date + open create dialog
+  const handleWeekCreate = useCallback((date: string, startTime: string, endTime: string) => {
+    agenda.setSelectedDate(date);
+    agenda.openCreateDialog(startTime, endTime);
+  }, [agenda]);
 
   useEffect(() => {
     if (isMobile && agenda.periodFilter !== "day") {
@@ -113,6 +119,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
           loading={agenda.loading}
           selectedDate={agenda.selectedDate}
           onAttendanceChange={agenda.handleAttendanceChange}
+          onCreateAppointment={handleWeekCreate}
         />
       )}
 

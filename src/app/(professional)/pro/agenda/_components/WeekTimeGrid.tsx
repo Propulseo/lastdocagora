@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
-import { HOUR_HEIGHT, START_HOUR, END_HOUR, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
+import { HOUR_HEIGHT, START_HOUR, END_HOUR, OFF_HOURS_START, OFF_HOURS_END, SLOT_MINUTES, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
@@ -42,6 +42,7 @@ interface WeekTimeGridProps {
   loading: boolean;
   selectedDate: string;
   onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
+  onCreateAppointment?: (date: string, startTime: string, endTime: string) => void;
 }
 
 export function WeekTimeGrid({
@@ -51,6 +52,7 @@ export function WeekTimeGrid({
   loading,
   selectedDate,
   onAttendanceChange,
+  onCreateAppointment,
 }: WeekTimeGridProps) {
   const { t } = useProfessionalI18n();
   const attendance = useAttendanceAction(onAttendanceChange);
@@ -125,6 +127,41 @@ export function WeekTimeGrid({
     }
     return map;
   }, [availabilitySlots, weekDates]);
+
+  // Click on empty slot within availability → create appointment
+  const handleColumnClick = useCallback(
+    (date: string, e: React.MouseEvent<HTMLDivElement>) => {
+      if (!onCreateAppointment) return;
+      // Ignore if click was on an appointment/event block (they have z-index > 1)
+      const target = e.target as HTMLElement;
+      if (target.closest("button")) return;
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const totalMinutes = (y / HOUR_HEIGHT) * 60;
+      const snapped = Math.round(totalMinutes / SLOT_MINUTES) * SLOT_MINUTES;
+      const h = START_HOUR + Math.floor(snapped / 60);
+      const m = snapped % 60;
+      const startTime = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      const endMinutes = snapped + SLOT_MINUTES;
+      const eh = START_HOUR + Math.floor(endMinutes / 60);
+      const em = endMinutes % 60;
+      const endTime = `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`;
+
+      // Check if click falls within an availability slot for this date
+      const slots = availabilityByDate.get(date) ?? [];
+      const startMin = h * 60 + m;
+      const inAvailability = slots.some((s) => {
+        const [sh, sm] = s.start_time.split(":").map(Number);
+        const [seh, sem] = s.end_time.split(":").map(Number);
+        return startMin >= sh * 60 + sm && startMin < seh * 60 + sem;
+      });
+      if (!inAvailability) return;
+
+      onCreateAppointment(date, startTime, endTime);
+    },
+    [onCreateAppointment, availabilityByDate],
+  );
 
   if (loading) {
     return (
@@ -221,7 +258,8 @@ export function WeekTimeGrid({
                 return (
                   <div
                     key={date}
-                    className={`relative border-l ${isToday ? "bg-primary/5" : ""}`}
+                    className={`relative border-l ${isToday ? "bg-primary/5" : ""} ${onCreateAppointment && dayAvail.length > 0 ? "cursor-pointer" : ""}`}
+                    onClick={onCreateAppointment ? (e) => handleColumnClick(date, e) : undefined}
                   >
                     {/* Off-hours shading */}
                     {OFF_HOURS_START > START_HOUR && (
