@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AvailabilitySlot } from "../_types/agenda";
-import { parseLocalDate } from "../_lib/date-utils";
+import { parseLocalDate, toLocalDateStr } from "../_lib/date-utils";
 
 type PeriodFilter = "day" | "week" | "month";
 
@@ -22,24 +22,44 @@ export function useAgendaAvailability({
   const [availabilityKey, setAvailabilityKey] = useState(0);
   const [recentlyAddedSlotId, setRecentlyAddedSlotId] = useState<string | null>(null);
 
-  // Fetch availability slots
+  // Fetch availability slots (day + week views)
   useEffect(() => {
     async function loadAvailability() {
-      if (periodFilter !== "day") {
+      if (periodFilter === "month") {
         setAvailabilitySlots([]);
         return;
       }
 
+      if (periodFilter === "day") {
+        const d = parseLocalDate(selectedDate);
+        const dayOfWeek = d.getDay();
+        const { data } = await supabase
+          .from("availability")
+          .select("id, start_time, end_time, is_recurring, specific_date, day_of_week")
+          .eq("professional_id", professionalId)
+          .eq("is_blocked", false)
+          .or(`and(is_recurring.eq.true,day_of_week.eq.${dayOfWeek}),specific_date.eq.${selectedDate}`);
+        setAvailabilitySlots((data as AvailabilitySlot[]) ?? []);
+        return;
+      }
+
+      // Week view — fetch all recurring + specific dates in the week range
       const d = parseLocalDate(selectedDate);
-      const dayOfWeek = d.getDay();
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      const monday = new Date(d);
+      monday.setDate(d.getDate() + diff);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      const mondayStr = toLocalDateStr(monday);
+      const sundayStr = toLocalDateStr(sunday);
 
       const { data } = await supabase
         .from("availability")
         .select("id, start_time, end_time, is_recurring, specific_date, day_of_week")
         .eq("professional_id", professionalId)
         .eq("is_blocked", false)
-        .or(`and(is_recurring.eq.true,day_of_week.eq.${dayOfWeek}),specific_date.eq.${selectedDate}`);
-
+        .or(`is_recurring.eq.true,and(specific_date.gte.${mondayStr},specific_date.lte.${sundayStr})`);
       setAvailabilitySlots((data as AvailabilitySlot[]) ?? []);
     }
 
@@ -85,12 +105,17 @@ export function useAgendaAvailability({
               day_of_week: row.day_of_week as number,
             };
 
-            if (periodFilterRef.current !== "day") return;
+            if (periodFilterRef.current === "month") return;
 
             const d = parseLocalDate(selectedDateRef.current);
-            const matches =
-              (slot.is_recurring && slot.day_of_week === d.getDay()) ||
-              slot.specific_date === selectedDateRef.current;
+            const pf = periodFilterRef.current;
+            let matches = false;
+            if (pf === "day") {
+              matches = (slot.is_recurring && slot.day_of_week === d.getDay()) || slot.specific_date === selectedDateRef.current;
+            } else {
+              // week — accept any recurring slot or specific within week range
+              matches = slot.is_recurring || !!slot.specific_date;
+            }
 
             if (matches) {
               setAvailabilitySlots((prev) =>

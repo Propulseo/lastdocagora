@@ -9,7 +9,7 @@ import { HOUR_HEIGHT, START_HOUR, END_HOUR, OFF_HOURS_START, OFF_HOURS_END, HIDD
 import { WeekAppointmentBlock } from "./WeekAppointmentBlock";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
-import type { Appointment, ExternalEvent } from "../_types/agenda";
+import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
 import { todayInLisbon, nowInLisbon } from "@/lib/timezone";
 
@@ -38,6 +38,7 @@ function getWeekDates(selectedDate: string): string[] {
 interface WeekTimeGridProps {
   appointments: Appointment[];
   externalEvents: ExternalEvent[];
+  availabilitySlots: AvailabilitySlot[];
   loading: boolean;
   selectedDate: string;
   onAttendanceChange: (appointmentId: string, attendanceStatus: string, appointmentStatus?: string) => void;
@@ -46,6 +47,7 @@ interface WeekTimeGridProps {
 export function WeekTimeGrid({
   appointments,
   externalEvents,
+  availabilitySlots,
   loading,
   selectedDate,
   onAttendanceChange,
@@ -109,6 +111,20 @@ export function WeekTimeGrid({
     }
     return map;
   }, [externalEvents, weekDates]);
+
+  // Map availability slots to each day (recurring by day_of_week, specific by date)
+  const availabilityByDate = useMemo(() => {
+    const map = new Map<string, AvailabilitySlot[]>();
+    for (const date of weekDates) {
+      const d = parseLocalDate(date);
+      const dow = d.getDay();
+      const matching = availabilitySlots.filter(
+        (s) => (s.is_recurring && s.day_of_week === dow) || s.specific_date === date,
+      );
+      map.set(date, matching);
+    }
+    return map;
+  }, [availabilitySlots, weekDates]);
 
   if (loading) {
     return (
@@ -199,6 +215,7 @@ export function WeekTimeGrid({
               {visibleDates.map((date) => {
                 const dayApts = appointmentsByDate.get(date) ?? [];
                 const dayExternal = externalByDate.get(date) ?? [];
+                const dayAvail = availabilityByDate.get(date) ?? [];
                 const isToday = date === todayStr;
 
                 return (
@@ -230,6 +247,22 @@ export function WeekTimeGrid({
                         style={{ top: `${(hour - START_HOUR) * HOUR_HEIGHT}px` }}
                       />
                     ))}
+
+                    {/* Availability background */}
+                    {dayAvail.map((slot) => {
+                      const [sh, sm] = slot.start_time.split(":").map(Number);
+                      const [eh, em] = slot.end_time.split(":").map(Number);
+                      const top = (sh - START_HOUR + sm / 60) * HOUR_HEIGHT;
+                      const h = ((eh * 60 + em) - (sh * 60 + sm)) / 60 * HOUR_HEIGHT;
+                      if (top < 0 || h <= 0) return null;
+                      return (
+                        <div
+                          key={slot.id}
+                          className="absolute left-0 right-0 bg-green-500/8 dark:bg-green-500/10 pointer-events-none"
+                          style={{ top: `${top}px`, height: `${h}px`, zIndex: 1 }}
+                        />
+                      );
+                    })}
 
                     {dayApts.map((apt) => (
                       <WeekAppointmentBlock

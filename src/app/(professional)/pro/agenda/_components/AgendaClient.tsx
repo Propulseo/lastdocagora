@@ -109,6 +109,7 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
         <WeekTimeGrid
           appointments={agenda.appointments}
           externalEvents={agenda.externalEvents}
+          availabilitySlots={agenda.availabilitySlots}
           loading={agenda.loading}
           selectedDate={agenda.selectedDate}
           onAttendanceChange={agenda.handleAttendanceChange}
@@ -167,18 +168,10 @@ export function AgendaClient({ professionalId, userId }: AgendaClientProps) {
 
       {/* Mobile FAB for walk-ins */}
       <button
-        className="fixed bottom-36 right-4 z-40 flex size-12 items-center justify-center rounded-full bg-amber-500 text-white shadow-lg active:scale-95 transition-transform lg:hidden"
+        className="fixed bottom-20 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-amber-500 text-white shadow-lg active:scale-95 transition-transform lg:hidden"
         onClick={() => setWalkInDialogOpen(true)}
       >
-        <UserPlus className="size-5" />
-      </button>
-
-      {/* Mobile FAB for creating appointments */}
-      <button
-        className="fixed bottom-20 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform lg:hidden"
-        onClick={() => agenda.setCreateDialogOpen(true)}
-      >
-        <Plus className="size-6" />
+        <UserPlus className="size-6" />
       </button>
     </div>
   );
