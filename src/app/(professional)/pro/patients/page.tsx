@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
 import { getProfessionalI18n } from "@/lib/i18n/pro/server";
 import { PatientsClient } from "./_components/PatientsClient";
+import { nowInLisbon } from "@/lib/timezone";
 import {
   buildPatientMap,
   mapToPatientRows,
@@ -63,7 +64,7 @@ export default async function PatientsPage({
 
   // Build set of hidden patient IDs
   const hiddenIds = new Set(((hiddenRows ?? []) as { patient_id: string }[]).map((r) => r.patient_id));
-  const now = new Date();
+  const now = nowInLisbon();
 
   // Build patient map
   const patientMap = buildPatientMap(

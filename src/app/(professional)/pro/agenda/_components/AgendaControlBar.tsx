@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { RADIUS, SHADOW } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+import { todayInLisbon } from "@/lib/timezone";
 
 type PeriodFilter = "day" | "week" | "month";
 
@@ -93,7 +94,7 @@ export function AgendaControlBar({
     onDateChange(toLocalDateStr(d));
   };
 
-  const goToday = () => onDateChange(toLocalDateStr(new Date()));
+  const goToday = () => onDateChange(todayInLisbon());
 
   const dateLabel =
     periodFilter === "day"

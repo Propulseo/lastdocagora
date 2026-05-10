@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------
 // Compare mode period presets and utilities
 // ---------------------------------------------------------------------------
+import { nowInLisbon } from "@/lib/timezone";
 
 export type PeriodPreset =
   | "this-month"
@@ -26,7 +27,7 @@ function lastDayOfMonth(year: number, month: number): Date {
 }
 
 export function getPresetRange(preset: PeriodPreset): { from: string; to: string } {
-  const now = new Date();
+  const now = nowInLisbon();
   const y = now.getFullYear();
   const m = now.getMonth();
 

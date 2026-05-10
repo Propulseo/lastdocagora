@@ -11,7 +11,7 @@ import {
   getWalkInSlots,
   type SlotInfo,
 } from "@/app/(professional)/_actions/walkins";
-import { format } from "date-fns";
+import { todayInLisbon, formatInLisbon } from "@/lib/timezone";
 import { WalkInSlotPicker } from "./WalkInSlotPicker";
 import { WalkInPatientFields } from "./WalkInPatientFields";
 import type { WalkInCreatedData } from "./WalkInDialog";
@@ -48,10 +48,10 @@ export function WalkInForm({
   const [currentSlot, setCurrentSlot] = useState<string | null>(null);
 
   const [manualMode, setManualMode] = useState(false);
-  const [manualDate, setManualDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [manualTime, setManualTime] = useState(format(new Date(), "HH:mm"));
+  const [manualDate, setManualDate] = useState(todayInLisbon());
+  const [manualTime, setManualTime] = useState(formatInLisbon(new Date(), "HH:mm"));
 
-  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayStr = todayInLisbon();
 
   useEffect(() => {
     let cancelled = false;
@@ -167,7 +167,9 @@ export function WalkInForm({
         patientName: patientName.trim(),
       });
     } else {
-      toast.error(walkInT.error);
+      const errorKey = `error_${result.error}` as keyof typeof walkInT;
+      const msg = walkInT[errorKey] ?? walkInT.error;
+      toast.error(msg);
     }
   }
 

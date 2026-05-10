@@ -8,6 +8,7 @@ import {
   HeadphonesIcon,
 } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { nowInLisbon } from "@/lib/timezone";
 import { DashboardHero } from "./dashboard-hero";
 import {
   DashboardKpiGrid,
@@ -41,7 +42,7 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const { t } = useAdminI18n();
 
-  const todayShort = new Date().toLocaleDateString(
+  const todayShort = nowInLisbon().toLocaleDateString(
     t.common.dateLocale as string,
     { day: "numeric", month: "short" }
   );

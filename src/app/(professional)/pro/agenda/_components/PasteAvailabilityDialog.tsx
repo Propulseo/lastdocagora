@@ -18,6 +18,7 @@ import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { cn } from "@/lib/utils";
 import { toLocalDateStr } from "../_lib/date-utils";
+import { nowInLisbon } from "@/lib/timezone";
 import { pasteAvailabilitySlots } from "@/app/(professional)/_actions/availability";
 import type { ClipboardData } from "./DayTimeGrid";
 
@@ -59,7 +60,7 @@ export function PasteAvailabilityDialog({
   const [multiDay, setMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
 
-  const today = new Date();
+  const today = nowInLisbon();
   const next7 = getNext7Days(today);
 
   const toggleDate = (date: string) => {

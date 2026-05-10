@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "./_components/DashboardClient";
+import { todayInLisbon } from "@/lib/timezone";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -27,7 +28,7 @@ export default async function DashboardPage() {
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
-      .eq("appointment_date", new Date().toISOString().slice(0, 10)),
+      .eq("appointment_date", todayInLisbon()),
     supabase
       .from("professionals")
       .select("id", { count: "exact", head: true })

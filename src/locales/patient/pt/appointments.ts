@@ -18,6 +18,17 @@ export type AppointmentsSection = {
     dateFormat: string
     cancelTooLate: string
     cancelTooLatePhone: string
+    visitedDoctors: {
+      rebook: string
+      consultations: string
+      consultationSingular: string
+      lastVisit: string
+      history: string
+      historyTitle: string
+      service: string
+      noAddress: string
+      viewHistory: string
+    }
   }
   cancelDialog: {
     trigger: string
@@ -87,6 +98,17 @@ export const appointmentsPt: AppointmentsSection = {
     dateFormat: "d 'de' MMMM 'de' yyyy",
     cancelTooLate: "Cancelamento indispon\u00edvel \u2014 contacte o consult\u00f3rio diretamente.",
     cancelTooLatePhone: "Telefone: {phone}",
+    visitedDoctors: {
+      rebook: "Remarcar",
+      consultations: "{count} consultas",
+      consultationSingular: "1 consulta",
+      lastVisit: "\u00daltima visita: {date}",
+      history: "Hist\u00f3rico",
+      historyTitle: "Hist\u00f3rico com {name}",
+      service: "Servi\u00e7o",
+      noAddress: "Endere\u00e7o n\u00e3o dispon\u00edvel",
+      viewHistory: "Ver hist\u00f3rico",
+    },
   },
   cancelDialog: {
     trigger: "Cancelar",

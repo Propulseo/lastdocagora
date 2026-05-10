@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { subDays, subMonths, format, startOfDay, startOfWeek, startOfMonth } from "date-fns";
 import type { PeriodRange, StatisticsData, TopPro } from "./types";
+import { nowInLisbon } from "@/lib/timezone";
 
 export { type PeriodRange, type StatisticsData, PERIOD_OPTIONS } from "./types";
 
 function getDateRange(range: PeriodRange) {
-  const end = new Date();
+  const end = nowInLisbon();
   let start: Date;
   let bucket: "day" | "week" | "month";
   switch (range) {
@@ -42,7 +43,7 @@ export async function fetchStatisticsData(range: PeriodRange): Promise<Statistic
   const startDate = format(start, "yyyy-MM-dd");
   const endDate = format(end, "yyyy-MM-dd");
   const prevStartDate = format(prevStart, "yyyy-MM-dd");
-  const twoDaysAgo = subDays(new Date(), 2).toISOString();
+  const twoDaysAgo = subDays(nowInLisbon(), 2).toISOString();
 
   const [
     patientsRes, prosRes, usersRangeRes, allProsRes,

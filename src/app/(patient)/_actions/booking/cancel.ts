@@ -7,6 +7,7 @@ import {
   getRecipientLocale,
   getNotificationMessages,
 } from "@/lib/notifications"
+import { nowInLisbon } from "@/lib/timezone"
 
 const LOCKED_ATTENDANCE = ["present", "absent", "late"]
 
@@ -51,7 +52,7 @@ export async function cancelPatientAppointment(
   const [year, month, day] = appointment.appointment_date.split("-").map(Number)
   const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number)
   const start = new Date(year, month - 1, day, h, m)
-  if (start <= new Date(Date.now() + 30 * 60 * 1000)) {
+  if (start <= new Date(nowInLisbon().getTime() + 30 * 60 * 1000)) {
     return { success: false, error: "too_late_to_cancel" }
   }
 

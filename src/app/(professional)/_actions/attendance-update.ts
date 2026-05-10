@@ -5,6 +5,7 @@ import type { AttendanceStatus } from "@/types";
 import type { MarkAttendanceResult, SaveNotesResult } from "./attendance-validation";
 import { VALID_STATUSES, deriveAppointmentStatus } from "./attendance-validation";
 import { sanitizeDbError } from "@/lib/errors";
+import { nowInLisbon } from "@/lib/timezone";
 
 export async function markAttendance(
   appointmentId: string,
@@ -69,7 +70,7 @@ export async function markAttendance(
     const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
     const start = new Date(year, month - 1, day, h, m);
     const threshold = new Date(start.getTime() + 15 * 60 * 1000);
-    if (new Date() < threshold) {
+    if (nowInLisbon() < threshold) {
       return { success: false, error: status === "absent" ? "ABSENT_TOO_EARLY" : "LATE_TOO_EARLY" };
     }
   }

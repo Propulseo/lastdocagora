@@ -3,6 +3,8 @@
  * Splits availability windows into bookable time slots.
  */
 
+import { nowInLisbon, todayInLisbon } from "@/lib/timezone"
+
 export type AvailabilityRange = {
   start_time: string // "HH:mm"
   end_time: string   // "HH:mm"
@@ -74,13 +76,11 @@ export function generateSlots(
  * For future dates return all. For past dates return [].
  */
 export function filterPastSlots(slots: string[], date: string): string[] {
-  const now = new Date()
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const now = nowInLisbon()
+  const todayStr = todayInLisbon()
 
-  const slotDate = new Date(date + "T00:00:00")
-  if (slotDate < today) return []
-  if (slotDate > today) return slots
+  if (date < todayStr) return []
+  if (date > todayStr) return slots
 
   const cutoff = now.getHours() * 60 + now.getMinutes() + 30
   return slots.filter((s) => toMinutes(s) >= cutoff)

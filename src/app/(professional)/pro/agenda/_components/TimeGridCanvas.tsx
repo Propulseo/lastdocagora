@@ -4,6 +4,7 @@ import { Fragment, type RefObject } from "react";
 import { CardContent } from "@/components/ui/card";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { RADIUS } from "@/lib/design-tokens";
+import { nowInLisbon } from "@/lib/timezone";
 import { HOUR_HEIGHT, START_HOUR, END_HOUR, SLOT_MINUTES, OFF_HOURS_START, OFF_HOURS_END, HIDDEN_APPOINTMENT_STATUSES } from "../_lib/agenda-constants";
 import type { Appointment, AvailabilitySlot, ExternalEvent } from "../_types/agenda";
 import { AppointmentBlock } from "./AppointmentBlock";
@@ -75,7 +76,7 @@ export function TimeGridCanvas({
   const hasDrag = dragStartY != null && dragCurrentY != null;
   const selectionTop = hasDrag ? Math.min(dragStartY, dragCurrentY) : 0;
   const selectionHeight = hasDrag ? Math.abs(dragCurrentY - dragStartY) : 0;
-  const now = new Date();
+  const now = nowInLisbon();
   const currentTimeTop = (now.getHours() - START_HOUR + now.getMinutes() / 60) * HOUR_HEIGHT;
 
   return (

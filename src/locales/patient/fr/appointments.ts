@@ -42,6 +42,17 @@ export const appointmentsFr: AppointmentsSection = {
     dateFormat: "d MMMM yyyy",
     cancelTooLate: "Annulation indisponible \u2014 contactez le cabinet directement.",
     cancelTooLatePhone: "T\u00e9l\u00e9phone : {phone}",
+    visitedDoctors: {
+      rebook: "Reprendre RDV",
+      consultations: "{count} consultations",
+      consultationSingular: "1 consultation",
+      lastVisit: "Derni\u00e8re visite : {date}",
+      history: "Historique",
+      historyTitle: "Historique avec {name}",
+      service: "Service",
+      noAddress: "Adresse non disponible",
+      viewHistory: "Voir l\u2019historique",
+    },
   },
   cancelDialog: {
     trigger: "Annuler",

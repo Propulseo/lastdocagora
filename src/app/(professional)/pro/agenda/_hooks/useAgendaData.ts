@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toast } from "sonner";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+import { todayInLisbon } from "@/lib/timezone";
 import { DEFAULT_STATUS_FILTERS } from "../_lib/agenda-constants";
 import { useAgendaAppointments } from "./useAgendaAppointments";
 import { useAgendaAvailability } from "./useAgendaAvailability";
@@ -47,7 +48,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
       const parsed = parseLocalDate(dateParam);
       if (!isNaN(parsed.getTime())) return dateParam;
     }
-    return toLocalDateStr(new Date());
+    return todayInLisbon();
   });
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>(() => {
     const viewParam = searchParams.get("view");
@@ -184,7 +185,7 @@ export function useAgendaData({ professionalId, userId }: UseAgendaDataParams) {
   );
 
   // ─── Today stats — computed from ALL appointments, unaffected by filters ───
-  const todayStr = toLocalDateStr(new Date());
+  const todayStr = todayInLisbon();
   const todayAppointments = useMemo(
     () => appointments.filter((a) => a.appointment_date === todayStr),
     [appointments, todayStr],

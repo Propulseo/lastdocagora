@@ -6,6 +6,7 @@ import {
   type AIOutput,
 } from "@/lib/ai/schemas"
 import { getSupabaseAdmin } from "./session"
+import { todayInLisbon } from "@/lib/timezone"
 
 // Cache context (specialties, cities, neighborhoods) -- 5 min TTL
 let contextCache: {
@@ -89,7 +90,7 @@ export async function runAISearch(
   const openai = getOpenAIClient()
   const context = await getCachedContext()
 
-  const todayISO = new Date().toISOString().slice(0, 10)
+  const todayISO = todayInLisbon()
   const systemPrompt = buildSystemPrompt(
     context.specialties,
     context.cities,

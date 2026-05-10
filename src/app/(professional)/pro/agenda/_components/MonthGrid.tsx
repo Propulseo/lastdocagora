@@ -11,6 +11,7 @@ import { MonthDayCell } from "./MonthDayCell";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import { toLocalDateStr } from "../_lib/date-utils";
+import { todayInLisbon } from "@/lib/timezone";
 
 /** Mon..Sun JS day indices */
 const DAY_INDICES = [1, 2, 3, 4, 5, 6, 0];
@@ -67,7 +68,7 @@ export function MonthGrid({
 
   const weeks = useMemo(() => getMonthGrid(selectedDate), [selectedDate]);
   const currentMonth = new Date(selectedDate + "T00:00:00").getMonth();
-  const todayStr = toLocalDateStr(new Date());
+  const todayStr = todayInLisbon();
 
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();

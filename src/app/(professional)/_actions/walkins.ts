@@ -3,9 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { markAttendance } from "./attendance";
-import { toLocalDateStr } from "../pro/agenda/_lib/date-utils";
-import { format } from "date-fns";
-import { sanitizeDbError } from "@/lib/errors";
+import { nowInLisbon, todayInLisbon, formatInLisbon } from "@/lib/timezone";
 
 export type SlotInfo = { slot_start: string; slot_end: string };
 type WalkInSlotsResult =
@@ -26,9 +24,9 @@ export async function getWalkInSlots(
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  const now = new Date();
-  const todayStr = toLocalDateStr(now);
-  const nowTime = format(now, "HH:mm");
+  const now = nowInLisbon();
+  const todayStr = formatInLisbon(now, "yyyy-MM-dd");
+  const nowTime = formatInLisbon(now, "HH:mm");
 
   // Fetch today's slots
   const { data: todayRaw, error: todayErr } = await supabase.rpc(
@@ -115,7 +113,7 @@ export async function createWalkIn(formData: {
     }
   }
 
-  const todayStr = formData.scheduledDate ?? toLocalDateStr(new Date());
+  const todayStr = formData.scheduledDate ?? todayInLisbon();
   const now = new Date().toISOString();
 
   // Point 76: Check if an appointment already exists today between this pro and patient (warning, not blocking)
@@ -132,6 +130,19 @@ export async function createWalkIn(formData: {
     if (count && count > 0) {
       warning = "duplicate_same_day";
     }
+  }
+
+  // Check for existing appointment at this slot (unique constraint guard)
+  const { count: slotConflict } = await supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", professional.id)
+    .eq("appointment_date", todayStr)
+    .eq("appointment_time", formData.scheduledTime)
+    .not("status", "in", '("cancelled","rejected")');
+
+  if (slotConflict && slotConflict > 0) {
+    return { success: false, error: "slot_already_taken" };
   }
 
   // Build notes: include phone for walk-ins without patient record
@@ -168,7 +179,13 @@ export async function createWalkIn(formData: {
     .select("id")
     .single();
 
-  if (error) return { success: false, error: sanitizeDbError(error, "pro-walkins") };
+  if (error) {
+    console.error("[pro-walkins] INSERT failed:", error.code, error.message, error);
+    if (error.code === "23505") {
+      return { success: false, error: "slot_already_taken" };
+    }
+    return { success: false, error: "operation_failed" };
+  }
 
   // Auto-mark attendance as "present"
   await markAttendance(appointment.id, "present");

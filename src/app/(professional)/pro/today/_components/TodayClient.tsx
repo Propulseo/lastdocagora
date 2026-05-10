@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarDays, UserPlus } from "lucide-react";
+import { nowInLisbon, todayInLisbon } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -29,11 +30,11 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
   const dateLocale = t.common.dateLocale as string;
 
   // Day navigation
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => nowInLisbon());
   const dateStr = selectedDate.toISOString().slice(0, 10);
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayInLisbon();
   const isToday = dateStr === todayStr;
-  const maxFuture = new Date();
+  const maxFuture = nowInLisbon();
   maxFuture.setDate(maxFuture.getDate() + 7);
   const isMaxFuture = dateStr >= maxFuture.toISOString().slice(0, 10);
 
@@ -43,7 +44,7 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
   const onNextDay = useCallback(() => {
     setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 1); return n; });
   }, []);
-  const onGoToday = useCallback(() => setSelectedDate(new Date()), []);
+  const onGoToday = useCallback(() => setSelectedDate(nowInLisbon()), []);
 
   const {
     appointments,
@@ -87,7 +88,7 @@ export function TodayClient({ professionalId, userId }: TodayClientProps) {
 
   const isPast = (time: string, duration: number) => {
     if (!isToday) return false;
-    const now = new Date();
+    const now = nowInLisbon();
     const [h, m] = time.split(":").map(Number);
     const endMinutes = h * 60 + m + (duration || 30);
     const currentMinutes = now.getHours() * 60 + now.getMinutes();

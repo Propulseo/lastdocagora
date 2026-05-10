@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { resolveErrorMessage } from "@/lib/error-messages";
 import { format } from "date-fns";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { todayInLisbon } from "@/lib/timezone";
 import {
   AvailabilityList,
   ServicesList,
@@ -49,7 +50,7 @@ export function ProfessionalDetailModal({
   const [loading, setLoading] = useState(true);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [bulkCancelConfirm, setBulkCancelConfirm] = useState(false);
-  const [bulkCancelDate, setBulkCancelDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
+  const [bulkCancelDate, setBulkCancelDate] = useState(() => todayInLisbon());
   const [editingService, setEditingService] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ duration: string; price: string }>({ duration: "", price: "" });
 

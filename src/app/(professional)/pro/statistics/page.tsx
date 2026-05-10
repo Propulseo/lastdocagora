@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfessionalId } from "@/lib/auth";
 import { getServerLocale } from "@/lib/i18n/server";
 import { getProfessionalTranslations } from "@/lib/i18n/pro/translations";
+import { nowInLisbon } from "@/lib/timezone";
 import {
   StatisticsClient,
   type DashboardData,
@@ -46,7 +47,7 @@ export default async function StatisticsPage({
   const range = params.range || "30d";
   const serviceFilter = params.service || "";
   const channelFilter = params.channel || "";
-  const currentYear = new Date().getFullYear();
+  const currentYear = nowInLisbon().getFullYear();
   const selectedYear = params.year ? parseInt(params.year, 10) : currentYear;
   const { from, to } = getDateRange(range, selectedYear);
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { nowInLisbon } from "@/lib/timezone";
 import {
   Dialog,
   DialogContent,
@@ -142,7 +143,7 @@ export function PostConsultationModal({
 
   function handleIgnore() { fireReviewRequest(); onClose(); }
 
-  const tomorrow = new Date();
+  const tomorrow = nowInLisbon();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
 

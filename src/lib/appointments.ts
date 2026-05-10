@@ -1,4 +1,5 @@
 import type { AppointmentStatus, AttendanceStatus } from "@/types";
+import { nowInLisbon } from "@/lib/timezone";
 
 // --- Status transition matrix ---
 export const ADMIN_STATUS_TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
@@ -26,7 +27,7 @@ export function getValidStatusTransitions(current: AppointmentStatus): Appointme
 }
 
 export function isAppointmentFuture(date: string, time: string): boolean {
-  return new Date(`${date}T${time}`) > new Date();
+  return new Date(`${date}T${time}`) > nowInLisbon();
 }
 
 export function isAttendanceLocked(apptStatus: AppointmentStatus): boolean {

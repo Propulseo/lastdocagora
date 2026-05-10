@@ -266,6 +266,8 @@
     "backToSlots": "Back to available slots",
     "manualDate": "Date",
     "manualTime": "Time",
-    "duplicateSameDay": "This patient already has an appointment today with this professional."
+    "duplicateSameDay": "This patient already has an appointment today with this professional.",
+    "error_slot_already_taken": "This time slot is already booked. Please select another.",
+    "error_operation_failed": "Error registering walk-in. Please try again."
   }
 }

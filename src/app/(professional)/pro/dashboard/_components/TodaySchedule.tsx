@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { SHADOW, RADIUS } from "@/lib/design-tokens";
 import { Badge } from "@/components/ui/badge";
 import type { DashboardData } from "../_hooks/useDashboardData";
-import { toLocalDateStr } from "@/app/(professional)/pro/agenda/_lib/date-utils";
+import { todayInLisbon } from "@/lib/timezone";
 import { statusColors, statusBadgeVariant, buildFreeSlots } from "./schedule-helpers";
 
 interface TodayScheduleProps {
@@ -82,7 +82,7 @@ export function TodaySchedule({ data }: TodayScheduleProps) {
               const status = apt.status ?? "pending";
               const statusLabel =
                 t.common.status[status as keyof typeof t.common.status] ?? status;
-              const todayDate = toLocalDateStr(new Date());
+              const todayDate = todayInLisbon();
 
               return (
                 <Link

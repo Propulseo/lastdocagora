@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { format, addDays, startOfDay } from "date-fns"
+import { nowInLisbon } from "@/lib/timezone"
 
 export interface SlotsByDay {
   date: string // "2026-04-07"
@@ -28,7 +29,7 @@ export async function getAvailableSlotsForPro(
   const availableDays = new Set(availabilities.map((a) => a.day_of_week))
 
   // 2. Find next N days that match available day_of_week
-  const today = startOfDay(new Date())
+  const today = startOfDay(nowInLisbon())
   const candidateDates: { date: Date; dateStr: string }[] = []
 
   for (let i = 0; i < 21 && candidateDates.length < daysToShow + 3; i++) {
@@ -50,7 +51,7 @@ export async function getAvailableSlotsForPro(
 
       if (error || !data) return null
 
-      const now = new Date()
+      const now = nowInLisbon()
       const todayStr = format(now, "yyyy-MM-dd")
       const marginMs = 30 * 60 * 1000 // 30 minutes
 

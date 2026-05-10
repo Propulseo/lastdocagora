@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { format, getDay } from "date-fns"
+import { nowInLisbon } from "@/lib/timezone"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -64,7 +65,7 @@ export function BookingForm({
   const availableDays = new Set(availability.map((a) => a.day_of_week))
 
   function isDayDisabled(date: Date): boolean {
-    const today = new Date()
+    const today = nowInLisbon()
     today.setHours(0, 0, 0, 0)
     if (date < today) return true
     const dow = getDay(date)
@@ -86,8 +87,8 @@ export function BookingForm({
       if (error) throw error
       const raw = (data as Slot[]) ?? []
       // Filter out past slots for today (start_time > now + 30min margin)
-      const now = new Date()
-      const today = new Date()
+      const now = nowInLisbon()
+      const today = nowInLisbon()
       today.setHours(0, 0, 0, 0)
       let filtered = raw
       if (date.getTime() === today.getTime()) {

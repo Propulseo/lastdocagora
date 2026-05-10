@@ -5,6 +5,7 @@ import { useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RADIUS } from "@/lib/design-tokens";
+import { nowInLisbon } from "@/lib/timezone";
 
 interface YearNavigatorProps {
   selectedYear: number;
@@ -23,7 +24,7 @@ export function YearNavigator({
   const navigate = useCallback(
     (year: number) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (year === new Date().getFullYear()) {
+      if (year === nowInLisbon().getFullYear()) {
         params.delete("year");
       } else {
         params.set("year", String(year));

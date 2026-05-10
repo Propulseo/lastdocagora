@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
+import { nowInLisbon } from "@/lib/timezone";
 
 export interface Appointment {
   id: string;
@@ -64,12 +65,12 @@ export interface DashboardProps {
 
 export function useDashboardData(props: DashboardProps) {
   const { t, locale } = useProfessionalI18n();
-  const [currentTime, setCurrentTime] = useState(() => new Date());
+  const [currentTime, setCurrentTime] = useState(() => nowInLisbon());
   const [profileBannerDismissed, setProfileBannerDismissed] = useState(false);
 
   // Update current time every minute for "now" indicator
   useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 60_000);
+    const interval = setInterval(() => setCurrentTime(nowInLisbon()), 60_000);
     return () => clearInterval(interval);
   }, []);
 

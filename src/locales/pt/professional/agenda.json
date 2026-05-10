@@ -266,6 +266,8 @@
     "backToSlots": "Voltar aos horários",
     "manualDate": "Data",
     "manualTime": "Hora",
-    "duplicateSameDay": "Este paciente já tem uma consulta hoje com este profissional."
+    "duplicateSameDay": "Este paciente já tem uma consulta hoje com este profissional.",
+    "error_slot_already_taken": "Este horário já está ocupado. Selecione outro horário.",
+    "error_operation_failed": "Erro ao registar walk-in. Tente novamente."
   }
 }

@@ -5,6 +5,7 @@ import type { AppointmentStatus } from "@/types";
 import { hasFutureAppointments } from "@/lib/admin-guards";
 import { sanitizeDbError } from "@/lib/errors";
 import { getAdminClient } from "./admin-crud-helpers";
+import { todayInLisbon } from "@/lib/timezone";
 
 export async function updateProfessionalAdmin(
   professionalId: string,
@@ -57,7 +58,7 @@ export async function suspendProfessional(professionalId: string) {
   if (error) return { success: false, error: sanitizeDbError(error, "admin-professionals") };
 
   // Cascade: cancel all future confirmed/pending appointments and notify each patient
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayInLisbon();
   const { data: futureAppts } = await admin.supabase
     .from("appointments")
     .select("id, patient_user_id, appointment_date, appointment_time")

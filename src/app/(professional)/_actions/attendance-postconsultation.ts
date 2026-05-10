@@ -7,6 +7,7 @@ import {
   getNotificationMessages,
 } from "@/lib/notifications";
 import { sanitizeDbError } from "@/lib/errors";
+import { nowInLisbon } from "@/lib/timezone";
 export async function cancelAppointment(
   appointmentId: string,
   reason: string,
@@ -44,7 +45,7 @@ export async function cancelAppointment(
     return { success: false, error: `Cannot cancel from ${appointment.status}` };
   }
 
-  if (new Date(`${appointment.appointment_date}T${appointment.appointment_time}`) <= new Date()) {
+  if (new Date(`${appointment.appointment_date}T${appointment.appointment_time}`) <= nowInLisbon()) {
     return { success: false, error: "CANNOT_CANCEL_PAST" };
   }
 

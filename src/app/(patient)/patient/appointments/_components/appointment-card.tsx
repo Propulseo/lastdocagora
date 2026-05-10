@@ -3,6 +3,7 @@
 import { Star, Phone } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import { nowInLisbon } from "@/lib/timezone"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   getProfessionalName,
@@ -43,7 +44,7 @@ export function isAppointmentPast(appt: Appointment): boolean {
   const [year, month, day] = appt.appointment_date.split("-").map(Number)
   const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
   const end = new Date(year, month - 1, day, h, m + (appt.duration_minutes ?? 30))
-  return end < new Date()
+  return end < nowInLisbon()
 }
 
 export function canCancelAppointment(appt: Appointment): boolean {
@@ -53,7 +54,7 @@ export function canCancelAppointment(appt: Appointment): boolean {
   const [year, month, day] = appt.appointment_date.split("-").map(Number)
   const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
   const start = new Date(year, month - 1, day, h, m)
-  return start > new Date(Date.now() + 30 * 60 * 1000)
+  return start > new Date(nowInLisbon().getTime() + 30 * 60 * 1000)
 }
 
 /** Appointment is upcoming but within the 30-min no-cancel window */
@@ -64,7 +65,7 @@ function isWithinCancelCutoff(appt: Appointment): boolean {
   const [year, month, day] = appt.appointment_date.split("-").map(Number)
   const [h, m] = (appt.appointment_time ?? "00:00").split(":").map(Number)
   const start = new Date(year, month - 1, day, h, m)
-  const now = new Date()
+  const now = nowInLisbon()
   return start > now && start <= new Date(now.getTime() + 30 * 60 * 1000)
 }
 

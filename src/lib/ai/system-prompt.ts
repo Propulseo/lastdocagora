@@ -1,8 +1,10 @@
+import { todayInLisbon } from "@/lib/timezone"
+
 export function buildSystemPrompt(
   specialties: string[],
   cities: string[],
   neighborhoods: string[] = [],
-  todayISO: string = new Date().toISOString().slice(0, 10),
+  todayISO: string = todayInLisbon(),
   locale: string = "pt"
 ): string {
   const LOCALE_LANG: Record<string, string> = { pt: "Portuguese", fr: "French", en: "English" }

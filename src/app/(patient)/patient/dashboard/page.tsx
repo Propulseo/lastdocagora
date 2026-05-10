@@ -3,13 +3,14 @@ import { createClient } from "@/lib/supabase/server"
 import { getCurrentUser } from "@/lib/auth"
 import { getLocale, getPatientTranslations } from "@/locales/patient"
 import { DashboardClient } from "./_components/DashboardClient"
+import { todayInLisbon } from "@/lib/timezone"
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
   const supabase = await createClient()
-  const today = new Date().toISOString().split("T")[0]
+  const today = todayInLisbon()
 
   const [{ data: profile }, { data: nextAppointment }, { data: recentAppointments }] =
     await Promise.all([

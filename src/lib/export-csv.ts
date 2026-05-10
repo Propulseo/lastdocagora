@@ -6,6 +6,7 @@
  * - Retours de ligne CRLF
  * - Échappement guillemets / sauts de ligne
  */
+import { todayInLisbon } from "@/lib/timezone"
 
 const SEPARATOR = ";";
 const BOM = "\uFEFF";
@@ -34,7 +35,7 @@ export function buildCsvContent(headers: string[], rows: string[][]): string {
 
 /** Génère le nom de fichier avec la date du jour. */
 export function csvFilename(prefix: string): string {
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayInLisbon();
   return `${prefix}_${today}.csv`;
 }
 

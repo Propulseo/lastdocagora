@@ -4,6 +4,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { cn } from "@/lib/utils";
 import { RADIUS } from "@/lib/design-tokens";
 import { toLocalDateStr } from "../_lib/date-utils";
+import { nowInLisbon } from "@/lib/timezone";
 import { RejectAppointmentDialog } from "./RejectAppointmentDialog";
 import { PendingBannerHeader } from "./PendingBannerHeader";
 import { PendingAppointmentCard } from "./PendingAppointmentCard";
@@ -28,7 +29,7 @@ interface PendingBannerProps {
 type UrgencyGroup = "today" | "tomorrow" | "later";
 
 function groupByUrgency(appointments: PendingAppointment[]): Record<UrgencyGroup, PendingAppointment[]> {
-  const now = new Date();
+  const now = nowInLisbon();
   const todayStr = toLocalDateStr(now);
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);

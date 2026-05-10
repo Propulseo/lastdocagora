@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { nowInLisbon } from "@/lib/timezone";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,7 +84,7 @@ export function ProposeAlternativeDialog({
     onConfirm(format(date, "yyyy-MM-dd"), time, message.trim());
   }
 
-  const today = new Date();
+  const today = nowInLisbon();
   today.setHours(0, 0, 0, 0);
 
   const canConfirm = !!date && !!time && !isUpdating;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { format, getDay } from "date-fns"
+import { nowInLisbon } from "@/lib/timezone"
 import { getBookingData, createAppointment } from "@/app/(patient)/_actions/booking"
 import type { BookingService, BookingAvailability } from "@/app/(patient)/_actions/booking"
 import { usePatientTranslations } from "@/locales/locale-context"
@@ -104,8 +105,8 @@ export function useBookingFlow({
           if (!error) {
             const rawSlots = (slotData as Slot[]) ?? []
             // Filter past slots for today
-            const nowPre = new Date()
-            const todayMid = new Date()
+            const nowPre = nowInLisbon()
+            const todayMid = nowInLisbon()
             todayMid.setHours(0, 0, 0, 0)
             let fetchedSlots = preDate.getTime() === todayMid.getTime()
               ? rawSlots.filter((s) => new Date(`${preselectedDate}T${s.slot_start}`).getTime() > nowPre.getTime() + 30 * 60 * 1000)
@@ -139,7 +140,7 @@ export function useBookingFlow({
   const availableDays = new Set(availability.map((a) => a.day_of_week))
 
   function isDayDisabled(date: Date): boolean {
-    const today = new Date()
+    const today = nowInLisbon()
     today.setHours(0, 0, 0, 0)
     if (date < today) return true
     return !availableDays.has(getDay(date))
@@ -160,8 +161,8 @@ export function useBookingFlow({
       if (error) throw error
       const raw = (data as Slot[]) ?? []
       // Filter out past slots for today (start > now + 30min)
-      const now = new Date()
-      const todayMidnight = new Date()
+      const now = nowInLisbon()
+      const todayMidnight = nowInLisbon()
       todayMidnight.setHours(0, 0, 0, 0)
       let filtered = raw
       if (date && date.getTime() === todayMidnight.getTime()) {

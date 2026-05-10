@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { createClient } from "@/lib/supabase/client";
 import { generateSlots, filterPastSlots, type AvailabilityRange, type ExistingAppointment } from "@/lib/slots";
+import { todayInLisbon } from "@/lib/timezone";
 
 interface SimpleRecord {
   id: string;
@@ -363,7 +364,7 @@ export function AppointmentCreateModal({
               value={date}
               onChange={(e) => handleDateChange(e.target.value)}
               disabled={!professionalId}
-              min={new Date().toISOString().split("T")[0]}
+              min={todayInLisbon()}
             />
             {professionalId && availableDays.length > 0 && (
               <p className="text-xs text-muted-foreground">

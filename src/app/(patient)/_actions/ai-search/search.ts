@@ -11,6 +11,7 @@ import {
 import type { DetectedLang, AISearchResponse } from "./types"
 import { getCachedContext, queryProfessionals } from "./query"
 import { filterByAvailability } from "./availability"
+import { todayInLisbon } from "@/lib/timezone"
 
 export async function aiSearch(input: {
   message: string
@@ -40,7 +41,7 @@ export async function aiSearch(input: {
   const { specialties, cities, neighborhoods } = await getCachedContext(supabase)
 
   // 4. Call OpenAI for filter extraction
-  const todayISO = new Date().toISOString().slice(0, 10)
+  const todayISO = todayInLisbon()
   const systemPrompt = buildSystemPrompt(specialties, cities, neighborhoods, todayISO, locale)
 
   const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [

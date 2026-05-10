@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { nowInLisbon } from "@/lib/timezone";
 
 interface DashboardHeroProps {
   firstName: string;
@@ -13,7 +14,7 @@ function getGreeting(t: {
   greetingAfternoon: string;
   greetingEvening: string;
 }) {
-  const h = new Date().getHours();
+  const h = nowInLisbon().getHours();
   if (h < 12) return t.greetingMorning;
   if (h < 18) return t.greetingAfternoon;
   return t.greetingEvening;
@@ -28,7 +29,7 @@ export function DashboardHero({
   const dateLocale = t.common.dateLocale as "pt-PT" | "fr-FR" | "en-GB";
 
   const greeting = getGreeting(t.dashboard);
-  const today = new Date().toLocaleDateString(dateLocale, {
+  const today = nowInLisbon().toLocaleDateString(dateLocale, {
     weekday: "long",
     year: "numeric",
     month: "long",

@@ -1,3 +1,5 @@
+import { nowInLisbon } from "@/lib/timezone";
+
 // ─── Hidden statuses (CLAUDE.md §17) ───
 export const HIDDEN_APPOINTMENT_STATUSES = ["cancelled", "rejected"] as const;
 
@@ -64,7 +66,7 @@ export function canMarkNonPresent(appointment: {
   const [h, m] = (appointment.appointment_time ?? "00:00").split(":").map(Number);
   const start = new Date(year, month - 1, day, h, m);
   const threshold = new Date(start.getTime() + NON_PRESENT_DELAY_MINUTES * 60 * 1000);
-  return new Date() >= threshold;
+  return nowInLisbon() >= threshold;
 }
 
 /** @deprecated Use canMarkNonPresent — kept for backward compatibility */

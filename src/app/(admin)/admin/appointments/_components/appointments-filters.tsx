@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sheet";
 import { CalendarDays, SlidersHorizontal, X } from "lucide-react";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
+import { nowInLisbon } from "@/lib/timezone";
 
 interface AppointmentsFiltersProps {
   totalCount: number;
@@ -61,7 +62,7 @@ export function AppointmentsFilters({ totalCount }: AppointmentsFiltersProps) {
 
   function setQuickPeriod(period: "today" | "week" | "month") {
     const params = new URLSearchParams(searchParams.toString());
-    const today = new Date();
+    const today = nowInLisbon();
     const from = new Date(today);
 
     params.set("from", today.toISOString().slice(0, 10));

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { todayInLisbon } from "@/lib/timezone";
 
 /**
  * Recalculate a professional's average rating from approved reviews.
@@ -37,7 +38,7 @@ export async function hasFutureAppointments(
   supabase: SupabaseClient
 ): Promise<boolean> {
   const column = entityType === "professional" ? "professional_id" : "patient_id";
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayInLisbon();
 
   const { count } = await supabase
     .from("appointments")
@@ -60,8 +61,8 @@ export async function cancelFutureAppointments(
   reason: string
 ): Promise<number> {
   const column = entityType === "professional" ? "professional_id" : "patient_id";
-  const today = new Date().toISOString().split("T")[0];
-  const now = new Date().toISOString();
+  const today = todayInLisbon();
+  const now = new Date().toISOString(); // UTC for DB write
 
   // Fetch future appointments to cancel
   const { data: appointments } = await supabase

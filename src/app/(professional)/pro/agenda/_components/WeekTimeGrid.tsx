@@ -11,6 +11,7 @@ import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import type { Appointment, ExternalEvent } from "../_types/agenda";
 import { toLocalDateStr, parseLocalDate } from "../_lib/date-utils";
+import { todayInLisbon } from "@/lib/timezone";
 
 const hours = Array.from(
   { length: END_HOUR - START_HOUR + 1 },
@@ -53,7 +54,7 @@ export function WeekTimeGrid({
   const attendance = useAttendanceAction(onAttendanceChange);
 
   const weekDates = useMemo(() => getWeekDates(selectedDate), [selectedDate]);
-  const todayStr = toLocalDateStr(new Date());
+  const todayStr = todayInLisbon();
 
   const appointmentsByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();

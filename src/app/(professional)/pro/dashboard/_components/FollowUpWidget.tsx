@@ -5,6 +5,7 @@ import { CalendarClock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SHADOW, RADIUS, TYPE, SPACING } from "@/lib/design-tokens";
 import type { DashboardData } from "../_hooks/useDashboardData";
+import { todayInLisbon } from "@/lib/timezone";
 
 interface FollowUpWidgetProps {
   data: DashboardData;
@@ -13,7 +14,7 @@ interface FollowUpWidgetProps {
 export function FollowUpWidget({ data }: FollowUpWidgetProps) {
   const { t, followUps } = data;
   const dateLocale = t.common.dateLocale as string;
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = todayInLisbon();
 
   if (!followUps || followUps.length === 0) {
     return (

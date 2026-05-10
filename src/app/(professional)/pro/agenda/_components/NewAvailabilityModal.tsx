@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
+import { nowInLisbon } from "@/lib/timezone";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { toast } from "sonner";
@@ -197,7 +198,7 @@ export function NewAvailabilityModal({
                       setSpecificDate(d ? format(d, "yyyy-MM-dd") : "")
                     }}
                     locale={pt}
-                    disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                    disabled={(d) => { const todayMidnight = nowInLisbon(); todayMidnight.setHours(0, 0, 0, 0); return d < todayMidnight; }}
                   />
                 </PopoverContent>
               </Popover>

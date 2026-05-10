@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sanitizeDbError } from "@/lib/errors";
+import { todayInLisbon } from "@/lib/timezone";
 
 export async function deleteAvailabilitySlot(availabilityId: string) {
   const supabase = await createClient();
@@ -45,7 +46,7 @@ export async function deleteAvailabilitySlot(availabilityId: string) {
       .lt("scheduled_at", `${slot.specific_date}T${slot.end_time}`);
   } else if (slot.is_recurring) {
     // Recurring slot: check future appointments on matching day_of_week within time range
-    const today = new Date().toISOString().split("T")[0];
+    const today = todayInLisbon();
     apptQuery = apptQuery
       .gte("scheduled_at", `${today}T00:00:00`);
   }

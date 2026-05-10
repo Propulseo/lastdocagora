@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchStatisticsData, type PeriodRange, PERIOD_OPTIONS } from "../_lib/queries";
 import { escapeCell } from "@/lib/export-csv";
+import { todayInLisbon } from "@/lib/timezone";
 
 const SEP = ";";
 const BOM = "\uFEFF";
@@ -212,7 +213,7 @@ export async function GET(request: NextRequest) {
   ];
 
   const csv = BOM + lines.join("\r\n");
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayInLisbon();
 
   return new Response(csv, {
     headers: {

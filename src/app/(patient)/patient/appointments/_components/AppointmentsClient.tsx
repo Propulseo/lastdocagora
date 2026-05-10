@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useCallback } from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,14 +10,19 @@ import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { AppointmentCard, isAppointmentPast, type Appointment } from "./appointment-card"
+import { VisitedDoctorCard } from "./visited-doctor-card"
+import { DoctorHistoryDrawer } from "./doctor-history-drawer"
+import type { VisitedDoctor, PastAppointmentDetail } from "./visited-doctors-types"
 
 type AlternativeProposal = { proposedDate: string; proposedTime: string }
 
 interface AppointmentsClientProps {
   active: Appointment[]
   cancelled: Appointment[]
-  ratedIds: string[]
+  ratedIds?: string[]
   alternativeProposals?: Record<string, AlternativeProposal>
+  visitedDoctors?: VisitedDoctor[]
+  pastDetails?: Record<string, PastAppointmentDetail[]>
 }
 
 const tabTriggerClass =
@@ -26,26 +31,34 @@ const tabTriggerClass =
 export function AppointmentsClient({
   active,
   cancelled,
-  ratedIds,
   alternativeProposals = {},
+  visitedDoctors = [],
+  pastDetails = {},
 }: AppointmentsClientProps) {
   const { t, locale, dateLocale } = usePatientTranslations()
-  const ratedSet = new Set(ratedIds)
+  const [historyDoctorId, setHistoryDoctorId] = useState<string | null>(null)
+  const [historyOpen, setHistoryOpen] = useState(false)
 
-  const { upcoming, past } = useMemo(() => {
+  const openHistory = useCallback((doctorId: string) => {
+    setHistoryDoctorId(doctorId)
+    setHistoryOpen(true)
+  }, [])
+
+  const selectedDoctor = historyDoctorId
+    ? visitedDoctors.find((d) => d.professional_id === historyDoctorId) ?? null
+    : null
+  const selectedAppointments = historyDoctorId
+    ? pastDetails[historyDoctorId] ?? []
+    : []
+
+  const upcoming = useMemo(() => {
     const up: Appointment[] = []
-    const pa: Appointment[] = []
     for (const appt of active) {
-      if (isAppointmentPast(appt)) {
-        pa.push(appt)
-      } else {
+      if (!isAppointmentPast(appt)) {
         up.push(appt)
       }
     }
-    // upcoming already sorted ascending from server query
-    // past: reverse to show most recent first
-    pa.reverse()
-    return { upcoming: up, past: pa }
+    return up
   }, [active])
 
   return (
@@ -66,7 +79,7 @@ export function AppointmentsClient({
           <TabsTrigger value="past" className={tabTriggerClass}>
             {t.appointments.tabPast}
             <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-[11px] leading-none">
-              {past.length}
+              {visitedDoctors.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="cancelled" className={tabTriggerClass}>
@@ -99,14 +112,13 @@ export function AppointmentsClient({
         </TabsContent>
 
         <TabsContent value="past" className="mt-4">
-          {past.length > 0 ? (
-            <div className="space-y-3">
-              {past.map((appt) => (
-                <AppointmentCard
-                  key={appt.id}
-                  appointment={appt}
-                  type="past"
-                  hasRating={ratedSet.has(appt.id)}
+          {visitedDoctors.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {visitedDoctors.map((doctor) => (
+                <VisitedDoctorCard
+                  key={doctor.professional_id}
+                  doctor={doctor}
+                  onOpenHistory={openHistory}
                   t={t}
                   locale={locale}
                   dateLocale={dateLocale}
@@ -146,6 +158,16 @@ export function AppointmentsClient({
           )}
         </TabsContent>
       </Tabs>
+
+      <DoctorHistoryDrawer
+        doctor={selectedDoctor}
+        appointments={selectedAppointments}
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        t={t}
+        locale={locale}
+        dateLocale={dateLocale}
+      />
     </div>
   )
 }

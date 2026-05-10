@@ -9,6 +9,7 @@ import { DragActionSelector } from "./DragActionSelector";
 import { AppointmentDetailDialog } from "./AppointmentDetailDialog";
 import { useAttendanceAction } from "../_hooks/useAttendanceAction";
 import { toLocalDateStr } from "../_lib/date-utils";
+import { nowInLisbon, todayInLisbon } from "@/lib/timezone";
 import { PasteAvailabilityDialog } from "./PasteAvailabilityDialog";
 import { TimeGridToolbar } from "./TimeGridToolbar";
 import { TimeGridCanvas } from "./TimeGridCanvas";
@@ -64,7 +65,7 @@ export function DayTimeGrid({
   const [dragStartY, setDragStartY] = useState<number | null>(null);
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null);
   const [pendingDrag, setPendingDrag] = useState<PendingDrag | null>(null);
-  const todayStr = toLocalDateStr(new Date());
+  const todayStr = todayInLisbon();
   const isToday = selectedDate === todayStr;
   const isPast = selectedDate < todayStr;
   const [, setTick] = useState(0);
@@ -81,7 +82,7 @@ export function DayTimeGrid({
   useEffect(() => {
     if (highlightedAppointmentId) return;
     if (!gridRef.current?.parentElement) return;
-    const now = new Date();
+    const now = nowInLisbon();
     const scrollTo = Math.max(0, (now.getHours() - START_HOUR - 1) * HOUR_HEIGHT);
     gridRef.current.parentElement.scrollTop = scrollTo;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

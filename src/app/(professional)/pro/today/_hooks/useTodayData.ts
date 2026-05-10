@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { nowInLisbon } from "@/lib/timezone";
 
 export type TodayAppointment = {
   id: string;
@@ -115,7 +116,7 @@ export function useTodayData({ professionalId, dateStr }: UseTodayDataParams) {
   }, [appointments]);
 
   const currentAppointmentId = useMemo(() => {
-    const now = new Date();
+    const now = nowInLisbon();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     // Find appointment whose window contains now

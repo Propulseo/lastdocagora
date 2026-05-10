@@ -15,6 +15,7 @@ import {
 import type { PatientDetailEnhanced } from "@/app/(professional)/_actions/patients";
 import { RADIUS } from "@/lib/design-tokens";
 import { InfoRow, MiniKpi, computeAge } from "./patient-drawer-helpers";
+import { nowInLisbon } from "@/lib/timezone";
 
 interface DrawerTranslations {
   birthDate: string;
@@ -39,7 +40,7 @@ interface PatientDrawerInfoProps {
 }
 
 function getPatientStatus(data: PatientDetailEnhanced): "active" | "inactive" | "new" {
-  const now = new Date();
+  const now = nowInLisbon();
   const thirtyDaysAgo = new Date(now);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const ninetyDaysAgo = new Date(now);

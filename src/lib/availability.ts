@@ -8,13 +8,14 @@ import {
   type AvailabilityRange,
   type ExistingAppointment,
 } from "@/lib/slots"
+import { nowInLisbon } from "@/lib/timezone"
 
 export async function getAvailableSlotsForProfessional(
   professionalId: string,
   date: string,           // "YYYY-MM-DD"
   serviceDuration: number // minutes
 ): Promise<string[]> {
-  const today = new Date()
+  const today = nowInLisbon()
   today.setHours(0, 0, 0, 0)
   if (new Date(date + "T00:00:00") < today) return []
 

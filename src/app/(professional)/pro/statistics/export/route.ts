@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { csvResponse } from "@/lib/export-csv";
+import { nowInLisbon } from "@/lib/timezone";
 
 type ExportLang = "pt" | "fr" | "en";
 
@@ -34,7 +35,7 @@ function getDateRange(
   range: string,
   year?: number,
 ): { from: string; to: string } {
-  const now = new Date();
+  const now = nowInLisbon();
   const currentYear = now.getFullYear();
   const selectedYear = year ?? currentYear;
   const isCurrentYear = selectedYear === currentYear;

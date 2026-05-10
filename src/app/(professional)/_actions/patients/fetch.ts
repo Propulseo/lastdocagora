@@ -7,6 +7,7 @@ import type {
   ConsultationNoteRow,
   EnhancedDetailResult,
 } from "./types";
+import { todayInLisbon } from "@/lib/timezone";
 
 // ---------------------------------------------------------------------------
 // Patient detail for drawer
@@ -81,7 +82,7 @@ export async function getPatientDetailEnhanced(
   const professionalId = await getProfessionalId();
   const supabase = await createClient();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayInLisbon();
 
   // Parallel: patient profile + all appointments + upcoming + consultation notes
   const [patientResult, appointmentsResult, upcomingResult, notesResult] =

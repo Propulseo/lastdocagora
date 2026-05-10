@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { RADIUS, SHADOW, SPACING } from "@/lib/design-tokens";
+import { nowInLisbon } from "@/lib/timezone";
 
 export function computeAge(dob: string): number | null {
   const birth = new Date(dob);
   if (isNaN(birth.getTime())) return null;
-  const today = new Date();
+  const today = nowInLisbon();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;

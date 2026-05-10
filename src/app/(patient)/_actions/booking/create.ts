@@ -8,6 +8,7 @@ import {
   getNotificationMessages,
   interpolate,
 } from "@/lib/notifications"
+import { nowInLisbon } from "@/lib/timezone"
 
 export async function createAppointment(input: {
   professionalId: string
@@ -71,7 +72,7 @@ export async function createAppointment(input: {
 
   // Reject booking in the past
   const slotDateTime = new Date(`${input.appointmentDate}T${input.appointmentTime}`)
-  if (slotDateTime.getTime() <= Date.now()) {
+  if (slotDateTime.getTime() <= nowInLisbon().getTime()) {
     return { success: false, error: "SLOT_IN_PAST" }
   }
 

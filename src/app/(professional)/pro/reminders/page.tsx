@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getProfessionalId } from "@/lib/auth";
 import { ProPageHeader } from "../../_components/pro-page-header";
 import { RemindersClient } from "./_components/RemindersClient";
+import { nowInLisbon } from "@/lib/timezone";
 import type {
   RemindersKpiData,
   RemindersChartsData,
@@ -25,8 +26,8 @@ export default async function RemindersPage() {
 
   const supabase = await createClient();
 
-  // Compute current month boundaries (UTC)
-  const now = new Date();
+  // Compute current month boundaries (Lisbon time)
+  const now = nowInLisbon();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
 

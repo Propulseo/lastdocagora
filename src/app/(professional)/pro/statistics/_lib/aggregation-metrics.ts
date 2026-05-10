@@ -4,6 +4,7 @@ import type { ServiceStat } from "../_components/ServiceBreakdownChart";
 import type { ChannelStat } from "../_components/ChannelChart";
 import type { PunctualityData } from "../_components/PunctualityChart";
 import type { AppointmentRow } from "./aggregation-types";
+import { nowInLisbon } from "@/lib/timezone";
 
 // ---------------------------------------------------------------------------
 // Date helpers
@@ -13,7 +14,7 @@ export function getDateRange(
   range: string,
   year?: number,
 ): { from: string; to: string } {
-  const now = new Date();
+  const now = nowInLisbon();
   const currentYear = now.getFullYear();
   const selectedYear = year ?? currentYear;
   const isCurrentYear = selectedYear === currentYear;

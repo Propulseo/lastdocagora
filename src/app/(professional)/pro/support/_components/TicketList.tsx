@@ -15,6 +15,7 @@ import { useProfessionalI18n } from "@/lib/i18n/pro";
 import { cn } from "@/lib/utils";
 import type { TicketData } from "./SupportClient";
 import { SHADOW, RADIUS } from "@/lib/design-tokens";
+import { nowInLisbon } from "@/lib/timezone";
 
 interface TicketListProps {
   tickets: TicketData[];
@@ -49,7 +50,7 @@ const statusDot: Record<string, string> = {
 
 function formatRelativeDate(dateStr: string, todayLabel: string, yesterdayLabel: string) {
   const date = new Date(dateStr);
-  const now = new Date();
+  const now = nowInLisbon();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / 86400000);
 
