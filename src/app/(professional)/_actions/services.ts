@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeDbError } from "@/lib/errors";
+import { translateService } from "@/lib/ai/translate-service";
 
 type ActionResult =
   | { success: true; data?: Record<string, unknown> }
@@ -20,6 +21,7 @@ export async function createService(formData: {
   duration_minutes: number;
   is_active: boolean;
   price?: number | null;
+  sourceLocale?: "pt" | "fr" | "en";
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -35,19 +37,64 @@ export async function createService(formData: {
 
   if (!professional) return { success: false, error: "Professional not found" };
 
-  const namePt = (formData.name_pt ?? formData.name).trim();
+  const sourceLocale = formData.sourceLocale ?? "pt";
+  const sourceName = formData.name.trim();
+  const sourceDescription = formData.description?.trim() || null;
 
-  const descPt = (formData.description_pt ?? formData.description)?.trim() || null;
+  // Manual values provided by the pro (these always win over translations)
+  const manualNamePt = formData.name_pt?.trim() || null;
+  const manualNameFr = formData.name_fr?.trim() || null;
+  const manualNameEn = formData.name_en?.trim() || null;
+  const manualDescPt = formData.description_pt?.trim() || null;
+  const manualDescFr = formData.description_fr?.trim() || null;
+  const manualDescEn = formData.description_en?.trim() || null;
+
+  // Auto-translate missing locale columns
+  const translations = await translateService({
+    name: sourceName,
+    description: sourceDescription,
+    sourceLocale,
+  });
+
+  // Build locale columns: source locale uses formData.name, others use manual > translation > null
+  const namePt =
+    sourceLocale === "pt"
+      ? sourceName
+      : manualNamePt ?? translations?.name_pt ?? null;
+  const nameFr =
+    sourceLocale === "fr"
+      ? sourceName
+      : manualNameFr ?? translations?.name_fr ?? null;
+  const nameEn =
+    sourceLocale === "en"
+      ? sourceName
+      : manualNameEn ?? translations?.name_en ?? null;
+
+  const descPt =
+    sourceLocale === "pt"
+      ? sourceDescription
+      : manualDescPt ?? translations?.description_pt ?? null;
+  const descFr =
+    sourceLocale === "fr"
+      ? sourceDescription
+      : manualDescFr ?? translations?.description_fr ?? null;
+  const descEn =
+    sourceLocale === "en"
+      ? sourceDescription
+      : manualDescEn ?? translations?.description_en ?? null;
+
+  // "name" column (legacy fallback) always uses PT value or source name
+  const nameDefault = namePt ?? sourceName;
 
   const { error } = await supabase.from("services").insert({
-    name: namePt,
+    name: nameDefault,
     name_pt: namePt,
-    name_fr: formData.name_fr?.trim() || null,
-    name_en: formData.name_en?.trim() || null,
+    name_fr: nameFr,
+    name_en: nameEn,
     description: descPt,
     description_pt: descPt,
-    description_fr: formData.description_fr?.trim() || null,
-    description_en: formData.description_en?.trim() || null,
+    description_fr: descFr,
+    description_en: descEn,
     duration_minutes: formData.duration_minutes,
     is_active: formData.is_active,
     price: formData.price ?? 0,
@@ -76,6 +123,7 @@ export async function updateService(
     duration_minutes: number;
     is_active: boolean;
     price?: number | null;
+    sourceLocale?: "pt" | "fr" | "en";
   }
 ): Promise<ActionResult> {
   const supabase = await createClient();
@@ -84,21 +132,66 @@ export async function updateService(
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  const namePt = (formData.name_pt ?? formData.name).trim();
+  const sourceLocale = formData.sourceLocale ?? "pt";
+  const sourceName = formData.name.trim();
+  const sourceDescription = formData.description?.trim() || null;
 
-  const descPt = (formData.description_pt ?? formData.description)?.trim() || null;
+  // Manual values provided by the pro (these always win over translations)
+  const manualNamePt = formData.name_pt?.trim() || null;
+  const manualNameFr = formData.name_fr?.trim() || null;
+  const manualNameEn = formData.name_en?.trim() || null;
+  const manualDescPt = formData.description_pt?.trim() || null;
+  const manualDescFr = formData.description_fr?.trim() || null;
+  const manualDescEn = formData.description_en?.trim() || null;
+
+  // Auto-translate missing locale columns
+  const translations = await translateService({
+    name: sourceName,
+    description: sourceDescription,
+    sourceLocale,
+  });
+
+  // Build locale columns: source locale uses formData.name, others use manual > translation > null
+  const namePt =
+    sourceLocale === "pt"
+      ? sourceName
+      : manualNamePt ?? translations?.name_pt ?? null;
+  const nameFr =
+    sourceLocale === "fr"
+      ? sourceName
+      : manualNameFr ?? translations?.name_fr ?? null;
+  const nameEn =
+    sourceLocale === "en"
+      ? sourceName
+      : manualNameEn ?? translations?.name_en ?? null;
+
+  const descPt =
+    sourceLocale === "pt"
+      ? sourceDescription
+      : manualDescPt ?? translations?.description_pt ?? null;
+  const descFr =
+    sourceLocale === "fr"
+      ? sourceDescription
+      : manualDescFr ?? translations?.description_fr ?? null;
+  const descEn =
+    sourceLocale === "en"
+      ? sourceDescription
+      : manualDescEn ?? translations?.description_en ?? null;
+
+  // "name" column (legacy fallback) always uses PT value or source name
+  const nameDefault = namePt ?? sourceName;
 
   const { error } = await supabase
     .from("services")
     .update({
-      name: namePt,
+      name: nameDefault,
       name_pt: namePt,
-      name_fr: formData.name_fr?.trim() || null,
-      name_en: formData.name_en?.trim() || null,
+      name_fr: nameFr,
+      name_en: nameEn,
       description: descPt,
       description_pt: descPt,
-      description_fr: formData.description_fr?.trim() || null,
-      description_en: formData.description_en?.trim() || null,
+      description_fr: descFr,
+      description_en: descEn,
       duration_minutes: formData.duration_minutes,
       is_active: formData.is_active,
       price: formData.price ?? 0,

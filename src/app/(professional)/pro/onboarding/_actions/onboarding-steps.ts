@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { geocodeAddress } from "@/app/_actions/geocode";
+import { translateService } from "@/lib/ai/translate-service";
 import { sanitizeDbError } from "@/lib/errors";
 import {
   step1Schema,
@@ -118,19 +119,43 @@ export async function handleStep3(
   if (!parsed.success) return { success: false, error: "validation_error" };
   const d = parsed.data;
 
-  const servicesToInsert = d.services.map((s) => ({
-    name: s.name.trim(),
-    name_pt: s.name.trim(),
-    name_fr: s.name_fr?.trim() || null,
-    name_en: s.name_en?.trim() || null,
-    description: s.description?.trim() || null,
-    duration_minutes: s.duration_minutes,
-    price: s.price,
-    consultation_type: s.consultation_type || "in-person",
-    is_active: true,
-    professional_id: proId,
-    professional_user_id: userId,
-  }));
+  // Auto-translate all services in parallel (failures are gracefully ignored)
+  const translationResults = await Promise.allSettled(
+    d.services.map((s) =>
+      translateService({
+        name: s.name.trim(),
+        description: s.description?.trim() || null,
+        sourceLocale: "pt",
+      }),
+    ),
+  );
+
+  const servicesToInsert = d.services.map((s, i) => {
+    const result = translationResults[i];
+    const translation =
+      result.status === "fulfilled" ? result.value : null;
+
+    const manualFr = s.name_fr?.trim() || null;
+    const manualEn = s.name_en?.trim() || null;
+    const rawDescription = s.description?.trim() || null;
+
+    return {
+      name: s.name.trim(),
+      name_pt: translation?.name_pt ?? s.name.trim(),
+      name_fr: manualFr ?? translation?.name_fr ?? null,
+      name_en: manualEn ?? translation?.name_en ?? null,
+      description: rawDescription,
+      description_pt: translation?.description_pt ?? rawDescription,
+      description_fr: translation?.description_fr ?? null,
+      description_en: translation?.description_en ?? null,
+      duration_minutes: s.duration_minutes,
+      price: s.price,
+      consultation_type: s.consultation_type || "in-person",
+      is_active: true,
+      professional_id: proId,
+      professional_user_id: userId,
+    };
+  });
 
   const { error: svcErr } = await supabase
     .from("services")
