@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { adminNav } from "@/config/admin-nav";
@@ -46,10 +45,6 @@ export function AdminTopbar({ userId, user }: AdminTopbarProps) {
 
       <div className="ml-6 flex-1 max-w-sm">
         <AdminGlobalSearch />
-      </div>
-
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-        <Image src="/logo-icon.png" alt="DocAgora" width={28} height={28} className="size-7 object-contain opacity-60" />
       </div>
 
       <div className="ml-auto flex items-center gap-2">

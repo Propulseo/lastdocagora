@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -121,9 +120,6 @@ export default async function ProfessionalLayout({
                 <SidebarTrigger className="-ml-2" />
                 <Separator orientation="vertical" className="mx-3 h-4" />
                 <ProLayoutHeaderTitle />
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                  <Image src="/logo-icon.png" alt="DocAgora" width={32} height={32} className="size-8 object-contain opacity-60" />
-                </div>
                 <div className="ml-auto flex items-center gap-3">
                   <LisbonClock />
                   <Separator orientation="vertical" className="h-4" />
