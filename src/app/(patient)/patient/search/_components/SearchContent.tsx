@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback, useTransition } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Search as SearchIcon, Loader2, MapPin } from "lucide-react"
-import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { usePatientTranslations } from "@/locales/locale-context"
 import { searchProfessionals } from "../_actions/search-professionals"
@@ -52,6 +51,7 @@ export function SearchContent({
   const [searchCity, setSearchCity] = useState(cityFilter)
   const [searchInsurance, setSearchInsurance] = useState(insuranceFilter || "all")
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("ai")
   const [isPending, startTransition] = useTransition()
 
   const executeSearch = useCallback(
@@ -204,20 +204,23 @@ export function SearchContent({
   )
 
   return (
-    <div className="space-y-5">
-      <PageHeader
-        title={t.search.title}
-        description={t.search.description}
-      />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold tracking-tight sm:text-xl">{t.search.title}</h1>
+          <p className="hidden text-sm text-muted-foreground sm:block">{t.search.description}</p>
+        </div>
+      </div>
 
-      {/* Search bar above tabs — shared across all views */}
-      {searchBar}
+      {/* Search bar — only visible on Classic search and Map tabs */}
+      {activeTab !== "ai" && searchBar}
 
       <SearchTabs
         classicContent={classicContent}
         mapContent={<MapView professionals={professionals} locale={locale} t={t.search} />}
         locale={locale}
         t={t.search}
+        onTabChange={setActiveTab}
       />
     </div>
   )

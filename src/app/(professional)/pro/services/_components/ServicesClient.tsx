@@ -1,15 +1,23 @@
 "use client";
 
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Download } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { CreateServiceDialog } from "./create-service-dialog";
 import { ServicesKpiCards } from "./ServicesKpiCards";
 import { ServicesFiltersBar } from "./ServicesFiltersBar";
-import { RevenuePerServiceChart } from "./RevenuePerServiceChart";
-import { AppointmentVolumeChart } from "./AppointmentVolumeChart";
+const RevenuePerServiceChart = dynamic(() => import("./RevenuePerServiceChart").then(m => m.RevenuePerServiceChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
+const AppointmentVolumeChart = dynamic(() => import("./AppointmentVolumeChart").then(m => m.AppointmentVolumeChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
 import { ServicesTable } from "./services-table";
 import { ProPageHeader } from "../../../_components/pro-page-header";
 import type { ServicesDashboardData } from "../_lib/types";

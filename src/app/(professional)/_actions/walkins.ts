@@ -75,24 +75,15 @@ export async function createWalkIn(formData: {
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  // Get professional id
-  const { data: professional } = await supabase
-    .from("professionals")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
+  // Parallel fetch: professional + service (service uses formData.serviceId directly)
+  const [{ data: professional }, { data: service }] = await Promise.all([
+    supabase.from("professionals").select("id").eq("user_id", user.id).single(),
+    supabase.from("services").select("id, duration_minutes, price, consultation_type, professional_id")
+      .eq("id", formData.serviceId).single(),
+  ]);
 
   if (!professional) return { success: false, error: "Professional not found" };
-
-  // Look up service for duration and price
-  const { data: service } = await supabase
-    .from("services")
-    .select("id, duration_minutes, price, consultation_type")
-    .eq("id", formData.serviceId)
-    .eq("professional_id", professional.id)
-    .single();
-
-  if (!service) return { success: false, error: "Service not found" };
+  if (!service || service.professional_id !== professional.id) return { success: false, error: "Service not found" };
 
   // Try to find existing patient by email if provided
   let patientId: string | null = null;
@@ -115,32 +106,24 @@ export async function createWalkIn(formData: {
   const todayStr = formData.scheduledDate ?? todayInLisbon();
   const now = new Date().toISOString();
 
-  // Point 76: Check if an appointment already exists today between this pro and patient (warning, not blocking)
+  // Parallel: duplicate check + slot conflict check
+  const [duplicateRes, slotConflictRes] = await Promise.all([
+    patientId
+      ? supabase.from("appointments").select("id", { count: "exact", head: true })
+          .eq("professional_id", professional.id).eq("patient_id", patientId)
+          .eq("appointment_date", todayStr).in("status", ["pending", "confirmed", "completed"])
+      : Promise.resolve({ count: 0 }),
+    supabase.from("appointments").select("id", { count: "exact", head: true })
+      .eq("professional_id", professional.id).eq("appointment_date", todayStr)
+      .eq("appointment_time", formData.scheduledTime)
+      .not("status", "in", '("cancelled","rejected")'),
+  ]);
+
   let warning: string | undefined;
-  if (patientId) {
-    const { count } = await supabase
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .eq("professional_id", professional.id)
-      .eq("patient_id", patientId)
-      .eq("appointment_date", todayStr)
-      .in("status", ["pending", "confirmed", "completed"]);
-
-    if (count && count > 0) {
-      warning = "duplicate_same_day";
-    }
+  if (duplicateRes.count && duplicateRes.count > 0) {
+    warning = "duplicate_same_day";
   }
-
-  // Check for existing appointment at this slot (unique constraint guard)
-  const { count: slotConflict } = await supabase
-    .from("appointments")
-    .select("id", { count: "exact", head: true })
-    .eq("professional_id", professional.id)
-    .eq("appointment_date", todayStr)
-    .eq("appointment_time", formData.scheduledTime)
-    .not("status", "in", '("cancelled","rejected")');
-
-  if (slotConflict && slotConflict > 0) {
+  if (slotConflictRes.count && slotConflictRes.count > 0) {
     return { success: false, error: "slot_already_taken" };
   }
 

@@ -1,16 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import { useReminders } from "../_hooks/useReminders";
 import { RemindersKpiStrip } from "./RemindersKpiStrip";
 import { RulesCard } from "./RulesCard";
-import { NotificationTrendsChart } from "./NotificationTrendsChart";
-import { ChannelDistributionChart } from "./ChannelDistributionChart";
-import { DeliveryStatusChart } from "./DeliveryStatusChart";
+const ChartSkeleton = () => <Skeleton className="h-64 w-full rounded-xl" />;
+const NotificationTrendsChart = dynamic(() => import("./NotificationTrendsChart").then(m => m.NotificationTrendsChart), { ssr: false, loading: ChartSkeleton });
+const ChannelDistributionChart = dynamic(() => import("./ChannelDistributionChart").then(m => m.ChannelDistributionChart), { ssr: false, loading: ChartSkeleton });
+const DeliveryStatusChart = dynamic(() => import("./DeliveryStatusChart").then(m => m.DeliveryStatusChart), { ssr: false, loading: ChartSkeleton });
 import { HistoryTab } from "./HistoryTab";
 import { SettingsTab } from "./SettingsTab";
 import { NewReminderDialog } from "./NewReminderDialog";

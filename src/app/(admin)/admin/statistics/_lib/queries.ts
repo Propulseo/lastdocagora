@@ -48,19 +48,25 @@ export async function fetchStatisticsData(range: PeriodRange): Promise<Statistic
   const [
     patientsRes, prosRes, usersRangeRes, allProsRes,
     apptsRangeRes, totalApptsRes, ticketsRes, suspendedRes,
+    baselinePatientsRes, baselineProsRes,
   ] = await Promise.all([
-    supabase.from("users").select("*", { count: "exact", head: true }).eq("role", "patient"),
-    supabase.from("users").select("*", { count: "exact", head: true }).eq("role", "professional"),
+    supabase.from("users").select("id", { count: "exact", head: true }).eq("role", "patient"),
+    supabase.from("users").select("id", { count: "exact", head: true }).eq("role", "professional"),
     supabase.from("users").select("role, created_at")
       .in("role", ["patient", "professional"])
       .gte("created_at", prevStartISO).lte("created_at", endISO),
     supabase.from("professionals").select("id, user_id, verification_status, specialty, city, rating"),
     supabase.from("appointments").select("status, appointment_date, professional_id, created_via")
       .gte("appointment_date", prevStartDate).lte("appointment_date", endDate),
-    supabase.from("appointments").select("*", { count: "exact", head: true }),
-    supabase.from("support_tickets").select("*", { count: "exact", head: true })
+    supabase.from("appointments").select("id", { count: "exact", head: true }),
+    supabase.from("support_tickets").select("id", { count: "exact", head: true })
       .in("status", ["open", "in_progress"]).lt("created_at", twoDaysAgo),
-    supabase.from("users").select("*", { count: "exact", head: true }).eq("status", "suspended"),
+    supabase.from("users").select("id", { count: "exact", head: true }).eq("status", "suspended"),
+    // Baseline counts for growth chart (replaces separate allUsersForGrowth query)
+    supabase.from("users").select("id", { count: "exact", head: true })
+      .eq("role", "patient").lt("created_at", startISO),
+    supabase.from("users").select("id", { count: "exact", head: true })
+      .eq("role", "professional").lt("created_at", startISO),
   ]);
 
   const users = usersRangeRes.data ?? [];
@@ -97,17 +103,9 @@ export async function fetchStatisticsData(range: PeriodRange): Promise<Statistic
   const completionRate = computeRate(completedInPeriod, periodAppointments);
 
   // --- Growth chart (cumulative) ---
-  // Count all users created BEFORE the period start (baseline)
-  const { data: allUsersForGrowth } = await supabase
-    .from("users")
-    .select("role, created_at")
-    .in("role", ["patient", "professional"])
-    .lte("created_at", endISO)
-    .order("created_at");
-
-  const allU = allUsersForGrowth ?? [];
-  const baselinePatients = allU.filter(u => u.created_at && new Date(u.created_at) < start && u.role === "patient").length;
-  const baselinePros = allU.filter(u => u.created_at && new Date(u.created_at) < start && u.role === "professional").length;
+  // Baseline counts from parallelized queries above (no separate fetch needed)
+  const baselinePatients = baselinePatientsRes.count ?? 0;
+  const baselinePros = baselineProsRes.count ?? 0;
 
   // Build bucket keys for the entire period (so there are no gaps)
   const bucketKeys: string[] = [];

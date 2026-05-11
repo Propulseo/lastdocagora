@@ -6,8 +6,13 @@ import {
 } from "../_hooks/useDashboardData";
 import { DashboardHeader } from "./DashboardHeader";
 import { KPIStrip } from "./KPIStrip";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TodaySchedule } from "./TodaySchedule";
-import { ActivityChart } from "./ActivityChart";
+const ActivityChart = dynamic(() => import("./ActivityChart").then(m => m.ActivityChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
 import { UtilityWidgets } from "./UtilityWidgets";
 import { QuickActions } from "./QuickActions";
 

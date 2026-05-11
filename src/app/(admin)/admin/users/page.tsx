@@ -79,29 +79,45 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   const totalUsers = (patientCount ?? 0) + (proCount ?? 0) + (adminCount ?? 0);
 
-  // For each user, fetch role-specific data
-  const enrichedUsers = await Promise.all(
-    (users ?? []).map(async (u) => {
-      const row: Record<string, unknown> = { ...u };
-      if (u.role === "professional") {
-        const { data: pro } = await supabase
+  // Batch fetch role-specific data (2 queries instead of N)
+  const usersList = users ?? [];
+  const proUserIds = usersList.filter((u) => u.role === "professional").map((u) => u.id);
+  const patUserIds = usersList.filter((u) => u.role === "patient").map((u) => u.id);
+
+  const [prosRes, patsRes] = await Promise.all([
+    proUserIds.length > 0
+      ? supabase
           .from("professionals")
-          .select("specialty, registration_number, consultation_fee, bio, languages_spoken, address, city, postal_code")
-          .eq("user_id", u.id)
-          .maybeSingle();
-        if (pro) Object.assign(row, pro);
-      }
-      if (u.role === "patient") {
-        const { data: pat } = await supabase
+          .select("user_id, specialty, registration_number, consultation_fee, bio, languages_spoken, address, city, postal_code")
+          .in("user_id", proUserIds)
+      : Promise.resolve({ data: [] as { user_id: string }[] }),
+    patUserIds.length > 0
+      ? supabase
           .from("patients")
-          .select("insurance_provider, address, city")
-          .eq("user_id", u.id)
-          .maybeSingle();
-        if (pat) Object.assign(row, pat);
-      }
-      return row;
-    })
+          .select("user_id, insurance_provider, address, city")
+          .in("user_id", patUserIds)
+      : Promise.resolve({ data: [] as { user_id: string }[] }),
+  ]);
+
+  const prosByUserId = new Map(
+    (prosRes.data ?? []).map((p) => [p.user_id, p])
   );
+  const patsByUserId = new Map(
+    (patsRes.data ?? []).map((p) => [p.user_id, p])
+  );
+
+  const enrichedUsers = usersList.map((u) => {
+    const row: Record<string, unknown> = { ...u };
+    if (u.role === "professional") {
+      const pro = prosByUserId.get(u.id);
+      if (pro) Object.assign(row, pro);
+    }
+    if (u.role === "patient") {
+      const pat = patsByUserId.get(u.id);
+      if (pat) Object.assign(row, pat);
+    }
+    return row;
+  });
 
   return (
     <div className="space-y-5">

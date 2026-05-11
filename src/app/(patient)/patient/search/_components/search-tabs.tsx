@@ -12,38 +12,40 @@ export function SearchTabs({
   mapContent,
   locale,
   t,
+  onTabChange,
 }: {
   classicContent: ReactNode
   mapContent?: ReactNode
   locale: string
   t: PatientTranslations["search"]
+  onTabChange?: (tab: string) => void
 }) {
   return (
-    <Tabs defaultValue="classic" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="classic" className="gap-2">
-          <Search className="size-4" />
+    <Tabs defaultValue="ai" className="space-y-3" onValueChange={onTabChange}>
+      <TabsList className="h-9">
+        <TabsTrigger value="ai" className="gap-1.5 text-sm px-3 h-7">
+          <Sparkles className="size-3.5" />
+          {t.aiTab}
+        </TabsTrigger>
+        <TabsTrigger value="classic" className="gap-1.5 text-sm px-3 h-7">
+          <Search className="size-3.5" />
           {t.classicTab}
         </TabsTrigger>
-        <TabsTrigger value="map" className="gap-2">
-          <MapPin className="size-4" />
+        <TabsTrigger value="map" className="gap-1.5 text-sm px-3 h-7">
+          <MapPin className="size-3.5" />
           {t.mapTab}
-        </TabsTrigger>
-        <TabsTrigger value="ai" className="gap-2">
-          <Sparkles className="size-4" />
-          {t.aiTab}
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="classic">{classicContent}</TabsContent>
-
-      <TabsContent value="map" className="mt-0">{mapContent}</TabsContent>
-
-      <TabsContent value="ai">
+      <TabsContent value="ai" className="mt-2">
         <Card>
           <AISearchChat locale={locale} t={t} />
         </Card>
       </TabsContent>
+
+      <TabsContent value="classic">{classicContent}</TabsContent>
+
+      <TabsContent value="map" className="mt-0">{mapContent}</TabsContent>
     </Tabs>
   )
 }

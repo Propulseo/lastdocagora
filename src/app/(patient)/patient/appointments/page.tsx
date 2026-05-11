@@ -112,48 +112,39 @@ export default async function AppointmentsPage() {
   const pastDetails: Record<string, PastAppointmentDetail[]> = Object.fromEntries(detailMap)
 
   const activeIds = active.map((a) => a.id)
-  const { data: ratings } = activeIds.length
-    ? await supabase
-        .from("appointment_ratings")
-        .select("appointment_id")
-        .in("appointment_id", activeIds)
-    : { data: [] }
+  const rejectedIds = cancelled.filter((a) => a.status === "rejected").map((a) => a.id)
 
-  const ratedIds = new Set((ratings ?? []).map((r) => r.appointment_id))
+  // Parallel: ratings + alternative proposals (independent of each other)
+  const [ratingsRes, altNotifsRes] = await Promise.all([
+    activeIds.length
+      ? supabase.from("appointment_ratings").select("appointment_id").in("appointment_id", activeIds)
+      : Promise.resolve({ data: [] as { appointment_id: string }[] }),
+    rejectedIds.length
+      ? supabase.from("notifications").select("related_id, params")
+          .eq("user_id", user.id).eq("type", "alternative_proposed")
+          .eq("is_read", false).in("related_id", rejectedIds)
+      : Promise.resolve({ data: [] as { related_id: string | null; params: unknown }[] }),
+  ])
 
-  // Fetch unread alternative_proposed notifications for rejected appointments
-  const rejectedIds = cancelled
-    .filter((a) => a.status === "rejected")
-    .map((a) => a.id)
+  const ratedIds = new Set((ratingsRes.data ?? []).map((r) => r.appointment_id))
 
   type AlternativeProposal = { proposedDate: string; proposedTime: string }
   const alternativeProposals: Record<string, AlternativeProposal> = {}
-
-  if (rejectedIds.length > 0) {
-    const { data: altNotifs } = await supabase
-      .from("notifications")
-      .select("related_id, params")
-      .eq("user_id", user.id)
-      .eq("type", "alternative_proposed")
-      .eq("is_read", false)
-      .in("related_id", rejectedIds)
-
-    for (const notif of altNotifs ?? []) {
-      const p = notif.params as { proposedDate?: string; proposedTime?: string; dateTime?: string } | null
-      if (!p || !notif.related_id) continue
-      let pDate: string | undefined
-      let pTime: string | undefined
-      if (p.proposedDate && p.proposedTime) {
-        pDate = p.proposedDate
-        pTime = p.proposedTime
-      } else if (p.dateTime) {
-        const parts = p.dateTime.split(" ")
-        pDate = parts[0]
-        pTime = parts[1]
-      }
-      if (pDate && pTime) {
-        alternativeProposals[notif.related_id] = { proposedDate: pDate, proposedTime: pTime }
-      }
+  for (const notif of altNotifsRes.data ?? []) {
+    const p = notif.params as { proposedDate?: string; proposedTime?: string; dateTime?: string } | null
+    if (!p || !notif.related_id) continue
+    let pDate: string | undefined
+    let pTime: string | undefined
+    if (p.proposedDate && p.proposedTime) {
+      pDate = p.proposedDate
+      pTime = p.proposedTime
+    } else if (p.dateTime) {
+      const parts = p.dateTime.split(" ")
+      pDate = parts[0]
+      pTime = parts[1]
+    }
+    if (pDate && pTime) {
+      alternativeProposals[notif.related_id] = { proposedDate: pDate, proposedTime: pTime }
     }
   }
 

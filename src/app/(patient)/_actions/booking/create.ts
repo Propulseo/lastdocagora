@@ -23,31 +23,19 @@ export async function createAppointment(input: {
   } = await supabase.auth.getUser()
   if (!user) return { success: false, error: "not_authenticated" }
 
-  // Get patient record
-  const { data: patient } = await supabase
-    .from("patients")
-    .select("id")
-    .eq("user_id", user.id)
-    .single()
+  // Parallel fetch: patient, professional, service (all independent)
+  const [{ data: patient }, { data: pro }, { data: service }] = await Promise.all([
+    supabase.from("patients").select("id").eq("user_id", user.id).single(),
+    supabase.from("professionals").select("user_id, verification_status").eq("id", input.professionalId).single(),
+    supabase.from("services").select("id, duration_minutes, price, consultation_type")
+      .eq("id", input.serviceId).eq("professional_id", input.professionalId).eq("is_active", true).single(),
+  ])
+
   if (!patient) return { success: false, error: "patient_not_found" }
-
-  // Get professional
-  const { data: pro } = await supabase
-    .from("professionals")
-    .select("user_id, verification_status")
-    .eq("id", input.professionalId)
-    .single()
   if (!pro) return { success: false, error: "professional_not_found" }
-
-  // Block booking with non-verified professionals
-  if (pro.verification_status !== "verified") {
-    return { success: false, error: "professional_unavailable" }
-  }
-
-  // Self-booking check
-  if (user.id === pro.user_id) {
-    return { success: false, error: "self_booking_not_allowed" }
-  }
+  if (pro.verification_status !== "verified") return { success: false, error: "professional_unavailable" }
+  if (user.id === pro.user_id) return { success: false, error: "self_booking_not_allowed" }
+  if (!service) return { success: false, error: "invalid_service" }
 
   // Check if patient is blocked by this professional
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,16 +47,6 @@ export async function createAppointment(input: {
   if (blockedCount && blockedCount > 0) {
     return { success: false, error: "PATIENT_BLOCKED" }
   }
-
-  // Validate service belongs to this professional and is active
-  const { data: service } = await supabase
-    .from("services")
-    .select("id, duration_minutes, price, consultation_type")
-    .eq("id", input.serviceId)
-    .eq("professional_id", input.professionalId)
-    .eq("is_active", true)
-    .single()
-  if (!service) return { success: false, error: "invalid_service" }
 
   // Reject booking in the past
   const slotDateTime = new Date(`${input.appointmentDate}T${input.appointmentTime}`)
@@ -158,41 +136,46 @@ export async function createAppointment(input: {
     ? `${proUser.first_name ?? ""} ${proUser.last_name ?? ""}`.trim() || "Professional"
     : "Professional"
 
-  // Send email notification to professional
-  try {
-    const { data: proSettings } = await supabase
-      .from("professional_settings")
-      .select("channel_email")
-      .eq("user_id", pro.user_id)
-      .single()
+  // Fetch both email settings in parallel, then send emails
+  const [{ data: proSettings }, { data: patientSettings }] = await Promise.all([
+    supabase.from("professional_settings").select("channel_email").eq("user_id", pro.user_id).single(),
+    supabase.from("patient_settings").select("email_notifications").eq("user_id", user.id).single(),
+  ])
 
-    if (proUser?.email && proSettings?.channel_email !== false) {
-      const { sendNotificationEmail } = await import("@/lib/email/resend")
-      const { newBookingEmail } = await import("@/lib/email/templates")
-      const template = newBookingEmail(patientName, serviceName, input.appointmentDate, input.appointmentTime)
-      await sendNotificationEmail({ to: proUser.email, ...template })
-    }
-  } catch (emailError) {
-    console.error("[booking] Failed to send pro email:", emailError)
+  // Send email notifications in parallel (don't block response)
+  const emailPromises: Promise<void>[] = []
+
+  if (proUser?.email && proSettings?.channel_email !== false) {
+    emailPromises.push(
+      (async () => {
+        try {
+          const { sendNotificationEmail } = await import("@/lib/email/resend")
+          const { newBookingEmail } = await import("@/lib/email/templates")
+          const template = newBookingEmail(patientName, serviceName, input.appointmentDate, input.appointmentTime)
+          await sendNotificationEmail({ to: proUser.email, ...template })
+        } catch (emailError) {
+          console.error("[booking] Failed to send pro email:", emailError)
+        }
+      })()
+    )
   }
 
-  // Send email confirmation to patient
-  try {
-    const { data: patientSettings } = await supabase
-      .from("patient_settings")
-      .select("email_notifications")
-      .eq("user_id", user.id)
-      .single()
-
-    if (patientUser?.email && patientSettings?.email_notifications !== false) {
-      const { sendNotificationEmail } = await import("@/lib/email/resend")
-      const { bookingConfirmationPatientEmail } = await import("@/lib/email/templates")
-      const template = bookingConfirmationPatientEmail(proName, serviceName, input.appointmentDate, input.appointmentTime)
-      await sendNotificationEmail({ to: patientUser.email, ...template })
-    }
-  } catch (emailError) {
-    console.error("[booking] Failed to send patient email:", emailError)
+  if (patientUser?.email && patientSettings?.email_notifications !== false) {
+    emailPromises.push(
+      (async () => {
+        try {
+          const { sendNotificationEmail } = await import("@/lib/email/resend")
+          const { bookingConfirmationPatientEmail } = await import("@/lib/email/templates")
+          const template = bookingConfirmationPatientEmail(proName, serviceName, input.appointmentDate, input.appointmentTime)
+          await sendNotificationEmail({ to: patientUser.email, ...template })
+        } catch (emailError) {
+          console.error("[booking] Failed to send patient email:", emailError)
+        }
+      })()
+    )
   }
+
+  await Promise.all(emailPromises)
 
   // In-app notification to professional (in their preferred language)
   const proLocale = await getRecipientLocale(pro.user_id)

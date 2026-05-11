@@ -36,6 +36,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     items: [
       { titleKey: "content", href: "/admin/content", icon: "FileText" },
       { titleKey: "support", href: "/admin/support", icon: "HeadphonesIcon" },
+      { titleKey: "aiChat", href: "/admin/ai-chat", icon: "BotMessageSquare" },
       { titleKey: "settings", href: "/admin/settings", icon: "Settings" },
     ],
   },

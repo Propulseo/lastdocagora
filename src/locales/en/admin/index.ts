@@ -13,6 +13,7 @@ import support from "./support.json";
 import settings from "./settings.json";
 import notifications from "./notifications.json";
 import reviews from "./reviews.json";
+import aiChat from "./ai-chat.json";
 
 export const adminEn = {
   sidebar,
@@ -30,4 +31,5 @@ export const adminEn = {
   settings,
   notifications,
   reviews,
+  aiChat,
 };

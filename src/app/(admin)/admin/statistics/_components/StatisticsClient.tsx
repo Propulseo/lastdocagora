@@ -5,13 +5,24 @@ import { Download, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAdminI18n } from "@/lib/i18n/admin/useAdminI18n";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { type StatisticsData, type PeriodRange, PERIOD_OPTIONS } from "../_lib/types";
 import { KPIStrip } from "./KPIStrip";
-import { GrowthChart } from "./GrowthChart";
-import { ActivityChart } from "./ActivityChart";
+const GrowthChart = dynamic(() => import("./GrowthChart").then(m => m.GrowthChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
+const ActivityChart = dynamic(() => import("./ActivityChart").then(m => m.ActivityChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
 import { DistributionCharts } from "./DistributionCharts";
 import { TopProfessionals } from "./TopProfessionals";
-import { SpecialtyChart } from "./SpecialtyChart";
+const SpecialtyChart = dynamic(() => import("./SpecialtyChart").then(m => m.SpecialtyChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+});
 import { AlertsPanel } from "./AlertsPanel";
 
 export function StatisticsClient({ data }: { data: StatisticsData }) {

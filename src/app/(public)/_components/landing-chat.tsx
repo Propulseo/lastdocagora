@@ -111,31 +111,87 @@ export function LandingChat({ compact = false }: { compact?: boolean } = {}) {
         return
       }
 
-      const data = await res.json()
-      const newCount = incrementLocalCount()
-      setMessagesUsed(newCount)
+      // Read NDJSON stream: message arrives first, then professionals
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+      let messageText = ""
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.message,
-          professionals: data.professionals?.length > 0 ? data.professionals : undefined,
-        },
-      ])
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+
+        const lines = buffer.split("\n")
+        buffer = lines.pop()!
+
+        for (const line of lines) {
+          if (!line.trim()) continue
+          const chunk = JSON.parse(line)
+
+          if (chunk.error) {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: ct.errorMessage },
+            ])
+            setIsLoading(false)
+            return
+          }
+
+          if (chunk.type === "message") {
+            // Show AI message text immediately (before professionals load)
+            messageText = chunk.message
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: chunk.message },
+            ])
+            setIsLoading(false)
+          }
+
+          if (chunk.type === "complete") {
+            if (!messageText && chunk.message) {
+              // Clarification: single-chunk response
+              messageText = chunk.message
+              setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: chunk.message },
+              ])
+              setIsLoading(false)
+            }
+
+            // Attach professionals to the last assistant message
+            if (chunk.professionals?.length > 0) {
+              setMessages((prev) => {
+                const updated = [...prev]
+                const lastIdx = updated.length - 1
+                if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
+                  updated[lastIdx] = {
+                    ...updated[lastIdx],
+                    professionals: chunk.professionals,
+                  }
+                }
+                return updated
+              })
+            }
+
+            const newCount = incrementLocalCount()
+            setMessagesUsed(newCount)
+
+            if (chunk.show_wall) {
+              setTimeout(() => setShowWall(true), 800)
+            }
+          }
+        }
+      }
 
       if (!showSignupCta) setShowSignupCta(true)
 
       const allMessages: ChatMessage[] = [
         ...buildHistory(),
         { role: "user", content: trimmed },
-        { role: "assistant", content: data.message },
+        { role: "assistant", content: messageText },
       ]
       saveConversationForHandoff(allMessages, trimmed)
-
-      if (data.show_wall) {
-        setTimeout(() => setShowWall(true), 800)
-      }
     } catch {
       setMessages((prev) => [
         ...prev,

@@ -1,17 +1,20 @@
 "use client";
 
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Download } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
 import { CreatePatientDialog } from "./create-patient-dialog";
 import { PatientsKpiCards } from "./PatientsKpiCards";
 import { PatientsFiltersBar } from "./PatientsFiltersBar";
-import { PatientAcquisitionChart } from "./PatientAcquisitionChart";
-import { InsuranceDistributionChart } from "./InsuranceDistributionChart";
-import { AppointmentFrequencyChart } from "./AppointmentFrequencyChart";
+const ChartSkeleton = () => <Skeleton className="h-64 w-full rounded-xl" />;
+const PatientAcquisitionChart = dynamic(() => import("./PatientAcquisitionChart").then(m => m.PatientAcquisitionChart), { ssr: false, loading: ChartSkeleton });
+const InsuranceDistributionChart = dynamic(() => import("./InsuranceDistributionChart").then(m => m.InsuranceDistributionChart), { ssr: false, loading: ChartSkeleton });
+const AppointmentFrequencyChart = dynamic(() => import("./AppointmentFrequencyChart").then(m => m.AppointmentFrequencyChart), { ssr: false, loading: ChartSkeleton });
 import { PatientsTable } from "./patients-table";
 import type { PatientsDashboardData } from "../_lib/types";
 

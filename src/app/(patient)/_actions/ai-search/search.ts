@@ -7,11 +7,13 @@ import {
   aiSearchInputSchema,
   aiSearchFiltersSchema,
   aiOutputSchema,
+  type AISearchFilters,
 } from "@/lib/ai/schemas"
 import type { DetectedLang, AISearchResponse } from "./types"
 import { getCachedContext, queryProfessionals } from "./query"
 import { filterByAvailability } from "./availability"
 import { todayInLisbon } from "@/lib/timezone"
+import { findOrCreateConversation, logMessage, incrementConversationCount } from "@/lib/chat-logger"
 
 export async function aiSearch(input: {
   message: string
@@ -54,6 +56,8 @@ export async function aiSearch(input: {
   ]
 
   let aiResponse: string
+  let aiTokensUsed: number | undefined
+  const aiStartTime = Date.now()
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -63,13 +67,15 @@ export async function aiSearch(input: {
       response_format: { type: "json_object" },
     })
     aiResponse = completion.choices[0]?.message?.content ?? ""
+    aiTokensUsed = completion.usage?.total_tokens ?? undefined
   } catch (err) {
     console.error("[ai-search] OpenAI error:", err)
     return { success: false, error: "ai_service_error" }
   }
+  const aiLatencyMs = Date.now() - aiStartTime
 
   // 5. Parse and validate LLM output
-  let aiOutput
+  let aiOutput: { type: "search"; message: string; filters: AISearchFilters } | { type: "clarification"; message: string; suggested_options?: string[] }
   try {
     const raw = JSON.parse(aiResponse)
     const parsedOutput = aiOutputSchema.safeParse(raw)
@@ -101,8 +107,37 @@ export async function aiSearch(input: {
     return { success: false, error: "ai_invalid_output" }
   }
 
-  // 6. Handle clarification
+  // 6. Background logging helper
+  const userId = user.id
+  function logExchange(assistantMeta: {
+    filtersExtracted?: AISearchFilters
+    fallbackLevel?: number
+    resultsCount?: number
+    hadAvailabilityFilter?: boolean
+  }) {
+    findOrCreateConversation({
+      userId,
+      sessionType: "patient",
+      locale,
+    }).then(async (conversationId) => {
+      if (!conversationId) return
+      await logMessage({ conversationId, role: "user", content: message })
+      await logMessage({
+        conversationId,
+        role: "assistant",
+        content: aiOutput.message,
+        aiModel: "gpt-4o-mini",
+        aiTokensUsed,
+        aiLatencyMs,
+        ...assistantMeta,
+      })
+      await incrementConversationCount(conversationId)
+    }).catch((err) => console.error("[ai-search] Logging error:", err))
+  }
+
+  // 7. Handle clarification
   if (aiOutput.type === "clarification") {
+    logExchange({})
     return {
       success: true,
       data: {
@@ -114,10 +149,10 @@ export async function aiSearch(input: {
     }
   }
 
-  // 7. Build Supabase query from filters with progressive fallback
+  // 8. Build Supabase query from filters with progressive fallback
   const { results: professionals, error: queryError, level } = await queryProfessionals(supabase, aiOutput.filters)
 
-  // 8. Filter by availability if a date was requested
+  // 9. Filter by availability if a date was requested
   const requestedDate = aiOutput.filters.requested_date
   let filteredProfessionals = professionals
   if (requestedDate) {
@@ -128,6 +163,13 @@ export async function aiSearch(input: {
       aiOutput.filters.requested_time
     )
   }
+
+  logExchange({
+    filtersExtracted: aiOutput.filters,
+    fallbackLevel: level,
+    resultsCount: filteredProfessionals.length,
+    hadAvailabilityFilter: !!requestedDate,
+  })
 
   return {
     success: true,

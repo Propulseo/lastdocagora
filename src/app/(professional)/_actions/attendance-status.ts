@@ -21,23 +21,16 @@ export async function updateAppointmentStatus(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  const { data: userData } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // Parallel fetch: user role + appointment (independent queries)
+  const [{ data: userData }, { data: appointment }] = await Promise.all([
+    supabase.from("users").select("role").eq("id", user.id).single(),
+    supabase.from("appointments").select("id, status, professional_user_id").eq("id", appointmentId).single(),
+  ]);
 
   if (!userData) return { success: false, error: "User not found" };
-
   const isAdmin = userData.role === "admin";
   const isProfessional = userData.role === "professional";
   if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
-
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select("id, status, professional_user_id")
-    .eq("id", appointmentId)
-    .single();
 
   if (!appointment) return { success: false, error: "Appointment not found" };
   if (!isAdmin && appointment.professional_user_id !== user.id) {
@@ -95,16 +88,10 @@ export async function updateAppointmentStatus(
 
       // Send email notification to patient
       try {
-        const { data: patientUser } = await supabase
-          .from("users")
-          .select("email")
-          .eq("id", patientUserId)
-          .single();
-        const { data: patientSettings } = await supabase
-          .from("patient_settings")
-          .select("email_notifications")
-          .eq("user_id", patientUserId)
-          .single();
+        const [{ data: patientUser }, { data: patientSettings }] = await Promise.all([
+          supabase.from("users").select("email").eq("id", patientUserId).single(),
+          supabase.from("patient_settings").select("email_notifications").eq("user_id", patientUserId).single(),
+        ]);
 
         if (patientUser?.email && patientSettings?.email_notifications !== false) {
           const { sendNotificationEmail } = await import("@/lib/email/resend");
@@ -139,23 +126,16 @@ export async function proposeAlternativeTime(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not authenticated" };
 
-  const { data: userData } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // Parallel fetch: user role + appointment (independent queries)
+  const [{ data: userData }, { data: appointment }] = await Promise.all([
+    supabase.from("users").select("role").eq("id", user.id).single(),
+    supabase.from("appointments").select("id, status, professional_user_id").eq("id", appointmentId).single(),
+  ]);
 
   if (!userData) return { success: false, error: "User not found" };
-
   const isAdmin = userData.role === "admin";
   const isProfessional = userData.role === "professional";
   if (!isAdmin && !isProfessional) return { success: false, error: "Unauthorized" };
-
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select("id, status, professional_user_id")
-    .eq("id", appointmentId)
-    .single();
 
   if (!appointment) return { success: false, error: "Appointment not found" };
   if (!isAdmin && appointment.professional_user_id !== user.id) {
@@ -201,16 +181,10 @@ export async function proposeAlternativeTime(
 
     // Send email notification to patient
     try {
-      const { data: patientUser } = await supabase
-        .from("users")
-        .select("email")
-        .eq("id", patientUserId)
-        .single();
-      const { data: patientSettings } = await supabase
-        .from("patient_settings")
-        .select("email_notifications")
-        .eq("user_id", patientUserId)
-        .single();
+      const [{ data: patientUser }, { data: patientSettings }] = await Promise.all([
+        supabase.from("users").select("email").eq("id", patientUserId).single(),
+        supabase.from("patient_settings").select("email_notifications").eq("user_id", patientUserId).single(),
+      ]);
 
       if (patientUser?.email && patientSettings?.email_notifications !== false) {
         const { sendNotificationEmail } = await import("@/lib/email/resend");

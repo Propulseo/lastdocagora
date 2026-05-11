@@ -63,6 +63,48 @@ export function useBookingFlow({
   const [patientInsurance, setPatientInsurance] = useState<{ name: string; number: string | null } | null>(null)
   const loadedRef = useRef(false)
 
+  /** Validate preselected slot via RPC and jump to confirm if still available.
+   *  Returns true if the slot was valid and we advanced to confirm. */
+  async function tryAdvanceWithPreselection(service: BookingService): Promise<boolean> {
+    if (!preselectedDate || !preselectedTime) return false
+
+    const preDate = new Date(preselectedDate + "T00:00:00")
+    setSelectedDate(preDate)
+    setLoadingSlots(true)
+
+    try {
+      const { data: slotData, error } = await supabase.rpc("get_available_slots", {
+        p_date: preselectedDate,
+        p_professional_id: professionalId,
+      })
+      if (!error) {
+        const rawSlots = (slotData as Slot[]) ?? []
+        const nowPre = nowInLisbon()
+        const todayMid = nowInLisbon()
+        todayMid.setHours(0, 0, 0, 0)
+        let fetchedSlots = preDate.getTime() === todayMid.getTime()
+          ? rawSlots.filter((s) => new Date(`${preselectedDate}T${s.slot_start}`).getTime() > nowPre.getTime() + 30 * 60 * 1000)
+          : rawSlots
+        fetchedSlots = filterSlotsByDuration(fetchedSlots, service.duration_minutes)
+        setSlots(fetchedSlots)
+
+        const matchingSlot = fetchedSlots.find(
+          (s) => s.slot_start.slice(0, 5) === preselectedTime
+        )
+        if (matchingSlot) {
+          setSelectedSlot(matchingSlot.slot_start.slice(0, 5))
+          setStep("confirm")
+          return true
+        }
+      }
+    } catch {
+      // Fall through to manual selection
+    } finally {
+      setLoadingSlots(false)
+    }
+    return false
+  }
+
   useEffect(() => {
     if (!open) { loadedRef.current = false; return }
     if (loadedRef.current) return
@@ -91,44 +133,15 @@ export function useBookingFlow({
         setSelectedService(autoService)
       }
 
-      // If preselected date+time from slot grid, jump to datetime and load slots
       if (preselectedDate && autoService) {
-        setStep("datetime")
-        const preDate = new Date(preselectedDate + "T00:00:00")
-        setSelectedDate(preDate)
-        setLoadingSlots(true)
-        try {
-          const { data: slotData, error } = await supabase.rpc("get_available_slots", {
-            p_date: preselectedDate,
-            p_professional_id: professionalId,
-          })
-          if (!error) {
-            const rawSlots = (slotData as Slot[]) ?? []
-            // Filter past slots for today
-            const nowPre = nowInLisbon()
-            const todayMid = nowInLisbon()
-            todayMid.setHours(0, 0, 0, 0)
-            let fetchedSlots = preDate.getTime() === todayMid.getTime()
-              ? rawSlots.filter((s) => new Date(`${preselectedDate}T${s.slot_start}`).getTime() > nowPre.getTime() + 30 * 60 * 1000)
-              : rawSlots
-            fetchedSlots = filterSlotsByDuration(fetchedSlots, autoService.duration_minutes)
-            setSlots(fetchedSlots)
-            // Auto-select the matching time slot
-            if (preselectedTime) {
-              const matchingSlot = fetchedSlots.find(
-                (s) => s.slot_start.slice(0, 5) === preselectedTime
-              )
-              if (matchingSlot) {
-                setSelectedSlot(matchingSlot.slot_start.slice(0, 5))
-                setStep("confirm")
-              }
-            }
-          }
-        } catch {
-          // Fall through to manual selection
-        } finally {
-          setLoadingSlots(false)
+        // Single service + preselection: stay on "loading", validate slot, jump to confirm
+        const advanced = await tryAdvanceWithPreselection(autoService)
+        if (!advanced) {
+          setStep("datetime") // Slot no longer available — let user pick manually
         }
+      } else if (preselectedDate && data.services.length > 1) {
+        // Multi-service + preselection: pick service first, then auto-advance
+        setStep("service")
       } else if (autoService) {
         setStep("datetime")
       } else {
@@ -180,9 +193,18 @@ export function useBookingFlow({
     }
   }
 
-  function handleServiceSelect(svc: BookingService) {
+  async function handleServiceSelect(svc: BookingService) {
     setSelectedService(svc)
-    setStep("datetime")
+    if (preselectedDate && preselectedTime) {
+      // Multi-service with preselection: validate slot and jump to confirm
+      setStep("loading")
+      const advanced = await tryAdvanceWithPreselection(svc)
+      if (!advanced) {
+        setStep("datetime") // Slot no longer available
+      }
+    } else {
+      setStep("datetime")
+    }
   }
 
   function handleSlotSelect(time: string) {

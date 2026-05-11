@@ -22,6 +22,8 @@ interface AvailabilityGridProps {
   moreSlotsLabel: string
   onSlotSelect: (date: string, time: string) => void
   onMoreSlots: () => void
+  emptyActionLabel?: string
+  onEmptyAction?: () => void
 }
 
 export function AvailabilityGrid({
@@ -31,6 +33,8 @@ export function AvailabilityGrid({
   moreSlotsLabel,
   onSlotSelect,
   onMoreSlots,
+  emptyActionLabel,
+  onEmptyAction,
 }: AvailabilityGridProps) {
   const [slotsByDay, setSlotsByDay] = useState<SlotsByDay[] | null>(null)
   const [loading, setLoading] = useState(false)
@@ -104,6 +108,19 @@ export function AvailabilityGrid({
         <p className="text-center text-xs text-muted-foreground py-2">
           {noSlotsLabel}
         </p>
+        {emptyActionLabel && onEmptyAction && (
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onEmptyAction()
+            }}
+            className="mt-1 w-full rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-xs font-medium text-primary
+                       hover:bg-primary/10 transition-colors min-h-[44px]"
+          >
+            {emptyActionLabel}
+          </button>
+        )}
       </div>
     )
   }

@@ -29,7 +29,7 @@ export default async function ProfessionalDetailPage({
     .eq("user_id", user.id)
     .single()
 
-  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, , { data: proInsurances }, { count: blockedCount }] = await Promise.all([
+  const [{ data: professional }, { data: services }, { data: availability }, { data: reviews }, { data: proInsurances }, { count: blockedCount }] = await Promise.all([
     supabase
       .from("professionals")
       .select(
@@ -64,11 +64,6 @@ export default async function ProfessionalDetailPage({
       .eq("professional_id", id)
       .order("created_at", { ascending: false })
       .limit(5),
-    supabase
-      .from("patients")
-      .select("id")
-      .eq("user_id", user.id)
-      .single(),
     supabase
       .from("professional_insurances")
       .select("insurance_provider_id, insurance_providers(name)")

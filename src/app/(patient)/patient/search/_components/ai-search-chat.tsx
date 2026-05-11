@@ -1,15 +1,18 @@
 "use client"
 
-import { useState, useTransition, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessageBubble } from "./chat-message"
-import { ProfessionalGrid } from "./professional-grid"
-import { aiSearch } from "@/app/(patient)/_actions/ai-search"
+import { ProfessionalCardHorizontal } from "./professional-card-horizontal"
+import { SkeletonProfessionalCards } from "@/components/ui/skeleton-professional-card"
+import { submitChatFeedback } from "@/app/(patient)/_actions/ai-search/feedback"
 import type { ProfessionalResult } from "./professional-card"
 import type { PatientTranslations } from "@/locales/patient"
+import type { SessionContext } from "@/lib/ai/system-prompt"
+import { getRelatedSpecialties } from "@/app/(patient)/_actions/ai-search/related-specialties"
 
 type ChatEntry = {
   role: "user" | "assistant"
@@ -17,6 +20,7 @@ type ChatEntry = {
   suggestions?: string[]
   professionals?: ProfessionalResult[]
   isSearchResult?: boolean
+  messageId?: string
 }
 
 export function AISearchChat({
@@ -34,7 +38,9 @@ export function AISearchChat({
     },
   ])
   const [input, setInput] = useState("")
-  const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingProfessionals, setLoadingProfessionals] = useState(false)
+  const [sessionContext, setSessionContext] = useState<SessionContext>({ message_count: 0 })
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -53,7 +59,6 @@ export function AISearchChat({
         setMessages((prev) => [...prev, ...restored])
         clearHandoffConversation()
       }
-      // Remove ?chat=1 from URL
       const url = new URL(window.location.href)
       url.searchParams.delete("chat")
       window.history.replaceState({}, "", url.pathname + url.search)
@@ -64,102 +69,225 @@ export function AISearchChat({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [messages, isPending])
+  }, [messages, isLoading])
 
-  function buildHistory() {
+  function handleFeedback(messageId: string, rating: -1 | 1) {
+    submitChatFeedback(messageId, rating).catch(console.error)
+  }
+
+  const buildHistory = useCallback(() => {
     return messages
       .filter((m) => !m.professionals && !m.isSearchResult)
       .map((m) => ({ role: m.role, content: m.content }))
-  }
+  }, [messages])
 
-  function handleSend(text: string) {
+  async function handleSend(text: string) {
     const trimmed = text.trim()
-    if (!trimmed || isPending) return
+    if (!trimmed || isLoading) return
 
     setInput("")
     setMessages((prev) => [...prev, { role: "user", content: trimmed }])
+    setIsLoading(true)
 
-    startTransition(async () => {
+    try {
       const history = buildHistory()
-      const result = await aiSearch({
-        message: trimmed,
-        history,
-        locale,
+
+      const res = await fetch("/api/ai-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed, history, locale, sessionContext }),
       })
 
-      if (!result.success) {
-        const errorMessages: Record<string, string> = {
-          not_authenticated: t.aiErrorAuth,
-          invalid_input: t.aiErrorInput,
-          ai_service_error: t.aiErrorService,
-          ai_invalid_output: t.aiErrorRephrase,
-        }
+      if (res.status === 401) {
         setMessages((prev) => [
           ...prev,
-          {
-            role: "assistant",
-            content: errorMessages[result.error] ?? t.aiError,
-          },
+          { role: "assistant", content: t.aiErrorAuth },
         ])
+        setIsLoading(false)
         return
       }
 
-      const data = result.data
-      if (data.type === "clarification") {
+      if (!res.ok) {
         setMessages((prev) => [
           ...prev,
-          {
-            role: "assistant",
-            content: data.message,
-            suggestions: data.suggested_options ?? undefined,
-          },
+          { role: "assistant", content: t.aiError },
         ])
-      } else {
-        const profs = data.professionals ?? []
-        const level = data.fallback_level ?? 1
+        setIsLoading(false)
+        return
+      }
 
-        let resultMessage: string
-        let emptySuggestions: string[] | undefined
+      // Read NDJSON stream
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+      let messageShown = false
 
-        if (profs.length > 0) {
-          const count = String(profs.length)
-          if (level === 1) {
-            resultMessage = t.aiResultsFound.replace("{count}", count)
-          } else if (level === 2) {
-            resultMessage = t.aiResultsRelaxed.replace("{count}", count)
-          } else if (level === 3) {
-            resultMessage = t.aiResultsSpecialtyOnly.replace("{count}", count)
-          } else {
-            resultMessage = t.aiResultsTopRated
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+
+        const lines = buffer.split("\n")
+        buffer = lines.pop()!
+
+        for (const line of lines) {
+          if (!line.trim()) continue
+          const chunk = JSON.parse(line)
+
+          if (chunk.error) {
+            const errorMessages: Record<string, string> = {
+              not_authenticated: t.aiErrorAuth,
+              invalid_input: t.aiErrorInput,
+              ai_service_error: t.aiErrorService,
+              ai_invalid_output: t.aiErrorRephrase,
+            }
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: errorMessages[chunk.error] ?? t.aiError },
+            ])
+            setIsLoading(false)
+            return
           }
-        } else if (data.requested_date) {
-          resultMessage = t.noAvailability
-        } else {
-          resultMessage = t.aiNoResults
-          emptySuggestions = [
-            t.aiSuggestion1,
-            t.aiSuggestAll,
-          ]
-        }
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: resultMessage,
-            professionals: profs.length > 0 ? profs : undefined,
-            suggestions: emptySuggestions,
-            isSearchResult: true,
-          },
-        ])
+          if (chunk.type === "message") {
+            // Show AI message immediately + skeleton cards while professionals load
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: chunk.message },
+            ])
+            messageShown = true
+            setIsLoading(false)
+            setLoadingProfessionals(true)
+          }
+
+          if (chunk.type === "complete") {
+            const data = chunk.data
+            const msgId = data.message_id as string | undefined
+
+            if (data.type === "clarification") {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  role: "assistant",
+                  content: data.message,
+                  suggestions: data.suggested_options ?? undefined,
+                  messageId: msgId,
+                },
+              ])
+              setIsLoading(false)
+            } else {
+              const profs = data.professionals ?? []
+              const level = data.fallback_level ?? 1
+              const filters = data.filters_extracted
+
+              // Update session context with last search filters
+              if (filters) {
+                setSessionContext((prev) => ({
+                  ...prev,
+                  message_count: prev.message_count + 1,
+                  last_specialty: filters.specialty ?? prev.last_specialty,
+                  last_city: filters.city ?? prev.last_city,
+                  last_neighborhood: filters.neighborhood ?? prev.last_neighborhood,
+                  last_languages: filters.languages_spoken ?? prev.last_languages,
+                  last_insurance: filters.insurances_accepted ?? prev.last_insurance,
+                  last_date: filters.requested_date ?? prev.last_date,
+                }))
+              }
+
+              let resultMessage: string
+              let emptySuggestions: string[] | undefined
+
+              if (profs.length > 0) {
+                const count = String(profs.length)
+                if (level === 1) {
+                  resultMessage = t.aiResultsFound.replace("{count}", count)
+                } else if (level === 2) {
+                  resultMessage = t.aiResultsRelaxed.replace("{count}", count)
+                } else if (level === 3) {
+                  resultMessage = t.aiResultsSpecialtyOnly.replace("{count}", count)
+                } else {
+                  resultMessage = t.aiResultsTopRated
+                }
+              } else if (data.requested_date) {
+                resultMessage = t.noAvailability
+                emptySuggestions = [t.aiSuggestOtherDate, t.aiSuggestAll]
+              } else {
+                resultMessage = t.aiNoResults
+                emptySuggestions = [t.aiSuggestion1, t.aiSuggestAll]
+              }
+
+              // Build dynamic recovery suggestions for fallback levels 2+
+              const removedFilters = data.removed_filters as string[] | undefined
+              if (level >= 2 && profs.length > 0) {
+                const dynamicSuggestions: string[] = []
+                if (removedFilters?.includes("city") || level >= 3) {
+                  dynamicSuggestions.push(t.aiSuggestBroaderArea)
+                }
+                if (removedFilters?.includes("insurances_accepted")) {
+                  dynamicSuggestions.push(t.aiSuggestRemoveInsurance)
+                }
+                dynamicSuggestions.push(t.aiSuggestBestRated)
+                if (filters?.specialty) {
+                  const related = getRelatedSpecialties(filters.specialty)
+                  if (related.length > 0) {
+                    dynamicSuggestions.push(
+                      t.aiSuggestRelated.replace("{specialty}", related[0])
+                    )
+                  }
+                }
+                emptySuggestions = dynamicSuggestions
+              }
+
+              if (messageShown) {
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  const lastIdx = updated.length - 1
+                  if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
+                    updated[lastIdx] = {
+                      ...updated[lastIdx],
+                      content: resultMessage,
+                      professionals: profs.length > 0 ? profs : undefined,
+                      suggestions: emptySuggestions,
+                      isSearchResult: true,
+                      messageId: msgId,
+                    }
+                  }
+                  return updated
+                })
+              } else {
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    role: "assistant",
+                    content: resultMessage,
+                    professionals: profs.length > 0 ? profs : undefined,
+                    suggestions: emptySuggestions,
+                    isSearchResult: true,
+                    messageId: msgId,
+                  },
+                ])
+              }
+              setIsLoading(false)
+              setLoadingProfessionals(false)
+            }
+          }
+        }
       }
 
       inputRef.current?.focus()
-    })
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: t.aiError },
+      ])
+    } finally {
+      setIsLoading(false)
+      setLoadingProfessionals(false)
+    }
   }
 
   return (
-    <div className="flex h-[600px] flex-col">
+    <div className="flex h-[calc(100vh-14rem)] min-h-[600px] flex-col">
       <ScrollArea className="flex-1 px-4" ref={scrollRef}>
         <div className="space-y-4 py-4">
           {messages.map((msg, i) => (
@@ -169,19 +297,27 @@ export function AISearchChat({
                 content={msg.content}
                 suggestions={msg.suggestions}
                 onSuggestionClick={handleSend}
+                messageId={msg.messageId}
+                showFeedback={!!msg.messageId && msg.role === "assistant" && i > 0}
+                onFeedback={handleFeedback}
+                feedbackThanks={t.aiFeedbackThanks}
               />
               {msg.professionals && msg.professionals.length > 0 && (
-                <div className="pl-11">
-                  <ProfessionalGrid
-                    professionals={msg.professionals}
-                    locale={locale}
-                    t={t}
-                  />
+                <div className="space-y-3 pl-11">
+                  {msg.professionals.map((prof) => (
+                    <ProfessionalCardHorizontal
+                      key={prof.id}
+                      prof={prof}
+                      locale={locale}
+                      t={t}
+                    />
+                  ))}
                 </div>
               )}
             </div>
           ))}
-          {isPending && (
+          {loadingProfessionals && <SkeletonProfessionalCards count={3} />}
+          {isLoading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
               {t.aiThinking}
@@ -203,17 +339,17 @@ export function AISearchChat({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t.aiPlaceholder}
-            disabled={isPending}
+            disabled={isLoading}
             className="rounded-xl"
             maxLength={500}
           />
           <Button
             type="submit"
             size="icon"
-            disabled={isPending || !input.trim()}
+            disabled={isLoading || !input.trim()}
             className="shrink-0 rounded-xl"
           >
-            {isPending ? (
+            {isLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Send className="size-4" />

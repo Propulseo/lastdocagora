@@ -22,40 +22,20 @@ export async function getCachedContext() {
     return contextCache
   }
   const supabaseAdmin = getSupabaseAdmin()
-  const [specialtiesRes, citiesRes, neighborhoodsRes] = await Promise.all([
-    supabaseAdmin
-      .from("professionals")
-      .select("specialty")
-      .eq("verification_status", "verified"),
-    supabaseAdmin
-      .from("professionals")
-      .select("city")
-      .eq("verification_status", "verified")
-      .not("city", "is", null),
-    supabaseAdmin
-      .from("professionals")
-      .select("neighborhood")
-      .eq("verification_status", "verified")
-      .not("neighborhood", "is", null),
-  ])
+  // Single query instead of 3 separate ones
+  const { data: contextData } = await supabaseAdmin
+    .from("professionals")
+    .select("specialty, city, neighborhood")
+    .eq("verification_status", "verified")
+  const rows = contextData ?? []
   contextCache = {
-    specialties: [
-      ...new Set(
-        (specialtiesRes.data ?? []).map((s) => s.specialty)
-      ),
-    ].sort(),
+    specialties: [...new Set(rows.map((r) => r.specialty))].sort(),
     cities: [
-      ...new Set(
-        (citiesRes.data ?? [])
-          .map((c) => c.city)
-          .filter(Boolean) as string[]
-      ),
+      ...new Set(rows.map((r) => r.city).filter(Boolean) as string[]),
     ].sort(),
     neighborhoods: [
       ...new Set(
-        (neighborhoodsRes.data ?? [])
-          .map((n) => n.neighborhood)
-          .filter(Boolean) as string[]
+        rows.map((r) => r.neighborhood).filter(Boolean) as string[]
       ),
     ].sort(),
     ts: Date.now(),

@@ -56,10 +56,19 @@ export type SearchSection = {
     mapAreaTotal: string
     noSlotsAvailable: string
     moreSlotsLink: string
+    notifyWhenAvailable: string
     insuranceFilter: string
     insuranceAll: string
     insuranceBadgeMore: string
     thirdPartyPayment: string
+    aiFeedbackThanks: string
+    aiFeedbackWhatWentWrong: string
+    aiSuggestBroaderArea: string
+    aiSuggestRemoveInsurance: string
+    aiSuggestBestRated: string
+    aiSuggestOtherDate: string
+    aiSuggestRelated: string
+    aiSearchingFor: string
   }
   professionalDetail: {
     backToSearch: string
@@ -134,10 +143,19 @@ export const searchPt: SearchSection = {
     mapAreaTotal: "{count} no total",
     noSlotsAvailable: "Nenhum hor\u00e1rio dispon\u00edvel nos pr\u00f3ximos dias",
     moreSlotsLink: "Ver mais hor\u00e1rios",
+    notifyWhenAvailable: "Ser notificado quando dispon\u00edvel",
     insuranceFilter: "Seguro",
     insuranceAll: "Todos os seguros",
     insuranceBadgeMore: "+{count}",
     thirdPartyPayment: "Pagamento por terceiros",
+    aiFeedbackThanks: "Obrigado pelo seu feedback!",
+    aiFeedbackWhatWentWrong: "O que correu mal?",
+    aiSuggestBroaderArea: "Alargar a zona geogr\u00e1fica",
+    aiSuggestRemoveInsurance: "Remover filtro de seguro",
+    aiSuggestBestRated: "Ver os mais bem avaliados",
+    aiSuggestOtherDate: "Tentar outra data",
+    aiSuggestRelated: "Especialidade semelhante: {specialty}",
+    aiSearchingFor: "A procurar {query}...",
   },
   professionalDetail: {
     backToSearch: "Voltar a pesquisa",

@@ -15,6 +15,7 @@ import {
   BarChart2,
   Star,
   LogOut,
+  BotMessageSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -46,6 +47,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Settings,
   BarChart2,
   Star,
+  BotMessageSquare,
 };
 
 interface AdminSidebarProps {

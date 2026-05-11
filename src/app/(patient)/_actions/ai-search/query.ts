@@ -15,15 +15,16 @@ export async function getCachedContext(supabase: Awaited<ReturnType<typeof creat
   if (contextCache && Date.now() - contextCache.ts < CACHE_TTL) {
     return contextCache
   }
-  const [specialtiesRes, citiesRes, neighborhoodsRes] = await Promise.all([
-    supabase.from("professionals").select("specialty").eq("verification_status", "verified"),
-    supabase.from("professionals").select("city").eq("verification_status", "verified").not("city", "is", null),
-    supabase.from("professionals").select("neighborhood").eq("verification_status", "verified").not("neighborhood", "is", null),
-  ])
+  // Single query instead of 3 separate ones
+  const { data: contextData } = await supabase
+    .from("professionals")
+    .select("specialty, city, neighborhood")
+    .eq("verification_status", "verified")
+  const rows = contextData ?? []
   const newCache = {
-    specialties: [...new Set((specialtiesRes.data ?? []).map((s) => s.specialty))].sort(),
-    cities: [...new Set((citiesRes.data ?? []).map((c) => c.city).filter(Boolean) as string[])].sort(),
-    neighborhoods: [...new Set((neighborhoodsRes.data ?? []).map((n) => n.neighborhood).filter(Boolean) as string[])].sort(),
+    specialties: [...new Set(rows.map((r) => r.specialty))].sort(),
+    cities: [...new Set(rows.map((r) => r.city).filter(Boolean) as string[])].sort(),
+    neighborhoods: [...new Set(rows.map((r) => r.neighborhood).filter(Boolean) as string[])].sort(),
     ts: Date.now(),
   }
   setContextCache(newCache)
@@ -90,7 +91,7 @@ export function normalizeLangCodes(langs: string[]): string[] {
 export async function queryProfessionals(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: AISearchFilters
-): Promise<{ results: ProfessionalResult[]; error?: string; level: 1 | 2 | 3 | 4 }> {
+): Promise<{ results: ProfessionalResult[]; error?: string; level: 1 | 2 | 3 | 4; removed_filters?: string[]; original_filters?: AISearchFilters }> {
   const normalizedCity = filters.city ? normalizeCity(filters.city) : undefined
   const limit = filters.limit ?? 10
 
@@ -142,7 +143,18 @@ export async function queryProfessionals(
       console.error("[ai-search] Supabase query error (L2):", error)
     } else {
       const results = mapResults(data ?? [])
-      if (results.length > 0) return { results, level: 2 }
+      if (results.length > 0) {
+        const removed: string[] = []
+        if (filters.languages_spoken?.length) removed.push("languages_spoken")
+        if (filters.insurances_accepted?.length) removed.push("insurances_accepted")
+        if (filters.third_party_payment !== undefined) removed.push("third_party_payment")
+        if (filters.max_consultation_fee !== undefined) removed.push("max_consultation_fee")
+        if (filters.min_rating !== undefined) removed.push("min_rating")
+        if (filters.min_years_experience !== undefined) removed.push("min_years_experience")
+        if (filters.practice_type) removed.push("practice_type")
+        if (filters.neighborhood) removed.push("neighborhood")
+        return { results, level: 2, removed_filters: removed, original_filters: filters }
+      }
     }
   }
 
@@ -155,7 +167,14 @@ export async function queryProfessionals(
       console.error("[ai-search] Supabase query error (L3):", error)
     } else {
       const results = mapResults(data ?? [])
-      if (results.length > 0) return { results, level: 3 }
+      if (results.length > 0) {
+        const removed: string[] = []
+        if (normalizedCity) removed.push("city")
+        if (filters.neighborhood) removed.push("neighborhood")
+        if (filters.languages_spoken?.length) removed.push("languages_spoken")
+        if (filters.insurances_accepted?.length) removed.push("insurances_accepted")
+        return { results, level: 3, removed_filters: removed, original_filters: filters }
+      }
     }
   }
 
@@ -169,6 +188,6 @@ export async function queryProfessionals(
       console.error("[ai-search] Supabase query error (L4):", error)
       return { results: [], error: "search_failed", level: 4 }
     }
-    return { results: mapResults(data ?? []), level: 4 }
+    return { results: mapResults(data ?? []), level: 4, original_filters: filters }
   }
 }
