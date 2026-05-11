@@ -24,8 +24,6 @@ interface Step3Props {
   onSubmit: (data: {
     services: {
       name: string;
-      name_fr?: string;
-      name_en?: string;
       description: string;
       duration_minutes: number;
       price: number;
@@ -51,8 +49,6 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
         {
           id: genId(),
           name: "",
-          name_fr: "",
-          name_en: "",
           description: "",
           duration_minutes: 30,
           price: 0,
@@ -64,7 +60,7 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
     function addDraft() {
       setDrafts((prev) => [
         ...prev,
-        { id: genId(), name: "", name_fr: "", name_en: "", description: "", duration_minutes: 30, price: 0 },
+        { id: genId(), name: "", description: "", duration_minutes: 30, price: 0 },
       ]);
     }
 
@@ -94,8 +90,6 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
           onSubmit({
             services: validDrafts.map((d) => ({
               name: d.name.trim(),
-              name_fr: d.name_fr.trim() || undefined,
-              name_en: d.name_en.trim() || undefined,
               description: d.description.trim(),
               duration_minutes: d.duration_minutes,
               price: d.price,
@@ -155,10 +149,7 @@ export const Step3Services = forwardRef<StepHandle, Step3Props>(
                 serviceDuration: ob.step3.serviceDuration,
                 servicePrice: ob.step3.servicePrice,
                 servicePricePlaceholder: ob.step3.servicePricePlaceholder,
-                nameTabPt: sv.nameTabPt,
-                nameTabFr: sv.nameTabFr,
-                nameTabEn: sv.nameTabEn,
-                nameOptional: sv.nameOptional,
+                autoTranslatedHint: sv.autoTranslated,
               }}
             />
           ))}

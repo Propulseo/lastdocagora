@@ -16,12 +16,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateService } from "@/app/(professional)/_actions/services";
 import { RADIUS } from "@/lib/design-tokens";
 import { useProfessionalI18n } from "@/lib/i18n/pro/useProfessionalI18n";
-import { EditServiceFields } from "./EditServiceFields";
+
+const LOCALES = ["pt", "fr", "en"] as const;
+type Locale = (typeof LOCALES)[number];
+
+const LOCALE_LABEL_KEY: Record<Locale, "nameTabPt" | "nameTabFr" | "nameTabEn"> = {
+  pt: "nameTabPt",
+  fr: "nameTabFr",
+  en: "nameTabEn",
+};
 
 const serviceSchema = z.object({
   name: z.string().min(2).max(100),
@@ -51,44 +60,122 @@ interface EditServiceDialogProps {
   };
 }
 
+function getSourceName(
+  service: EditServiceDialogProps["service"],
+  locale: Locale
+): string {
+  if (locale === "fr") return service.name_fr ?? service.name_pt ?? service.name;
+  if (locale === "en") return service.name_en ?? service.name_pt ?? service.name;
+  return service.name_pt ?? service.name;
+}
+
+function getSourceDescription(
+  service: EditServiceDialogProps["service"],
+  locale: Locale
+): string {
+  if (locale === "fr")
+    return service.description_fr ?? service.description_pt ?? service.description ?? "";
+  if (locale === "en")
+    return service.description_en ?? service.description_pt ?? service.description ?? "";
+  return service.description_pt ?? service.description ?? "";
+}
+
+function getLocaleNameValue(
+  service: EditServiceDialogProps["service"],
+  locale: Locale
+): string {
+  if (locale === "pt") return service.name_pt ?? "";
+  if (locale === "fr") return service.name_fr ?? "";
+  return service.name_en ?? "";
+}
+
+function getLocaleDescValue(
+  service: EditServiceDialogProps["service"],
+  locale: Locale
+): string {
+  if (locale === "pt") return service.description_pt ?? "";
+  if (locale === "fr") return service.description_fr ?? "";
+  return service.description_en ?? "";
+}
+
 export function EditServiceDialog({
   open,
   onOpenChange,
   service,
 }: EditServiceDialogProps) {
-  const { t } = useProfessionalI18n();
+  const { t, locale } = useProfessionalI18n();
   const sv = t.services;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPrice, setShowPrice] = useState(service.price > 0);
   const [price, setPrice] = useState<number | null>(
     service.price > 0 ? service.price : null
   );
-  const [nameFr, setNameFr] = useState(service.name_fr ?? "");
-  const [nameEn, setNameEn] = useState(service.name_en ?? "");
-  const [descFr, setDescFr] = useState(service.description_fr ?? "");
-  const [descEn, setDescEn] = useState(service.description_en ?? "");
+  const [showTranslations, setShowTranslations] = useState(false);
+
+  const otherLocales = LOCALES.filter((l) => l !== locale);
+
+  const [translationNames, setTranslationNames] = useState<Record<Locale, string>>(() => ({
+    pt: getLocaleNameValue(service, "pt"),
+    fr: getLocaleNameValue(service, "fr"),
+    en: getLocaleNameValue(service, "en"),
+  }));
+
+  const [translationDescs, setTranslationDescs] = useState<Record<Locale, string>>(() => ({
+    pt: getLocaleDescValue(service, "pt"),
+    fr: getLocaleDescValue(service, "fr"),
+    en: getLocaleDescValue(service, "en"),
+  }));
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
-      name: service.name_pt ?? service.name,
-      description: service.description_pt ?? service.description ?? "",
+      name: getSourceName(service, locale),
+      description: getSourceDescription(service, locale),
       duration_minutes: service.duration_minutes,
       is_active: service.is_active,
     },
   });
 
+  const setTranslationName = (l: Locale, value: string) => {
+    setTranslationNames((prev) => ({ ...prev, [l]: value }));
+  };
+
+  const setTranslationDesc = (l: Locale, value: string) => {
+    setTranslationDescs((prev) => ({ ...prev, [l]: value }));
+  };
+
+  const buildLocaleNames = (sourceName: string) => {
+    const names: { name_pt?: string | null; name_fr?: string | null; name_en?: string | null } = {};
+    // Source locale gets the main field value
+    if (locale === "pt") names.name_pt = sourceName;
+    else names.name_pt = translationNames.pt || null;
+    if (locale === "fr") names.name_fr = sourceName;
+    else names.name_fr = translationNames.fr || null;
+    if (locale === "en") names.name_en = sourceName;
+    else names.name_en = translationNames.en || null;
+    return names;
+  };
+
+  const buildLocaleDescs = (sourceDesc: string | undefined) => {
+    const descs: { description_pt?: string | null; description_fr?: string | null; description_en?: string | null } = {};
+    if (locale === "pt") descs.description_pt = sourceDesc || null;
+    else descs.description_pt = translationDescs.pt || null;
+    if (locale === "fr") descs.description_fr = sourceDesc || null;
+    else descs.description_fr = translationDescs.fr || null;
+    if (locale === "en") descs.description_en = sourceDesc || null;
+    else descs.description_en = translationDescs.en || null;
+    return descs;
+  };
+
   const onSubmit = async (values: ServiceFormValues) => {
     setIsSubmitting(true);
+
     const result = await updateService(service.id, {
       ...values,
-      name_pt: values.name,
-      name_fr: nameFr || null,
-      name_en: nameEn || null,
-      description_pt: values.description || null,
-      description_fr: descFr || null,
-      description_en: descEn || null,
+      ...buildLocaleNames(values.name),
+      ...buildLocaleDescs(values.description),
       price: showPrice && price ? price : null,
+      sourceLocale: locale,
     });
     setIsSubmitting(false);
     if (result.success) {
@@ -107,30 +194,68 @@ export function EditServiceDialog({
           <DialogDescription>{sv.description}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <EditServiceFields
-            form={form}
-            nameFr={nameFr}
-            nameEn={nameEn}
-            descFr={descFr}
-            descEn={descEn}
-            onNameFrChange={setNameFr}
-            onNameEnChange={setNameEn}
-            onDescFrChange={setDescFr}
-            onDescEnChange={setDescEn}
-            labels={{
-              name: sv.name,
-              nameTabPt: sv.nameTabPt,
-              nameTabFr: sv.nameTabFr,
-              nameTabEn: sv.nameTabEn,
-              nameOptional: sv.nameOptional,
-              namePlaceholder: sv.namePlaceholder,
-              descriptionField: sv.descriptionField,
-              descTabPt: (sv as unknown as Record<string, string>).descTabPt ?? "PT",
-              descTabFr: (sv as unknown as Record<string, string>).descTabFr ?? "FR",
-              descTabEn: (sv as unknown as Record<string, string>).descTabEn ?? "EN",
-              descriptionPlaceholder: sv.descriptionPlaceholder,
-            }}
-          />
+          {/* Name field */}
+          <div className="space-y-2">
+            <Label htmlFor="edit_name">{sv.name}</Label>
+            <Input
+              id="edit_name"
+              placeholder={sv.namePlaceholder}
+              {...form.register("name")}
+            />
+            {form.formState.errors.name && (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.name.message}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">{sv.autoTranslated}</p>
+          </div>
+
+          {/* Description field */}
+          <div className="space-y-2">
+            <Label htmlFor="edit_description">{sv.descriptionField}</Label>
+            <Textarea
+              id="edit_description"
+              placeholder={sv.descriptionPlaceholder}
+              rows={3}
+              {...form.register("description")}
+            />
+          </div>
+
+          {/* Translation toggle */}
+          <button
+            type="button"
+            className="text-sm text-primary underline-offset-4 hover:underline"
+            onClick={() => setShowTranslations((prev) => !prev)}
+          >
+            {showTranslations ? sv.hideTranslations : sv.editTranslations}
+          </button>
+
+          {/* Translation override fields */}
+          {showTranslations && (
+            <div className="space-y-3 rounded-md border p-3">
+              {otherLocales.map((l) => (
+                <div key={l} className="space-y-2">
+                  <Label htmlFor={`edit_name_${l}`}>
+                    {sv[LOCALE_LABEL_KEY[l]]}
+                  </Label>
+                  <Input
+                    id={`edit_name_${l}`}
+                    placeholder={sv.namePlaceholder}
+                    value={translationNames[l]}
+                    onChange={(e) => setTranslationName(l, e.target.value)}
+                  />
+                  <Textarea
+                    id={`edit_desc_${l}`}
+                    placeholder={sv.descriptionPlaceholder}
+                    rows={2}
+                    value={translationDescs[l]}
+                    onChange={(e) => setTranslationDesc(l, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="edit_duration">{sv.duration}</Label>
             <Input

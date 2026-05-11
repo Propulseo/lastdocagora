@@ -11,14 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
 
 interface ServiceDraft {
   id: string;
   name: string;
-  name_fr: string;
-  name_en: string;
   description: string;
   duration_minutes: number;
   price: number;
@@ -37,10 +34,7 @@ interface ServiceFormFieldsProps {
     serviceDuration: string;
     servicePrice: string;
     servicePricePlaceholder: string;
-    nameTabPt: string;
-    nameTabFr: string;
-    nameTabEn: string;
-    nameOptional: string;
+    autoTranslatedHint?: string;
   };
 }
 
@@ -58,34 +52,14 @@ export function ServiceFormFields({
       <CardContent className="space-y-3 pt-4">
         <div className="space-y-1">
           <Label className="text-xs">{labels.serviceName} *</Label>
-          <Tabs defaultValue="pt" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="pt" className="flex-1">{labels.nameTabPt}</TabsTrigger>
-              <TabsTrigger value="fr" className="flex-1">{labels.nameTabFr} <span className="ml-1 text-xs text-muted-foreground">{labels.nameOptional}</span></TabsTrigger>
-              <TabsTrigger value="en" className="flex-1">{labels.nameTabEn} <span className="ml-1 text-xs text-muted-foreground">{labels.nameOptional}</span></TabsTrigger>
-            </TabsList>
-            <TabsContent value="pt">
-              <Input
-                value={draft.name}
-                onChange={(e) => onUpdate(draft.id, "name", e.target.value)}
-                placeholder={labels.serviceNamePlaceholder}
-              />
-            </TabsContent>
-            <TabsContent value="fr">
-              <Input
-                value={draft.name_fr}
-                onChange={(e) => onUpdate(draft.id, "name_fr", e.target.value)}
-                placeholder={labels.serviceNamePlaceholder}
-              />
-            </TabsContent>
-            <TabsContent value="en">
-              <Input
-                value={draft.name_en}
-                onChange={(e) => onUpdate(draft.id, "name_en", e.target.value)}
-                placeholder={labels.serviceNamePlaceholder}
-              />
-            </TabsContent>
-          </Tabs>
+          <Input
+            value={draft.name}
+            onChange={(e) => onUpdate(draft.id, "name", e.target.value)}
+            placeholder={labels.serviceNamePlaceholder}
+          />
+          {labels.autoTranslatedHint && (
+            <p className="text-xs text-muted-foreground">{labels.autoTranslatedHint}</p>
+          )}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
