@@ -52,6 +52,9 @@
   "descTabPt": "Português",
   "descTabFr": "Français",
   "descTabEn": "English",
+  "autoTranslated": "Traduções geradas automaticamente",
+  "editTranslations": "Editar traduções manualmente",
+  "hideTranslations": "Ocultar traduções",
   "consultationType": {
     "in-person": "Presencial"
   },

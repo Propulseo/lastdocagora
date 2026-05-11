@@ -52,6 +52,9 @@
   "descTabPt": "Português",
   "descTabFr": "Français",
   "descTabEn": "English",
+  "autoTranslated": "Traductions générées automatiquement",
+  "editTranslations": "Modifier les traductions manuellement",
+  "hideTranslations": "Masquer les traductions",
   "consultationType": {
     "in-person": "En cabinet"
   },
